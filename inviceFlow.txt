@@ -1,0 +1,742 @@
+1. MVP microservices
+
+Start with these 5:
+
+1) Identity Service
+
+Responsible for authentication and authorization.
+
+Owns:
+
+users
+roles
+refresh tokens
+company membership
+
+Main jobs:
+
+register/login
+JWT issuing
+permission checks
+user profile
+2) Customer Service
+
+Responsible for customer/company client data.
+
+Owns:
+
+customers
+contacts
+billing addresses
+tax ids
+payment terms
+
+Main jobs:
+
+CRUD for customers
+customer search
+customer default payment terms
+3) Invoice Service
+
+Your main business service.
+
+Owns:
+
+invoices
+invoice lines
+invoice status history
+
+Main jobs:
+
+create draft invoice
+add/remove lines
+calculate totals
+issue invoice
+track invoice lifecycle
+react to payment events
+4) Payment Service
+
+Responsible for payment records and allocations.
+
+Owns:
+
+payments
+payment allocations
+external transaction references
+
+Main jobs:
+
+record payment
+allocate payment to invoice
+support partial payments
+publish payment events
+5) Notification Service
+
+Responsible for outbound notifications.
+
+Owns:
+
+notification templates
+notification logs
+delivery attempts
+
+Main jobs:
+
+email reminders
+payment confirmations
+invoice issued alerts
+overdue alerts
+2. Optional later services
+
+Do these only after MVP works.
+
+Reminder/Scheduler Service
+
+Background service that checks due dates and emits reminder events.
+
+Reporting Service
+
+Consumes events and builds read models for dashboards.
+
+API Gateway / BFF
+
+Useful later if you want one frontend entry point.
+
+3. High-level architecture
+[Client / Frontend]
+        |
+        v
+   [API Gateway]  optional at first
+        |
+        +------------------------------+
+        |              |               |
+        v              v               v
+ [Identity API]   [Customer API]   [Invoice API]
+                                     |
+                                     v
+                               [RabbitMQ Bus]
+                                 /    |    \
+                                v     v     v
+                         [Payment] [Notify] [Reporting later]
+
+Each service:
+- own ASP.NET Core API
+- own EF Core DbContext
+- own SQL schema/database
+- MassTransit consumers/publishers
+4. Service boundaries
+Identity Service
+Database tables
+Users
+Roles
+UserRoles
+RefreshTokens
+Companies
+CompanyUsers
+API endpoints
+POST /auth/register
+POST /auth/login
+POST /auth/refresh
+GET /users/me
+GET /users/{id}
+Published events
+UserRegistered
+UserActivated
+Notes
+
+Keep this service boring. Don’t mix invoice logic here.
+
+Customer Service
+Database tables
+Customers
+CustomerContacts
+CustomerAddresses
+CustomerPaymentTerms
+API endpoints
+POST /customers
+GET /customers/{id}
+GET /customers
+PUT /customers/{id}
+DELETE /customers/{id}
+Published events
+CustomerCreated
+CustomerUpdated
+CustomerDeleted
+Notes
+
+Invoice service should store only a snapshot/reference of important customer info, not depend on live customer data for historical invoices.
+
+Invoice Service
+Database tables
+Invoices
+InvoiceLines
+InvoiceStatusHistory
+InvoicePaymentSummary or fields on Invoices
+OutboxMessages
+Invoice fields
+Id
+Number
+CompanyId
+CustomerId
+CustomerNameSnapshot
+CustomerEmailSnapshot
+Currency
+IssueDate
+DueDate
+Status
+Subtotal
+TaxAmount
+DiscountAmount
+Total
+PaidAmount
+RemainingAmount
+Version
+Invoice statuses
+Draft
+Issued
+PartiallyPaid
+Paid
+Overdue
+Cancelled
+API endpoints
+POST /invoices
+GET /invoices/{id}
+GET /invoices
+POST /invoices/{id}/lines
+DELETE /invoices/{id}/lines/{lineId}
+POST /invoices/{id}/issue
+POST /invoices/{id}/cancel
+Published events
+InvoiceCreated
+InvoiceIssued
+InvoiceCancelled
+InvoiceMarkedOverdue
+InvoicePaid
+InvoicePartiallyPaid
+Consumed events
+PaymentRecorded
+PaymentAllocationRecorded
+PaymentRefunded later
+Notes
+
+This is your core aggregate service. It should own invoice rules.
+
+Payment Service
+Database tables
+Payments
+PaymentAllocations
+PaymentStatusHistory
+OutboxMessages
+Payment fields
+Id
+CompanyId
+CustomerId
+InvoiceId
+Amount
+Currency
+Method
+ExternalReference
+ReceivedAt
+Status
+API endpoints
+POST /payments
+GET /payments/{id}
+GET /payments
+POST /payments/{id}/allocate
+POST /payments/{id}/reverse later
+Published events
+PaymentRecorded
+PaymentAllocated
+PaymentReversed
+Notes
+
+Keep payment immutable where possible. Prefer status changes and adjustment records over destructive edits.
+
+Notification Service
+Database tables
+NotificationTemplates
+NotificationLogs
+DeliveryAttempts
+API endpoints
+
+Usually internal only, but maybe:
+
+GET /notifications/logs
+POST /notifications/test-email
+Consumed events
+InvoiceIssued
+InvoiceMarkedOverdue
+InvoicePaid
+PaymentRecorded
+InvoiceDueSoon
+Published events
+NotificationSent
+NotificationFailed
+Notes
+
+Perfect place to learn consumers, retries, dead-letter handling, and idempotency.
+
+5. Communication style
+
+Use this rule:
+
+Synchronous
+
+Use HTTP for:
+
+querying customer details while creating invoice
+auth/login/token validation
+simple direct reads
+Asynchronous
+
+Use RabbitMQ + MassTransit for:
+
+invoice issued
+payment recorded
+overdue reminders
+notification dispatch
+reporting projections
+
+That keeps your design realistic.
+
+6. Event contracts
+
+Keep events small and explicit.
+
+InvoiceIssued
+{
+  "invoiceId": "guid",
+  "invoiceNumber": "INV-2026-0001",
+  "companyId": "guid",
+  "customerId": "guid",
+  "customerEmail": "customer@example.com",
+  "total": 1200.00,
+  "currency": "EUR",
+  "issuedAt": "2026-04-11T10:00:00Z",
+  "dueDate": "2026-04-25"
+}
+PaymentRecorded
+{
+  "paymentId": "guid",
+  "invoiceId": "guid",
+  "companyId": "guid",
+  "customerId": "guid",
+  "amount": 500.00,
+  "currency": "EUR",
+  "receivedAt": "2026-04-11T12:30:00Z",
+  "method": "BankTransfer"
+}
+InvoicePaid
+{
+  "invoiceId": "guid",
+  "invoiceNumber": "INV-2026-0001",
+  "companyId": "guid",
+  "customerId": "guid",
+  "paidAmount": 1200.00,
+  "paidAt": "2026-04-11T12:31:00Z"
+}
+7. End-to-end flow
+Flow A: Create and issue invoice
+Client calls POST /invoices
+Invoice Service creates draft
+Client adds lines
+Client calls POST /invoices/{id}/issue
+Invoice Service validates:
+has customer
+has at least one line
+totals valid
+Invoice status becomes Issued
+Invoice Service publishes InvoiceIssued
+Notification Service consumes it and sends email
+Reporting Service later updates dashboard
+Flow B: Record payment
+Client calls POST /payments
+Payment Service stores payment
+Payment Service publishes PaymentRecorded
+Invoice Service consumes event
+Invoice Service updates:
+PaidAmount += amount
+recompute RemainingAmount
+status => PartiallyPaid or Paid
+Invoice Service publishes:
+InvoicePartiallyPaid or InvoicePaid
+Notification Service sends confirmation
+
+This teaches eventual consistency nicely.
+
+8. Recommended ownership rules
+
+Use these rules from day one:
+
+Each service owns its own DB
+
+No cross-service table access.
+
+Never join across databases
+
+If Invoice needs Customer info:
+
+fetch via API
+copy a snapshot into invoice
+Historical snapshots matter
+
+Invoices should preserve customer name/email/address at issue time.
+
+Events are facts
+
+Events should describe something that happened, not a command disguised as an event.
+
+Good:
+
+InvoiceIssued
+PaymentRecorded
+
+Bad:
+
+SendInvoiceEmailNow
+9. Database strategy
+
+For learning, easiest is:
+
+one SQL Server instance
+separate database per service, or at least separate schemas
+
+Example:
+
+InvoiceFlow.IdentityDb
+InvoiceFlow.CustomerDb
+InvoiceFlow.InvoiceDb
+InvoiceFlow.PaymentDb
+InvoiceFlow.NotificationDb
+
+That is enough to respect service boundaries.
+
+10. Project structure
+
+A clean repo layout:
+
+/src
+  /BuildingBlocks
+    /Contracts
+    /Messaging
+    /Observability
+    /SharedKernel
+
+  /Services
+    /Identity
+      /InvoiceFlow.Identity.Api
+      /InvoiceFlow.Identity.Application
+      /InvoiceFlow.Identity.Domain
+      /InvoiceFlow.Identity.Infrastructure
+
+    /Customers
+      /InvoiceFlow.Customers.Api
+      /InvoiceFlow.Customers.Application
+      /InvoiceFlow.Customers.Domain
+      /InvoiceFlow.Customers.Infrastructure
+
+    /Invoices
+      /InvoiceFlow.Invoices.Api
+      /InvoiceFlow.Invoices.Application
+      /InvoiceFlow.Invoices.Domain
+      /InvoiceFlow.Invoices.Infrastructure
+
+    /Payments
+      /InvoiceFlow.Payments.Api
+      /InvoiceFlow.Payments.Application
+      /InvoiceFlow.Payments.Domain
+      /InvoiceFlow.Payments.Infrastructure
+
+    /Notifications
+      /InvoiceFlow.Notifications.Api
+      /InvoiceFlow.Notifications.Application
+      /InvoiceFlow.Notifications.Domain
+      /InvoiceFlow.Notifications.Infrastructure
+11. Suggested layer responsibilities
+Domain
+entities
+value objects
+domain rules
+domain events
+Application
+commands
+queries
+handlers
+DTOs
+interfaces
+Infrastructure
+EF Core
+message bus config
+repositories
+external email provider
+auth providers
+API
+controllers/endpoints
+auth middleware
+DI wiring
+health checks
+12. Core aggregates
+Invoice aggregate
+
+Contains:
+
+invoice header
+invoice lines
+totals
+status transitions
+
+Methods:
+
+AddLine(...)
+RemoveLine(...)
+Issue()
+Cancel()
+ApplyPayment(amount)
+
+Rules:
+
+cannot issue without lines
+cannot edit issued invoice freely
+cannot pay cancelled invoice
+Payment aggregate
+
+Contains:
+
+payment header
+status
+allocations
+
+Methods:
+
+Record(...)
+Allocate(invoiceId, amount)
+Reverse(...)
+
+Rules:
+
+amount must be positive
+allocation cannot exceed payment amount
+currency must match invoice currency
+13. MassTransit/RabbitMQ patterns to practice
+
+Use these features early:
+
+Publish/Consume events
+
+Basic event-driven communication.
+
+Retry policies
+
+For transient failures in Notification Service.
+
+Idempotent consumers
+
+So duplicate delivery does not double-apply payment.
+
+Outbox pattern
+
+Very important.
+When Invoice Service changes DB and publishes event, use an outbox so DB write and event publication stay consistent.
+
+Correlation IDs
+
+Track one request across services.
+
+14. Example queues/exchanges idea
+
+You do not need to overcomplicate RabbitMQ naming.
+
+Example consumers:
+
+invoice-issued-notification
+payment-recorded-invoice-update
+invoice-paid-notification
+
+Let MassTransit handle a lot of the topology.
+
+15. Security/auth sketch
+
+Use:
+
+JWT bearer auth
+roles/claims
+
+Example roles:
+
+Admin
+Accountant
+Viewer
+
+Example permissions:
+
+customers.read
+customers.write
+invoices.read
+invoices.write
+payments.write
+
+At first, role-based is enough.
+
+16. Minimal APIs vs Controllers
+
+For learning:
+
+use Controllers if you want more explicit structure
+use Minimal APIs if you want speed
+
+For a portfolio project like this, Controllers are fine and clearer.
+
+17. First MVP features
+
+Build only this first:
+
+Customers
+create customer
+list customers
+Invoices
+create draft
+add lines
+issue invoice
+list invoices
+view invoice status
+Payments
+record payment
+link to invoice
+update invoice status asynchronously
+Notifications
+send invoice issued email
+send payment received email
+
+That is already a very strong backend project.
+
+18. Features for v2
+
+After MVP:
+
+overdue scheduler
+reminder emails
+PDF generation
+recurring invoices
+webhook callbacks
+audit log
+reporting dashboard
+multi-tenant company isolation
+OpenTelemetry tracing
+API gateway
+19. Things I would simplify
+
+To avoid getting stuck:
+
+Don’t start with full CQRS everywhere
+
+Simple command/query separation is enough.
+
+Don’t start with saga orchestration
+
+Choreography through events is enough.
+
+Don’t start with distributed transactions
+
+Use eventual consistency.
+
+Don’t build a separate product catalog service
+
+Invoice lines can be free text first.
+
+20. Concrete starter order
+
+Best implementation order:
+
+Phase 1
+Identity Service
+Customer Service
+Invoice Service
+SQL + EF Core migrations
+Phase 2
+Payment Service
+PaymentRecorded event
+Invoice payment consumer
+Phase 3
+Notification Service
+email on InvoiceIssued and InvoicePaid
+Phase 4
+outbox pattern
+retry policies
+idempotency
+structured logging
+21. One clean example of status transition
+Draft
+  -> Issued
+  -> Cancelled
+
+Issued
+  -> PartiallyPaid
+  -> Paid
+  -> Overdue
+  -> Cancelled (maybe only if no payment)
+
+PartiallyPaid
+  -> Paid
+  -> Overdue
+
+Overdue
+  -> PartiallyPaid
+  -> Paid
+
+Keep transitions explicit in code.
+
+22. My honest recommendation
+
+For your exact learning goal, this is the sweet spot:
+
+Identity
+Customers
+Invoices
+Payments
+Notifications
+
+That gives you:
+
+APIs
+EF Core
+SQL modeling
+messaging
+retries
+async workflows
+eventual consistency
+service boundaries
+
+without becoming fake-enterprise nonsense.
+
+23. Suggested names for projects
+InvoiceFlow.Identity.Api
+InvoiceFlow.Customers.Api
+InvoiceFlow.Invoices.Api
+InvoiceFlow.Payments.Api
+InvoiceFlow.Notifications.Api
+
+InvoiceFlow.Contracts
+InvoiceFlow.SharedKernel
+InvoiceFlow.BuildingBlocks
+24. Very small first event map
+Invoice Service
+  publishes:
+    InvoiceIssued
+    InvoicePaid
+    InvoicePartiallyPaid
+
+Payment Service
+  publishes:
+    PaymentRecorded
+
+Notification Service
+  consumes:
+    InvoiceIssued
+    InvoicePaid
+    InvoicePartiallyPaid
+
+Invoice Service
+  consumes:
+    PaymentRecorded
+
+That alone is enough to prove the architecture.

@@ -1,0 +1,65 @@
+<Solution>
+  <Folder Name="/Aspire/">
+    <Project Path="../Aspire/InvoiceFlow.AppHost/InvoiceFlow.AppHost.csproj" Id="138a514b-ebce-4d8f-a14a-4b0da02911a1" />
+  </Folder>
+  <Folder Name="/Docs/" />
+  <Folder Name="/src/" />
+  <Folder Name="/src/Common/" />
+  <Folder Name="/src/Services/" />
+  <Folder Name="/src/Services/InvoiceFlow.Customers/">
+    <Project Path="Services/InvoiceFlow.Customers/InvoiceFlow.Customers.Api/InvoiceFlow.Customers.Api.csproj" />
+    <Project Path="Services/InvoiceFlow.Customers/InvoiceFlow.Customers.Application/InvoiceFlow.Customers.Application.csproj" Id="ff410747-3346-47f3-94ce-4993d1043f2b" />
+    <Project Path="Services/InvoiceFlow.Customers/InvoiceFlow.Customers.Domain/InvoiceFlow.Customers.Domain.csproj" Id="2833934b-c860-41c3-ac7a-3dffca2124d1" />
+    <Project Path="Services/InvoiceFlow.Customers/InvoiceFlow.Customers.Infrastructure/InvoiceFlow.Customers.Infrastructure.csproj" Id="e09e078d-677e-478e-b115-9ff2d694b576" />
+  </Folder>
+  <Folder Name="/src/Services/InvoiceFlow.Customers/Tests/">
+    <Project Path="Services/InvoiceFlow.Customers/Tests/InvoiceFlow.Customers.Api.IntegrationTests/InvoiceFlow.Customers.Api.IntegrationTests.csproj" Id="73c1f2c3-960e-4a08-b1eb-02814caf1a63" />
+    <Project Path="Services/InvoiceFlow.Customers/Tests/InvoiceFlow.Customers.Application.UnitTests/InvoiceFlow.Customers.Application.UnitTests.csproj" Id="7db2b317-bfcd-44b6-a774-c3bbb6978bb5" />
+    <Project Path="Services/InvoiceFlow.Customers/Tests/InvoiceFlow.Customers.Domain.UnitTests/InvoiceFlow.Customers.Domain.UnitTests.csproj" Id="33ea896c-1263-4e0a-aa97-041c6992c8ce" />
+  </Folder>
+  <Folder Name="/src/Services/InvoiceFlow.Identity/">
+    <Project Path="Services/InvoiceFlow.Identity/InvoiceFlow.Identity.Api/InvoiceFlow.Identity.Api.csproj" />
+    <Project Path="Services/InvoiceFlow.Identity/InvoiceFlow.Identity.Application/InvoiceFlow.Identity.Application.csproj" Id="aac3c084-cbb3-4317-9ea8-e772c43d7ec4" />
+    <Project Path="Services/InvoiceFlow.Identity/InvoiceFlow.Identity.Domain/InvoiceFlow.Identity.Domain.csproj" Id="93bdfe0f-314e-464a-9723-d132520c8384" />
+    <Project Path="Services/InvoiceFlow.Identity/InvoiceFlow.Identity.Infrastructure/InvoiceFlow.Identity.Infrastructure.csproj" Id="4cad1d23-5a42-4cf6-a5e7-1007dae5a69e" />
+  </Folder>
+  <Folder Name="/src/Services/InvoiceFlow.Identity/Tests/">
+    <Project Path="Services/InvoiceFlow.Identity/Tests/InvoiceFlow.Identity.Api.IntegrationTests/InvoiceFlow.Identity.Api.IntegrationTests.csproj" Id="cdce0e89-4acc-4caa-bb6a-b7fa7b2c0475" />
+    <Project Path="Services/InvoiceFlow.Identity/Tests/InvoiceFlow.Identity.Application.UnitTests/InvoiceFlow.Identity.Application.UnitTests.csproj" Id="054eab9b-8344-4d0a-9ed1-8d41d0207c81" />
+    <Project Path="Services/InvoiceFlow.Identity/Tests/InvoiceFlow.Identity.Domain.UnitTests/InvoiceFlow.Identity.Domain.UnitTests.csproj" Id="c53f766f-0232-44a9-b845-de725c89a067" />
+  </Folder>
+  <Folder Name="/src/Services/InvoiceFlow.Invoices/">
+    <Project Path="Services/InvoiceFlow.Invoices/InvoiceFlow.Invoices.Api/InvoiceFlow.Invoices.Api.csproj" />
+    <Project Path="Services/InvoiceFlow.Invoices/InvoiceFlow.Invoices.Application/InvoiceFlow.Invoices.Application.csproj" Id="51073d4a-d5b8-4f91-9a73-2c762b21fdf0" />
+    <Project Path="Services/InvoiceFlow.Invoices/InvoiceFlow.Invoices.Domain/InvoiceFlow.Invoices.Domain.csproj" Id="ca84ab74-e4fe-4ebf-a4c2-a4dcacf011d3" />
+    <Project Path="Services/InvoiceFlow.Invoices/InvoiceFlow.Invoices.Infrastructure/InvoiceFlow.Invoices.Infrastructure.csproj" Id="8ed97687-2ea8-4a01-862b-5018e7322a21" />
+  </Folder>
+  <Folder Name="/src/Services/InvoiceFlow.Invoices/Tests/">
+    <Project Path="Services/InvoiceFlow.Invoices/Tests/InvoiceFlow.Invoices.Api.IntegrationTests/InvoiceFlow.Invoices.Api.IntegrationTests.csproj" Id="da1e5b14-b7b5-4485-9f21-a27fac404c1f" />
+    <Project Path="Services/InvoiceFlow.Invoices/Tests/InvoiceFlow.Invoices.Application.UnitTests/InvoiceFlow.Invoices.Application.UnitTests.csproj" Id="8410fdff-4e8b-4873-835c-6bdde57e4bac" />
+    <Project Path="Services/InvoiceFlow.Invoices/Tests/InvoiceFlow.Invoices.Domain.UnitTests/InvoiceFlow.Invoices.Domain.UnitTests.csproj" Id="9a810265-69c0-4842-bcdb-e4634465c5fa" />
+  </Folder>
+  <Folder Name="/src/Services/InvoiceFlow.Notifications/">
+    <Project Path="Services/InvoiceFlow.Notifications/InvoiceFlow.Notifications.Domain/InvoiceFlow.Notifications.Domain.csproj" Id="10a93a09-9f5b-44fd-859c-246c2ada7271" />
+  </Folder>
+  <Folder Name="/src/Services/InvoiceFlow.Notifications/Tests/" />
+  <Folder Name="/src/Services/InvoiceFlow.Payments/">
+    <Project Path="Services/InvoiceFlow.Payments/InvoiceFlow.Payments.Api/InvoiceFlow.Payments.Api.csproj" />
+    <Project Path="Services/InvoiceFlow.Payments/InvoiceFlow.Payments.Application/InvoiceFlow.Payments.Application.csproj" Id="33bc518d-463f-4fbd-914c-18075dabab7c" />
+    <Project Path="Services/InvoiceFlow.Payments/InvoiceFlow.Payments.Domain/InvoiceFlow.Payments.Domain.csproj" Id="1aa654ee-88af-4f40-a07e-834b4c5d93ac" />
+    <Project Path="Services/InvoiceFlow.Payments/InvoiceFlow.Payments.Infrastructure/InvoiceFlow.Payments.Infrastructure.csproj" Id="ca0abc6f-ac12-435c-b05f-4a23313fcf2d" />
+  </Folder>
+  <Folder Name="/src/Services/InvoiceFlow.Payments/Tests/">
+    <Project Path="Services/InvoiceFlow.Payments/Tests/InvoiceFlow.Payments.Api.IntegrationTests/InvoiceFlow.Payments.Api.IntegrationTests.csproj" Id="3772695a-8346-40f8-88df-07c9f30e0a1d" />
+    <Project Path="Services/InvoiceFlow.Payments/Tests/InvoiceFlow.Payments.Application.UnitTests/InvoiceFlow.Payments.Application.UnitTests.csproj" Id="e4f35211-e34b-41fe-a1f3-ef61d1fbded1" />
+    <Project Path="Services/InvoiceFlow.Payments/Tests/InvoiceFlow.Payments.Domain.UnitTests/InvoiceFlow.Payments.Domain.UnitTests.csproj" Id="2575fb26-51b4-4c92-9930-a93260b7e450" />
+  </Folder>
+  <Folder Name="/src/Services/InvoiceFlow.Reminder/">
+    <Project Path="Services/InvoiceFlow.Reminder/InvoiceFlow.Reminder.Domain/InvoiceFlow.Reminder.Domain.csproj" Id="2e389c41-2789-4173-9841-7f9f05b43e7d" />
+  </Folder>
+  <Folder Name="/src/Services/InvoiceFlow.Reminder/Tests/" />
+  <Folder Name="/src/Services/InvoiceFlow.Reports/">
+    <Project Path="Services/InvoiceFlow.Reports/InvoiceFlow.Reports.Domain/InvoiceFlow.Reports.Domain.csproj" Id="79a2d4ed-e938-43de-9a2d-9b83a1a8a3e0" />
+  </Folder>
+  <Folder Name="/src/Services/InvoiceFlow.Reports/Tests/" />
+</Solution>
