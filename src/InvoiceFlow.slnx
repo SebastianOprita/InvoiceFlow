@@ -4,7 +4,9 @@
   </Folder>
   <Folder Name="/Docs/" />
   <Folder Name="/src/" />
-  <Folder Name="/src/Common/" />
+  <Folder Name="/src/Common/">
+    <Project Path="Common/InvoiceFlow.Common.Domain/InvoiceFlow.Common.Domain.csproj" Id="fc01c626-ed6b-4729-801c-60c8d2dde634" />
+  </Folder>
   <Folder Name="/src/Services/" />
   <Folder Name="/src/Services/InvoiceFlow.Customers/">
     <Project Path="Services/InvoiceFlow.Customers/InvoiceFlow.Customers.Api/InvoiceFlow.Customers.Api.csproj" />
