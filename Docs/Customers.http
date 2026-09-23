@@ -1,0 +1,76 @@
+
+GET https://localhost:5002/api/f305e3f0-e634-470b-b9c1-cc0c7559dc0a/customers
+Content-Type: application/json
+
+###
+GET https://localhost:5002/api/f305e3f0-e634-470b-b9c1-cc0c7559dc0a/customers/01a0cae9-2e61-7b82-924b-5beaf5b08d4a
+Content-Type: application/json
+###
+GET https://localhost:5002/api/f305e3f0-e634-470b-b9c1-cc0c7559dc0a/customers/01a0cae9-2e6a-7ef2-a48c-88c69fd80eb8
+Content-Type: application/json
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+###
+@rootUrl=https://localhost:5002/api/f305e3f0-e634-470b-b9c1-cc0c7559dc0a/customers
+
+# @name login
+POST https://localhost:5001/api/f305e3f0-e634-470b-b9c1-cc0c7559dc0a/auth/login
+Content-Type: application/json
+{
+  "email": "admin@email.com",
+  "password": "admin"
+}
+
+###
+
+GET {{rootUrl}}
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+###
+
+POST {{rootUrl}}
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+{
+  "name":"Customer1",
+  "customerCode":"001",
+  "customerContact":
+  {
+    "email":"customer1@email.com",
+    "phone":"00767057577"
+  },
+  "customerTaxDetails":
+  {
+    "registrationNumber":"RO16109528",
+    "taxNumber": "RO16109528"
+  },
+  "customerAddress":
+  {
+    "addressLine1":"Strada Mihai Eminescu",
+    "addressLine2":"Numarul 2",
+    "city":"Bucharest",
+    "state":"Bucharest",
+    "country":"Romania",
+    "postalCode":"010000"
+  },
+  "currencyCode":"RON",
+  "customerCreditPolicy":
+  {
+    "creditLimit":1200,
+    "paymentTermDays":30
+  }
+}

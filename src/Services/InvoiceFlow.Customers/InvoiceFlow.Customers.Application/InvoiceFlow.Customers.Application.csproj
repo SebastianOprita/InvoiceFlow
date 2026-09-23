@@ -6,4 +6,13 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Common\InvoiceFlow.Common.Application\InvoiceFlow.Common.Application.csproj" />
+    <ProjectReference Include="..\InvoiceFlow.Customers.Domain\InvoiceFlow.Customers.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Features\Customers\Commands\" />
+  </ItemGroup>
+
 </Project>
