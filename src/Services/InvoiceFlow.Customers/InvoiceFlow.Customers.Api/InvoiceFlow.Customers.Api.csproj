@@ -1,13 +1,20 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
-  <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.12" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.12" />
+		<!-- <PackageReference Include="Microsoft.OpenApi" Version="3.10.2" /> -->
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\..\Common\InvoiceFlow.Common.Api\InvoiceFlow.Common.Api.csproj" />
+	  <ProjectReference Include="..\InvoiceFlow.Customers.Application\InvoiceFlow.Customers.Application.csproj" />
+	  <ProjectReference Include="..\InvoiceFlow.Customers.Infrastructure\InvoiceFlow.Customers.Infrastructure.csproj" />
+	</ItemGroup>
 
 </Project>

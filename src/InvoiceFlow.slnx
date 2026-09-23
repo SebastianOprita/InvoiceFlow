@@ -2,10 +2,15 @@
   <Folder Name="/Aspire/">
     <Project Path="../Aspire/InvoiceFlow.AppHost/InvoiceFlow.AppHost.csproj" Id="138a514b-ebce-4d8f-a14a-4b0da02911a1" />
   </Folder>
-  <Folder Name="/Docs/" />
+  <Folder Name="/Docs/">
+    <File Path="../Docs/Customers.http" />
+  </Folder>
   <Folder Name="/src/" />
   <Folder Name="/src/Common/">
+    <Project Path="Common/InvoiceFlow.Common.Api/InvoiceFlow.Common.Api.csproj" Id="3957b038-14d6-4530-b894-1ea19abf2a2a" />
+    <Project Path="Common/InvoiceFlow.Common.Application/InvoiceFlow.Common.Application.csproj" Id="f623fb26-6ceb-4156-8914-e1a75d1deffe" />
     <Project Path="Common/InvoiceFlow.Common.Domain/InvoiceFlow.Common.Domain.csproj" Id="fc01c626-ed6b-4729-801c-60c8d2dde634" />
+    <Project Path="Common/InvoiceFlow.Common.Infrastructure/InvoiceFlow.Common.Infrastructure.csproj" Id="34f20c66-7cb5-481a-8880-0ab7b8a32d7f" />
   </Folder>
   <Folder Name="/src/Services/" />
   <Folder Name="/src/Services/InvoiceFlow.Customers/">
