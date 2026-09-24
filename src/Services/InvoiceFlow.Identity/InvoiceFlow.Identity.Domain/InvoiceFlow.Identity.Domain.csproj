@@ -6,4 +6,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\InvoiceFlow.BuildingBlocks.Authorization\InvoiceFlow.BuildingBlocks.Authorization.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\InvoiceFlow.BuildingBlocks.Domain\InvoiceFlow.BuildingBlocks.Domain.csproj" />
+  </ItemGroup>
+
 </Project>

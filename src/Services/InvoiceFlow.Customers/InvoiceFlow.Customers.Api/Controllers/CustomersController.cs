@@ -1,4 +1,4 @@
-﻿using InvoiceFlow.Common.Api;
+﻿using InvoiceFlow.BuildingBlocks.Api;
 using InvoiceFlow.Customers.Application;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;

@@ -1,5 +1,4 @@
-﻿using InvoiceFlow.Common.Application;
-using InvoiceFlow.Customers.Application;
+﻿using InvoiceFlow.Customers.Application;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;

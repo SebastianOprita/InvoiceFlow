@@ -12,7 +12,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\..\Common\InvoiceFlow.Common.Api\InvoiceFlow.Common.Api.csproj" />
+	  <ProjectReference Include="..\..\..\BuildingBlocks\InvoiceFlow.BuildingBlocks.Api\InvoiceFlow.BuildingBlocks.Api.csproj" />
 	  <ProjectReference Include="..\InvoiceFlow.Customers.Application\InvoiceFlow.Customers.Application.csproj" />
 	  <ProjectReference Include="..\InvoiceFlow.Customers.Infrastructure\InvoiceFlow.Customers.Infrastructure.csproj" />
 	</ItemGroup>
