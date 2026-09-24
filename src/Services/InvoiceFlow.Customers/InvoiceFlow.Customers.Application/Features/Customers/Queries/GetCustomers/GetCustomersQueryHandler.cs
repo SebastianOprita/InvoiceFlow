@@ -1,4 +1,4 @@
-﻿using InvoiceFlow.Common.Application;
+﻿using InvoiceFlow.BuildingBlocks.Application;
 using MediatR;
 
 namespace InvoiceFlow.Customers.Application;

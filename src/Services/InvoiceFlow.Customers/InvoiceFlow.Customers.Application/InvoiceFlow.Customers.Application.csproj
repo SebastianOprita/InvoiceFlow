@@ -7,12 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Common\InvoiceFlow.Common.Application\InvoiceFlow.Common.Application.csproj" />
-    <ProjectReference Include="..\InvoiceFlow.Customers.Domain\InvoiceFlow.Customers.Domain.csproj" />
+    <PackageReference Include="FluentValidation" Version="12.1.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Features\Customers\Commands\" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\InvoiceFlow.BuildingBlocks.Application\InvoiceFlow.BuildingBlocks.Application.csproj" />
+    <ProjectReference Include="..\InvoiceFlow.Customers.Domain\InvoiceFlow.Customers.Domain.csproj" />
   </ItemGroup>
 
 </Project>

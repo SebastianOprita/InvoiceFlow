@@ -1,4 +1,4 @@
-﻿using InvoiceFlow.Common.Domain;
+﻿using InvoiceFlow.BuildingBlocks.Domain;
 using System.Globalization;
 
 namespace InvoiceFlow.Customers.Domain;

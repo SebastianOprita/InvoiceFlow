@@ -1,4 +1,5 @@
-﻿using InvoiceFlow.Common.Application;
+﻿using InvoiceFlow.BuildingBlocks.Application;
+using InvoiceFlow.Customers.Application;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -28,8 +29,8 @@ public class UnitOfWork : IUnitOfWork
         {
             _logger.LogWarning(ex, "Concurrency conflict while saving changes.");
 
-            return Result.Failure(new Error(
-                ErrorType.Conflict,
+            return Result.Failure(new ApplicationError(
+                ApplicationErrorType.Conflict,
                 "persistence.concurrency_conflict",
                 "The data was modified by another process."));
         }
@@ -37,8 +38,8 @@ public class UnitOfWork : IUnitOfWork
         {
             _logger.LogError(ex, "Database error while saving changes.");
 
-            return Result.Failure(new Error(
-                ErrorType.Internal,
+            return Result.Failure(new ApplicationError(
+                ApplicationErrorType.Internal,
                 "persistence.save_failed",
                 "A database error occurred while saving changes."));
         }

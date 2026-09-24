@@ -1,4 +1,4 @@
-﻿using InvoiceFlow.Common.Application;
+﻿using InvoiceFlow.BuildingBlocks.Application;
 using InvoiceFlow.Customers.Domain;
 using InvoiceFlow.Customers.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
