@@ -1,4 +1,4 @@
-﻿namespace InvoiceFlow.BuildingBlocks.Authorization;
+﻿namespace InvoiceFlow.BuildingBlocks.Authorization.Permissions;
 
 [Flags]
 public enum SystemPermission : long
@@ -27,16 +27,4 @@ public enum SystemPermission : long
     // Payments
     PaymentView = 1 << 11,
     PaymentCreate = 1 << 12,
-}
-
-public static class SystemPermissionExtensions
-{
-    public static readonly SystemPermission AllValidPermissions = Enum
-        .GetValues<SystemPermission>()
-        .Aggregate(SystemPermission.None, (acc, v) => acc | v);
-
-    public static bool IsValid(this SystemPermission systemPermission)
-    {
-        return (systemPermission & ~AllValidPermissions) == 0;
-    }
 }

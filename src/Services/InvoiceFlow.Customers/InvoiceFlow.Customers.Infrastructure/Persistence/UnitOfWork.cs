@@ -29,19 +29,13 @@ public class UnitOfWork : IUnitOfWork
         {
             _logger.LogWarning(ex, "Concurrency conflict while saving changes.");
 
-            return Result.Failure(new ApplicationError(
-                ApplicationErrorType.Conflict,
-                "persistence.concurrency_conflict",
-                "The data was modified by another process."));
+            return Result.Failure(ApplicationErrors.ConcurencyConflict);
         }
         catch (DbUpdateException ex)
         {
             _logger.LogError(ex, "Database error while saving changes.");
 
-            return Result.Failure(new ApplicationError(
-                ApplicationErrorType.Internal,
-                "persistence.save_failed",
-                "A database error occurred while saving changes."));
+            return Result.Failure(ApplicationErrors.DbSaveFailed);
         }
         catch (OperationCanceledException)
         {

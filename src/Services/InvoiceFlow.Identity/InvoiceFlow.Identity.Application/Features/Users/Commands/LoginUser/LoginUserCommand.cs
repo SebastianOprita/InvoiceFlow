@@ -9,4 +9,4 @@ public record LoginUserCommand(
     string Password,
     string? DeviceInfo,
     string? IpAddress)
-    : IRequest<Result<LoginUserCommandResponse>>, ITenantScopedCommand;
+    : IRequest<Result<LoginUserCommandResponse>>, ITenantScopedRequest;

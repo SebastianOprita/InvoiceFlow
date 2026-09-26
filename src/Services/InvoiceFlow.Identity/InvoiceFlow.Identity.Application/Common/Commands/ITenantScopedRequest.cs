@@ -1,6 +1,6 @@
 ﻿namespace InvoiceFlow.Identity.Application;
 
-public interface ITenantScopedCommand
+public interface ITenantScopedRequest
 {
     Guid TenantId { get; }
 }

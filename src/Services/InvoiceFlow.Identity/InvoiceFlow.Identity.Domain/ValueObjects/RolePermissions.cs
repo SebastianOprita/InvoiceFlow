@@ -1,4 +1,4 @@
-﻿using InvoiceFlow.BuildingBlocks.Authorization;
+﻿using InvoiceFlow.BuildingBlocks.Authorization.Permissions;
 using InvoiceFlow.BuildingBlocks.Domain;
 
 namespace InvoiceFlow.Identity.Domain;

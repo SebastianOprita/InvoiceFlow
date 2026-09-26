@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using InvoiceFlow.BuildingBlocks.Authorization.Permissions;
 using InvoiceFlow.Customers.Api.IntegrationTests.BaseTests;
 using InvoiceFlow.Customers.Application;
 using System.Net;
@@ -14,6 +15,7 @@ public sealed class CustomersApiTests : IAsyncLifetime
     private readonly TestClient _client;
     private readonly Guid _tenantId;
     private readonly string _baseUrl;
+    private readonly string _customerAccessToken;
 
     public CustomersApiTests(CustomersApiFactory factory)
     {
@@ -21,6 +23,12 @@ public sealed class CustomersApiTests : IAsyncLifetime
         _client = new TestClient(factory);
         _tenantId = Guid.CreateVersion7();
         _baseUrl = $"/api/{_tenantId}/customers/";
+        _customerAccessToken = TestJwtTokenFactory.CreateAccessToken(
+            _tenantId,
+            SystemPermission.CustomerView |
+            SystemPermission.CustomerCreate |
+            SystemPermission.CustomerUpdate |
+            SystemPermission.CustomerDelete);
     }
 
     public async ValueTask InitializeAsync()
@@ -37,7 +45,7 @@ public sealed class CustomersApiTests : IAsyncLifetime
     [Fact]
     public async Task GetAll_Should_ReturnOk()
     {
-        var response = await _client.SendAsync(HttpMethod.Get, _baseUrl);
+        var response = await _client.SendAsync(HttpMethod.Get, _baseUrl, _customerAccessToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
@@ -46,11 +54,11 @@ public sealed class CustomersApiTests : IAsyncLifetime
     public async Task GetById_WhenCustomerExists_Should_ReturnOk()
     {
         // Arrange
-        string customerCode = "Test1", registrationNumber = "Test1", taxNumber = "Test1";
+        string customerCode = "TestCustomer", registrationNumber = "TestCustomer", taxNumber = "TestCustomer";
         var customerId = await _factory.InsertCustomerAsync(_tenantId, customerCode, registrationNumber, taxNumber);
 
         // Act
-        var response = await _client.SendAsync(HttpMethod.Get, _baseUrl + customerId);
+        var response = await _client.SendAsync(HttpMethod.Get, _baseUrl + customerId, _customerAccessToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -70,7 +78,7 @@ public sealed class CustomersApiTests : IAsyncLifetime
     public async Task GetById_WhenCustomerDoesNotExist_Should_ReturnNotFound()
     {
         // Act
-        var response = await _client.SendAsync(HttpMethod.Get, _baseUrl + Guid.CreateVersion7());
+        var response = await _client.SendAsync(HttpMethod.Get, _baseUrl + Guid.CreateVersion7(), _customerAccessToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);

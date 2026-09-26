@@ -1,4 +1,4 @@
-﻿using InvoiceFlow.BuildingBlocks.Authorization;
+﻿using InvoiceFlow.BuildingBlocks.Authorization.Permissions;
 
 namespace InvoiceFlow.Identity.Application;
 
