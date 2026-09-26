@@ -17,6 +17,8 @@ public static class ConfigureServices
             cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
         });
 
+        builder.Services.AddScoped(typeof(TenantValidationBehavior<,>));
+
         builder.Services.AddValidatorsFromAssembly(typeof(ConfigureServices).Assembly);
 
         builder.Services.AddHttpContextAccessor();

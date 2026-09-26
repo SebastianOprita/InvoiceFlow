@@ -13,16 +13,8 @@
 
   <ItemGroup>
     <Folder Include="Features\PlatformUsers\Commands\" />
-    <Folder Include="Features\PlatformUsers\DTOs\" />
-    <Folder Include="Features\PlatformUsers\Queries\" />
     <Folder Include="Features\Roles\Commands\" />
-    <Folder Include="Features\Roles\DTOs\" />
-    <Folder Include="Features\Roles\Queries\" />
     <Folder Include="Features\Tenants\Commands\" />
-    <Folder Include="Features\Tenants\DTOs\" />
-    <Folder Include="Features\Tenants\Queries\" />
-    <Folder Include="Features\Users\DTOs\" />
-    <Folder Include="Features\Users\Queries\" />
   </ItemGroup>
 
 </Project>

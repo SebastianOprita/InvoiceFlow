@@ -1,3 +1,5 @@
+using InvoiceFlow.BuildingBlocks.Api;
+using InvoiceFlow.BuildingBlocks.Authorization.ExtensionMethods;
 using InvoiceFlow.Customers.Application;
 using InvoiceFlow.Customers.Infrastructure;
 using Serilog;
@@ -23,8 +25,8 @@ try
     builder.Services.AddOpenApi();
     builder.Services.AddHttpContextAccessor();
 
-    // builder.Services.AddInvoiceFlowAuthentication(builder.Configuration);
-    // builder.Services.AddInvoiceFlowAuthorization();
+    builder.Services.AddInvoiceFlowAuthentication(builder.Configuration);
+    builder.Services.AddInvoiceFlowAuthorization();
 
     builder.RegisterApplicationServices();
     builder.RegisterInfrastructureServices();
@@ -38,10 +40,9 @@ try
 
     app.UseHttpsRedirection();
 
-    //app.UseValidationExceptionHandler();
-    //app.UseAuthentication();
-    //app.UseMiddleware<TenantAuthorizationMiddleware>();
-    //app.UseAuthorization();
+    app.UseValidationExceptionHandler();
+    app.UseAuthentication();
+    app.UseAuthorization();
 
     app.MapControllers();
 

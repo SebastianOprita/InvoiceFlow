@@ -1,5 +1,6 @@
 ﻿using InvoiceFlow.BuildingBlocks.Application;
 using InvoiceFlow.BuildingBlocks.Authorization;
+using InvoiceFlow.BuildingBlocks.Authorization.Permissions;
 using InvoiceFlow.Identity.Domain;
 using MediatR;
 using Microsoft.Extensions.Options;
@@ -22,12 +23,12 @@ public class LoginUserCommandHandler(
 
         var existingUser = usersRepository.FindUserByEmail(cmd.TenantId, UserEmail.Create(cmd.Email));
         if (existingUser is null || !passwordHasher.VerifyPassword(cmd.Password, existingUser.PasswordHash.Value))
-            return Result<LoginUserCommandResponse>.Failure(ApplicationErrors.Users.LoginUserNotFound);
+            return Result<LoginUserCommandResponse>.Failure(ApplicationErrors.LoginUserNotFound);
 
         var userWithPermissions = usersRepository.FindUserByIdWithPermissions(cmd.TenantId, existingUser.Id);
 
         if (userWithPermissions is null)
-            return Result<LoginUserCommandResponse>.Failure(ApplicationErrors.Users.LoginUserNotFound);
+            return Result<LoginUserCommandResponse>.Failure(ApplicationErrors.LoginUserNotFound);
 
         var aggregatedPermissions = userWithPermissions.UserRoles.Select(ur => ur.Role.Permissions)
             .Aggregate(SystemPermission.None, (current, rolePermissions) => current | rolePermissions.Value);

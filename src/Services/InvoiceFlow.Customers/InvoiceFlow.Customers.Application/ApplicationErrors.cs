@@ -4,6 +4,8 @@ namespace InvoiceFlow.Customers.Application;
 
 public static class ApplicationErrors
 {
+    public static ApplicationError ConcurencyConflict => new(ApplicationErrorType.Conflict, "persistence.concurrency_conflict", "The data was modified by another process.");
+    public static ApplicationError DbSaveFailed => new(ApplicationErrorType.Internal, "persistence.save_failed", "A database error occurred while saving changes.");
     public static ApplicationError CustomerNotFound => new(ApplicationErrorType.NotFound, "customer.notFound", "Customer not found.");
     public static ApplicationError ActivateCustomerNotFound => new(ApplicationErrorType.NotFound, "activateCustomer.customer.notFound", "Customer not found.");
     public static ApplicationError CreateCustomerCodeAlreadyExists => new(ApplicationErrorType.Conflict, "createCustomer.customer.code.alreadyExists", "Customer with the same code already exists.");
