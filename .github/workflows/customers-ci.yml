@@ -55,7 +55,7 @@ jobs:
           dotnet sonarscanner begin
           /k:"${{ vars.CUSTOMERSSONARPROJECTKEY }}"
           /o:"${{ vars.SONARORGANIZATION }}"
-          /d:sonar.token="${{ secrets.SONARTOKEN }}"
+          /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
           /d:sonar.cs.opencover.reportsPaths="TestResults/**/coverage.opencover*.xml"
           /d:sonar.cs.vstest.reportsPaths="TestResults/**/*.trx"
           /d:sonar.exclusions="**/bin/**,**/obj/**,**/Migrations/**"
@@ -130,7 +130,7 @@ jobs:
       - name: End SonarQube analysis
         run: >
           dotnet sonarscanner end
-          /d:sonar.token="${{ secrets.SONARTOKEN }}"
+          /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
       # ------------------------------------------------------------
       # Test Reporting
