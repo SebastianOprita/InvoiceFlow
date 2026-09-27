@@ -61,6 +61,7 @@ jobs:
           --coverlet
           --coverlet-output-format cobertura
           --coverlet-include "[InvoiceFlow.*]*"
+          --coverlet-exclude-by-file "**/Migrations/*.cs"
 
       - name: Run Application unit tests
         run: >
@@ -74,6 +75,7 @@ jobs:
           --coverlet
           --coverlet-output-format cobertura
           --coverlet-include "[InvoiceFlow.*]*"
+          --coverlet-exclude-by-file "**/Migrations/*.cs"
 
       - name: Run API integration tests
         run: >
@@ -87,6 +89,7 @@ jobs:
           --coverlet
           --coverlet-output-format cobertura
           --coverlet-include "[InvoiceFlow.*]*"
+          --coverlet-exclude-by-file "**/Migrations/*.cs"
 
       # ------------------------------------------------------------
       # Test Reporting
