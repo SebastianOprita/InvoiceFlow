@@ -21,6 +21,7 @@ on:
 
 permissions:
   contents: read
+  checks: write
 
 jobs:
   build-and-test:
@@ -53,41 +54,43 @@ jobs:
           dotnet test
           src/Services/InvoiceFlow.Customers/Tests/InvoiceFlow.Customers.Domain.UnitTests/InvoiceFlow.Customers.Domain.UnitTests.csproj
           --configuration Release
-          --logger "trx;LogFileName=domain-tests.trx"
           --results-directory TestResults/Domain
-          --collect:"XPlat Code Coverage"
+          --
+          --report-trx
+          --report-trx-filename domain-tests.trx
+          --coverlet
+          --coverlet-output-format cobertura
+          --coverlet-include "[InvoiceFlow.*]*"
 
       - name: Run Application unit tests
         run: >
           dotnet test
           src/Services/InvoiceFlow.Customers/Tests/InvoiceFlow.Customers.Application.UnitTests/InvoiceFlow.Customers.Application.UnitTests.csproj
           --configuration Release
-          --logger "trx;LogFileName=application-tests.trx"
           --results-directory TestResults/Application
-          --collect:"XPlat Code Coverage"
+          --
+          --report-trx
+          --report-trx-filename application-tests.trx
+          --coverlet
+          --coverlet-output-format cobertura
+          --coverlet-include "[InvoiceFlow.*]*"
 
       - name: Run API integration tests
         run: >
           dotnet test
           src/Services/InvoiceFlow.Customers/Tests/InvoiceFlow.Customers.Api.IntegrationTests/InvoiceFlow.Customers.Api.IntegrationTests.csproj
           --configuration Release
-          --logger "trx;LogFileName=integration-tests.trx"
           --results-directory TestResults/Integration
-          --collect:"XPlat Code Coverage"
+          --
+          --report-trx
+          --report-trx-filename integration-tests.trx
+          --coverlet
+          --coverlet-output-format cobertura
+          --coverlet-include "[InvoiceFlow.*]*"
 
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: customers-test-results
-          path: TestResults/**/*.trx
-      
-      - name: Upload coverage
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: customers-coverage
-          path: TestResults/**/coverage.cobertura.xml
+      # ------------------------------------------------------------
+      # Test Reporting
+      # ------------------------------------------------------------
 
       - name: Publish test results
         if: always()
@@ -97,18 +100,46 @@ jobs:
           path: 'TestResults/**/*.trx'
           reporter: dotnet-trx
 
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: customers-test-results
+          path: TestResults/**/*.trx
+          if-no-files-found: warn
+
+      # ------------------------------------------------------------
+      # Coverage
+      # ------------------------------------------------------------
+
+      - name: Upload raw coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: customers-coverage
+          path: TestResults/**/coverage.cobertura*.xml
+          if-no-files-found: warn
+
       - name: Install ReportGenerator
+        if: success()
         run: dotnet tool install --global dotnet-reportgenerator-globaltool
 
       - name: Generate coverage report
+        if: success()
         run: >
           reportgenerator
-          -reports:"TestResults/**/coverage.cobertura.xml"
+          -reports:"TestResults/**/coverage.cobertura*.xml"
           -targetdir:"CoverageReport"
           -reporttypes:"Html;MarkdownSummaryGithub"
-          
+
+      - name: Publish coverage summary
+        if: success()
+        run: cat CoverageReport/SummaryGithub.md >> $GITHUB_STEP_SUMMARY
+
       - name: Upload coverage report
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: customers-coverage-report
           path: CoverageReport
+          if-no-files-found: warn
