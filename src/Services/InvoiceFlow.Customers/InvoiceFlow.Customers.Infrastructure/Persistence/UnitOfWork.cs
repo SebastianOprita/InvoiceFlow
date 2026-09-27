@@ -2,9 +2,11 @@
 using InvoiceFlow.Customers.Application;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics.CodeAnalysis;
 
 namespace InvoiceFlow.Customers.Infrastructure;
 
+[ExcludeFromCodeCoverage]
 public sealed class UnitOfWork : IUnitOfWork
 {
     private readonly CustomersDbContext _dbContext;
