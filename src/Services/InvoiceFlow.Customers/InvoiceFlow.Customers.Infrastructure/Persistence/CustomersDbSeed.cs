@@ -1,7 +1,9 @@
 ﻿using InvoiceFlow.Customers.Domain;
+using System.Diagnostics.CodeAnalysis;
 
 namespace InvoiceFlow.Customers.Infrastructure;
 
+[ExcludeFromCodeCoverage]
 public static class CustomersDbSeed
 {
     public static async Task SeedAsync(CustomersDbContext db)
