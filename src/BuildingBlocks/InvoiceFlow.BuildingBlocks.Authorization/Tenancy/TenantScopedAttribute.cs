@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics.CodeAnalysis;
 
 namespace InvoiceFlow.BuildingBlocks.Authorization;
 
+[ExcludeFromCodeCoverage]
 [AttributeUsage(
     AttributeTargets.Class | AttributeTargets.Method,
     AllowMultiple = false,
