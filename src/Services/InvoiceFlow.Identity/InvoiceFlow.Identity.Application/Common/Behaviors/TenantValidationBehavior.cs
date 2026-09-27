@@ -22,7 +22,7 @@ public sealed class TenantValidationBehavior<TRequest, TValue>
     public async Task<Result<TValue>> Handle(
         TRequest request,
         RequestHandlerDelegate<Result<TValue>> next,
-        CancellationToken ct)
+        CancellationToken cancellationToken)
     {
         var tenant = _tenantsRepository.GetTenantById(request.TenantId);
 

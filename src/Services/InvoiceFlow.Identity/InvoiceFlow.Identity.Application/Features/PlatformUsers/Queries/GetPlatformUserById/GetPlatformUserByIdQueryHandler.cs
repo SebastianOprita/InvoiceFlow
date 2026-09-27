@@ -5,7 +5,7 @@ namespace InvoiceFlow.Identity.Application;
 
 public class GetPlatformUserByIdQueryHandler(IPlatformUsersRepository usersRepository) : IRequestHandler<GetPlatformUserByIdQuery, Result<PlatformUserDto>>
 {
-    public async Task<Result<PlatformUserDto>> Handle(GetPlatformUserByIdQuery qry, CancellationToken ct)
+    public async Task<Result<PlatformUserDto>> Handle(GetPlatformUserByIdQuery qry, CancellationToken cancellationToken)
     {
         var user = usersRepository.FindUserById(qry.UserId);
 

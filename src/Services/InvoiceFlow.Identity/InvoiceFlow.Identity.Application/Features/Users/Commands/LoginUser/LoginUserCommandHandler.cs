@@ -17,7 +17,7 @@ public class LoginUserCommandHandler(
     ISystemDateTimeProvider dateTimeProvider)
     : IRequestHandler<LoginUserCommand, Result<LoginUserCommandResponse>>
 {
-    public async Task<Result<LoginUserCommandResponse>> Handle(LoginUserCommand cmd, CancellationToken ct)
+    public async Task<Result<LoginUserCommandResponse>> Handle(LoginUserCommand cmd, CancellationToken cancellationToken)
     {
         var now = dateTimeProvider.Now;
 
@@ -53,7 +53,7 @@ public class LoginUserCommandHandler(
             IpAddress.CreateOptional(cmd.IpAddress));
 
         refreshTokensRepository.AddRefreshToken(refershToken);
-        var result = await unitOfWork.SaveChangesAsync();
+        var result = await unitOfWork.SaveChangesAsync(cancellationToken);
 
         if (result.IsFailure)
             return Result<LoginUserCommandResponse>.Failure(result);

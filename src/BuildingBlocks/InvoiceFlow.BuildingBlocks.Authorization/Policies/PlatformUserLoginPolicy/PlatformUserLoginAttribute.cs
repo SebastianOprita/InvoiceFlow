@@ -3,10 +3,10 @@
 namespace InvoiceFlow.BuildingBlocks.Authorization.Policies;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
-public sealed class TenantUserLoginAttribute : AuthorizeAttribute
+public sealed class PlatformUserLoginAttribute : AuthorizeAttribute
 {
-    public TenantUserLoginAttribute()
+    public PlatformUserLoginAttribute()
     {
-        Policy = TenantUserLoginPolicy.TenantUserLogin;
+        Policy = PlatformUserLoginPolicy.PlatformUserLogin;
     }
 }

@@ -12,22 +12,23 @@ namespace InvoiceFlow.Customers.Api;
 [ApiController]
 [Authorize]
 [TenantScoped]
+[TenantUserLogin]
 [Route("api/{tenantId:guid}/[controller]")]
 public class CustomersController(IMediator mediator) : ControllerBase
 {
     [HttpGet]
     [HasPermission(SystemPermission.CustomerView)]
-    public async Task<IActionResult> GetAll([FromRoute] Guid tenantId, CancellationToken ct)
+    public async Task<IActionResult> GetAll([FromRoute] Guid tenantId, CancellationToken cancellationToken)
     {
-        var result = await mediator.Send(new GetCustomersQuery(tenantId), ct);
+        var result = await mediator.Send(new GetCustomersQuery(tenantId), cancellationToken);
         return result.ToActionResult();
     }
 
     [HttpGet("{customerId:guid}")]
     [HasPermission(SystemPermission.CustomerView)]
-    public async Task<IActionResult> GetById([FromRoute] Guid tenantId, [FromRoute] Guid customerId, CancellationToken ct)
+    public async Task<IActionResult> GetById([FromRoute] Guid tenantId, [FromRoute] Guid customerId, CancellationToken cancellationToken)
     {
-        var result = await mediator.Send(new GetCustomerByIdQuery(tenantId, customerId), ct);
+        var result = await mediator.Send(new GetCustomerByIdQuery(tenantId, customerId), cancellationToken);
         return result.ToActionResult();
     }
 }

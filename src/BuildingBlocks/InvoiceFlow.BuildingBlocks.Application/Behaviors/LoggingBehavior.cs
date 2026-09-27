@@ -45,7 +45,7 @@ public class LoggingBehavior<TRequest, TResponse>
 
             try
             {
-                var response = await next();
+                var response = await next(cancellationToken);
                 return response;
             }
             finally

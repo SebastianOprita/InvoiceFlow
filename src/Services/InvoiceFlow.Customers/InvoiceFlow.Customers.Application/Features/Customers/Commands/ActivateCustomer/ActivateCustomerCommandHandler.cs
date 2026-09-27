@@ -9,9 +9,9 @@ public class ActivateCustomerCommandHandler(
     ISystemDateTimeProvider dateTimeProvider)
     : IRequestHandler<ActivateCustomerCommand, Result>
 {
-    public async Task<Result> Handle(ActivateCustomerCommand cmd, CancellationToken ct)
+    public async Task<Result> Handle(ActivateCustomerCommand cmd, CancellationToken cancellationToken)
     {
-        var customer = customersRepository.GetCustomerById(cmd.TenantId, cmd.CustomerId);
+        var customer = await customersRepository.GetCustomerByIdAsync(cmd.TenantId, cmd.CustomerId, cancellationToken);
         if (customer is null)
             return Result.Failure(ApplicationErrors.ActivateCustomerNotFound);
 
@@ -19,7 +19,7 @@ public class ActivateCustomerCommandHandler(
             return Result.Success();
 
         customer.Activate(dateTimeProvider.Now);
-        var result = await unitOfWork.SaveChangesAsync(ct);
+        var result = await unitOfWork.SaveChangesAsync(cancellationToken);
         return result;
     }
 }

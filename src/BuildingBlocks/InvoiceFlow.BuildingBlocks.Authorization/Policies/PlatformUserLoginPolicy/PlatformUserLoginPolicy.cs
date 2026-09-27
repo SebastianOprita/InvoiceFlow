@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace InvoiceFlow.BuildingBlocks.Authorization.Policies;
 
-public static class PlatformAuthorizationPolicy
+public static class PlatformUserLoginPolicy
 {
     public const string PlatformUserLogin = "PlatformUserLogin";
 

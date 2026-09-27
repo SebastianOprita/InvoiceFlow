@@ -1,4 +1,6 @@
-﻿namespace InvoiceFlow.BuildingBlocks.Currency;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace InvoiceFlow.BuildingBlocks.Currency;
 
 public static class Iso4217
 {
@@ -21,7 +23,7 @@ public static class Iso4217
 
     public static bool TryGet(
         string code,
-        out CurrencyDefinition currency) =>
+        [NotNullWhen(true)] out CurrencyDefinition? currency) =>
         _currencies.TryGetValue(code, out currency);
 
     public static CurrencyDefinition Get(string code)

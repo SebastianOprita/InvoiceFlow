@@ -17,14 +17,14 @@ public record LoginRequest(string Email, string Password);
 public class AuthController(IMediator mediator) : ApiController
 {
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromRoute] Guid tenantId, [FromBody] LoginRequest request, CancellationToken ct)
+    public async Task<IActionResult> Login([FromRoute] Guid tenantId, [FromBody] LoginRequest request, CancellationToken cancellationToken)
     {
         var result = await mediator.Send(new LoginUserCommand(
             tenantId,
             request.Email,
             request.Password,
             DeviceInfo,
-            IpAddress), ct);
+            IpAddress), cancellationToken);
 
         return result.ToActionResult();
     }

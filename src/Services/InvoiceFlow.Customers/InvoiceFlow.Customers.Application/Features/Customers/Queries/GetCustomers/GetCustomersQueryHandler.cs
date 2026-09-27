@@ -5,12 +5,11 @@ namespace InvoiceFlow.Customers.Application;
 
 public class GetCustomersQueryHandler(ICustomersRepository customersRepository) : IRequestHandler<GetCustomersQuery, Result<List<CustomerDto>>>
 {
-    public async Task<Result<List<CustomerDto>>> Handle(GetCustomersQuery qry, CancellationToken ct)
+    public async Task<Result<List<CustomerDto>>> Handle(GetCustomersQuery qry, CancellationToken cancellationToken)
     {
-        var customers = customersRepository.FindAllCustomers(qry.TenantId)
-            .Select(c => c.ToDto())
-            .ToList();
+        var customers = await customersRepository.FindAllCustomersAsync(qry.TenantId, cancellationToken);
+        var customerDtos = customers.Select(c => c.ToDto()).ToList();
 
-        return Result<List<CustomerDto>>.Success(customers);
+        return Result<List<CustomerDto>>.Success(customerDtos);
     }
 }

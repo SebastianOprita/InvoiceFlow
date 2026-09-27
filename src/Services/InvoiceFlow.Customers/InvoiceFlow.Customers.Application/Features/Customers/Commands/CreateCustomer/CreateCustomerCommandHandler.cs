@@ -10,16 +10,16 @@ public class CreateCustomerCommandHandler(
     ISystemDateTimeProvider dateTimeProvider)
     : IRequestHandler<CreateCustomerCommand, Result<CustomerDto>>
 {
-    public async Task<Result<CustomerDto>> Handle(CreateCustomerCommand cmd, CancellationToken ct)
+    public async Task<Result<CustomerDto>> Handle(CreateCustomerCommand cmd, CancellationToken cancellationToken)
     {
-        if (customersRepository.ExistsByCode(cmd.TenantId, CustomerCode.Create(cmd.CustomerCode)))
+        if (await customersRepository.ExistsByCodeAsync(cmd.TenantId, CustomerCode.Create(cmd.CustomerCode), cancellationToken))
             return Result<CustomerDto>.Failure(ApplicationErrors.CreateCustomerCodeAlreadyExists);
 
-        if (customersRepository.ExistsByRegistrationNumber(cmd.TenantId, RegistrationNumber.Create(cmd.CustomerTaxDetails.RegistrationNumber)))
+        if (await customersRepository.ExistsByRegistrationNumberAsync(cmd.TenantId, RegistrationNumber.Create(cmd.CustomerTaxDetails.RegistrationNumber), cancellationToken))
             return Result<CustomerDto>.Failure(ApplicationErrors.CreateCustomerRegistrationNumberAlreadyExists);
 
-        if (cmd.CustomerTaxDetails.TaxNumber is not null)
-            if (customersRepository.ExistsByTaxNumber(cmd.TenantId, TaxNumber.Create(cmd.CustomerTaxDetails.TaxNumber)))
+        if (cmd.CustomerTaxDetails.TaxNumber is not null 
+            && await customersRepository.ExistsByTaxNumberAsync(cmd.TenantId, TaxNumber.Create(cmd.CustomerTaxDetails.TaxNumber), cancellationToken))
                 return Result<CustomerDto>.Failure(ApplicationErrors.CreateCustomerTaxNumberAlreadyExists);
 
         var customer = Customer.Create(
@@ -43,7 +43,7 @@ public class CreateCustomerCommandHandler(
             dateTimeProvider.Now);
 
         customersRepository.AddCustomer(customer);
-        var result = await unitOfWork.SaveChangesAsync();
+        var result = await unitOfWork.SaveChangesAsync(cancellationToken);
         if (result.IsFailure)
             return Result<CustomerDto>.Failure(result);
 
