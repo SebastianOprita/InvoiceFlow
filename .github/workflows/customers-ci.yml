@@ -1,0 +1,68 @@
+name: Customers CI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/Services/InvoiceFlow.Customers/**'
+      - 'src/BuildingBlocks/**'
+      - '.github/workflows/customers-ci.yml'
+
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'src/Services/InvoiceFlow.Customers/**'
+      - 'src/BuildingBlocks/**'
+      - '.github/workflows/customers-ci.yml'
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: Build and Test Customers
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Setup .Net
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+          
+      - name: Restore Customers API
+        run: >
+          dotnet restore
+          src/Services/InvoiceFlow.Customers/InvoiceFlow.Customers.Api/InvoiceFlow.Customers.Api.csproj
+          
+      - name: Build Customers API
+        run: >
+          dotnet build
+          src/Services/InvoiceFlow.Customers/InvoiceFlow.Customers.Api/InvoiceFlow.Customers.Api.csproj
+          --configuration Release
+          --no-restore
+          
+      - name: Run Domain unit tests
+        run: >
+          dotnet test
+          src/Services/InvoiceFlow.Customers/Tests/InvoiceFlow.Customers.Domain.UnitTests/InvoiceFlow.Customers.Domain.UnitTests.csproj
+          --configuration Release
+
+      - name: Run Application unit tests
+        run: >
+          dotnet test
+          src/Services/InvoiceFlow.Customers/Tests/InvoiceFlow.Customers.Application.UnitTests/InvoiceFlow.Customers.Application.UnitTests.csproj
+          --configuration Release
+
+      - name: Run API integration tests
+        run: >
+          dotnet test
+          src/Services/InvoiceFlow.Customers/Tests/InvoiceFlow.Customers.Api.IntegrationTests/InvoiceFlow.Customers.Api.IntegrationTests.csproj
+          --configuration Release
+
