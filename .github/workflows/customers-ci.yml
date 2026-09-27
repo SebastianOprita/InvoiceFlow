@@ -53,16 +53,62 @@ jobs:
           dotnet test
           src/Services/InvoiceFlow.Customers/Tests/InvoiceFlow.Customers.Domain.UnitTests/InvoiceFlow.Customers.Domain.UnitTests.csproj
           --configuration Release
+          --logger "trx;LogFileName=domain-tests.trx"
+          --results-directory TestResults/Domain
+          --collect:"XPlat Code Coverage"
 
       - name: Run Application unit tests
         run: >
           dotnet test
           src/Services/InvoiceFlow.Customers/Tests/InvoiceFlow.Customers.Application.UnitTests/InvoiceFlow.Customers.Application.UnitTests.csproj
           --configuration Release
+          --logger "trx;LogFileName=application-tests.trx"
+          --results-directory TestResults/Application
+          --collect:"XPlat Code Coverage"
 
       - name: Run API integration tests
         run: >
           dotnet test
           src/Services/InvoiceFlow.Customers/Tests/InvoiceFlow.Customers.Api.IntegrationTests/InvoiceFlow.Customers.Api.IntegrationTests.csproj
           --configuration Release
+          --logger "trx;LogFileName=integration-tests.trx"
+          --results-directory TestResults/Integration
+          --collect:"XPlat Code Coverage"
 
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: customers-test-results
+          path: TestResults/**/*.trx
+      
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: customers-coverage
+          path: TestResults/**/coverage.cobertura.xml
+
+      - name: Publish test results
+        if: always()
+        uses: dorny/test-reporter@v2
+        with:
+          name: Customers Tests
+          path: 'TestResults/**/*.trx'
+          reporter: dotnet-trx
+
+      - name: Install ReportGenerator
+        run: dotnet tool install --global dotnet-reportgenerator-globaltool
+
+      - name: Generate coverage report
+        run: >
+          reportgenerator
+          -reports:"TestResults/**/coverage.cobertura.xml"
+          -targetdir:"CoverageReport"
+          -reporttypes:"Html;MarkdownSummaryGithub"
+          
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: customers-coverage-report
+          path: CoverageReport
