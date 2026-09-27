@@ -1,8 +1,10 @@
 ﻿using InvoiceFlow.Customers.Domain;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics.CodeAnalysis;
 
 namespace InvoiceFlow.Customers.Infrastructure;
 
+[ExcludeFromCodeCoverage]
 public sealed class CustomersDbContext : DbContext
 {
     public DbSet<Customer> Customers => Set<Customer>();
