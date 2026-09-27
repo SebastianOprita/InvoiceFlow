@@ -13,7 +13,7 @@ public class DeactivateCustomerCommandHandler(
     {
         var customer = await customersRepository.GetCustomerByIdAsync(cmd.TenantId, cmd.CustomerId, cancellationToken);
         if (customer is null)
-            return Result.Failure(ApplicationErrors.DeactivateCustomerNotFound);
+            return Result.Failure(ApplicationErrors.CustomerNotFound);
 
         if (!customer.IsActive)
             return Result.Success();
