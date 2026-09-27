@@ -236,18 +236,18 @@ jobs:
     
     steps:
       - name: Validate Customers CI
-      shell: bash
-      run: |
-        if [ "${{ needs.changes.outputs.customers }}" != "true" ]; then
-        echo "No Customers-related changes detected."
-        echo "Customers CI is not required for this pull request."
-        exit 0
-      fi
+        shell: bash
+        run: |
+          if [ "${{ needs.changes.outputs.customers }}" != "true" ]; then
+            echo "No Customers-related changes detected."
+            echo "Customers CI is not required for this pull request."
+            exit 0
+          fi
       
-      if [ "${{ needs.build-and-test.result }}" != "success" ]; then
-        echo "Customers CI failed."
-        echo "Result: ${{ needs.build-and-test.result }}"
-        exit 1
-      fi
+          if [ "${{ needs.build-and-test.result }}" != "success" ]; then
+            echo "Customers CI failed."
+            echo "Result: ${{ needs.build-and-test.result }}"
+            exit 1
+          fi
       
-      echo "Customers CI passed."
+          echo "Customers CI passed."
