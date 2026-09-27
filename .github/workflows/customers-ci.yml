@@ -58,7 +58,7 @@ jobs:
           /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
           /d:sonar.cs.opencover.reportsPaths="TestResults/**/coverage.opencover*.xml"
           /d:sonar.cs.vstest.reportsPaths="TestResults/**/*.trx"
-          /d:sonar.exclusions="src/Services/InvoiceFlow.Identity/**,src/Services/InvoiceFlow.Invoices/**,src/Services/InvoiceFlow.Payments/**,src/Services/InvoiceFlow.Notifications/**,src/Services/InvoiceFlow.Reminder/**,**/bin/**,**/obj/**,**/Migrations/**"
+          /d:sonar.exclusions=".github/**,global.json,Aspire/**,Docs/**,src/Services/InvoiceFlow.Identity/**,src/Services/InvoiceFlow.Invoices/**,src/Services/InvoiceFlow.Payments/**,src/Services/InvoiceFlow.Notifications/**,src/Services/InvoiceFlow.Reminder/**,**/bin/**,**/obj/**,**/Migrations/**"
           /d:sonar.coverage.exclusions="**/Migrations/**"
 
       # ------------------------------------------------------------
