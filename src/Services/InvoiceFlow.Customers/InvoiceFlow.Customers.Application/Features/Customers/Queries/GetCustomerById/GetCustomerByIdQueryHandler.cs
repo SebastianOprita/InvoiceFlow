@@ -5,9 +5,9 @@ namespace InvoiceFlow.Customers.Application;
 
 public class GetCustomerByIdQueryHandler(ICustomersRepository customersRepository) : IRequestHandler<GetCustomerByIdQuery, Result<CustomerDto>>
 {
-    public async Task<Result<CustomerDto>> Handle(GetCustomerByIdQuery qry, CancellationToken ct)
+    public async Task<Result<CustomerDto>> Handle(GetCustomerByIdQuery qry, CancellationToken cancellationToken)
     {
-        var customer = customersRepository.FindCustomerById(qry.TenantId, qry.CustomerId);
+        var customer = await customersRepository.FindCustomerByIdAsync(qry.TenantId, qry.CustomerId, cancellationToken);
 
         if (customer is null)
             return Result<CustomerDto>.Failure(ApplicationErrors.CustomerNotFound);

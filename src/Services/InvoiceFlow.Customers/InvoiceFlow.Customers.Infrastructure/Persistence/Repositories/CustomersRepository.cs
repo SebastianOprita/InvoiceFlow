@@ -6,43 +6,43 @@ namespace InvoiceFlow.Customers.Infrastructure;
 
 public class CustomersRepository(CustomersDbContext dbContext) : ICustomersRepository
 {
-    public List<Customer> FindAllCustomers(Guid tenantId)
+    public async Task<List<Customer>> FindAllCustomersAsync(Guid tenantId, CancellationToken cancellationToken = default)
     {
-        return dbContext.Customers.AsNoTracking()
+        return await dbContext.Customers.AsNoTracking()
             .Where(c => c.TenantId == tenantId)
-            .ToList();
+            .ToListAsync(cancellationToken);
     }
 
-    public Customer? FindCustomerById(Guid tenantId, Guid customerId)
+    public async Task<Customer?> FindCustomerByIdAsync(Guid tenantId, Guid customerId, CancellationToken cancellationToken = default)
     {
-        return dbContext.Customers.AsNoTracking()
-            .Where(c => c.TenantId == tenantId && c.Id == customerId)
-            .FirstOrDefault();
+        return await dbContext.Customers.AsNoTracking()
+            .FirstOrDefaultAsync(c => c.TenantId == tenantId && c.Id == customerId,
+            cancellationToken);
     }
 
-    public Customer? GetCustomerById(Guid tenantId, Guid customerId)
+    public async Task<Customer?> GetCustomerByIdAsync(Guid tenantId, Guid customerId, CancellationToken cancellationToken = default)
     {
-        return dbContext.Customers
-            .Where(c => c.TenantId == tenantId && c.Id == customerId)
-            .FirstOrDefault();
+        return await dbContext.Customers
+            .FirstOrDefaultAsync(c => c.TenantId == tenantId && c.Id == customerId,
+            cancellationToken);
     }
 
-    public bool ExistsByCode(Guid tenantId, CustomerCode customerCode)
+    public async Task<bool> ExistsByCodeAsync(Guid tenantId, CustomerCode customerCode, CancellationToken cancellationToken = default)
     {
-        return dbContext.Customers.AsNoTracking()
-            .Any(x => x.TenantId == tenantId && x.CustomerCode == customerCode);
+        return await dbContext.Customers.AsNoTracking()
+            .AnyAsync(x => x.TenantId == tenantId && x.CustomerCode == customerCode, cancellationToken);
     }
 
-    public bool ExistsByRegistrationNumber(Guid tenantId, RegistrationNumber registrationNumber)
+    public async Task<bool> ExistsByRegistrationNumberAsync(Guid tenantId, RegistrationNumber registrationNumber, CancellationToken cancellationToken = default)
     {
-        return dbContext.Customers.AsNoTracking()
-            .Any(x => x.TenantId == tenantId && x.RegistrationNumber == registrationNumber);
+        return await dbContext.Customers.AsNoTracking()
+            .AnyAsync(x => x.TenantId == tenantId && x.RegistrationNumber == registrationNumber, cancellationToken);
     }
 
-    public bool ExistsByTaxNumber(Guid tenantId, TaxNumber taxNumber)
+    public async Task<bool> ExistsByTaxNumberAsync(Guid tenantId, TaxNumber taxNumber, CancellationToken cancellationToken = default)
     {
-        return dbContext.Customers.AsNoTracking()
-            .Any(x => x.TenantId == tenantId && x.TaxNumber == taxNumber);
+        return await dbContext.Customers.AsNoTracking()
+            .AnyAsync(x => x.TenantId == tenantId && x.TaxNumber == taxNumber, cancellationToken);
     }
 
     public void AddCustomer(Customer customer)

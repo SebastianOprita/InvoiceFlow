@@ -10,9 +10,9 @@ public class UpdateCustomerCommandHandler(
     ISystemDateTimeProvider dateTimeProvider) 
     : IRequestHandler<UpdateCustomerCommand, Result<CustomerDto>>
 {
-    public async Task<Result<CustomerDto>> Handle(UpdateCustomerCommand cmd, CancellationToken ct)
+    public async Task<Result<CustomerDto>> Handle(UpdateCustomerCommand cmd, CancellationToken cancellationToken)
     {
-        var customer = customersRepository.GetCustomerById(cmd.TenantId, cmd.CustomerId);
+        var customer = await customersRepository.GetCustomerByIdAsync(cmd.TenantId, cmd.CustomerId, cancellationToken);
         if (customer is null)
             return Result<CustomerDto>.Failure(ApplicationErrors.UpdateCustomerNotFound);
 
@@ -41,7 +41,7 @@ public class UpdateCustomerCommandHandler(
                 PaymentTermDays.Create(cmd.CustomerCreditPolicy.PaymentTermDays),
                 dateTimeProvider.Now);
 
-        var result = await unitOfWork.SaveChangesAsync(ct);
+        var result = await unitOfWork.SaveChangesAsync(cancellationToken);
         if (!result.IsSuccess)
             return Result<CustomerDto>.Failure(result.Error!);
 

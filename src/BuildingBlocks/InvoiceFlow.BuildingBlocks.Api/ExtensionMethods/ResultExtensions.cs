@@ -26,7 +26,7 @@ public static class ResultExtensions
         return result.Error!.ToActionResult();
     }
 
-    private static IActionResult ToActionResult(this ApplicationError error)
+    private static ObjectResult ToActionResult(this ApplicationError error)
     {
         var status = error.Type switch
         {

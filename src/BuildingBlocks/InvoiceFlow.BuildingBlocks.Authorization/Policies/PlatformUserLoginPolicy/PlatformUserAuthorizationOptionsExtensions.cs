@@ -8,8 +8,8 @@ public static class PlatformUserAuthorizationOptionsExtensions
         this AuthorizationOptions options)
     {
         options.AddPolicy(
-            PlatformAuthorizationPolicy.PlatformUserLogin,
-            PlatformAuthorizationPolicy.Build());
+            PlatformUserLoginPolicy.PlatformUserLogin,
+            PlatformUserLoginPolicy.Build());
 
         return options;
     }

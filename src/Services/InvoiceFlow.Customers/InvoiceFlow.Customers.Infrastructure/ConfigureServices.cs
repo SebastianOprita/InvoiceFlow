@@ -45,8 +45,8 @@ public static class ConfigureServices
         using var scope = app.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<CustomersDbContext>();
 
-        db.Database.EnsureDeleted();
-        db.Database.Migrate();
+        await db.Database.EnsureDeletedAsync();
+        await db.Database.MigrateAsync();
 
         await CustomersDbSeed.SeedAsync(db);
 

@@ -5,7 +5,7 @@ namespace InvoiceFlow.Identity.Application;
 
 public class GetTenantsQueryHandler(ITenantsRepository tenantsRepository) : IRequestHandler<GetTenantsQuery, Result<List<TenantDto>>>
 {
-    public async Task<Result<List<TenantDto>>> Handle(GetTenantsQuery qry, CancellationToken ct)
+    public async Task<Result<List<TenantDto>>> Handle(GetTenantsQuery qry, CancellationToken cancellationToken)
     {
         var tenants = tenantsRepository.FindAllTenants()
             .Select(t => t.ToDto())
