@@ -22,10 +22,42 @@ on:
 permissions:
   contents: read
   checks: write
+  pull-requests: read
 
 jobs:
+  # ------------------------------------------------------------
+  # Detect relevant changes
+  # ------------------------------------------------------------
+  changes:
+    name: Detect Customers Changes
+    runs-on: ubuntu-latest
+    
+    outputs:
+      customers: ${{ steps.filter.outputs.customers }}
+      
+    steps:
+      - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+      - name: Detect Customers changes
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            customers:
+              - 'src/Services/InvoiceFlow.Customers/**'
+              - 'src/BuildingBlocks/**'
+              - '.github/workflows/customers-ci.yml'
+              
+  # ------------------------------------------------------------
+  # Build + Test + Sonar
+  # ------------------------------------------------------------
   build-and-test:
     name: Build and Test Customers
+    needs: changes
+    if: needs.changes.outputs.customers == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -189,3 +221,33 @@ jobs:
           name: customers-coverage-report
           path: CoverageReport
           if-no-files-found: warn
+          
+  # ------------------------------------------------------------
+  # Always-present Customers gate
+  # ------------------------------------------------------------
+  customers-gate:
+    name: Customers CI Gate
+    needs:
+      - changes
+      - build-and-test
+      
+    if: always()
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Validate Customers CI
+      shell: bash
+      run: |
+        if [ "${{ needs.changes.outputs.customers }}" != "true" ]; then
+        echo "No Customers-related changes detected."
+        echo "Customers CI is not required for this pull request."
+        exit 0
+      fi
+      
+      if [ "${{ needs.build-and-test.result }}" != "success" ]; then
+        echo "Customers CI failed."
+        echo "Result: ${{ needs.build-and-test.result }}"
+        exit 1
+      fi
+      
+      echo "Customers CI passed."
