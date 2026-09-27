@@ -29,14 +29,41 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    
+      # ------------------------------------------------------------
+      # Checkout
+      # ------------------------------------------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
         
+      # ------------------------------------------------------------
+      # .NET
+      # ------------------------------------------------------------
       - name: Setup .Net
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
           
+      # ------------------------------------------------------------
+      # SonarQube Cloud
+      # ------------------------------------------------------------
+      - name: Install SonarScanner
+        run: dotnet tool install --global dotnet-sonarscanner
+        
+      - name: Begin SonarQube analysis
+        run: >
+          dotnet sonarscanner begin
+          /k:"${{ vars.CUSTOMERSSONARPROJECTKEY }}"
+          /o:"${{ vars.SONARORGANIZATION }}"
+          /d:sonar.token="${{ secrets.SONARTOKEN }}"
+          /d:sonar.cs.opencover.reportsPaths="TestResults/**/coverage.opencover*.xml"
+          /d:sonar.cs.vstest.reportsPaths="TestResults/**/*.trx"
+          /d:sonar.exclusions="**/bin/**,**/obj/**,**/Migrations/**"
+          /d:sonar.coverage.exclusions="**/Migrations/**"
+
+      # ------------------------------------------------------------
+      # Restore & Build
+      # ------------------------------------------------------------
       - name: Restore Customers API
         run: >
           dotnet restore
@@ -49,6 +76,9 @@ jobs:
           --configuration Release
           --no-restore
           
+      # ------------------------------------------------------------
+      # Tests
+      # ------------------------------------------------------------
       - name: Run Domain unit tests
         run: >
           dotnet test
@@ -60,6 +90,7 @@ jobs:
           --report-trx-filename domain-tests.trx
           --coverlet
           --coverlet-output-format cobertura
+          --coverlet-output-format opencover
           --coverlet-include "[InvoiceFlow.*]*"
           --coverlet-exclude-by-file "**/Migrations/*.cs"
 
@@ -74,6 +105,7 @@ jobs:
           --report-trx-filename application-tests.trx
           --coverlet
           --coverlet-output-format cobertura
+          --coverlet-output-format opencover
           --coverlet-include "[InvoiceFlow.*]*"
           --coverlet-exclude-by-file "**/Migrations/*.cs"
 
@@ -88,8 +120,17 @@ jobs:
           --report-trx-filename integration-tests.trx
           --coverlet
           --coverlet-output-format cobertura
+          --coverlet-output-format opencover
           --coverlet-include "[InvoiceFlow.*]*"
           --coverlet-exclude-by-file "**/Migrations/*.cs"
+          
+      # ------------------------------------------------------------
+      # Finish SonarQube analysis
+      # ------------------------------------------------------------
+      - name: End SonarQube analysis
+        run: >
+          dotnet sonarscanner end
+          /d:sonar.token="${{ secrets.SONARTOKEN }}"
 
       # ------------------------------------------------------------
       # Test Reporting
