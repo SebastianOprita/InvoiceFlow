@@ -14,7 +14,7 @@ public class UpdateCustomerCommandHandler(
     {
         var customer = await customersRepository.GetCustomerByIdAsync(cmd.TenantId, cmd.CustomerId, cancellationToken);
         if (customer is null)
-            return Result<CustomerDto>.Failure(ApplicationErrors.UpdateCustomerNotFound);
+            return Result<CustomerDto>.Failure(ApplicationErrors.CustomerNotFound);
 
         if (cmd.Name is not null)
             customer.UpdateName(CustomerName.Create(cmd.Name), dateTimeProvider.Now);

@@ -13,14 +13,14 @@ public class CreateCustomerCommandHandler(
     public async Task<Result<CustomerDto>> Handle(CreateCustomerCommand cmd, CancellationToken cancellationToken)
     {
         if (await customersRepository.ExistsByCodeAsync(cmd.TenantId, CustomerCode.Create(cmd.CustomerCode), cancellationToken))
-            return Result<CustomerDto>.Failure(ApplicationErrors.CreateCustomerCodeAlreadyExists);
+            return Result<CustomerDto>.Failure(ApplicationErrors.CustomerCodeAlreadyExists);
 
         if (await customersRepository.ExistsByRegistrationNumberAsync(cmd.TenantId, RegistrationNumber.Create(cmd.CustomerTaxDetails.RegistrationNumber), cancellationToken))
-            return Result<CustomerDto>.Failure(ApplicationErrors.CreateCustomerRegistrationNumberAlreadyExists);
+            return Result<CustomerDto>.Failure(ApplicationErrors.CustomerRegistrationNumberAlreadyExists);
 
         if (cmd.CustomerTaxDetails.TaxNumber is not null 
             && await customersRepository.ExistsByTaxNumberAsync(cmd.TenantId, TaxNumber.Create(cmd.CustomerTaxDetails.TaxNumber), cancellationToken))
-                return Result<CustomerDto>.Failure(ApplicationErrors.CreateCustomerTaxNumberAlreadyExists);
+                return Result<CustomerDto>.Failure(ApplicationErrors.CustomerTaxNumberAlreadyExists);
 
         var customer = Customer.Create(
             Guid.CreateVersion7(),
