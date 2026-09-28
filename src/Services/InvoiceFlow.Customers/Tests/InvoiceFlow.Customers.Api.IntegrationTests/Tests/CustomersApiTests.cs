@@ -1,5 +1,5 @@
 ﻿using FluentAssertions;
-using InvoiceFlow.BuildingBlocks.Authorization.Permissions;
+using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.Customers.Api.IntegrationTests.BaseTests;
 using InvoiceFlow.Customers.Application;
 using System.Net;

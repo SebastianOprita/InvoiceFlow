@@ -1,6 +1,5 @@
 ﻿using InvoiceFlow.BuildingBlocks.Application;
 using InvoiceFlow.BuildingBlocks.Authorization;
-using InvoiceFlow.BuildingBlocks.Authorization.Permissions;
 using InvoiceFlow.Identity.Domain;
 using MediatR;
 using Microsoft.Extensions.Options;

@@ -16,8 +16,4 @@
 	<PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\InvoiceFlow.BuildingBlocks.Domain\InvoiceFlow.BuildingBlocks.Domain.csproj" />
-  </ItemGroup>
-
 </Project>

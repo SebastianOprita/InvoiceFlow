@@ -1,6 +1,4 @@
-﻿using InvoiceFlow.BuildingBlocks.Authorization.Permissions;
-
-namespace InvoiceFlow.BuildingBlocks.Authorization.Policies;
+﻿namespace InvoiceFlow.BuildingBlocks.Authorization.Policies;
 
 public static class PermissionPolicy
 {

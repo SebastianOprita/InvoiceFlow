@@ -1,4 +1,4 @@
-﻿using InvoiceFlow.BuildingBlocks.Api;
+﻿using InvoiceFlow.BuildingBlocks.Application;
 using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.Identity.Application;
 using MediatR;
@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InvoiceFlow.Identity.Api;
-
 
 public record LoginRequest(string Email, string Password);
 
