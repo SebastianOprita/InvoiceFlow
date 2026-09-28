@@ -41,6 +41,14 @@ public sealed class CustomersApiTests : IAsyncLifetime
         return ValueTask.CompletedTask;
     }
 
+    [Fact]
+    public async Task GetErrors_Should_ReturnOk()
+    {
+        var response = await _client.SendAsync(HttpMethod.Get, "api/errors");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+
 
     [Fact]
     public async Task GetAll_Should_ReturnOk()

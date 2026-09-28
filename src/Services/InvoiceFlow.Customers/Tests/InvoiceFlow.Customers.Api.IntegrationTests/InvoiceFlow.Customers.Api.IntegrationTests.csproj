@@ -17,10 +17,10 @@
 	<PackageReference Include="Respawn" />
     <PackageReference Include="coverlet.MTP" />
     <PackageReference Include="Microsoft.Testing.Extensions.TrxReport" />
+	<PackageReference Include="InvoiceFlow.BuildingBlocks.Authorization" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\BuildingBlocks\InvoiceFlow.BuildingBlocks.Authorization\InvoiceFlow.BuildingBlocks.Authorization.csproj" />
     <ProjectReference Include="..\..\InvoiceFlow.Customers.Api\InvoiceFlow.Customers.Api.csproj" />
   </ItemGroup>
 

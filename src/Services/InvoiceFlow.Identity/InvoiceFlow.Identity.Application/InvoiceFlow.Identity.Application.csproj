@@ -5,9 +5,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+	
+  <ItemGroup>
+    <PackageReference Include="InvoiceFlow.BuildingBlocks.Application" />
+  </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\BuildingBlocks\InvoiceFlow.BuildingBlocks.Application\InvoiceFlow.BuildingBlocks.Application.csproj" />
     <ProjectReference Include="..\InvoiceFlow.Identity.Domain\InvoiceFlow.Identity.Domain.csproj" />
   </ItemGroup>
 

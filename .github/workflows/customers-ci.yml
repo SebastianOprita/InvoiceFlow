@@ -6,7 +6,9 @@ on:
       - main
     paths:
       - 'src/Services/InvoiceFlow.Customers/**'
-      - 'src/BuildingBlocks/**'
+      - 'Directory.Packages.props'
+      - 'Directory.Build.props'
+      - 'NuGet.config'
       - '.github/workflows/customers-ci.yml'
 
   pull_request:
@@ -14,7 +16,9 @@ on:
       - main
     paths:
       - 'src/Services/InvoiceFlow.Customers/**'
-      - 'src/BuildingBlocks/**'
+      - 'Directory.Packages.props'
+      - 'Directory.Build.props'
+      - 'NuGet.config'
       - '.github/workflows/customers-ci.yml'
 
   workflow_dispatch:
@@ -23,34 +27,9 @@ permissions:
   contents: read
   checks: write
   pull-requests: read
+  packages: read
 
 jobs:
-  # ------------------------------------------------------------
-  # Detect relevant changes
-  # ------------------------------------------------------------
-  changes:
-    name: Detect Customers Changes
-    runs-on: ubuntu-latest
-    
-    outputs:
-      customers: ${{ steps.filter.outputs.customers }}
-      
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-        
-      - name: Detect Customers changes
-        id: filter
-        uses: dorny/paths-filter@v3
-        with:
-          filters: |
-            customers:
-              - 'src/Services/InvoiceFlow.Customers/**'
-              - 'src/BuildingBlocks/**'
-              - '.github/workflows/customers-ci.yml'
-              
   # ------------------------------------------------------------
   # Build + Test + Sonar
   # ------------------------------------------------------------
@@ -66,15 +45,18 @@ jobs:
       # Checkout
       # ------------------------------------------------------------
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         
       # ------------------------------------------------------------
       # .NET
       # ------------------------------------------------------------
       - name: Setup .Net
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '10.0.x'
+          source-url: https://nuget.pkg.github.com/SebastianOprita/index.json
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
       # ------------------------------------------------------------
       # SonarQube Cloud
@@ -90,7 +72,7 @@ jobs:
           /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
           /d:sonar.cs.opencover.reportsPaths="TestResults/**/coverage.opencover*.xml"
           /d:sonar.cs.vstest.reportsPaths="TestResults/**/*.trx"
-          /d:sonar.exclusions=".github/**,global.json,Aspire/**,Docs/**,src/Services/InvoiceFlow.Identity/**,src/Services/InvoiceFlow.Invoices/**,src/Services/InvoiceFlow.Payments/**,src/Services/InvoiceFlow.Notifications/**,src/Services/InvoiceFlow.Reminder/**,**/bin/**,**/obj/**,**/Migrations/**"
+          /d:sonar.exclusions=".github/**,global.json,Directory.Packages.props,Directory.Build.props,NuGet.config,Aspire/**,Docs/**,src/BuildingBlocks/**,src/Services/InvoiceFlow.Identity/**,src/Services/InvoiceFlow.Invoices/**,src/Services/InvoiceFlow.Payments/**,src/Services/InvoiceFlow.Notifications/**,src/Services/InvoiceFlow.Reminder/**,**/bin/**,**/obj/**,**/Migrations/**"
           /d:sonar.coverage.exclusions="**/Migrations/**"
           /d:sonar.qualitygate.wait=true
           /d:sonar.qualitygate.timeout=300
@@ -221,33 +203,3 @@ jobs:
           name: customers-coverage-report
           path: CoverageReport
           if-no-files-found: warn
-          
-  # ------------------------------------------------------------
-  # Always-present Customers gate
-  # ------------------------------------------------------------
-  customers-gate:
-    name: Customers CI Gate
-    needs:
-      - changes
-      - build-and-test
-      
-    if: always()
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Validate Customers CI
-        shell: bash
-        run: |
-          if [ "${{ needs.changes.outputs.customers }}" != "true" ]; then
-            echo "No Customers-related changes detected."
-            echo "Customers CI is not required for this pull request."
-            exit 0
-          fi
-      
-          if [ "${{ needs.build-and-test.result }}" != "success" ]; then
-            echo "Customers CI failed."
-            echo "Result: ${{ needs.build-and-test.result }}"
-            exit 1
-          fi
-      
-          echo "Customers CI passed."
