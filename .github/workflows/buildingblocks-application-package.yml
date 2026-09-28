@@ -1,0 +1,64 @@
+name: BuildingBlocks Application Package
+
+on:
+  push:
+    tags:
+      - 'buildingblocks-application-v[0-9]+.[0-9]+.[0-9]+'
+      
+permissions:
+  contents: read
+  packages: write
+  
+jobs:
+  publish:
+    name: Build and Publish Application
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+          source-url: https://nuget.pkg.github.com/SebastianOprita/index.json
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+      - name: Extract package version
+        id: version
+        shell: bash
+        run: |
+          VERSION="${GITHUB_REF_NAME#buildingblocks-application-v}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+        
+      - name: Restore
+        run: >
+          dotnet restore
+          src/BuildingBlocks/InvoiceFlow.BuildingBlocks.Application/InvoiceFlow.BuildingBlocks.Application.csproj
+        
+      - name: Build
+        run: >
+          dotnet build
+          src/BuildingBlocks/InvoiceFlow.BuildingBlocks.Application/InvoiceFlow.BuildingBlocks.Application.csproj
+          --configuration Release
+          --no-restore
+        
+      - name: Pack
+        run: >
+          dotnet pack
+          src/BuildingBlocks/InvoiceFlow.BuildingBlocks.Application/InvoiceFlow.BuildingBlocks.Application.csproj
+          --configuration Release
+          --no-build
+          --output ./artifacts/packages
+          -p:PackageVersion=${{ steps.version.outputs.version }}
+        
+      - name: Publish
+        # Add --skip-duplicate once package versions become immutable.
+        run: >
+          dotnet nuget push
+          "./artifacts/packages/*.nupkg"
+          --source "https://nuget.pkg.github.com/SebastianOprita/index.json"
+          --api-key "${{ secrets.GITHUB_TOKEN }}"
+
