@@ -55,10 +55,10 @@ jobs:
           -p:PackageVersion=${{ steps.version.outputs.version }}
         
       - name: Publish
+        # Add --skip-duplicate once package versions become immutable.
         run: >
           dotnet nuget push
           "./artifacts/packages/*.nupkg"
           --source "https://nuget.pkg.github.com/SebastianOprita/index.json"
           --api-key "${{ secrets.GITHUB_TOKEN }}"
-          --skip-duplicate
 
