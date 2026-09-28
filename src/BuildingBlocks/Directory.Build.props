@@ -1,0 +1,17 @@
+<Project>
+  <PropertyGroup>
+    <IsPackable>true</IsPackable>
+
+    <Authors>InvoiceFlow</Authors>
+    <Company>InvoiceFlow</Company>
+
+    <RepositoryUrl>https://github.com/SebastianOprita/InvoiceFlow</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+</Project>
