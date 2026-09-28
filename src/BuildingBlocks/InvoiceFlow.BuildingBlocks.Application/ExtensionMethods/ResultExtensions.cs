@@ -1,8 +1,7 @@
-﻿using InvoiceFlow.BuildingBlocks.Application;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace InvoiceFlow.BuildingBlocks.Api;
+namespace InvoiceFlow.BuildingBlocks.Application;
 
 public static class ResultExtensions
 {

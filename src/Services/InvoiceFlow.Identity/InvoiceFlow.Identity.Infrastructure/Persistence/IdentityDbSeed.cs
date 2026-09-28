@@ -1,5 +1,5 @@
 ﻿using InvoiceFlow.BuildingBlocks.Application;
-using InvoiceFlow.BuildingBlocks.Authorization.Permissions;
+using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.Identity.Domain;
 
 namespace InvoiceFlow.Identity.Infrastructure;

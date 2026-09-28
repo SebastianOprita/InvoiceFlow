@@ -1,5 +1,4 @@
-﻿using InvoiceFlow.BuildingBlocks.Authorization.Permissions;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Security.Claims;
 
 namespace InvoiceFlow.BuildingBlocks.Authorization.Claims;

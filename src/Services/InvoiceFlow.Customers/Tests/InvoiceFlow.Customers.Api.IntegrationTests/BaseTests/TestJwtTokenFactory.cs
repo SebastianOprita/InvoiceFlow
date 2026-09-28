@@ -1,6 +1,5 @@
 ﻿using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.BuildingBlocks.Authorization.Claims;
-using InvoiceFlow.BuildingBlocks.Authorization.Permissions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
