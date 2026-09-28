@@ -1,4 +1,4 @@
-﻿namespace InvoiceFlow.BuildingBlocks.Authorization.Permissions;
+﻿namespace InvoiceFlow.BuildingBlocks.Authorization;
 
 public static class SystemPermissionExtensions
 {

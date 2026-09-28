@@ -1,5 +1,4 @@
-﻿using InvoiceFlow.BuildingBlocks.Authorization.Permissions;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using System.Diagnostics.CodeAnalysis;
 
 namespace InvoiceFlow.BuildingBlocks.Authorization.Policies;

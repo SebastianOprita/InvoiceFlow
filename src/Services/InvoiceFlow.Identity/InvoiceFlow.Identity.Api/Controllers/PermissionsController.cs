@@ -1,4 +1,4 @@
-﻿using InvoiceFlow.BuildingBlocks.Authorization.Permissions;
+﻿using InvoiceFlow.BuildingBlocks.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
