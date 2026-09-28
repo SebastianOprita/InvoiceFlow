@@ -8,10 +8,10 @@
 
   <ItemGroup>
     <PackageReference Include="FluentValidation" />
+    <PackageReference Include="InvoiceFlow.BuildingBlocks.Application" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\BuildingBlocks\InvoiceFlow.BuildingBlocks.Application\InvoiceFlow.BuildingBlocks.Application.csproj" />
     <ProjectReference Include="..\InvoiceFlow.Customers.Domain\InvoiceFlow.Customers.Domain.csproj" />
   </ItemGroup>
 

@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\BuildingBlocks\InvoiceFlow.BuildingBlocks.Authorization\InvoiceFlow.BuildingBlocks.Authorization.csproj" />
-    <ProjectReference Include="..\..\..\BuildingBlocks\InvoiceFlow.BuildingBlocks.Domain\InvoiceFlow.BuildingBlocks.Domain.csproj" />
+    <PackageReference Include="InvoiceFlow.BuildingBlocks.Authorization" />
+    <PackageReference Include="InvoiceFlow.BuildingBlocks.Domain" />
   </ItemGroup>
 
 </Project>

@@ -9,11 +9,11 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" />
 		<!-- <PackageReference Include="Microsoft.OpenApi" Version="3.10.2" /> -->
+		<PackageReference  Include="InvoiceFlow.BuildingBlocks.Api" />
+		<PackageReference  Include="InvoiceFlow.BuildingBlocks.Authorization" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\..\BuildingBlocks\InvoiceFlow.BuildingBlocks.Api\InvoiceFlow.BuildingBlocks.Api.csproj" />
-	  <ProjectReference Include="..\..\..\BuildingBlocks\InvoiceFlow.BuildingBlocks.Authorization\InvoiceFlow.BuildingBlocks.Authorization.csproj" />
 	  <ProjectReference Include="..\InvoiceFlow.Customers.Application\InvoiceFlow.Customers.Application.csproj" />
 	  <ProjectReference Include="..\InvoiceFlow.Customers.Infrastructure\InvoiceFlow.Customers.Infrastructure.csproj" />
 	</ItemGroup>
