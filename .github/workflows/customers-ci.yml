@@ -16,6 +16,12 @@ on:
 
   workflow_dispatch:
 
+permissions:
+  contents: read
+  checks: write
+  pull-requests: read
+  packages: read
+      
 jobs:
   customers:
     uses: ./.github/workflows/service-ci-template.yml
