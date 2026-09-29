@@ -1,0 +1,13 @@
+name: Payments CI
+
+on:
+  workflow_call:
+
+jobs:
+  placeholder:
+    name: Payments Placeholder
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Placeholder
+        run: echo "Payments CI not implemented yet."
