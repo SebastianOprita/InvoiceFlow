@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using InvoiceFlow.BuildingBlocks.Api;
 using InvoiceFlow.BuildingBlocks.Authorization.ExtensionMethods;
 using InvoiceFlow.Customers.Application;
@@ -31,6 +33,11 @@ try
     builder.RegisterApplicationServices();
     builder.RegisterInfrastructureServices();
 
+    builder.Services
+        .AddHealthChecks()
+        .AddCheck("self", () => HealthCheckResult.Healthy(), tags: ["live"])
+        .AddDbContextCheck<CustomersDbContext>(name:"customers-database", tags: ["ready"]);
+
     var app = builder.Build();
 
     if (app.Environment.IsDevelopment())
@@ -45,6 +52,16 @@ try
     app.UseAuthorization();
 
     app.MapControllers();
+
+    app.MapHealthChecks("/health/live", new HealthCheckOptions
+    {
+        Predicate = (check) => check.Tags.Contains("live")
+    });
+
+    app.MapHealthChecks("/health/ready", new HealthCheckOptions
+    {
+        Predicate = (check) => check.Tags.Contains("ready")
+    });
 
     await app.ConfigureInfrastructureServices();
 

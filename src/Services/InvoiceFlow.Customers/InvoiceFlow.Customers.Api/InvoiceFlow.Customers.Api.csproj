@@ -11,6 +11,7 @@
 		<!-- <PackageReference Include="Microsoft.OpenApi" Version="3.10.2" /> -->
 		<PackageReference Include="InvoiceFlow.BuildingBlocks.Api" />
 		<PackageReference Include="InvoiceFlow.BuildingBlocks.Authorization" />
+		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" />
 	</ItemGroup>
 
 	<ItemGroup>
