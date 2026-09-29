@@ -1,0 +1,13 @@
+name: Invoices CI
+
+on:
+  workflow_call:
+
+jobs:
+  placeholder:
+    name: Invoices Placeholder
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Placeholder
+        run: echo "Invoices CI not implemented yet."
