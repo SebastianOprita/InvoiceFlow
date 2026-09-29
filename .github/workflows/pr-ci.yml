@@ -1,0 +1,166 @@
+name: InvoiceFlow PR CI
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: read
+  packages: read
+
+jobs:
+
+  # ------------------------------------------------------------
+  # Detect changed services
+  # ------------------------------------------------------------
+  changes:
+    name: Detect Changed Services
+    runs-on: ubuntu-latest
+
+    outputs:
+      customers: ${{ steps.filter.outputs.customers }}
+      identity: ${{ steps.filter.outputs.identity }}
+      invoices: ${{ steps.filter.outputs.invoices }}
+      payments: ${{ steps.filter.outputs.payments }}
+      common: ${{ steps.filter.outputs.common }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      
+      - name: Detect service changes
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            customers:
+              - 'src/Services/InvoiceFlow.Customers/**'
+
+            identity:
+              - 'src/Services/InvoiceFlow.Identity/**'
+
+            invoices:
+              - 'src/Services/InvoiceFlow.Invoices/**'
+
+            payments:
+              - 'src/Services/InvoiceFlow.Payments/**'
+
+            # Cross-cutting files: if any of these change,
+            # all services should be validated.
+            common:
+              - 'Directory.Packages.props'
+              - 'Directory.Build.props'
+              - 'NuGet.config'
+              - 'global.json'
+              - '.github/workflows/service-ci-template.yml'
+              - '.github/workflows/pr-ci.yml'
+
+  # ------------------------------------------------------------
+  # Customers
+  # ------------------------------------------------------------
+  customers:
+    name: Customers CI
+    needs: changes
+
+    if: >
+      needs.changes.outputs.customers == 'true' ||
+      needs.changes.outputs.common == 'true'
+
+    uses: ./.github/workflows/customers-ci.yml
+    secrets: inherit
+
+  # ------------------------------------------------------------
+  # Identity
+  # ------------------------------------------------------------
+  identity:
+    name: Identity CI
+    needs: changes
+
+    if: >
+      needs.changes.outputs.identity == 'true' ||
+      needs.changes.outputs.common == 'true'
+
+    uses: ./.github/workflows/identity-ci.yml
+    secrets: inherit
+
+  # ------------------------------------------------------------
+  # Invoices
+  # ------------------------------------------------------------
+  invoices:
+    name: Invoices CI
+    needs: changes
+
+    if: >
+      needs.changes.outputs.invoices == 'true' ||
+      needs.changes.outputs.common == 'true'
+
+    uses: ./.github/workflows/invoices-ci.yml
+    secrets: inherit
+
+  # ------------------------------------------------------------
+  # Payments
+  # ------------------------------------------------------------
+  payments:
+    name: Payments CI
+    needs: changes
+
+    if: >
+      needs.changes.outputs.payments == 'true' ||
+      needs.changes.outputs.common == 'true'
+
+    uses: ./.github/workflows/payments-ci.yml
+    secrets: inherit
+
+  # ------------------------------------------------------------
+  # Final required gate
+  # ------------------------------------------------------------
+  ci-gate:
+    name: InvoiceFlow CI
+
+    needs:
+      - changes
+      - customers
+      - identity
+      - payments
+      - invoices
+
+    if: always()
+
+    runs-on: ubuntu-latest
+
+    steps: 
+      - name: Validate InvoiceFlow CI
+        shell: bash
+        run: |
+          echo "Customers: ${{ needs.customers.result }}"
+          echo "Identity:  ${{ needs.identity.result }}"
+          echo "Invoices:  ${{ needs.invoices.result }}"
+          echo "Payments:  ${{ needs.payments.result }}"
+          
+          if [ "${{ needs.changes.result }}" != "success" ]; then
+            echo "Change detection failed."
+            exit 1
+          fi
+
+          if [ "${{ needs.customers.result }}" = "failure" ] ||
+             [ "${{ needs.identity.result }}" = "failure" ] ||
+             [ "${{ needs.payments.result }}" = "failure" ] ||
+             [ "${{ needs.invoices.result }}" = "failure" ]; then
+            echo "One or more service CI workflows failed."
+            exit 1
+          fi
+
+          if [ "${{ needs.customers.result }}" = "cancelled" ] ||
+             [ "${{ needs.identity.result }}" = "cancelled" ] ||
+             [ "${{ needs.payments.result }}" = "cancelled" ] ||
+             [ "${{ needs.invoices.result }}" = "cancelled" ]; then
+            echo "One or more service CI workflows were cancelled."
+            exit 1
+          fi
+
+          echo "InvoiceFlow CI passed."
