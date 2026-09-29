@@ -1,6 +1,8 @@
 name: Customers CI
 
 on:
+  workflow_call:
+
   push:
     branches:
       - main
@@ -10,16 +12,7 @@ on:
       - 'Directory.Build.props'
       - 'NuGet.config'
       - '.github/workflows/customers-ci.yml'
-
-  pull_request:
-    branches:
-      - main
-    paths:
-      - 'src/Services/InvoiceFlow.Customers/**'
-      - 'Directory.Packages.props'
-      - 'Directory.Build.props'
-      - 'NuGet.config'
-      - '.github/workflows/customers-ci.yml'
+      - '.github/workflows/service-ci-template.yml'
 
   workflow_dispatch:
 
@@ -28,176 +21,27 @@ permissions:
   checks: write
   pull-requests: read
   packages: read
-
+      
 jobs:
-  # ------------------------------------------------------------
-  # Build + Test + Sonar
-  # ------------------------------------------------------------
-  build-and-test:
-    name: Build and Test Customers
-    runs-on: ubuntu-latest
+  customers:
+    uses: ./.github/workflows/service-ci-template.yml
 
-    steps:
-    
-      # ------------------------------------------------------------
-      # Checkout
-      # ------------------------------------------------------------
-      - name: Checkout repository
-        uses: actions/checkout@v6
-        
-      # ------------------------------------------------------------
-      # .NET
-      # ------------------------------------------------------------
-      - name: Setup .Net
-        uses: actions/setup-dotnet@v6
-        with:
-          dotnet-version: '10.0.x'
-          source-url: https://nuget.pkg.github.com/SebastianOprita/index.json
-        env:
-          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
-      # ------------------------------------------------------------
-      # SonarQube Cloud
-      # ------------------------------------------------------------
-      - name: Install SonarScanner
-        run: dotnet tool install --global dotnet-sonarscanner
-        
-      - name: Begin SonarQube analysis
-        run: >
-          dotnet sonarscanner begin
-          /k:"${{ vars.CUSTOMERSSONARPROJECTKEY }}"
-          /o:"${{ vars.SONARORGANIZATION }}"
-          /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
-          /d:sonar.cs.opencover.reportsPaths="TestResults/**/coverage.opencover*.xml"
-          /d:sonar.cs.vstest.reportsPaths="TestResults/**/*.trx"
-          /d:sonar.exclusions=".github/**,global.json,Directory.Packages.props,Directory.Build.props,NuGet.config,Aspire/**,Docs/**,src/BuildingBlocks/**,src/Services/InvoiceFlow.Identity/**,src/Services/InvoiceFlow.Invoices/**,src/Services/InvoiceFlow.Payments/**,src/Services/InvoiceFlow.Notifications/**,src/Services/InvoiceFlow.Reminder/**,**/bin/**,**/obj/**,**/Migrations/**"
-          /d:sonar.coverage.exclusions="**/Migrations/**"
-          /d:sonar.qualitygate.wait=true
-          /d:sonar.qualitygate.timeout=300
+    with:
+      service_name: Customers
 
-      # ------------------------------------------------------------
-      # Restore & Build
-      # ------------------------------------------------------------
-      - name: Restore Customers API
-        run: >
-          dotnet restore
-          src/Services/InvoiceFlow.Customers/InvoiceFlow.Customers.Api/InvoiceFlow.Customers.Api.csproj
-          
-      - name: Build Customers API
-        run: >
-          dotnet build
-          src/Services/InvoiceFlow.Customers/InvoiceFlow.Customers.Api/InvoiceFlow.Customers.Api.csproj
-          --configuration Release
-          --no-restore
-          
-      # ------------------------------------------------------------
-      # Tests
-      # ------------------------------------------------------------
-      - name: Run Domain unit tests
-        run: >
-          dotnet test
-          src/Services/InvoiceFlow.Customers/Tests/InvoiceFlow.Customers.Domain.UnitTests/InvoiceFlow.Customers.Domain.UnitTests.csproj
-          --configuration Release
-          --results-directory TestResults/Domain
-          --
-          --report-trx
-          --report-trx-filename domain-tests.trx
-          --coverlet
-          --coverlet-output-format cobertura
-          --coverlet-output-format opencover
-          --coverlet-include "[InvoiceFlow.*]*"
-          --coverlet-exclude-by-file "**/Migrations/*.cs"
+      service_slug: customers
 
-      - name: Run Application unit tests
-        run: >
-          dotnet test
-          src/Services/InvoiceFlow.Customers/Tests/InvoiceFlow.Customers.Application.UnitTests/InvoiceFlow.Customers.Application.UnitTests.csproj
-          --configuration Release
-          --results-directory TestResults/Application
-          --
-          --report-trx
-          --report-trx-filename application-tests.trx
-          --coverlet
-          --coverlet-output-format cobertura
-          --coverlet-output-format opencover
-          --coverlet-include "[InvoiceFlow.*]*"
-          --coverlet-exclude-by-file "**/Migrations/*.cs"
+      service_path: src/Services/InvoiceFlow.Customers
 
-      - name: Run API integration tests
-        run: >
-          dotnet test
-          src/Services/InvoiceFlow.Customers/Tests/InvoiceFlow.Customers.Api.IntegrationTests/InvoiceFlow.Customers.Api.IntegrationTests.csproj
-          --configuration Release
-          --results-directory TestResults/Integration
-          --
-          --report-trx
-          --report-trx-filename integration-tests.trx
-          --coverlet
-          --coverlet-output-format cobertura
-          --coverlet-output-format opencover
-          --coverlet-include "[InvoiceFlow.*]*"
-          --coverlet-exclude-by-file "**/Migrations/*.cs"
-          
-      # ------------------------------------------------------------
-      # Finish SonarQube analysis
-      # ------------------------------------------------------------
-      - name: End SonarQube analysis
-        run: >
-          dotnet sonarscanner end
-          /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+      api_project: src/Services/InvoiceFlow.Customers/InvoiceFlow.Customers.Api/InvoiceFlow.Customers.Api.csproj
 
-      # ------------------------------------------------------------
-      # Test Reporting
-      # ------------------------------------------------------------
+      domain_tests: src/Services/InvoiceFlow.Customers/Tests/InvoiceFlow.Customers.Domain.UnitTests/InvoiceFlow.Customers.Domain.UnitTests.csproj
 
-      - name: Publish test results
-        if: always()
-        uses: dorny/test-reporter@v2
-        with:
-          name: Customers Tests
-          path: 'TestResults/**/*.trx'
-          reporter: dotnet-trx
+      application_tests: src/Services/InvoiceFlow.Customers/Tests/InvoiceFlow.Customers.Application.UnitTests/InvoiceFlow.Customers.Application.UnitTests.csproj
 
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: customers-test-results
-          path: TestResults/**/*.trx
-          if-no-files-found: warn
+      integration_tests: src/Services/InvoiceFlow.Customers/Tests/InvoiceFlow.Customers.Api.IntegrationTests/InvoiceFlow.Customers.Api.IntegrationTests.csproj
 
-      # ------------------------------------------------------------
-      # Coverage
-      # ------------------------------------------------------------
+      sonar_project_key: ${{ vars.CUSTOMERSSONARPROJECTKEY }}
 
-      - name: Upload raw coverage
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: customers-coverage
-          path: TestResults/**/coverage.cobertura*.xml
-          if-no-files-found: warn
-
-      - name: Install ReportGenerator
-        if: success()
-        run: dotnet tool install --global dotnet-reportgenerator-globaltool
-
-      - name: Generate coverage report
-        if: success()
-        run: >
-          reportgenerator
-          -reports:"TestResults/**/coverage.cobertura*.xml"
-          -targetdir:"CoverageReport"
-          -reporttypes:"Html;MarkdownSummaryGithub"
-
-      - name: Publish coverage summary
-        if: success()
-        run: cat CoverageReport/SummaryGithub.md >> $GITHUB_STEP_SUMMARY
-
-      - name: Upload coverage report
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: customers-coverage-report
-          path: CoverageReport
-          if-no-files-found: warn
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
