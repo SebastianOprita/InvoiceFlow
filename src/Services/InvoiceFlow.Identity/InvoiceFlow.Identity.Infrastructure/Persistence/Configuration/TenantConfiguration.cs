@@ -1,11 +1,9 @@
 ﻿using InvoiceFlow.Identity.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System.Diagnostics.CodeAnalysis;
 
 namespace InvoiceFlow.Identity.Infrastructure;
 
-[ExcludeFromCodeCoverage]
 public sealed class TenantConfiguration : IEntityTypeConfiguration<Tenant>
 {
     public void Configure(EntityTypeBuilder<Tenant> builder)

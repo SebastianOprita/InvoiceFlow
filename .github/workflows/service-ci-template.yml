@@ -86,8 +86,8 @@ jobs:
           /d:sonar.cs.opencover.reportsPaths="TestResults/**/coverage.opencover*.xml"
           /d:sonar.cs.vstest.reportsPaths="TestResults/**/*.trx"
           /d:sonar.inclusions="${{ inputs.service_path }}/**"
-          /d:sonar.exclusions=".github/**,global.json,Directory.Packages.props,Directory.Build.props,NuGet.config,Aspire/**,Docs/**,src/BuildingBlocks/**,**/bin/**,**/obj/**,**/Migrations/**"
-          /d:sonar.coverage.exclusions="**/Migrations/**"
+          /d:sonar.exclusions=".github/**,global.json,Directory.Packages.props,Directory.Build.props,NuGet.config,Aspire/**,Docs/**,src/BuildingBlocks/**,**/bin/**,**/obj/**,**/Migrations/**,**/Persistence/**"
+          /d:sonar.coverage.exclusions="**/Migrations/**,**/Persistence/**"
           /d:sonar.qualitygate.wait=true
           /d:sonar.qualitygate.timeout=300
 

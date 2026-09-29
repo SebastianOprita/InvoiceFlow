@@ -2,11 +2,9 @@
 using InvoiceFlow.Identity.Application;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics.CodeAnalysis;
 
 namespace InvoiceFlow.Identity.Infrastructure;
 
-[ExcludeFromCodeCoverage]
 public sealed class UnitOfWork : IUnitOfWork
 {
     private readonly IdentityDbContext _dbContext;
