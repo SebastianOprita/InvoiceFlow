@@ -1,9 +1,11 @@
 ﻿using InvoiceFlow.Identity.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System.Diagnostics.CodeAnalysis;
 
 namespace InvoiceFlow.Identity.Infrastructure;
 
+[ExcludeFromCodeCoverage]
 public sealed class PlatformUserConfiguration : IEntityTypeConfiguration<PlatformUser>
 {
     public void Configure(EntityTypeBuilder<PlatformUser> builder)

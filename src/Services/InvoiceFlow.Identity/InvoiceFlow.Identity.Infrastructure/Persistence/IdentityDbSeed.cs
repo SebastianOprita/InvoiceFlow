@@ -1,9 +1,11 @@
 ﻿using InvoiceFlow.BuildingBlocks.Application;
 using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.Identity.Domain;
+using System.Diagnostics.CodeAnalysis;
 
 namespace InvoiceFlow.Identity.Infrastructure;
 
+[ExcludeFromCodeCoverage]
 public static class IdentityDbSeed
 {
     public static async Task SeedAsync(IdentityDbContext db, ISystemDateTimeProvider dateTimeProvider)

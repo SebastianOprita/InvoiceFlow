@@ -3,11 +3,46 @@ name: Identity CI
 on:
   workflow_call:
 
-jobs:
-  placeholder:
-    name: Identity Placeholder
-    runs-on: ubuntu-latest
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/Services/InvoiceFlow.Identity/**'
+      - 'Directory.Packages.props'
+      - 'Directory.Build.props'
+      - 'NuGet.config'
+      - '.github/workflows/identity-ci.yml'
+      - '.github/workflows/service-ci-template.yml'
+  
+  workflow_dispatch:
 
-    steps:
-      - name: Placeholder
-        run: echo "Identity CI not implemented yet."
+permissions:
+  contents: read
+  checks: write
+  pull-requests: read
+  packages: read
+
+jobs:
+  identity:
+    uses: ./.github/workflows/service-ci-template.yml
+
+    with:
+      service_name: Identity
+
+      service_slug: identity
+
+      service_path: src/Services/InvoiceFlow.Identity
+
+      api_project: src/Services/InvoiceFlow.Identity/InvoiceFlow.Identity.Api/InvoiceFlow.Identity.Api.csproj
+
+      domain_tests: src/Services/InvoiceFlow.Identity/Tests/InvoiceFlow.Identity.Domain.UnitTests/InvoiceFlow.Identity.Domain.UnitTests.csproj
+
+      application_tests: src/Services/InvoiceFlow.Identity/Tests/InvoiceFlow.Identity.Application.UnitTests/InvoiceFlow.Identity.Application.UnitTests.csproj
+
+      integration_tests: src/Services/InvoiceFlow.Identity/Tests/InvoiceFlow.Identity.Api.IntegrationTests/InvoiceFlow.Identity.Api.IntegrationTests.csproj
+
+      sonar_project_key: ${{ vars.IDENTITYSONARPROJECTKEY }}
+
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+

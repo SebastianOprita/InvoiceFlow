@@ -7,10 +7,11 @@ public class GetUsersQueryHandler(IUsersRepository usersRepository) : IRequestHa
 {
     public async Task<Result<List<UserDto>>> Handle(GetUsersQuery qry, CancellationToken cancellationToken)
     {
-        var users = usersRepository.FindAllUsers(qry.TenantId)
+        var users = await usersRepository.FindAllUsersAsync(qry.TenantId);
+        var userDtos = users
             .Select(u => u.ToDto())
             .ToList();
 
-        return Result<List<UserDto>>.Success(users);
+        return Result<List<UserDto>>.Success(userDtos);
     }
 }

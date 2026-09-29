@@ -4,8 +4,8 @@ namespace InvoiceFlow.Identity.Application;
 
 public interface IRefreshTokensRepository
 {
-    public RefreshToken? FindRefreshToken(Guid tenantId, RefreshTokenHash tokenHash);
-    public RefreshToken? GetRefreshToken(Guid tenantId, RefreshTokenHash tokenHash);
+    public Task<RefreshToken?> FindRefreshTokenAsync(Guid tenantId, RefreshTokenHash tokenHash);
+    public Task<RefreshToken?> GetRefreshTokenAsync(Guid tenantId, RefreshTokenHash tokenHash);
     public void AddRefreshToken(RefreshToken refreshToken);
     public Task RevokeAccessForUserAsync(
         Guid tenantId,

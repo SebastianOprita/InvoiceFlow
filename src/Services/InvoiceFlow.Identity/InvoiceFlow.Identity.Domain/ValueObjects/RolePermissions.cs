@@ -12,7 +12,7 @@ public sealed record RolePermissions
     private RolePermissions(SystemPermission value)
     {
         if (!value.IsValid())
-            throw new DomainException(DomainErrors.PermissionsInvalid);
+            throw new DomainException(DomainErrors.PermissionInvalid);
 
         Value = value;
     }
@@ -36,7 +36,7 @@ public sealed record RolePermissions
     public bool Has(SystemPermission permission)
     {
         if (!permission.IsValid())
-            throw new DomainException(DomainErrors.PermissionsInvalid);
+            throw new DomainException(DomainErrors.PermissionInvalid);
 
         return permission != SystemPermission.None &&
                (Value & permission) == permission;
@@ -48,7 +48,7 @@ public sealed record RolePermissions
             throw new DomainException(DomainErrors.PermissionRequired);
 
         if (!permission.IsValid())
-            throw new DomainException(DomainErrors.PermissionsInvalid);
+            throw new DomainException(DomainErrors.PermissionInvalid);
     }
 
     public override string ToString() => Value.ToString();

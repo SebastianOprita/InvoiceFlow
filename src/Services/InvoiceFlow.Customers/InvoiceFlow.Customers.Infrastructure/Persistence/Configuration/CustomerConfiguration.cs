@@ -1,9 +1,11 @@
 ﻿using InvoiceFlow.Customers.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System.Diagnostics.CodeAnalysis;
 
 namespace InvoiceFlow.Customers.Infrastructure;
 
+[ExcludeFromCodeCoverage]
 public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
 {
     public void Configure(EntityTypeBuilder<Customer> builder)

@@ -2,10 +2,12 @@
 using InvoiceFlow.Identity.Application;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics.CodeAnalysis;
 
 namespace InvoiceFlow.Identity.Infrastructure;
 
-public class UnitOfWork : IUnitOfWork
+[ExcludeFromCodeCoverage]
+public sealed class UnitOfWork : IUnitOfWork
 {
     private readonly IdentityDbContext _dbContext;
     private readonly ILogger<UnitOfWork> _logger;
@@ -38,13 +40,23 @@ public class UnitOfWork : IUnitOfWork
             return Result.Failure(ApplicationErrors.DbSaveFailed);
         }
         catch (OperationCanceledException)
+        when (cancellationToken.IsCancellationRequested)
         {
+            _logger.LogDebug("SaveChanges was cancelled.");
             throw;
         }
+
     }
 
     public void Dispose()
     {
         _dbContext.Dispose();
+        GC.SuppressFinalize(this);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await _dbContext.DisposeAsync();
+        GC.SuppressFinalize(this);
     }
 }

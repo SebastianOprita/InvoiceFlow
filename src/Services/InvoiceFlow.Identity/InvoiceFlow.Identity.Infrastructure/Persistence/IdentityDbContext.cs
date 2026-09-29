@@ -1,8 +1,10 @@
 ﻿using InvoiceFlow.Identity.Domain;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics.CodeAnalysis;
 
 namespace InvoiceFlow.Identity.Infrastructure;
 
+[ExcludeFromCodeCoverage]
 public sealed class IdentityDbContext : DbContext
 {
     public DbSet<Tenant> Tenants => Set<Tenant>();
