@@ -23,7 +23,7 @@ public sealed class ErrorsController : ControllerBase
         return Ok(response);
     }
 
-    private static IReadOnlyCollection<ErrorDefinitionResponse> GetDomainErrors()
+    private static ErrorDefinitionResponse[] GetDomainErrors()
     {
         return GetStaticProperties(typeof(DomainErrors))
             .Where(property => property.PropertyType == typeof(DomainError))
@@ -41,7 +41,7 @@ public sealed class ErrorsController : ControllerBase
             .ToArray();
     }
 
-    private static IReadOnlyCollection<ErrorDefinitionResponse> GetApplicationErrors()
+    private static ErrorDefinitionResponse[] GetApplicationErrors()
     {
         return GetStaticProperties(typeof(ApplicationErrors))
             .Where(property => property.PropertyType == typeof(ApplicationError))
@@ -59,7 +59,7 @@ public sealed class ErrorsController : ControllerBase
             .ToArray();
     }
 
-    private static IEnumerable<PropertyInfo> GetStaticProperties(Type type)
+    private static PropertyInfo[] GetStaticProperties(Type type)
     {
         return type.GetProperties(
             BindingFlags.Public |
