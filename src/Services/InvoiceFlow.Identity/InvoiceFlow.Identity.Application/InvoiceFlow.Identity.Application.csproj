@@ -16,7 +16,6 @@
 
   <ItemGroup>
     <Folder Include="Features\PlatformUsers\Commands\" />
-    <Folder Include="Features\Roles\Commands\" />
     <Folder Include="Features\Tenants\Commands\" />
   </ItemGroup>
 

@@ -12,4 +12,5 @@ public static class ApplicationErrors
     public static ApplicationError PlatformUserNotFound => new(ApplicationErrorType.NotFound, "platformUser.notFound", "Platform User not found.");
     public static ApplicationError LoginUserNotFound => new(ApplicationErrorType.Unauthorized, "login.user.notFound", "User not found or invalid credentials.");
     public static ApplicationError UserNotFound => new(ApplicationErrorType.NotFound, "user.notFound", "User not found.");
+    public static ApplicationError RoleNameAlreadyExists => new(ApplicationErrorType.Conflict, "role.name.alreadyExists", "Role name already exists for this tenant.");
 }
