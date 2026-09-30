@@ -1,26 +1,31 @@
 ﻿using InvoiceFlow.Identity.Application;
 using InvoiceFlow.Identity.Domain;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics.CodeAnalysis;
 
 namespace InvoiceFlow.Identity.Infrastructure;
 
+[ExcludeFromCodeCoverage]
 public class RolesRepository(IdentityDbContext dbContext) : IRolesRepository
 {
-    public List<Role> FindAllRoles(Guid tenantId)
+    public async Task<List<Role>> FindAllRolesAsync(Guid tenantId)
     {
-        return dbContext.Roles.AsNoTracking().Where(r => r.TenantId == tenantId).ToList();
+        var roles = await dbContext.Roles.AsNoTracking().Where(r => r.TenantId == tenantId).ToListAsync();
+        return roles;
     }
-    public Role? FindRoleById(Guid tenantId, Guid roleId)
+    public async Task<Role?> FindRoleByIdAsync(Guid tenantId, Guid roleId)
     {
-        return dbContext.Roles.AsNoTracking().FirstOrDefault(r => r.TenantId == tenantId && r.Id == roleId);
+        var role = await dbContext.Roles.AsNoTracking().FirstOrDefaultAsync(r => r.TenantId == tenantId && r.Id == roleId);
+        return role;
     }
-    public Role? GetRoleById(Guid tenantId, Guid roleId)
+    public async Task<Role?> GetRoleByIdAsync(Guid tenantId, Guid roleId)
     {
-        return dbContext.Roles.FirstOrDefault(r => r.TenantId == tenantId && r.Id == roleId);
+        var role = await dbContext.Roles.FirstOrDefaultAsync(r => r.TenantId == tenantId && r.Id == roleId);
+        return role;
     }
-    public bool ExistsByName(Guid tenantId, RoleName name)
+    public async Task<bool> ExistsByNameAsync(Guid tenantId, RoleName name)
     {
-        return dbContext.Roles.AsNoTracking().Any(r => r.TenantId == tenantId && r.Name == name);
+        return await dbContext.Roles.AsNoTracking().AnyAsync(r => r.TenantId == tenantId && r.Name == name);
     }
     public void AddRole(Role role)
     {

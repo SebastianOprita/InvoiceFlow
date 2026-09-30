@@ -1,25 +1,27 @@
 ﻿using InvoiceFlow.Identity.Application;
 using InvoiceFlow.Identity.Domain;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics.CodeAnalysis;
 
 namespace InvoiceFlow.Identity.Infrastructure;
 
+[ExcludeFromCodeCoverage]
 public class RefreshTokensRepository(IdentityDbContext dbContext) : IRefreshTokensRepository
 {
-    public RefreshToken? FindRefreshToken(Guid tenantId, RefreshTokenHash tokenHash)
+    public Task<RefreshToken?> FindRefreshTokenAsync(Guid tenantId, RefreshTokenHash tokenHash)
     {
         var refreshToken = dbContext.RefreshTokens
             .AsNoTracking()
-            .FirstOrDefault(t =>
+            .FirstOrDefaultAsync(t =>
                 t.TenantId == tenantId && t.TokenHash == tokenHash);
 
         return refreshToken;
     }
 
-    public RefreshToken? GetRefreshToken(Guid tenantId, RefreshTokenHash tokenHash)
+    public Task<RefreshToken?> GetRefreshTokenAsync(Guid tenantId, RefreshTokenHash tokenHash)
     {
         var refreshToken = dbContext.RefreshTokens
-            .FirstOrDefault(t =>
+            .FirstOrDefaultAsync(t =>
                 t.TenantId == tenantId && t.TokenHash == tokenHash);
 
         return refreshToken;

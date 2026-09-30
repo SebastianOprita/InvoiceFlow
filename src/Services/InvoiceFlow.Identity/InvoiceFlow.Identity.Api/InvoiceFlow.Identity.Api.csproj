@@ -6,13 +6,17 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
-    <PackageReference Include="InvoiceFlow.BuildingBlocks.Api" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+		<!-- <PackageReference Include="Microsoft.OpenApi" Version="3.10.2" /> -->
+		<PackageReference Include="InvoiceFlow.BuildingBlocks.Api" />
+		<PackageReference Include="InvoiceFlow.BuildingBlocks.Authorization" />
+		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" />
+	</ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\InvoiceFlow.Identity.Application\InvoiceFlow.Identity.Application.csproj" />
+    <ProjectReference Include="..\InvoiceFlow.Identity.Infrastructure\InvoiceFlow.Identity.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

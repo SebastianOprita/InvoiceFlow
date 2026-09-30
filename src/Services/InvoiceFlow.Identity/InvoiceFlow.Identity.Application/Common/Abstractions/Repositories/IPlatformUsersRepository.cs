@@ -4,11 +4,11 @@ namespace InvoiceFlow.Identity.Application;
 
 public interface IPlatformUsersRepository
 {
-    public List<PlatformUser> FindAllUsers();
-    public PlatformUser? FindUserById(Guid userId);
-    public PlatformUser? FindUserByEmail(UserEmail email);
-    public bool ExistsByEmail(UserEmail email);
-    public PlatformUser? GetUserById(Guid userId);
-    public PlatformUser? GetUserByEmail(UserEmail email);
+    public Task<List<PlatformUser>> FindAllUsersAsync();
+    public Task<PlatformUser?> FindUserByIdAsync(Guid userId);
+    public Task<PlatformUser?> FindUserByEmailAsync(UserEmail email);
+    public Task<bool> ExistsByEmailAsync(UserEmail email);
+    public Task<PlatformUser?> GetUserByIdAsync(Guid userId);
+    public Task<PlatformUser?> GetUserByEmailAsync(UserEmail email);
     public void AddUser(PlatformUser user);
 }

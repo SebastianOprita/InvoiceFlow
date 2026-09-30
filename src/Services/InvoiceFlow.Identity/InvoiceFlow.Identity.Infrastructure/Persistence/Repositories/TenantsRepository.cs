@@ -1,34 +1,36 @@
 ﻿using InvoiceFlow.Identity.Application;
 using InvoiceFlow.Identity.Domain;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics.CodeAnalysis;
 
 namespace InvoiceFlow.Identity.Infrastructure;
 
+[ExcludeFromCodeCoverage]
 public class TenantsRepository(IdentityDbContext dbContext) : ITenantsRepository
 {
-    public bool ExistsBySlug(TenantSlug slug)
+    public async Task<bool> ExistsBySlugAsync(TenantSlug slug)
     {
-        return dbContext.Tenants.AsNoTracking().Any(t => t.Slug == slug);
+        return await dbContext.Tenants.AsNoTracking().AnyAsync(t => t.Slug == slug);
     }
 
-    public List<Tenant> FindAllTenants()
+    public async Task<List<Tenant>> FindAllTenantsAsync()
     {
-        return dbContext.Tenants.AsNoTracking().ToList();
+        return await dbContext.Tenants.AsNoTracking().ToListAsync();
     }
 
-    public Tenant? FindTenantById(Guid id)
+    public async Task<Tenant?> FindTenantByIdAsync(Guid id)
     {
-        return dbContext.Tenants.AsNoTracking().FirstOrDefault(t => t.Id == id);
+        return await dbContext.Tenants.AsNoTracking().FirstOrDefaultAsync(t => t.Id == id);
     }
 
-    public Tenant? FindTenantBySlug(string slug)
+    public async Task<Tenant?> FindTenantBySlugAsync(string slug)
     {
-        return dbContext.Tenants.AsNoTracking().FirstOrDefault(t => t.Slug.Value == slug);
+        return await dbContext.Tenants.AsNoTracking().FirstOrDefaultAsync(t => t.Slug.Value == slug);
     }
 
-    public Tenant? GetTenantById(Guid id)
+    public async Task<Tenant?> GetTenantByIdAsync(Guid id)
     {
-        return dbContext.Tenants.FirstOrDefault(t => t.Id == id);
+        return await dbContext.Tenants.FirstOrDefaultAsync(t => t.Id == id);
     }
 
     public void AddTenant(Tenant tenant)

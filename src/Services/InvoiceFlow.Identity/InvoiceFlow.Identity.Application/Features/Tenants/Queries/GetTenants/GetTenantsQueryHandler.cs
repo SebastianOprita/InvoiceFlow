@@ -7,10 +7,11 @@ public class GetTenantsQueryHandler(ITenantsRepository tenantsRepository) : IReq
 {
     public async Task<Result<List<TenantDto>>> Handle(GetTenantsQuery qry, CancellationToken cancellationToken)
     {
-        var tenants = tenantsRepository.FindAllTenants()
+        var tenants = await tenantsRepository.FindAllTenantsAsync();
+        var tenantDtos = tenants
             .Select(t => t.ToDto())
             .ToList();
 
-        return Result<List<TenantDto>>.Success(tenants);
+        return Result<List<TenantDto>>.Success(tenantDtos);
     }
 }

@@ -7,10 +7,11 @@ public class GetPlatformUsersQueryHandler(IPlatformUsersRepository usersReposito
 {
     public async Task<Result<List<PlatformUserDto>>> Handle(GetPlatformUsersQuery qry, CancellationToken cancellationToken)
     {
-        var users = usersRepository.FindAllUsers()
+        var users = await usersRepository.FindAllUsersAsync();
+        var usersDtos = users
             .Select(u => u.ToDto())
             .ToList();
 
-        return Result<List<PlatformUserDto>>.Success(users);
+        return Result<List<PlatformUserDto>>.Success(usersDtos);
     }
 }

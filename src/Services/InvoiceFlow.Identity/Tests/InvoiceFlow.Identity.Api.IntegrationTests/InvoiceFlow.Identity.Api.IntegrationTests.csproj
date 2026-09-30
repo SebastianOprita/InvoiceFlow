@@ -4,6 +4,24 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <OutputType>Exe</OutputType>
+    <IsTestProject>true</IsTestProject>
   </PropertyGroup>
+	
+  <ItemGroup>
+	<PackageReference Include="FluentAssertions" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <PackageReference Include="Testcontainers.MsSql" />
+	<PackageReference Include="xunit.v3" />
+	<PackageReference Include="Respawn" />
+    <PackageReference Include="coverlet.MTP" />
+    <PackageReference Include="Microsoft.Testing.Extensions.TrxReport" />
+	<PackageReference Include="InvoiceFlow.BuildingBlocks.Authorization" />
+  </ItemGroup>
+	
+  <ItemGroup>
+    <ProjectReference Include="..\..\InvoiceFlow.Identity.Api\InvoiceFlow.Identity.Api.csproj" />
+  </ItemGroup>
 
 </Project>
