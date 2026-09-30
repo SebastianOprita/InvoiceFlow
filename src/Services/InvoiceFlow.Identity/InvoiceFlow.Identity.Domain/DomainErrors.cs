@@ -23,7 +23,7 @@ public static class DomainErrors
     public static DomainError UpdatedAtUtcInvalid => new("updatedAtUtc.invalid", "Updated datetime cannot be earlier than Created datetime.");
     public static DomainError AssignedAtUtcRequired => new("assignedAtUtc.required", "Assigned datetime is required.");
     public static DomainError AssignedAtUtcNotUtc => new("assignedAtUtc.notUtc", "Assigned datetime must be in UTC.");
-    public static DomainError PermissionsInvalid => new("permissions.invalid", "Permissions contains invalid flags.");
+    public static DomainError PermissionInvalid => new("permission.invalid", "Permission contains invalid flags.");
     public static DomainError PermissionRequired => new("permission.required", "Permission is required.");
     public static DomainError DescriptionRequired => new("description.required", "Description is required.");
     public static DomainError DescriptionTooLong => new("description.tooLong", $"Description is too long. Maximum length is {RoleDescription.MaxLength} characters.");

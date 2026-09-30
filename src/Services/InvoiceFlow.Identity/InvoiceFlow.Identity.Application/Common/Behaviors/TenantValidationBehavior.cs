@@ -24,7 +24,7 @@ public sealed class TenantValidationBehavior<TRequest, TValue>
         RequestHandlerDelegate<Result<TValue>> next,
         CancellationToken cancellationToken)
     {
-        var tenant = _tenantsRepository.GetTenantById(request.TenantId);
+        var tenant = await _tenantsRepository.GetTenantByIdAsync(request.TenantId);
 
         if (tenant is null)
             return Result<TValue>.Failure(ApplicationErrors.TenantNotFound);

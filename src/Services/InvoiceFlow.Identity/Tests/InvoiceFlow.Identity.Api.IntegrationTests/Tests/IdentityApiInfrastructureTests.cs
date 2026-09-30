@@ -1,16 +1,16 @@
 ﻿using FluentAssertions;
-using InvoiceFlow.Customers.Api.IntegrationTests.BaseTests;
+using InvoiceFlow.Identity.Api.IntegrationTests.BaseTests;
 using System.Net;
 using Xunit;
 
-namespace InvoiceFlow.Customers.Api.IntegrationTests;
+namespace InvoiceFlow.Identity.Api.IntegrationTests;
 
-[Collection(CustomersApiCollection.Name)]
-public sealed class CustomersApiInfrastructureTests
+[Collection(IdentityApiInfrastructureCollection.Name)]
+public sealed class IdentityApiInfrastructureTests
 {
     private readonly TestClient _client;
 
-    public CustomersApiInfrastructureTests(CustomersApiFactory factory)
+    public IdentityApiInfrastructureTests(IdentityApiFactory factory)
     {
         _client = new TestClient(factory);
     }

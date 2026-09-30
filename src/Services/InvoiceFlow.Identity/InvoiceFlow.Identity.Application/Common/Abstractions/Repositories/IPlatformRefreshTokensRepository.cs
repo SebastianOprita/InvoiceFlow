@@ -4,8 +4,8 @@ namespace InvoiceFlow.Identity.Application;
 
 public interface IPlatformRefreshTokensRepository
 {
-    public PlatformRefreshToken? FindPlatformRefreshToken(RefreshTokenHash tokenHash);
-    public PlatformRefreshToken? GetPlatformRefreshToken(RefreshTokenHash tokenHash);
+    public Task<PlatformRefreshToken?> FindPlatformRefreshTokenAsync(RefreshTokenHash tokenHash);
+    public Task<PlatformRefreshToken?> GetPlatformRefreshTokenAsync(RefreshTokenHash tokenHash);
     public void AddPlatformRefreshToken(PlatformRefreshToken refreshToken);
     public Task RevokeAccessForPlatformUserAsync(
         Guid userId,

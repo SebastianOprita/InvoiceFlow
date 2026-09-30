@@ -4,10 +4,10 @@ namespace InvoiceFlow.Identity.Application;
 
 public interface ITenantsRepository
 {
-    public bool ExistsBySlug(TenantSlug slug);
-    public List<Tenant> FindAllTenants();
-    public Tenant? FindTenantById(Guid id);
-    public Tenant? FindTenantBySlug(string slug);
-    public Tenant? GetTenantById(Guid id);
+    public Task<bool> ExistsBySlugAsync(TenantSlug slug);
+    public Task<List<Tenant>> FindAllTenantsAsync();
+    public Task<Tenant?> FindTenantByIdAsync(Guid id);
+    public Task<Tenant?> FindTenantBySlugAsync(string slug);
+    public Task<Tenant?> GetTenantByIdAsync(Guid id);
     public void AddTenant(Tenant tenant);
 }

@@ -1,11 +1,9 @@
 ﻿using InvoiceFlow.Customers.Application;
 using InvoiceFlow.Customers.Domain;
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics.CodeAnalysis;
 
 namespace InvoiceFlow.Customers.Infrastructure;
 
-[ExcludeFromCodeCoverage]
 public class CustomersRepository(CustomersDbContext dbContext) : ICustomersRepository
 {
     public async Task<List<Customer>> FindAllCustomersAsync(Guid tenantId, CancellationToken cancellationToken = default)

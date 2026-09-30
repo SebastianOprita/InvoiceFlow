@@ -7,7 +7,7 @@ public class GetRoleByIdQueryHandler(IRolesRepository rolesRepository) : IReques
 {
     public async Task<Result<RoleDto>> Handle(GetRoleByIdQuery qry, CancellationToken cmd)
     {
-        var role = rolesRepository.FindRoleById(qry.TenantId, qry.RoleId);
+        var role = await rolesRepository.FindRoleByIdAsync(qry.TenantId, qry.RoleId);
 
         if (role == null)
             return Result<RoleDto>.Failure(ApplicationErrors.RoleNotFound);

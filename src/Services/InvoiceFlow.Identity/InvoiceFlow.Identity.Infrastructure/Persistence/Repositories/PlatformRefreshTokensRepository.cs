@@ -1,24 +1,26 @@
 ﻿using InvoiceFlow.Identity.Application;
 using InvoiceFlow.Identity.Domain;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics.CodeAnalysis;
 
 namespace InvoiceFlow.Identity.Infrastructure;
 
+[ExcludeFromCodeCoverage]
 public class PlatformRefreshTokensRepository(IdentityDbContext dbContext) : IPlatformRefreshTokensRepository
 {
-    public PlatformRefreshToken? FindPlatformRefreshToken(RefreshTokenHash tokenHash)
+    public async Task<PlatformRefreshToken?> FindPlatformRefreshTokenAsync(RefreshTokenHash tokenHash)
     {
-        var refreshToken = dbContext.PlatformRefreshTokens
+        var refreshToken = await dbContext.PlatformRefreshTokens
             .AsNoTracking()
-            .FirstOrDefault(t => t.TokenHash == tokenHash);
+            .FirstOrDefaultAsync(t => t.TokenHash == tokenHash);
 
         return refreshToken;
     }
 
-    public PlatformRefreshToken? GetPlatformRefreshToken(RefreshTokenHash tokenHash)
+    public async Task<PlatformRefreshToken?> GetPlatformRefreshTokenAsync(RefreshTokenHash tokenHash)
     {
-        var refreshToken = dbContext.PlatformRefreshTokens
-            .FirstOrDefault(t => t.TokenHash == tokenHash);
+        var refreshToken = await dbContext.PlatformRefreshTokens
+            .FirstOrDefaultAsync(t => t.TokenHash == tokenHash);
 
         return refreshToken;
     }

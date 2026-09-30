@@ -1,5 +1,4 @@
 ﻿using InvoiceFlow.BuildingBlocks.Domain;
-using Moq;
 using Xunit;
 
 namespace InvoiceFlow.Customers.Domain.UnitTests.Entities;

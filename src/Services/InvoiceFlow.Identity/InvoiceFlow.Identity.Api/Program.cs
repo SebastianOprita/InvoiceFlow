@@ -1,23 +1,79 @@
-var builder = WebApplication.CreateBuilder(args);
+using InvoiceFlow.BuildingBlocks.Api;
+using InvoiceFlow.BuildingBlocks.Authorization.ExtensionMethods;
+using InvoiceFlow.Identity.Application;
+using InvoiceFlow.Identity.Infrastructure;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Serilog;
 
-// Add services to the container.
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(new ConfigurationBuilder()
+        .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+        .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", optional: true, reloadOnChange: true)
+        .AddEnvironmentVariables()
+        .Build())
+    .Enrich.FromLogContext()
+    .CreateLogger();
 
-builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+try
 {
-    app.MapOpenApi();
+    Log.Information("Starting up");
+
+    var builder = WebApplication.CreateBuilder(args);
+
+    builder.Host.UseSerilog();
+
+    builder.Services.AddControllers();
+    builder.Services.AddOpenApi();
+    builder.Services.AddHttpContextAccessor();
+
+    builder.Services.AddInvoiceFlowAuthentication(builder.Configuration);
+    builder.Services.AddInvoiceFlowAuthorization();
+
+    builder.RegisterApplicationServices();
+    builder.RegisterInfrastructureServices();
+
+    builder.Services
+        .AddHealthChecks()
+        .AddCheck("self", () => HealthCheckResult.Healthy(), tags: ["live"])
+        .AddDbContextCheck<IdentityDbContext>(name: "customers-database", tags: ["ready"]);
+
+    var app = builder.Build();
+
+    if (app.Environment.IsDevelopment())
+    {
+        app.MapOpenApi();
+    }
+
+    app.UseHttpsRedirection();
+
+    app.UseValidationExceptionHandler();
+    app.UseAuthentication();
+    app.UseAuthorization();
+
+    app.MapControllers();
+
+    app.MapHealthChecks("/health/live", new HealthCheckOptions
+    {
+        Predicate = (check) => check.Tags.Contains("live")
+    });
+
+    app.MapHealthChecks("/health/ready", new HealthCheckOptions
+    {
+        Predicate = (check) => check.Tags.Contains("ready")
+    });
+
+    await app.ConfigureInfrastructureServices();
+
+    await app.RunAsync();
 }
-
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Application start-up failed");
+    throw;
+}
+finally
+{
+    Log.Information("Shutting down");
+    await Log.CloseAndFlushAsync();
+}

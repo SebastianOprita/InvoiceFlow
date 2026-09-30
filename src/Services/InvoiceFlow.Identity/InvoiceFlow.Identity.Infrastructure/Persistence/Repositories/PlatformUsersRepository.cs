@@ -1,39 +1,41 @@
 ﻿using InvoiceFlow.Identity.Application;
 using InvoiceFlow.Identity.Domain;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics.CodeAnalysis;
 
 namespace InvoiceFlow.Identity.Infrastructure;
 
+[ExcludeFromCodeCoverage]
 public class PlatformUsersRepository(IdentityDbContext dbContext) : IPlatformUsersRepository
 {
-    public List<PlatformUser> FindAllUsers()
+    public async Task<List<PlatformUser>> FindAllUsersAsync()
     {
-        return dbContext.PlatformUsers.AsNoTracking().ToList();
+        return await dbContext.PlatformUsers.AsNoTracking().ToListAsync();
     }
 
-    public PlatformUser? FindUserById(Guid userId)
+    public async Task<PlatformUser?> FindUserByIdAsync(Guid userId)
     {
-        return dbContext.PlatformUsers.AsNoTracking().FirstOrDefault(u => u.Id == userId);
+        return await dbContext.PlatformUsers.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId);
     }
 
-    public PlatformUser? FindUserByEmail(UserEmail email)
+    public async Task<PlatformUser?> FindUserByEmailAsync(UserEmail email)
     {
-        return dbContext.PlatformUsers.AsNoTracking().FirstOrDefault(u => u.Email == email);
+        return await dbContext.PlatformUsers.AsNoTracking().FirstOrDefaultAsync(u => u.Email == email);
     }
 
-    public bool ExistsByEmail(UserEmail email)
+    public async Task<bool> ExistsByEmailAsync(UserEmail email)
     {
-        return dbContext.PlatformUsers.AsNoTracking().Any(u => u.Email == email);
+        return await dbContext.PlatformUsers.AsNoTracking().AnyAsync(u => u.Email == email);
     }
 
-    public PlatformUser? GetUserById(Guid userId)
+    public async Task<PlatformUser?> GetUserByIdAsync(Guid userId)
     {
-        return dbContext.PlatformUsers.FirstOrDefault(u => u.Id == userId);
+        return await dbContext.PlatformUsers.FirstOrDefaultAsync(u => u.Id == userId);
     }
 
-    public PlatformUser? GetUserByEmail(UserEmail email)
+    public async Task<PlatformUser?> GetUserByEmailAsync(UserEmail email)
     {
-        return dbContext.PlatformUsers.FirstOrDefault(u => u.Email == email);
+        return await dbContext.PlatformUsers.FirstOrDefaultAsync(u => u.Email == email);
     }
 
     public void AddUser(PlatformUser user)

@@ -2,7 +2,6 @@
 using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.Identity.Application;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InvoiceFlow.Identity.Api;
@@ -10,7 +9,6 @@ namespace InvoiceFlow.Identity.Api;
 public record LoginRequest(string Email, string Password);
 
 [ApiController]
-[Authorize]
 [TenantScoped]
 [Route("api/{tenantId:guid}/[controller]")]
 public class AuthController(IMediator mediator) : ApiController
