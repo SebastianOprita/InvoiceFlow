@@ -90,6 +90,7 @@ jobs:
           /d:sonar.inclusions="${{ inputs.service_path }}/**"
           /d:sonar.exclusions=".github/**,global.json,Directory.Packages.props,Directory.Build.props,NuGet.config,Aspire/**,Docs/**,src/BuildingBlocks/**,**/bin/**,**/obj/**,**/Migrations/**,**/Persistence/**"
           /d:sonar.coverage.exclusions="**/Migrations/**,**/Persistence/**"
+          /d:sonar.cpd.exclusions="**/Entities/**/*.cs,**/ValueObjects/**/*.cs"
           /d:sonar.qualitygate.wait=true
           /d:sonar.qualitygate.timeout=300
 
