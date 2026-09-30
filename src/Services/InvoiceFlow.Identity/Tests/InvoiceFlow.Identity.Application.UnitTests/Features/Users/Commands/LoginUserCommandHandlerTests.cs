@@ -65,6 +65,7 @@ public sealed class LoginUserCommandHandlerTests
 
         // Assert
         result.IsFailure.Should().BeTrue();
+        result.Error.Should().NotBeNull();
         result.Error.Type.Should().Be(ApplicationErrorType.Unauthorized);
         result.Error.Code.Should().Be(ApplicationErrors.LoginUserNotFound.Code);
 
@@ -107,6 +108,7 @@ public sealed class LoginUserCommandHandlerTests
 
         // Assert
         result.IsFailure.Should().BeTrue();
+        result.Error.Should().NotBeNull();
         result.Error.Type.Should().Be(ApplicationErrorType.Unauthorized);
         result.Error.Code.Should().Be(ApplicationErrors.LoginUserNotFound.Code);
 
@@ -153,6 +155,7 @@ public sealed class LoginUserCommandHandlerTests
 
         // Assert
         result.IsFailure.Should().BeTrue();
+        result.Error.Should().NotBeNull();
         result.Error.Type.Should().Be(ApplicationErrorType.Unauthorized);
         result.Error.Code.Should().Be(ApplicationErrors.LoginUserNotFound.Code);
 
@@ -306,6 +309,7 @@ public sealed class LoginUserCommandHandlerTests
         // Assert
         result.IsSuccess.Should().BeTrue();
 
+        result.Value.Should().NotBeNull();
         result.Value.AccessToken.Should().Be("access-token");
         result.Value.AccessTokenExpiresAt.Should().Be(expiresAt);
         result.Value.RefreshToken.Should().Be("refresh-token");
