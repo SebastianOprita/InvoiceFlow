@@ -5,12 +5,14 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics.CodeAnalysis;
 
 namespace InvoiceFlow.Identity.Infrastructure;
 
-public static class ConfigureServices
+[ExcludeFromCodeCoverage]
+public static class DependencyInjection
 {
-    public static WebApplicationBuilder RegisterInfrastructureServices(this WebApplicationBuilder builder)
+    public static WebApplicationBuilder AddInfrastructureServices(this WebApplicationBuilder builder)
     {
         var connectionString = builder.Configuration.GetConnectionString("IdentityDb");
 

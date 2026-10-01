@@ -1,6 +1,5 @@
 ﻿using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.BuildingBlocks.Authorization.Claims;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -10,18 +9,8 @@ namespace InvoiceFlow.Customers.Api.IntegrationTests.BaseTests;
 
 public static class TestJwtTokenFactory
 {
-    public static string CreateAccessToken(Guid tenantId, SystemPermission permissions)
+    public static string CreateAccessToken(Guid tenantId, SystemPermission permissions, JwtSettings jwtSettings)
     {
-        var configuration = new ConfigurationBuilder()
-            .AddJsonFile("appsettings.Testing.json", optional: false)
-            .AddEnvironmentVariables()
-            .Build();
-
-        var jwtSettings = configuration
-            .GetSection("JwtSettings")
-            .Get<JwtSettings>()!;
-
-
         var dateTime = DateTime.UtcNow;
         var expiresAt = dateTime.AddMinutes(jwtSettings.AccessTokenMinutes);
 

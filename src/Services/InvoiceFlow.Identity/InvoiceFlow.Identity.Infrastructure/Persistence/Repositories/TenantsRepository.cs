@@ -1,11 +1,9 @@
 ﻿using InvoiceFlow.Identity.Application;
 using InvoiceFlow.Identity.Domain;
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics.CodeAnalysis;
 
 namespace InvoiceFlow.Identity.Infrastructure;
 
-[ExcludeFromCodeCoverage]
 public class TenantsRepository(IdentityDbContext dbContext) : ITenantsRepository
 {
     public async Task<bool> ExistsBySlugAsync(TenantSlug slug)

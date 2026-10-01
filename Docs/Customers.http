@@ -9,12 +9,10 @@ Content-Type: application/json
 }
 
 ###
-
 GET {{rootUrl}}
 Authorization: Bearer {{login.response.body.$.accessToken}}
 
 ###
-
 POST {{rootUrl}}
 Authorization: Bearer {{login.response.body.$.accessToken}}
 Content-Type: application/json

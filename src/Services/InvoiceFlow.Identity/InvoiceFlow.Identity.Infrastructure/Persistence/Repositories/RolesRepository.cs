@@ -1,11 +1,9 @@
 ﻿using InvoiceFlow.Identity.Application;
 using InvoiceFlow.Identity.Domain;
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics.CodeAnalysis;
 
 namespace InvoiceFlow.Identity.Infrastructure;
 
-[ExcludeFromCodeCoverage]
 public class RolesRepository(IdentityDbContext dbContext) : IRolesRepository
 {
     public async Task<List<Role>> FindAllRolesAsync(Guid tenantId)

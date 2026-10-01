@@ -24,10 +24,4 @@
     <ProjectReference Include="..\..\InvoiceFlow.Customers.Api\InvoiceFlow.Customers.Api.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="appsettings.Testing.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>
