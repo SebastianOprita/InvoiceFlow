@@ -3,12 +3,14 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics.CodeAnalysis;
 
 namespace InvoiceFlow.Customers.Infrastructure;
 
-public static class ConfigureServices
+[ExcludeFromCodeCoverage]
+public static class DependencyInjection
 {
-    public static WebApplicationBuilder RegisterInfrastructureServices(this WebApplicationBuilder builder)
+    public static void AddInfrastructureServices(this WebApplicationBuilder builder)
     {
         var connectionString = builder.Configuration.GetConnectionString("CustomersDb");
 
@@ -29,15 +31,11 @@ public static class ConfigureServices
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         builder.RegisterRepositories();
-
-        return builder;
     }
 
-    private static WebApplicationBuilder RegisterRepositories(this WebApplicationBuilder builder)
+    private static void RegisterRepositories(this WebApplicationBuilder builder)
     {
         builder.Services.AddScoped<ICustomersRepository, CustomersRepository>();
-
-        return builder;
     }
 
     public static async Task<WebApplication> ConfigureInfrastructureServices(this WebApplication app)

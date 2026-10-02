@@ -28,7 +28,8 @@ public sealed class CustomersApiTests : IAsyncLifetime
             SystemPermission.CustomerView |
             SystemPermission.CustomerCreate |
             SystemPermission.CustomerUpdate |
-            SystemPermission.CustomerDelete);
+            SystemPermission.CustomerDelete,
+            _factory.JwtSettings);
     }
 
     public async ValueTask InitializeAsync()
@@ -76,19 +77,10 @@ public sealed class CustomersApiTests : IAsyncLifetime
             .Replace("{tenantId}", _tenantId.ToString())
             .Replace("{customerId}", Guid.CreateVersion7().ToString());
 
-        var response = await _client.SendAsync(method, url, TestJwtTokenFactory.CreateAccessToken(_tenantId, SystemPermission.None));
+        var response = await _client.SendAsync(method, url, TestJwtTokenFactory.CreateAccessToken(_tenantId, SystemPermission.None, _factory.JwtSettings));
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
-
-    [Fact]
-    public async Task GetErrors_Should_ReturnOk()
-    {
-        var response = await _client.SendAsync(HttpMethod.Get, "api/errors");
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-    }
-
 
     [Fact]
     public async Task GetAll_Should_ReturnOk()

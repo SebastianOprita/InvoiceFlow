@@ -1,11 +1,9 @@
 ﻿using InvoiceFlow.Identity.Application;
 using InvoiceFlow.Identity.Domain;
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics.CodeAnalysis;
 
 namespace InvoiceFlow.Identity.Infrastructure;
 
-[ExcludeFromCodeCoverage]
 public class PlatformUsersRepository(IdentityDbContext dbContext) : IPlatformUsersRepository
 {
     public async Task<List<PlatformUser>> FindAllUsersAsync()

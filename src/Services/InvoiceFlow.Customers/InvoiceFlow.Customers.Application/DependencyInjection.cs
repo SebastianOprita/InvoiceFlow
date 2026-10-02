@@ -2,23 +2,24 @@
 using InvoiceFlow.BuildingBlocks.Application;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-
+using System.Diagnostics.CodeAnalysis;
 
 namespace InvoiceFlow.Customers.Application;
 
-public static class ConfigureServices
+[ExcludeFromCodeCoverage]
+public static class DependencyInjection
 {
-    public static WebApplicationBuilder RegisterApplicationServices(this WebApplicationBuilder builder)
+    public static WebApplicationBuilder AddApplicationServices(this WebApplicationBuilder builder)
     {
         builder.Services.AddMediatR(cfg =>
         {
-            cfg.RegisterServicesFromAssemblies(typeof(ConfigureServices).Assembly);
+            cfg.RegisterServicesFromAssemblies(typeof(DependencyInjection).Assembly);
 
             cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
             cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
         });
 
-        builder.Services.AddValidatorsFromAssembly(typeof(ConfigureServices).Assembly);
+        builder.Services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
 
         builder.Services.AddHttpContextAccessor();
 

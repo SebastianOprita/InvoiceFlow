@@ -1,9 +1,9 @@
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 using InvoiceFlow.BuildingBlocks.Api;
 using InvoiceFlow.BuildingBlocks.Authorization.ExtensionMethods;
 using InvoiceFlow.Customers.Application;
 using InvoiceFlow.Customers.Infrastructure;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration()
@@ -21,6 +21,12 @@ try
 
     var builder = WebApplication.CreateBuilder(args);
 
+    if (builder.Configuration["JwtSettings:Secret"] is null)
+    {
+        throw new InvalidOperationException(
+            "JwtSettings:Secret is not configured.");
+    }
+
     builder.Host.UseSerilog();
 
     builder.Services.AddControllers();
@@ -30,8 +36,8 @@ try
     builder.Services.AddInvoiceFlowAuthentication(builder.Configuration);
     builder.Services.AddInvoiceFlowAuthorization();
 
-    builder.RegisterApplicationServices();
-    builder.RegisterInfrastructureServices();
+    builder.AddApplicationServices();
+    builder.AddInfrastructureServices();
 
     builder.Services
         .AddHealthChecks()

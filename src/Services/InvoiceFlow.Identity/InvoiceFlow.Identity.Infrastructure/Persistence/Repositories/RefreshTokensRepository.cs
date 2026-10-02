@@ -1,11 +1,9 @@
 ﻿using InvoiceFlow.Identity.Application;
 using InvoiceFlow.Identity.Domain;
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics.CodeAnalysis;
 
 namespace InvoiceFlow.Identity.Infrastructure;
 
-[ExcludeFromCodeCoverage]
 public class RefreshTokensRepository(IdentityDbContext dbContext) : IRefreshTokensRepository
 {
     public Task<RefreshToken?> FindRefreshTokenAsync(Guid tenantId, RefreshTokenHash tokenHash)

@@ -1,4 +1,5 @@
 using InvoiceFlow.BuildingBlocks.Api;
+using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.BuildingBlocks.Authorization.ExtensionMethods;
 using InvoiceFlow.Identity.Application;
 using InvoiceFlow.Identity.Infrastructure;
@@ -21,17 +22,26 @@ try
 
     var builder = WebApplication.CreateBuilder(args);
 
+    if (builder.Configuration["JwtSettings:Secret"] is null)
+    {
+        throw new InvalidOperationException(
+            "JwtSettings:Secret is not configured.");
+    }
+
     builder.Host.UseSerilog();
 
     builder.Services.AddControllers();
     builder.Services.AddOpenApi();
     builder.Services.AddHttpContextAccessor();
 
+    builder.Services.Configure<JwtSettings>(
+        builder.Configuration.GetSection("JwtSettings"));
+
     builder.Services.AddInvoiceFlowAuthentication(builder.Configuration);
     builder.Services.AddInvoiceFlowAuthorization();
 
-    builder.RegisterApplicationServices();
-    builder.RegisterInfrastructureServices();
+    builder.AddApplicationServices();
+    builder.AddInfrastructureServices();
 
     builder.Services
         .AddHealthChecks()
