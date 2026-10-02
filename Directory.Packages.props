@@ -27,6 +27,7 @@
 		<PackageVersion Include="Respawn" Version="7.0.0" />
 		<PackageVersion Include="coverlet.MTP" Version="10.0.1" />
 		<PackageVersion Include="Microsoft.Testing.Extensions.TrxReport" Version="2.4.1" />
+		<PackageVersion Include="Microsoft.AspNetCore.TestHost" Version="10.0.12" />
 
 		<!-- InvoiceFlow BuildingBlocks -->
 		<PackageVersion Include="InvoiceFlow.BuildingBlocks.Domain" Version="1.0.0" />
