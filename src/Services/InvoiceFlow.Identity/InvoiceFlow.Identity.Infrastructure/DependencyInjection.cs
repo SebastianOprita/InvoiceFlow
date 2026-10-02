@@ -12,7 +12,7 @@ namespace InvoiceFlow.Identity.Infrastructure;
 [ExcludeFromCodeCoverage]
 public static class DependencyInjection
 {
-    public static WebApplicationBuilder AddInfrastructureServices(this WebApplicationBuilder builder)
+    public static void AddInfrastructureServices(this WebApplicationBuilder builder)
     {
         var connectionString = builder.Configuration.GetConnectionString("IdentityDb");
 
@@ -37,11 +37,9 @@ public static class DependencyInjection
         builder.Services.AddScoped<ITokenService, TokenService>();
 
         builder.RegisterRepositories();
-
-        return builder;
     }
 
-    private static WebApplicationBuilder RegisterRepositories(this WebApplicationBuilder builder)
+    private static void RegisterRepositories(this WebApplicationBuilder builder)
     {
         builder.Services.AddScoped<IRefreshTokensRepository, RefreshTokensRepository>();
         builder.Services.AddScoped<IRolesRepository, RolesRepository>();
@@ -49,8 +47,6 @@ public static class DependencyInjection
         builder.Services.AddScoped<ITenantsRepository, TenantsRepository>();
         builder.Services.AddScoped<IPlatformRefreshTokensRepository, PlatformRefreshTokensRepository>();
         builder.Services.AddScoped<IPlatformUsersRepository, PlatformUsersRepository>();
-
-        return builder;
     }
 
     public static async Task<WebApplication> ConfigureInfrastructureServices(this WebApplication app)
@@ -59,8 +55,8 @@ public static class DependencyInjection
         var db = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
         var datetimeProvider = scope.ServiceProvider.GetRequiredService<ISystemDateTimeProvider>();
 
-        db.Database.EnsureDeleted();
-        db.Database.Migrate();
+        await db.Database.EnsureDeletedAsync();
+        await db.Database.MigrateAsync();
 
         await IdentityDbSeed.SeedAsync(db, datetimeProvider);
 

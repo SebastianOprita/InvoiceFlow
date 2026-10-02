@@ -32,5 +32,6 @@ public class DatabaseTestFixture : IAsyncLifetime
     {
         await _container.StopAsync();
         await _container.DisposeAsync();
+        GC.SuppressFinalize(this);
     }
 }

@@ -10,7 +10,7 @@ namespace InvoiceFlow.Customers.Infrastructure;
 [ExcludeFromCodeCoverage]
 public static class DependencyInjection
 {
-    public static WebApplicationBuilder AddInfrastructureServices(this WebApplicationBuilder builder)
+    public static void AddInfrastructureServices(this WebApplicationBuilder builder)
     {
         var connectionString = builder.Configuration.GetConnectionString("CustomersDb");
 
@@ -31,15 +31,11 @@ public static class DependencyInjection
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         builder.RegisterRepositories();
-
-        return builder;
     }
 
-    private static WebApplicationBuilder RegisterRepositories(this WebApplicationBuilder builder)
+    private static void RegisterRepositories(this WebApplicationBuilder builder)
     {
         builder.Services.AddScoped<ICustomersRepository, CustomersRepository>();
-
-        return builder;
     }
 
     public static async Task<WebApplication> ConfigureInfrastructureServices(this WebApplication app)
