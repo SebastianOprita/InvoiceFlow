@@ -74,6 +74,18 @@ jobs:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # ------------------------------------------------------------
+      # Dependency vulnerability scanning + Restore
+      # ------------------------------------------------------------
+      - name: Restore and audit ${{ inputs.service_name }} dependencies
+        run: >
+          dotnet restore
+          "${{ inputs.api_project }}"
+          -p:NuGetAudit=true
+          -p:NuGetAuditMode=all
+          -p:NuGetAuditLevel=high
+          "-warnaserror:NU1903;NU1904"
+
+      # ------------------------------------------------------------
       # SonarQube Cloud
       # ------------------------------------------------------------    
       - name: Install SonarScanner
@@ -159,6 +171,7 @@ jobs:
       # Finish SonarQube analysis
       # ------------------------------------------------------------    
       - name: End SonarQube analysis
+        if: ${{ !cancelled() }}
         run: >
           dotnet sonarscanner end
           /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
