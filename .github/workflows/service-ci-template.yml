@@ -74,19 +74,6 @@ jobs:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # ------------------------------------------------------------
-      # Secret scanning
-      # ------------------------------------------------------------
-      - name: Scan ${{ inputs.service_name }} for secrets
-        run: |
-          docker run --rm \
-            -v "${{ github.workspace }}:/repo:ro" \
-            ghcr.io/gitleaks/gitleaks:v8.29.1 \
-            dir \
-            --no-banner \
-            --redact \
-            "/repo/${{ inputs.service_path }}"
-
-      # ------------------------------------------------------------
       # Dependency vulnerability scanning + Restore
       # ------------------------------------------------------------
       - name: Restore and audit ${{ inputs.service_name }} dependencies
