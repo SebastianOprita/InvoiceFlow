@@ -96,7 +96,7 @@ jobs:
           -p:NuGetAudit=true
           -p:NuGetAuditMode=all
           -p:NuGetAuditLevel=high
-          -warnaserror:NU1903;NU1904
+          "-warnaserror:NU1903;NU1904"
 
       # ------------------------------------------------------------
       # SonarQube Cloud
