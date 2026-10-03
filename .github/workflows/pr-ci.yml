@@ -137,6 +137,7 @@ jobs:
       - name: Validate InvoiceFlow CI
         shell: bash
         run: |
+          echo "Change detection:   ${{ needs.changes.result }}"
           echo "Customers: ${{ needs.customers.result }}"
           echo "Identity:  ${{ needs.identity.result }}"
           echo "Invoices:  ${{ needs.invoices.result }}"
@@ -147,20 +148,19 @@ jobs:
             exit 1
           fi
 
-          if [ "${{ needs.customers.result }}" = "failure" ] ||
-             [ "${{ needs.identity.result }}" = "failure" ] ||
-             [ "${{ needs.payments.result }}" = "failure" ] ||
-             [ "${{ needs.invoices.result }}" = "failure" ]; then
-            echo "One or more service CI workflows failed."
-            exit 1
-          fi
+          validate_result() {
+            name="$1"
+            result="$2"
 
-          if [ "${{ needs.customers.result }}" = "cancelled" ] ||
-             [ "${{ needs.identity.result }}" = "cancelled" ] ||
-             [ "${{ needs.payments.result }}" = "cancelled" ] ||
-             [ "${{ needs.invoices.result }}" = "cancelled" ]; then
-            echo "One or more service CI workflows were cancelled."
-            exit 1
-          fi
+            if [ "$result" != "success" ] && [ "$result" != "skipped" ]; then
+              echo "$name CI ended with unexpected result: $result"
+              exit 1
+            fi
+          }
+
+          validate_result "Customers" "${{ needs.customers.result }}"
+          validate_result "Identity"  "${{ needs.identity.result }}"
+          validate_result "Invoices"  "${{ needs.invoices.result }}"
+          validate_result "Payments"  "${{ needs.payments.result }}"
 
           echo "InvoiceFlow CI passed."
