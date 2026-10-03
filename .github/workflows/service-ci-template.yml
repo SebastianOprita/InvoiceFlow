@@ -184,6 +184,7 @@ jobs:
       # Finish SonarQube analysis
       # ------------------------------------------------------------    
       - name: End SonarQube analysis
+        if: ${{ !cancelled() }}
         run: >
           dotnet sonarscanner end
           /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
