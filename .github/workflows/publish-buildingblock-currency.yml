@@ -1,0 +1,16 @@
+name: BuildingBlocks Currency Package
+
+on:
+  push:
+    tags:
+      - 'buildingblocks-currency-v[0-9]+.[0-9]+.[0-9]+'
+      
+jobs:
+  publish:
+    uses: ./.github/workflows/publish-buildingblock-template.yml
+    with:
+      package_name: Currency
+      package_slug: Currency
+      project_path: src/BuildingBlocks/InvoiceFlow.BuildingBlocks.Currency/InvoiceFlow.BuildingBlocks.Currency.csproj
+      tag_prefix: buildingblocks-currency-v
+    secrets: inherit

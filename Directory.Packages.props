@@ -7,15 +7,9 @@
 	<ItemGroup>
 		<PackageVersion Include="Aspire.Hosting.SqlServer" Version="13.4.3" />
 		
-		<PackageVersion Include="Serilog.AspNetCore" Version="10.0.0" />
-		<PackageVersion Include="MediatR" Version="14.2.0" />
 		<PackageVersion Include="FluentValidation" Version="12.1.1" />
-		<PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
-
-		<PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.12" />
 		<PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.23.0" />
 		<PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.12" />
-		<PackageVersion Include="Microsoft.OpenApi" Version="3.10.2" />
 		<PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.9" />
 		<PackageVersion Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="10.0.0" />
 
@@ -27,8 +21,7 @@
 		<PackageVersion Include="Respawn" Version="7.0.0" />
 		<PackageVersion Include="coverlet.MTP" Version="10.0.1" />
 		<PackageVersion Include="Microsoft.Testing.Extensions.TrxReport" Version="2.4.1" />
-		<PackageVersion Include="Microsoft.AspNetCore.TestHost" Version="10.0.12" />
-
+		
 		<!-- InvoiceFlow BuildingBlocks -->
 		<PackageVersion Include="InvoiceFlow.BuildingBlocks.Domain" Version="1.0.0" />
 		<PackageVersion Include="InvoiceFlow.BuildingBlocks.Api" Version="1.0.0" />
