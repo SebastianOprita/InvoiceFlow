@@ -1,40 +1,7 @@
-name: Service CI Template
+name: BuildingBlocks CI
 
 on:
   workflow_call:
-    inputs:
-      service_name:
-        required: true
-        type: string
-        
-      service_slug:
-        required: true
-        type: string
-
-      service_path:
-        required: true
-        type: string
-
-      api_project:
-        required: true
-        type: string
-
-      domain_tests:
-        required: true
-        type: string
-
-      application_tests:
-        required: true
-        type: string
-
-      integration_tests:
-        required: true
-        type: string
-
-      sonar_project_key:
-        required: true
-        type: string
-
     secrets:
       SONAR_TOKEN:
         required: true
@@ -50,7 +17,7 @@ jobs:
   # Build + Test + Sonar
   # ------------------------------------------------------------
   build-and-test:
-    name: Build and Test ${{ inputs.service_name }}
+    name: Build and Test BuildingBlocks
     runs-on: ubuntu-latest
 
     steps:
@@ -64,7 +31,7 @@ jobs:
 
       # ------------------------------------------------------------
       # .NET
-      # ------------------------------------------------------------ 
+      # ------------------------------------------------------------
       - name: Setup .NET
         uses: actions/setup-dotnet@v6
         with:
@@ -74,62 +41,71 @@ jobs:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # ------------------------------------------------------------
+      # NuGet Security Audit
+      # ------------------------------------------------------------
+      - name: Audit NuGet dependencies
+        run: >
+          dotnet restore
+          "src/BuildingBlocks/InvoiceFlow.BuildingBlocks.slnx"
+          -p:NuGetAudit=true
+          -p:NuGetAuditMode=all
+          -p:NuGetAuditLevel=high
+          "-warnaserror:NU1903;NU1904"
+
+      # ------------------------------------------------------------
       # SonarQube Cloud
-      # ------------------------------------------------------------    
+      # ------------------------------------------------------------
       - name: Install SonarScanner
         run: dotnet tool install --global dotnet-sonarscanner
 
       - name: Begin SonarQube analysis
         run: >
           dotnet sonarscanner begin
-          /k:"${{ inputs.sonar_project_key }}"
+          /k:"${{ vars.BBSONARPROJECTKEY }}"
           /o:"${{ vars.SONARORGANIZATION }}"
           /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
           /d:sonar.cs.opencover.reportsPaths="TestResults/**/coverage.opencover*.xml"
           /d:sonar.cs.vstest.reportsPaths="TestResults/**/*.trx"
-          /d:sonar.inclusions="${{ inputs.service_path }}/**"
-          /d:sonar.exclusions=".github/**,global.json,Directory.Packages.props,Directory.Build.props,NuGet.config,Aspire/**,Docs/**,src/BuildingBlocks/**,**/bin/**,**/obj/**,**/Migrations/**,**/Persistence/**"
-          /d:sonar.coverage.exclusions="**/Migrations/**,**/Persistence/**"
-          /d:sonar.cpd.exclusions="**/Entities/**/*.cs,**/ValueObjects/**/*.cs"
+          /d:sonar.inclusions="src/BuildingBlocks/**"
+          /d:sonar.exclusions="**/bin/**,**/obj/**"
+          /d:sonar.coverage.exclusions="src/BuildingBlocks/Tests/**"
           /d:sonar.qualitygate.wait=true
           /d:sonar.qualitygate.timeout=300
 
       # ------------------------------------------------------------
-      # Restore & Build
-      # ------------------------------------------------------------    
-      - name: Restore API
-        run: dotnet restore "${{ inputs.api_project }}"
-
-      - name: Build API
+      # Build
+      # ------------------------------------------------------------
+      - name: Build BuildingBlocks
         run: >
           dotnet build
-          "${{ inputs.api_project }}"
+          "src/BuildingBlocks/InvoiceFlow.BuildingBlocks.slnx"
           --configuration Release
           --no-restore
 
       # ------------------------------------------------------------
       # Tests
-      # ------------------------------------------------------------    
-      - name: Run Domain unit tests
+      # ------------------------------------------------------------
+      - name: Run API tests
         run: >
           dotnet test
-          "${{ inputs.domain_tests }}"
+          "src/BuildingBlocks/Tests/InvoiceFlow.BuildingBlocks.Api.Tests/InvoiceFlow.BuildingBlocks.Api.Tests.csproj"
           --configuration Release
-          --results-directory TestResults/Domain
+          --no-build
+          --results-directory TestResults/Api
           --
           --report-trx
-          --report-trx-filename domain-tests.trx
+          --report-trx-filename api-tests.trx
           --coverlet
           --coverlet-output-format cobertura
           --coverlet-output-format opencover
-          --coverlet-include "[InvoiceFlow.${{ inputs.service_name }}.*]*"
-          --coverlet-exclude-by-file "**/Migrations/*.cs"
+          --coverlet-include "[InvoiceFlow.BuildingBlocks.*]*"
 
-      - name: Run Application unit tests
+      - name: Run Application tests
         run: >
           dotnet test
-          "${{ inputs.application_tests }}"
+          "src/BuildingBlocks/Tests/InvoiceFlow.BuildingBlocks.Application.Tests/InvoiceFlow.BuildingBlocks.Application.Tests.csproj"
           --configuration Release
+          --no-build
           --results-directory TestResults/Application
           --
           --report-trx
@@ -137,40 +113,70 @@ jobs:
           --coverlet
           --coverlet-output-format cobertura
           --coverlet-output-format opencover
-          --coverlet-include "[InvoiceFlow.${{ inputs.service_name }}.*]*"
-          --coverlet-exclude-by-file "**/Migrations/*.cs"
+          --coverlet-include "[InvoiceFlow.BuildingBlocks.*]*"
 
-      - name: Run API integration tests
+      - name: Run Authorization tests
         run: >
           dotnet test
-          "${{ inputs.integration_tests }}"
+          "src/BuildingBlocks/Tests/InvoiceFlow.BuildingBlocks.Authorization.Tests/InvoiceFlow.BuildingBlocks.Authorization.Tests.csproj"
           --configuration Release
-          --results-directory TestResults/Integration
+          --no-build
+          --results-directory TestResults/Authorization
           --
           --report-trx
-          --report-trx-filename integration-tests.trx
+          --report-trx-filename authorization-tests.trx
           --coverlet
           --coverlet-output-format cobertura
           --coverlet-output-format opencover
-          --coverlet-include "[InvoiceFlow.${{ inputs.service_name }}.*]*"
-          --coverlet-exclude-by-file "**/Migrations/*.cs"
+          --coverlet-include "[InvoiceFlow.BuildingBlocks.*]*"
+
+      - name: Run Currency tests
+        run: >
+          dotnet test
+          "src/BuildingBlocks/Tests/InvoiceFlow.BuildingBlocks.Currency.Tests/InvoiceFlow.BuildingBlocks.Currency.Tests.csproj"
+          --configuration Release
+          --no-build
+          --results-directory TestResults/Currency
+          --
+          --report-trx
+          --report-trx-filename currency-tests.trx
+          --coverlet
+          --coverlet-output-format cobertura
+          --coverlet-output-format opencover
+          --coverlet-include "[InvoiceFlow.BuildingBlocks.*]*"
+
+      - name: Run Domain tests
+        run: >
+          dotnet test
+          "src/BuildingBlocks/Tests/InvoiceFlow.BuildingBlocks.Domain.Tests/InvoiceFlow.BuildingBlocks.Domain.Tests.csproj"
+          --configuration Release
+          --no-build
+          --results-directory TestResults/Domain
+          --
+          --report-trx
+          --report-trx-filename domain-tests.trx
+          --coverlet
+          --coverlet-output-format cobertura
+          --coverlet-output-format opencover
+          --coverlet-include "[InvoiceFlow.BuildingBlocks.*]*"
 
       # ------------------------------------------------------------
       # Finish SonarQube analysis
-      # ------------------------------------------------------------    
+      # ------------------------------------------------------------
       - name: End SonarQube analysis
+        if: ${{ !cancelled() }}
         run: >
           dotnet sonarscanner end
           /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
       # ------------------------------------------------------------
       # Test Reporting
-      # ------------------------------------------------------------    
+      # ------------------------------------------------------------
       - name: Publish test results
         if: always()
         uses: dorny/test-reporter@v2
         with:
-          name: ${{ inputs.service_name }} Tests
+          name: BuildingBlocks Tests
           path: 'TestResults/**/*.trx'
           reporter: dotnet-trx
 
@@ -178,7 +184,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ inputs.service_slug }}-test-results
+          name: buildingblocks-test-results
           path: TestResults/**/*.trx
           if-no-files-found: warn
 
@@ -189,7 +195,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ inputs.service_slug }}-coverage
+          name: buildingblocks-coverage
           path: TestResults/**/coverage.cobertura*.xml
           if-no-files-found: warn
 
@@ -213,6 +219,6 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ inputs.service_slug }}-coverage-report
+          name: buildingblocks-coverage-report
           path: CoverageReport
           if-no-files-found: warn

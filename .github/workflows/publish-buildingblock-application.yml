@@ -1,0 +1,16 @@
+name: BuildingBlocks Application Package
+
+on:
+  push:
+    tags:
+      - 'buildingblocks-application-v[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  publish:
+    uses: ./.github/workflows/publish-buildingblock-template.yml
+    with:
+      package_name: Application
+      package_slug: application
+      project_path: src/BuildingBlocks/InvoiceFlow.BuildingBlocks.Application/InvoiceFlow.BuildingBlocks.Application.csproj
+      tag_prefix: buildingblocks-application-v
+    secrets: inherit

@@ -1,0 +1,16 @@
+name: BuildingBlocks Domain Package
+
+on:
+  push:
+    tags:
+      - 'buildingblocks-domain-v[0-9]+.[0-9]+.[0-9]+'
+      
+jobs:
+  publish:
+    uses: ./.github/workflows/publish-buildingblock-template.yml
+    with:
+      package_name: Domain
+      package_slug: Domain
+      project_path: src/BuildingBlocks/InvoiceFlow.BuildingBlocks.Domain/InvoiceFlow.BuildingBlocks.Domain.csproj
+      tag_prefix: buildingblocks-domain-v
+    secrets: inherit

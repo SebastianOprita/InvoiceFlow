@@ -12,6 +12,7 @@
   <Folder Name="/src/" />
   <Folder Name="/src/BuildingBlocks/">
     <File Path="BuildingBlocks/Directory.Build.props" />
+    <File Path="BuildingBlocks/Directory.Packages.props" />
     <Project Path="BuildingBlocks/InvoiceFlow.BuildingBlocks.Api/InvoiceFlow.BuildingBlocks.Api.csproj" Id="c7ab6773-026f-4ce3-83cc-4913d6ee87eb" />
     <Project Path="BuildingBlocks/InvoiceFlow.BuildingBlocks.Application/InvoiceFlow.BuildingBlocks.Application.csproj" Id="47dec6d6-0163-4508-8d72-d476eaca1c16" />
     <Project Path="BuildingBlocks/InvoiceFlow.BuildingBlocks.Authorization/InvoiceFlow.BuildingBlocks.Authorization.csproj" Id="3065543e-a054-41c5-a73c-d8c097e65aa6" />

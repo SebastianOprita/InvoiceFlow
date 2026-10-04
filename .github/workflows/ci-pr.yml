@@ -14,6 +14,31 @@ permissions:
 jobs:
 
   # ------------------------------------------------------------
+  # Secret scanning
+  # ------------------------------------------------------------
+  secret-scan:
+    name: Secret Scan
+    runs-on: ubuntu-latest
+  
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Scan PR for secrets
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}:/repo:ro" \
+            ghcr.io/gitleaks/gitleaks:v8.29.1 \
+            git \
+            --no-banner \
+            --redact \
+            --verbose \
+            --log-opts="${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}" \
+            /repo
+
+  # ------------------------------------------------------------
   # Detect changed services
   # ------------------------------------------------------------
   changes:
@@ -25,13 +50,12 @@ jobs:
       identity: ${{ steps.filter.outputs.identity }}
       invoices: ${{ steps.filter.outputs.invoices }}
       payments: ${{ steps.filter.outputs.payments }}
+      buildingblocks: ${{ steps.filter.outputs.buildingblocks }}
       common: ${{ steps.filter.outputs.common }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
       
       - name: Detect service changes
         id: filter
@@ -50,6 +74,9 @@ jobs:
             payments:
               - 'src/Services/InvoiceFlow.Payments/**'
 
+            buildingblocks:
+              - 'src/BuildingBlocks/**'
+
             # Cross-cutting files: if any of these change,
             # all services should be validated.
             common:
@@ -59,6 +86,19 @@ jobs:
               - 'global.json'
               - '.github/workflows/service-ci-template.yml'
               - '.github/workflows/pr-ci.yml'
+  
+  # ------------------------------------------------------------
+  # BuildingBlocks
+  # ------------------------------------------------------------
+  buildingblocks:
+    name: BuildingBlocks CI
+    needs: changes
+
+    if: >
+      needs.changes.outputs.buildingblocks == 'true'
+
+    uses: ./.github/workflows/ci-buildingblocks.yml
+    secrets: inherit
 
   # ------------------------------------------------------------
   # Customers
@@ -71,7 +111,7 @@ jobs:
       needs.changes.outputs.customers == 'true' ||
       needs.changes.outputs.common == 'true'
 
-    uses: ./.github/workflows/customers-ci.yml
+    uses: ./.github/workflows/ci-customers.yml
     secrets: inherit
 
   # ------------------------------------------------------------
@@ -85,7 +125,7 @@ jobs:
       needs.changes.outputs.identity == 'true' ||
       needs.changes.outputs.common == 'true'
 
-    uses: ./.github/workflows/identity-ci.yml
+    uses: ./.github/workflows/ci-identity.yml
     secrets: inherit
 
   # ------------------------------------------------------------
@@ -99,7 +139,7 @@ jobs:
       needs.changes.outputs.invoices == 'true' ||
       needs.changes.outputs.common == 'true'
 
-    uses: ./.github/workflows/invoices-ci.yml
+    uses: ./.github/workflows/ci-invoices.yml
     secrets: inherit
 
   # ------------------------------------------------------------
@@ -113,7 +153,7 @@ jobs:
       needs.changes.outputs.payments == 'true' ||
       needs.changes.outputs.common == 'true'
 
-    uses: ./.github/workflows/payments-ci.yml
+    uses: ./.github/workflows/ci-payments.yml
     secrets: inherit
 
   # ------------------------------------------------------------
@@ -124,6 +164,8 @@ jobs:
 
     needs:
       - changes
+      - secret-scan
+      - buildingblocks
       - customers
       - identity
       - payments
@@ -137,30 +179,38 @@ jobs:
       - name: Validate InvoiceFlow CI
         shell: bash
         run: |
+          echo "Change detection:   ${{ needs.changes.result }}"
+          echo "Secret scan:      ${{ needs.secret-scan.result }}"
+          echo "BuildingBlocks:   ${{ needs.buildingblocks.result }}"
           echo "Customers: ${{ needs.customers.result }}"
           echo "Identity:  ${{ needs.identity.result }}"
           echo "Invoices:  ${{ needs.invoices.result }}"
           echo "Payments:  ${{ needs.payments.result }}"
+          
+          if [ "${{ needs.secret-scan.result }}" != "success" ]; then
+            echo "Secret scan failed."
+            exit 1
+          fi
           
           if [ "${{ needs.changes.result }}" != "success" ]; then
             echo "Change detection failed."
             exit 1
           fi
 
-          if [ "${{ needs.customers.result }}" = "failure" ] ||
-             [ "${{ needs.identity.result }}" = "failure" ] ||
-             [ "${{ needs.payments.result }}" = "failure" ] ||
-             [ "${{ needs.invoices.result }}" = "failure" ]; then
-            echo "One or more service CI workflows failed."
-            exit 1
-          fi
+          validate_result() {
+            name="$1"
+            result="$2"
 
-          if [ "${{ needs.customers.result }}" = "cancelled" ] ||
-             [ "${{ needs.identity.result }}" = "cancelled" ] ||
-             [ "${{ needs.payments.result }}" = "cancelled" ] ||
-             [ "${{ needs.invoices.result }}" = "cancelled" ]; then
-            echo "One or more service CI workflows were cancelled."
-            exit 1
-          fi
+            if [ "$result" != "success" ] && [ "$result" != "skipped" ]; then
+              echo "$name CI ended with unexpected result: $result"
+              exit 1
+            fi
+          }
+
+          validate_result "BuildingBlocks" "${{ needs.buildingblocks.result }}"
+          validate_result "Customers" "${{ needs.customers.result }}"
+          validate_result "Identity"  "${{ needs.identity.result }}"
+          validate_result "Invoices"  "${{ needs.invoices.result }}"
+          validate_result "Payments"  "${{ needs.payments.result }}"
 
           echo "InvoiceFlow CI passed."

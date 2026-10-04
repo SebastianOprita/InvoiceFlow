@@ -1,0 +1,18 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="Tests/InvoiceFlow.BuildingBlocks.Api.Tests/InvoiceFlow.BuildingBlocks.Api.Tests.csproj" />
+    <Project Path="Tests/InvoiceFlow.BuildingBlocks.Application.Tests/InvoiceFlow.BuildingBlocks.Application.Tests.csproj" />
+    <Project Path="Tests/InvoiceFlow.BuildingBlocks.Authorization.Tests/InvoiceFlow.BuildingBlocks.Authorization.Tests.csproj" />
+    <Project Path="Tests/InvoiceFlow.BuildingBlocks.Currency.Tests/InvoiceFlow.BuildingBlocks.Currency.Tests.csproj" />
+    <Project Path="Tests/InvoiceFlow.BuildingBlocks.Domain.Tests/InvoiceFlow.BuildingBlocks.Domain.Tests.csproj" />
+  </Folder>
+  <Project Path="InvoiceFlow.BuildingBlocks.Api/InvoiceFlow.BuildingBlocks.Api.csproj" />
+  <Project Path="InvoiceFlow.BuildingBlocks.Application/InvoiceFlow.BuildingBlocks.Application.csproj" />
+  <Project Path="InvoiceFlow.BuildingBlocks.Authorization/InvoiceFlow.BuildingBlocks.Authorization.csproj" />
+  <Project Path="InvoiceFlow.BuildingBlocks.Currency/InvoiceFlow.BuildingBlocks.Currency.csproj" />
+  <Project Path="InvoiceFlow.BuildingBlocks.Domain/InvoiceFlow.BuildingBlocks.Domain.csproj" />
+</Solution>

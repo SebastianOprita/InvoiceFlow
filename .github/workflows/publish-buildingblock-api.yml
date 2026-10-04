@@ -1,0 +1,16 @@
+name: BuildingBlocks Api Package
+
+on:
+  push:
+    tags:
+      - 'buildingblocks-api-v[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  publish:
+    uses: ./.github/workflows/publish-buildingblock-template.yml
+    with:
+      package_name: Api
+      package_slug: api
+      project_path: src/BuildingBlocks/InvoiceFlow.BuildingBlocks.Api/InvoiceFlow.BuildingBlocks.Api.csproj
+      tag_prefix: buildingblocks-api-v
+    secrets: inherit

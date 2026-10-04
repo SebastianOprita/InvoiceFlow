@@ -24,7 +24,7 @@ permissions:
 
 jobs:
   identity:
-    uses: ./.github/workflows/service-ci-template.yml
+    uses: ./.github/workflows/ci-service-template.yml
 
     with:
       service_name: Identity
