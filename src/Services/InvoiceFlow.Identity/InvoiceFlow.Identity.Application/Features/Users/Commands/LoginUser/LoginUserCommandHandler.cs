@@ -20,11 +20,11 @@ public class LoginUserCommandHandler(
     {
         var now = dateTimeProvider.Now;
 
-        var existingUser = await usersRepository.FindUserByEmailAsync(cmd.TenantId, UserEmail.Create(cmd.Email));
+        var existingUser = await usersRepository.FindUserByEmailAsync(cmd.TenantId, UserEmail.Create(cmd.Email), cancellationToken);
         if (existingUser is null || !passwordHasher.VerifyPassword(cmd.Password, existingUser.PasswordHash.Value))
             return Result<LoginUserCommandResponse>.Failure(ApplicationErrors.UserUnauthorized);
 
-        var userWithPermissions = await usersRepository.FindUserByIdWithPermissionsAsync(cmd.TenantId, existingUser.Id);
+        var userWithPermissions = await usersRepository.FindUserByIdWithPermissionsAsync(cmd.TenantId, existingUser.Id, cancellationToken);
 
         if (userWithPermissions is null)
             return Result<LoginUserCommandResponse>.Failure(ApplicationErrors.UserUnauthorized);
