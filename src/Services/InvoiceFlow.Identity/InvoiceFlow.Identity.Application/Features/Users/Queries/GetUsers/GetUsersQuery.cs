@@ -5,4 +5,4 @@ namespace InvoiceFlow.Identity.Application;
 
 public record GetUsersQuery(
     Guid TenantId)
-    : IRequest<Result<List<UserDto>>>, ITenantScopedRequest;
+    : IRequest<Result<List<UserDto>>>;

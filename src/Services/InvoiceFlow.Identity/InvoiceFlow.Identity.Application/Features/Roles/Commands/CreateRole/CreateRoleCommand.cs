@@ -9,4 +9,4 @@ public record CreateRoleCommand(
     string Name,
     string? Description,
     SystemPermission Permissions)
-    : IRequest<Result<RoleDto>>, ITenantScopedRequest;
+    : IRequest<Result<RoleDto>>;

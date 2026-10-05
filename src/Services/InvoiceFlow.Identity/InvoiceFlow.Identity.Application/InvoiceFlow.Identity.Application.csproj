@@ -15,6 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Common\Behaviors\" />
+    <Folder Include="Common\Commands\" />
     <Folder Include="Features\PlatformUsers\Commands\" />
     <Folder Include="Features\Tenants\Commands\" />
   </ItemGroup>
