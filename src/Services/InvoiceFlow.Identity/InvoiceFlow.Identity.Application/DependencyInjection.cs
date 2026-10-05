@@ -19,8 +19,6 @@ public static class DependencyInjection
             cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
         });
 
-        builder.Services.AddScoped(typeof(TenantValidationBehavior<,>));
-
         builder.Services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
 
         builder.Services.AddHttpContextAccessor();

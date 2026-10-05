@@ -5,4 +5,4 @@ namespace InvoiceFlow.Identity.Application;
 
 public record GetRolesQuery(
     Guid TenantId)
-    : IRequest<Result<List<RoleDto>>>, ITenantScopedRequest;
+    : IRequest<Result<List<RoleDto>>>;

@@ -8,4 +8,4 @@ public record UpdatePermissionsCommand(
     Guid TenantId,
     Guid RoleId,
     SystemPermission Permissions)
-    : IRequest<Result<RoleDto>>, ITenantScopedRequest;
+    : IRequest<Result<RoleDto>>;

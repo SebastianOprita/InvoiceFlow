@@ -8,4 +8,4 @@ public record UpdateRoleCommand(
     Guid RoleId,
     string Name,
     string? Description)
-    : IRequest<Result<RoleDto>>, ITenantScopedRequest;
+    : IRequest<Result<RoleDto>>;

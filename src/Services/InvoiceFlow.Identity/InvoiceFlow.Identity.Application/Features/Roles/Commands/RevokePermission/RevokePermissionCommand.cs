@@ -8,4 +8,4 @@ public record RevokePermissionCommand(
     Guid TenantId,
     Guid RoleId,
     SystemPermission Permission)
-    : IRequest<Result<RoleDto>>, ITenantScopedRequest;
+    : IRequest<Result<RoleDto>>;
