@@ -12,14 +12,14 @@ public class UpdateRoleCommandHandler(
 {
     public async Task<Result<RoleDto>> Handle(UpdateRoleCommand cmd, CancellationToken cancellationToken)
     {
-        var role = await rolesRepository.GetRoleByIdAsync(cmd.TenantId, cmd.RoleId);
+        var role = await rolesRepository.GetRoleByIdAsync(cmd.TenantId, cmd.RoleId, cancellationToken);
 
         if (role == null)
             return Result<RoleDto>.Failure(ApplicationErrors.RoleNotFound);
 
         if (role.Name.Value != cmd.Name)
         {
-            var roleWithNameExists = await rolesRepository.ExistsByNameAsync(cmd.TenantId, RoleName.Create(cmd.Name));
+            var roleWithNameExists = await rolesRepository.ExistsByNameAsync(cmd.TenantId, RoleName.Create(cmd.Name), cancellationToken);
             if (roleWithNameExists)
                 return Result<RoleDto>.Failure(ApplicationErrors.RoleNameAlreadyExists);
         }
