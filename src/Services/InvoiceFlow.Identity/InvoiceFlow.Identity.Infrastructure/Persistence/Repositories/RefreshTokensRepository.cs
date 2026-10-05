@@ -6,21 +6,21 @@ namespace InvoiceFlow.Identity.Infrastructure;
 
 public class RefreshTokensRepository(IdentityDbContext dbContext) : IRefreshTokensRepository
 {
-    public Task<RefreshToken?> FindRefreshTokenAsync(Guid tenantId, RefreshTokenHash tokenHash)
+    public Task<RefreshToken?> FindRefreshTokenAsync(Guid tenantId, RefreshTokenHash tokenHash, CancellationToken cancellationToken = default)
     {
         var refreshToken = dbContext.RefreshTokens
             .AsNoTracking()
             .FirstOrDefaultAsync(t =>
-                t.TenantId == tenantId && t.TokenHash == tokenHash);
+                t.TenantId == tenantId && t.TokenHash == tokenHash, cancellationToken);
 
         return refreshToken;
     }
 
-    public Task<RefreshToken?> GetRefreshTokenAsync(Guid tenantId, RefreshTokenHash tokenHash)
+    public Task<RefreshToken?> GetRefreshTokenAsync(Guid tenantId, RefreshTokenHash tokenHash, CancellationToken cancellationToken = default)
     {
         var refreshToken = dbContext.RefreshTokens
             .FirstOrDefaultAsync(t =>
-                t.TenantId == tenantId && t.TokenHash == tokenHash);
+                t.TenantId == tenantId && t.TokenHash == tokenHash, cancellationToken);
 
         return refreshToken;
     }
@@ -33,7 +33,8 @@ public class RefreshTokensRepository(IdentityDbContext dbContext) : IRefreshToke
     public async Task RevokeAccessForUserAsync(
         Guid tenantId,
         Guid userId,
-        DateTime revokedAtUtc)
+        DateTime revokedAtUtc,
+        CancellationToken cancellationToken = default)
     {
         await dbContext.RefreshTokens
             .Where(t =>
@@ -42,6 +43,6 @@ public class RefreshTokensRepository(IdentityDbContext dbContext) : IRefreshToke
                 t.RevokedAtUtc == null &&
                 t.ExpiresAtUtc > revokedAtUtc)
             .ExecuteUpdateAsync(
-                setters => setters.SetProperty(t => t.RevokedAtUtc, revokedAtUtc));
+                setters => setters.SetProperty(t => t.RevokedAtUtc, revokedAtUtc), cancellationToken);
     }
 }

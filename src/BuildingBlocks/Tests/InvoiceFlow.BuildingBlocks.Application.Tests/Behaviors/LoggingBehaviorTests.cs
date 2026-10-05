@@ -198,6 +198,7 @@ public sealed class LoggingBehaviorTests
                 LogLevel.Information,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((state, _) =>
+                    state != null && 
                     state.ToString()!.Contains("Handled TestRequest")),
                 It.IsAny<Exception?>(),
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
@@ -228,6 +229,7 @@ public sealed class LoggingBehaviorTests
                 LogLevel.Information,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((state, _) =>
+                    state != null &&
                     HasLogProperty(state, "DateTimeUtc", now) &&
                     HasLogProperty(state, "RequestName", nameof(TestRequest))),
                 It.IsAny<Exception?>(),

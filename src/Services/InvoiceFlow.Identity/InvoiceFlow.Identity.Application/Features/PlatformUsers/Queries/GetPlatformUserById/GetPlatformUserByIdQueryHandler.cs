@@ -7,10 +7,10 @@ public class GetPlatformUserByIdQueryHandler(IPlatformUsersRepository usersRepos
 {
     public async Task<Result<PlatformUserDto>> Handle(GetPlatformUserByIdQuery qry, CancellationToken cancellationToken)
     {
-        var user = await usersRepository.FindUserByIdAsync(qry.UserId);
+        var user = await usersRepository.FindUserByIdAsync(qry.UserId, cancellationToken);
 
         if (user == null)
-            return Result<PlatformUserDto>.Failure(ApplicationErrors.PlatformUserNotFound);
+            return Result<PlatformUserDto>.Failure(ApplicationErrors.UserUnauthorized);
 
         return Result<PlatformUserDto>.Success(user.ToDto());
     }
