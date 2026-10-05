@@ -10,7 +10,7 @@ public class GetPlatformUserByIdQueryHandler(IPlatformUsersRepository usersRepos
         var user = await usersRepository.FindUserByIdAsync(qry.UserId);
 
         if (user == null)
-            return Result<PlatformUserDto>.Failure(ApplicationErrors.PlatformUserNotFound);
+            return Result<PlatformUserDto>.Failure(ApplicationErrors.UserUnauthorized);
 
         return Result<PlatformUserDto>.Success(user.ToDto());
     }

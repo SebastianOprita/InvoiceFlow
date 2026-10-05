@@ -6,19 +6,19 @@ namespace InvoiceFlow.Identity.Infrastructure;
 
 public class PlatformRefreshTokensRepository(IdentityDbContext dbContext) : IPlatformRefreshTokensRepository
 {
-    public async Task<PlatformRefreshToken?> FindPlatformRefreshTokenAsync(RefreshTokenHash tokenHash)
+    public async Task<PlatformRefreshToken?> FindPlatformRefreshTokenAsync(RefreshTokenHash tokenHash, CancellationToken cancellationToken = default)
     {
         var refreshToken = await dbContext.PlatformRefreshTokens
             .AsNoTracking()
-            .FirstOrDefaultAsync(t => t.TokenHash == tokenHash);
+            .FirstOrDefaultAsync(t => t.TokenHash == tokenHash, cancellationToken);
 
         return refreshToken;
     }
 
-    public async Task<PlatformRefreshToken?> GetPlatformRefreshTokenAsync(RefreshTokenHash tokenHash)
+    public async Task<PlatformRefreshToken?> GetPlatformRefreshTokenAsync(RefreshTokenHash tokenHash, CancellationToken cancellationToken = default)
     {
         var refreshToken = await dbContext.PlatformRefreshTokens
-            .FirstOrDefaultAsync(t => t.TokenHash == tokenHash);
+            .FirstOrDefaultAsync(t => t.TokenHash == tokenHash, cancellationToken);
 
         return refreshToken;
     }
@@ -30,7 +30,8 @@ public class PlatformRefreshTokensRepository(IdentityDbContext dbContext) : IPla
 
     public async Task RevokeAccessForPlatformUserAsync(
         Guid userId,
-        DateTime revokedAtUtc)
+        DateTime revokedAtUtc,
+        CancellationToken cancellationToken = default)
     {
         await dbContext.PlatformRefreshTokens
             .Where(t =>
@@ -38,6 +39,6 @@ public class PlatformRefreshTokensRepository(IdentityDbContext dbContext) : IPla
                 t.RevokedAtUtc == null &&
                 t.ExpiresAtUtc > revokedAtUtc)
             .ExecuteUpdateAsync(
-                setters => setters.SetProperty(t => t.RevokedAtUtc, revokedAtUtc));
+                setters => setters.SetProperty(t => t.RevokedAtUtc, revokedAtUtc), cancellationToken);
     }
 }

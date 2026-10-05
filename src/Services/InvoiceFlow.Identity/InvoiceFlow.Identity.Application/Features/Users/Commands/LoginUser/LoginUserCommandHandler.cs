@@ -22,12 +22,12 @@ public class LoginUserCommandHandler(
 
         var existingUser = await usersRepository.FindUserByEmailAsync(cmd.TenantId, UserEmail.Create(cmd.Email));
         if (existingUser is null || !passwordHasher.VerifyPassword(cmd.Password, existingUser.PasswordHash.Value))
-            return Result<LoginUserCommandResponse>.Failure(ApplicationErrors.LoginUserNotFound);
+            return Result<LoginUserCommandResponse>.Failure(ApplicationErrors.UserUnauthorized);
 
         var userWithPermissions = await usersRepository.FindUserByIdWithPermissionsAsync(cmd.TenantId, existingUser.Id);
 
         if (userWithPermissions is null)
-            return Result<LoginUserCommandResponse>.Failure(ApplicationErrors.LoginUserNotFound);
+            return Result<LoginUserCommandResponse>.Failure(ApplicationErrors.UserUnauthorized);
 
         var aggregatedPermissions = userWithPermissions.UserRoles.Select(ur => ur.Role.Permissions)
             .Aggregate(SystemPermission.None, (current, rolePermissions) => current | rolePermissions.Value);

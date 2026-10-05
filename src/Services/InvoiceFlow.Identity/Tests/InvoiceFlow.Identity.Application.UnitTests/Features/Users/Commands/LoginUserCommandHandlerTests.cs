@@ -67,7 +67,7 @@ public sealed class LoginUserCommandHandlerTests
         result.IsFailure.Should().BeTrue();
         result.Error.Should().NotBeNull();
         result.Error.Type.Should().Be(ApplicationErrorType.Unauthorized);
-        result.Error.Code.Should().Be(ApplicationErrors.LoginUserNotFound.Code);
+        result.Error.Code.Should().Be(ApplicationErrors.UserUnauthorized.Code);
 
         _passwordHasher.Verify(
             x => x.VerifyPassword(It.IsAny<string>(), It.IsAny<string>()),
@@ -110,7 +110,7 @@ public sealed class LoginUserCommandHandlerTests
         result.IsFailure.Should().BeTrue();
         result.Error.Should().NotBeNull();
         result.Error.Type.Should().Be(ApplicationErrorType.Unauthorized);
-        result.Error.Code.Should().Be(ApplicationErrors.LoginUserNotFound.Code);
+        result.Error.Code.Should().Be(ApplicationErrors.UserUnauthorized.Code);
 
         _usersRepository.Verify(
             x => x.FindUserByIdWithPermissionsAsync(It.IsAny<Guid>(), It.IsAny<Guid>()),
@@ -157,7 +157,7 @@ public sealed class LoginUserCommandHandlerTests
         result.IsFailure.Should().BeTrue();
         result.Error.Should().NotBeNull();
         result.Error.Type.Should().Be(ApplicationErrorType.Unauthorized);
-        result.Error.Code.Should().Be(ApplicationErrors.LoginUserNotFound.Code);
+        result.Error.Code.Should().Be(ApplicationErrors.UserUnauthorized.Code);
 
         _tokenService.Verify(
             x => x.GenerateUserAccessToken(

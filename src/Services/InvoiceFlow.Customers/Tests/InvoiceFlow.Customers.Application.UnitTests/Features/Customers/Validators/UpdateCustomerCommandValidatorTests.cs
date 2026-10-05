@@ -107,7 +107,7 @@ public sealed class UpdateCustomerCommandValidatorTests
     [Theory]
     [InlineData("")]
     [InlineData(null)]
-    public void Should_Have_Error_When_AddressLine1_Is_Empty(string addressLine1)
+    public void Should_Have_Error_When_AddressLine1_Is_Empty(string? addressLine1)
     {
         var command = UpdateCustomerCommand with
         {
@@ -151,7 +151,7 @@ public sealed class UpdateCustomerCommandValidatorTests
     [Theory]
     [InlineData("")]
     [InlineData(null)]
-    public void Should_Have_Error_When_City_Is_Empty(string city)
+    public void Should_Have_Error_When_City_Is_Empty(string? city)
     {
         var command = UpdateCustomerCommand with
         {
@@ -195,7 +195,7 @@ public sealed class UpdateCustomerCommandValidatorTests
     [Theory]
     [InlineData("")]
     [InlineData(null)]
-    public void Should_Have_Error_When_Country_Is_Empty(string country)
+    public void Should_Have_Error_When_Country_Is_Empty(string? country)
     {
         var command = UpdateCustomerCommand with
         {
@@ -225,7 +225,7 @@ public sealed class UpdateCustomerCommandValidatorTests
     [Theory]
     [InlineData("")]
     [InlineData(null)]
-    public void Should_Have_Error_When_PostalCode_Is_Empty(string postalCode)
+    public void Should_Have_Error_When_PostalCode_Is_Empty(string? postalCode)
     {
         var command = UpdateCustomerCommand with
         {

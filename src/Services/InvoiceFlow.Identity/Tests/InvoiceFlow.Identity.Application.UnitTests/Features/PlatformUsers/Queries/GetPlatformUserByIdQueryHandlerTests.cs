@@ -71,9 +71,9 @@ public class GetPlatformUserByIdQueryHandlerTests
         result.IsFailure.Should().BeTrue();
 
         result.Error.Should().BeEquivalentTo(new ApplicationError(
-            ApplicationErrorType.NotFound,
-            ApplicationErrors.PlatformUserNotFound.Code,
-            ApplicationErrors.PlatformUserNotFound.Message));
+            ApplicationErrorType.Unauthorized,
+            ApplicationErrors.UserUnauthorized.Code,
+            ApplicationErrors.UserUnauthorized.Message));
 
         _usersRepositoryMock.Verify(
             x => x.FindUserByIdAsync(userId),

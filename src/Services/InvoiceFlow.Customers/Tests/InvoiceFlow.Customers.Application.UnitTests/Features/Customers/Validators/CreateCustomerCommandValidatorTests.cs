@@ -32,10 +32,10 @@ public sealed class CreateCustomerCommandValidatorTests
     [Theory]
     [InlineData("")]
     [InlineData(null)]
-    public void Should_Have_Error_When_CustomerCode_Is_Empty(string customerCode)
+    public void Should_Have_Error_When_CustomerCode_Is_Empty(string? customerCode)
     {
         var command = CreateCustomerCommand
-            with { CustomerCode = customerCode };
+            with { CustomerCode = customerCode! };
 
         var result = _validator.TestValidate(command);
 
@@ -58,9 +58,9 @@ public sealed class CreateCustomerCommandValidatorTests
     [Theory]
     [InlineData("")]
     [InlineData(null)]
-    public void Should_Have_Error_When_Name_Is_Empty(string name)
+    public void Should_Have_Error_When_Name_Is_Empty(string? name)
     {
-        var command = TestConstants.CreateCustomerCommand(Guid.CreateVersion7(), name);
+        var command = TestConstants.CreateCustomerCommand(Guid.CreateVersion7(), name!);
 
         var result = _validator.TestValidate(command);
 
@@ -82,7 +82,7 @@ public sealed class CreateCustomerCommandValidatorTests
     [InlineData(null)]
     [InlineData("EU")]
     [InlineData("EURO")]
-    public void Should_Have_Error_When_CurrencyCode_Is_Invalid(string currencyCode)
+    public void Should_Have_Error_When_CurrencyCode_Is_Invalid(string? currencyCode)
     {
         var command = CreateCustomerCommand with 
         { 
@@ -192,7 +192,7 @@ public sealed class CreateCustomerCommandValidatorTests
     [Theory]
     [InlineData("")]
     [InlineData(null)]
-    public void Should_Have_Error_When_RegistrationNumber_Is_Empty(string registrationNumber)
+    public void Should_Have_Error_When_RegistrationNumber_Is_Empty(string? registrationNumber)
     {
         var command = CreateCustomerCommand with 
         { 
@@ -235,7 +235,7 @@ public sealed class CreateCustomerCommandValidatorTests
     [Theory]
     [InlineData("")]
     [InlineData(null)]
-    public void Should_Have_Error_When_AddressLine1_Is_Empty(string addressLine1)
+    public void Should_Have_Error_When_AddressLine1_Is_Empty(string? addressLine1)
     {
         var command = CreateCustomerCommand with 
         {
@@ -279,7 +279,7 @@ public sealed class CreateCustomerCommandValidatorTests
     [Theory]
     [InlineData("")]
     [InlineData(null)]
-    public void Should_Have_Error_When_City_Is_Empty(string city)
+    public void Should_Have_Error_When_City_Is_Empty(string? city)
     {
         var command = CreateCustomerCommand with 
         { 
@@ -322,7 +322,7 @@ public sealed class CreateCustomerCommandValidatorTests
     [Theory]
     [InlineData("")]
     [InlineData(null)]
-    public void Should_Have_Error_When_Country_Is_Empty(string country)
+    public void Should_Have_Error_When_Country_Is_Empty(string? country)
     {
         var command = CreateCustomerCommand with 
         { 
@@ -352,7 +352,7 @@ public sealed class CreateCustomerCommandValidatorTests
     [Theory]
     [InlineData("")]
     [InlineData(null)]
-    public void Should_Have_Error_When_PostalCode_Is_Empty(string postalCode)
+    public void Should_Have_Error_When_PostalCode_Is_Empty(string? postalCode)
     {
         var command = CreateCustomerCommand with 
         { 
