@@ -12,7 +12,7 @@ public class CreateRoleCommandHandler(
 {
     public async Task<Result<RoleDto>> Handle(CreateRoleCommand cmd, CancellationToken cancellationToken)
     {
-        var alreadyExists = await rolesRepository.ExistsByNameAsync(cmd.TenantId, RoleName.Create(cmd.Name));
+        var alreadyExists = await rolesRepository.ExistsByNameAsync(cmd.TenantId, RoleName.Create(cmd.Name), cancellationToken);
 
         if (alreadyExists)
             return Result<RoleDto>.Failure(ApplicationErrors.RoleNameAlreadyExists);

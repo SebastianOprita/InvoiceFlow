@@ -11,7 +11,7 @@ public class RevokePermissionCommandHandler(
 {
     public async Task<Result<RoleDto>> Handle(RevokePermissionCommand cmd, CancellationToken cancellationToken)
     {
-        var role = await rolesRepository.GetRoleByIdAsync(cmd.TenantId, cmd.RoleId);
+        var role = await rolesRepository.GetRoleByIdAsync(cmd.TenantId, cmd.RoleId, cancellationToken);
         if (role == null)
             return Result<RoleDto>.Failure(ApplicationErrors.RoleNotFound);
 
