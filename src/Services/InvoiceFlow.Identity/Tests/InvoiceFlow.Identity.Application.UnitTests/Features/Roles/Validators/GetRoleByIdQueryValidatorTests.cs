@@ -1,4 +1,4 @@
-﻿using FluentValidation.TestHelper;
+using FluentValidation.TestHelper;
 using Xunit;
 
 namespace InvoiceFlow.Identity.Application.UnitTests.Features.Roles;

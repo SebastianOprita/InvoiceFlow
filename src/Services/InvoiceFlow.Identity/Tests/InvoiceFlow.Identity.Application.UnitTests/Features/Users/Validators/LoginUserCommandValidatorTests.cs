@@ -1,4 +1,4 @@
-﻿using FluentValidation.TestHelper;
+using FluentValidation.TestHelper;
 using InvoiceFlow.Identity.Domain;
 using Xunit;
 

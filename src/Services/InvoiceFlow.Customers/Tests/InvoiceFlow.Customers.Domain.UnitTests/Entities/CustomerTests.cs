@@ -1,4 +1,5 @@
 ﻿using InvoiceFlow.BuildingBlocks.Domain;
+using FluentAssertions;
 using Xunit;
 
 namespace InvoiceFlow.Customers.Domain.UnitTests.Entities;
@@ -41,17 +42,17 @@ public sealed class CustomerTests
         var customer = CreateValidCustomer(_now);
 
         // Assert
-        Assert.NotEqual(Guid.Empty, customer.Id);
-        Assert.NotEqual(Guid.Empty, customer.TenantId);
-        Assert.True(customer.IsActive);
-        Assert.Equal(_now, customer.CreatedAtUtc);
+        customer.Id.Should().NotBeEmpty();
+        customer.TenantId.Should().NotBeEmpty();
+        customer.IsActive.Should().BeTrue();
+        customer.CreatedAtUtc.Should().Be(_now);
     }
 
     [Fact]
     public void Constructor_WithEmptyTenantId_ShouldThrowDomainException()
     {
         // Arrange & Act & Assert
-        var ex = Assert.Throws<DomainException>(() =>
+        Action act = () =>
             Customer.Create(
                 Guid.CreateVersion7(),
                 Guid.Empty,
@@ -70,16 +71,17 @@ public sealed class CustomerTests
                 CurrencyCode.Create("USD"),
                 CreditLimit.Create(10000),
                 PaymentTermDays.Create(30),
-                _now));
+                _now);
 
-        Assert.Equal(DomainErrors.TenantIdRequired.ErrorCode, ex.ErrorCode);
+        act.Should().Throw<DomainException>()
+            .Which.ErrorCode.Should().Be(DomainErrors.TenantIdRequired.ErrorCode);
     }
 
     [Fact]
     public void Constructor_WithEmptyId_ShouldThrowDomainException()
     {
         // Arrange & Act & Assert
-        var ex = Assert.Throws<DomainException>(() =>
+        Action act = () =>
             Customer.Create(
                 Guid.Empty,
                 Guid.CreateVersion7(),
@@ -98,16 +100,17 @@ public sealed class CustomerTests
                 CurrencyCode.Create("USD"),
                 CreditLimit.Create(10000),
                 PaymentTermDays.Create(30),
-                _now));
+                _now);
 
-        Assert.Equal(DomainErrors.IdRequired.ErrorCode, ex.ErrorCode);
+        act.Should().Throw<DomainException>()
+            .Which.ErrorCode.Should().Be(DomainErrors.IdRequired.ErrorCode);
     }
 
     [Fact]
     public void Constructor_WithDefaultCreatedAtUtc_ShouldThrowDomainException()
     {
         // Arrange & Act & Assert
-        var ex = Assert.Throws<DomainException>(() =>
+        Action act = () =>
             Customer.Create(
                 Guid.CreateVersion7(),
                 Guid.CreateVersion7(),
@@ -126,9 +129,10 @@ public sealed class CustomerTests
                 CurrencyCode.Create("USD"),
                 CreditLimit.Create(10000),
                 PaymentTermDays.Create(30),
-                default));
+                default);
 
-        Assert.Equal(DomainErrors.CreatedAtUtcRequired.ErrorCode, ex.ErrorCode);
+        act.Should().Throw<DomainException>()
+            .Which.ErrorCode.Should().Be(DomainErrors.CreatedAtUtcRequired.ErrorCode);
     }
 
     #endregion
