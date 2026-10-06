@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.Identity.Domain;
 using Xunit;

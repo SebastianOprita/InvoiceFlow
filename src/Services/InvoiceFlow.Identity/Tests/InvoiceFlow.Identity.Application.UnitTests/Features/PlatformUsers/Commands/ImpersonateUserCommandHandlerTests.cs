@@ -40,11 +40,10 @@ public class ImpersonateUserCommandHandlerTests
 
         var result = await _sut.Handle(command, CancellationToken.None);
 
-        Assert.False(result.IsSuccess);
+        result.IsSuccess.Should().BeFalse();
         result.Error.Should().NotBeNull();
-        Assert.Equal(ApplicationErrorType.Unauthorized, result.Error.Type);
-        Assert.Equal(ApplicationErrors.UserUnauthorized.Code, result.Error.Code);
-
+        result.Error.Type.Should().Be(ApplicationErrorType.Unauthorized);
+        result.Error.Code.Should().Be(ApplicationErrors.UserUnauthorized.Code);
         _usersRepository.Verify(
             x => x.FindUserByEmailAsync(It.IsAny<Guid>(), It.IsAny<UserEmail>(), CancellationToken.None),
             Times.Never);
@@ -82,11 +81,10 @@ public class ImpersonateUserCommandHandlerTests
 
         var result = await _sut.Handle(command, CancellationToken.None);
 
-        Assert.False(result.IsSuccess);
+        result.IsSuccess.Should().BeFalse();
         result.Error.Should().NotBeNull();
-        Assert.Equal(ApplicationErrorType.Unauthorized, result.Error.Type);
-        Assert.Equal(ApplicationErrors.UserUnauthorized.Code, result.Error.Code);
-
+        result.Error.Type.Should().Be(ApplicationErrorType.Unauthorized);
+        result.Error.Code.Should().Be(ApplicationErrors.UserUnauthorized.Code);
         _usersRepository.Verify(
             x => x.FindUserByIdWithPermissionsAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), CancellationToken.None),
             Times.Never);
@@ -129,11 +127,10 @@ public class ImpersonateUserCommandHandlerTests
 
         var result = await _sut.Handle(command, CancellationToken.None);
 
-        Assert.False(result.IsSuccess);
+        result.IsSuccess.Should().BeFalse();
         result.Error.Should().NotBeNull();
-        Assert.Equal(ApplicationErrorType.Unauthorized, result.Error.Type);
-        Assert.Equal(ApplicationErrors.UserUnauthorized.Code, result.Error.Code);
-
+        result.Error.Type.Should().Be(ApplicationErrorType.Unauthorized);
+        result.Error.Code.Should().Be(ApplicationErrors.UserUnauthorized.Code);
         _tokenService.Verify(
             x => x.GenerateImpersonationToken(
                 It.IsAny<Guid>(),
@@ -194,10 +191,10 @@ public class ImpersonateUserCommandHandlerTests
 
         var result = await _sut.Handle(command, CancellationToken.None);
 
-        Assert.True(result.IsSuccess);
+        result.IsSuccess.Should().BeTrue();
         result.Value.Should().NotBeNull();
-        Assert.Equal(expectedToken, result.Value.ImpersonationToken);
-        Assert.Equal(expectedExpiresAt, result.Value.ImpersonationTokenExpiresAt);
+        result.Value.ImpersonationToken.Should().Be(expectedToken);
+        result.Value.ImpersonationTokenExpiresAt.Should().Be(expectedExpiresAt);
     }
 
     [Fact]

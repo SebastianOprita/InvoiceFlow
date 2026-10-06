@@ -16,4 +16,5 @@ public static class ApplicationErrors
     public static ApplicationError UserEmailAlreadyExists => new(ApplicationErrorType.Conflict, "user.email.alreadyExists", "User with same email already exists.");
     public static ApplicationError RefreshTokenNotFound => new(ApplicationErrorType.Unauthorized, "refreshToken.token.notFound", "Refresh token not found.");
     public static ApplicationError RefreshTokenInvalid => new(ApplicationErrorType.Unauthorized, "refreshToken.token.invalid", "Invalid or expired refresh token.");
+    public static ApplicationError TenantSlugAlreadyExists => new(ApplicationErrorType.Conflict, "tenant.slug.alreadyExists", "Tenant with same slug already exists.");
 }
