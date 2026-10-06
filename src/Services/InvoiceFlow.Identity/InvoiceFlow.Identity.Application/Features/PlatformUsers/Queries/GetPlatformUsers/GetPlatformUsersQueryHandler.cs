@@ -3,15 +3,15 @@ using MediatR;
 
 namespace InvoiceFlow.Identity.Application;
 
-public class GetPlatformUsersQueryHandler(IPlatformUsersRepository usersRepository) : IRequestHandler<GetPlatformUsersQuery, Result<List<PlatformUserDto>>>
+public class GetPlatformUsersQueryHandler(IPlatformUsersRepository platformUsersRepository) : IRequestHandler<GetPlatformUsersQuery, Result<List<PlatformUserDto>>>
 {
     public async Task<Result<List<PlatformUserDto>>> Handle(GetPlatformUsersQuery qry, CancellationToken cancellationToken)
     {
-        var users = await usersRepository.FindAllUsersAsync();
-        var usersDtos = users
+        var platformUsers = await platformUsersRepository.FindAllUsersAsync();
+        var platformUsersDtos = platformUsers
             .Select(u => u.ToDto())
             .ToList();
 
-        return Result<List<PlatformUserDto>>.Success(usersDtos);
+        return Result<List<PlatformUserDto>>.Success(platformUsersDtos);
     }
 }

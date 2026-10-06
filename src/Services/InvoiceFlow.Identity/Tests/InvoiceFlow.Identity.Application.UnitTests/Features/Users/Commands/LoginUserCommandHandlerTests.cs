@@ -61,7 +61,7 @@ public sealed class LoginUserCommandHandlerTests
             .ReturnsAsync((User?)null);
 
         // Act
-        var result = await _sut.Handle(command, CancellationToken.None);
+        var result = await _sut.Handle(command, TestContext.Current.CancellationToken);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -77,7 +77,7 @@ public sealed class LoginUserCommandHandlerTests
             x => x.AddRefreshToken(It.IsAny<RefreshToken>()),
             Times.Never);
 
-        _unitOfWork.Verify(x => x.SaveChangesAsync(), Times.Never);
+        _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -104,7 +104,7 @@ public sealed class LoginUserCommandHandlerTests
             .Returns(false);
 
         // Act
-        var result = await _sut.Handle(command, CancellationToken.None);
+        var result = await _sut.Handle(command, TestContext.Current.CancellationToken);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -113,14 +113,14 @@ public sealed class LoginUserCommandHandlerTests
         result.Error.Code.Should().Be(ApplicationErrors.UserUnauthorized.Code);
 
         _usersRepository.Verify(
-            x => x.FindUserByIdWithPermissionsAsync(It.IsAny<Guid>(), It.IsAny<Guid>()),
+            x => x.FindUserByIdWithPermissionsAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
             Times.Never);
 
         _refreshTokensRepository.Verify(
             x => x.AddRefreshToken(It.IsAny<RefreshToken>()),
             Times.Never);
 
-        _unitOfWork.Verify(x => x.SaveChangesAsync(), Times.Never);
+        _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -139,7 +139,7 @@ public sealed class LoginUserCommandHandlerTests
             null);
 
         _usersRepository
-            .Setup(x => x.FindUserByEmailAsync(tenantId, It.IsAny<UserEmail>()))
+            .Setup(x => x.FindUserByEmailAsync(tenantId, It.IsAny<UserEmail>(), TestContext.Current.CancellationToken))
             .ReturnsAsync(user);
 
         _passwordHasher
@@ -147,11 +147,11 @@ public sealed class LoginUserCommandHandlerTests
             .Returns(true);
 
         _usersRepository
-            .Setup(x => x.FindUserByIdWithPermissionsAsync(tenantId, user.Id))
+            .Setup(x => x.FindUserByIdWithPermissionsAsync(tenantId, user.Id, TestContext.Current.CancellationToken))
             .ReturnsAsync((User?)null);
 
         // Act
-        var result = await _sut.Handle(command, CancellationToken.None);
+        var result = await _sut.Handle(command, TestContext.Current.CancellationToken);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -172,7 +172,7 @@ public sealed class LoginUserCommandHandlerTests
             x => x.AddRefreshToken(It.IsAny<RefreshToken>()),
             Times.Never);
 
-        _unitOfWork.Verify(x => x.SaveChangesAsync(), Times.Never);
+        _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -195,11 +195,11 @@ public sealed class LoginUserCommandHandlerTests
             "127.0.0.1");
 
         _usersRepository
-            .Setup(x => x.FindUserByEmailAsync(tenantId, It.IsAny<UserEmail>()))
+            .Setup(x => x.FindUserByEmailAsync(tenantId, It.IsAny<UserEmail>(), TestContext.Current.CancellationToken))
             .ReturnsAsync(user);
 
         _usersRepository
-            .Setup(x => x.FindUserByIdWithPermissionsAsync(tenantId, user.Id))
+            .Setup(x => x.FindUserByIdWithPermissionsAsync(tenantId, user.Id, TestContext.Current.CancellationToken))
             .ReturnsAsync(user);
 
         _passwordHasher
@@ -225,15 +225,15 @@ public sealed class LoginUserCommandHandlerTests
 
         var saveError = new ApplicationError(
             ApplicationErrorType.Validation,
-            "save.failed",
-            "Save failed.");
+            ApplicationErrors.DbSaveFailed.Code,
+            ApplicationErrors.DbSaveFailed.Message);
 
         _unitOfWork
-            .Setup(x => x.SaveChangesAsync())
+            .Setup(x => x.SaveChangesAsync(TestContext.Current.CancellationToken))
             .ReturnsAsync(Result.Failure(saveError));
 
         // Act
-        var result = await _sut.Handle(command, CancellationToken.None);
+        var result = await _sut.Handle(command, TestContext.Current.CancellationToken);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -265,11 +265,11 @@ public sealed class LoginUserCommandHandlerTests
             "127.0.0.1");
 
         _usersRepository
-            .Setup(x => x.FindUserByEmailAsync(tenantId, It.IsAny<UserEmail>()))
+            .Setup(x => x.FindUserByEmailAsync(tenantId, It.IsAny<UserEmail>(), TestContext.Current.CancellationToken))
             .ReturnsAsync(user);
 
         _usersRepository
-            .Setup(x => x.FindUserByIdWithPermissionsAsync(tenantId, user.Id))
+            .Setup(x => x.FindUserByIdWithPermissionsAsync(tenantId, user.Id, TestContext.Current.CancellationToken))
             .ReturnsAsync(user);
 
         _passwordHasher
@@ -294,7 +294,7 @@ public sealed class LoginUserCommandHandlerTests
             .Returns("refresh-token-hash");
 
         _unitOfWork
-            .Setup(x => x.SaveChangesAsync())
+            .Setup(x => x.SaveChangesAsync(TestContext.Current.CancellationToken))
             .ReturnsAsync(Result.Success());
 
         RefreshToken? capturedRefreshToken = null;
@@ -304,7 +304,7 @@ public sealed class LoginUserCommandHandlerTests
             .Callback<RefreshToken>(x => capturedRefreshToken = x);
 
         // Act
-        var result = await _sut.Handle(command, CancellationToken.None);
+        var result = await _sut.Handle(command, TestContext.Current.CancellationToken);
 
         // Assert
         result.IsSuccess.Should().BeTrue();
@@ -322,7 +322,7 @@ public sealed class LoginUserCommandHandlerTests
             x => x.AddRefreshToken(It.IsAny<RefreshToken>()),
             Times.Once);
 
-        _unitOfWork.Verify(x => x.SaveChangesAsync(), Times.Once);
+        _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     private User CreateUser(

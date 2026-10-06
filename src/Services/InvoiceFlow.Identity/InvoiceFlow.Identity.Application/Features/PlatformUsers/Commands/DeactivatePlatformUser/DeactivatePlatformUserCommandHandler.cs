@@ -5,20 +5,20 @@ namespace InvoiceFlow.Identity.Application;
 
 public class DeactivatePlatformUserCommandHandler(
     IUnitOfWork unitOfWork,
-    IPlatformUsersRepository usersRepository,
+    IPlatformUsersRepository platformUsersRepository,
     ISystemDateTimeProvider dateTimeProvider)
     : IRequestHandler<DeactivatePlatformUserCommand, Result>
 {
     public async Task<Result> Handle(DeactivatePlatformUserCommand cmd, CancellationToken cancellationToken)
     {
-        var user = await usersRepository.GetUserByIdAsync(cmd.UserId, cancellationToken);
-        if (user is null)
+        var platformUser = await platformUsersRepository.GetUserByIdAsync(cmd.UserId, cancellationToken);
+        if (platformUser is null)
             return Result.Failure(ApplicationErrors.UserNotFound);
 
-        if (!user.IsActive)
+        if (!platformUser.IsActive)
             return Result.Success();
 
-        user.Deactivate(dateTimeProvider.Now);
+        platformUser.Deactivate(dateTimeProvider.Now);
         var result = await unitOfWork.SaveChangesAsync(cancellationToken);
         return result;
     }
