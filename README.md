@@ -21,8 +21,6 @@ InvoicePaid / InvoicePartiallyPaid
   -> Reporting updates read model
 
 
-
-
 InvoiceFlow.Identity Service
 	Users
 	Roles
@@ -38,15 +36,15 @@ InvoiceFlow.Payments Service
 	PaymentAllocations
 	Refunds
 
-InvoiceFlow.Notifications Service
-	Customers
-	CustomerContacts
-	CustomerAddresses
-
 InvoiceFlow.Customers Service
-	NotificationTemplates
-	NotificationLogs
-	DeliveryAttempts
+    Customers
+    CustomerContacts
+    CustomerAddresses
+
+InvoiceFlow.Notifications Service
+    NotificationTemplates
+    NotificationLogs
+    DeliveryAttempts
 
 InvoiceFlow.Reminder Service
 	start as a worker, not a domain database
@@ -76,3 +74,17 @@ Do not start with separate services for every tiny thing like:
 Those can be modules inside existing services first.
 
 
+## License
+
+InvoiceFlow is source-available under the
+[PolyForm Noncommercial License 1.0.0](LICENSE).
+
+You may use, study, modify, and distribute this software for permitted
+non-commercial purposes in accordance with the license.
+
+Commercial use is not permitted under this license.
+
+For commercial licensing or additional permissions, please contact the
+copyright holder.
+
+Copyright © 2026 Sebastian Oprita.
