@@ -5,6 +5,15 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Common\Behaviors\**" />
+    <Compile Remove="Common\Commands\**" />
+    <EmbeddedResource Remove="Common\Behaviors\**" />
+    <EmbeddedResource Remove="Common\Commands\**" />
+    <None Remove="Common\Behaviors\**" />
+    <None Remove="Common\Commands\**" />
+  </ItemGroup>
 	
   <ItemGroup>
     <PackageReference Include="InvoiceFlow.BuildingBlocks.Application" />
@@ -12,11 +21,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\InvoiceFlow.Identity.Domain\InvoiceFlow.Identity.Domain.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Common\Behaviors\" />
-    <Folder Include="Common\Commands\" />
   </ItemGroup>
 
 </Project>

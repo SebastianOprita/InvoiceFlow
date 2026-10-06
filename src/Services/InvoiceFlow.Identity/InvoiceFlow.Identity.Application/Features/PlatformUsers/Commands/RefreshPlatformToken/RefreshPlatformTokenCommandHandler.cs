@@ -34,8 +34,8 @@ public class RefreshPlatformTokenCommandHandler(
             return Result<RefreshPlatformTokenResponse>.Failure(ApplicationErrors.RefreshTokenInvalid);
 
         var accessToken = tokenService.GeneratePlatformUserAccessToken(
-            platformUserId: platformUser.Id,
-            platformEmail: platformUser.Email.Value,
+            platformUser.Id,
+            platformUser.Email.Value,
             now);
 
         var rawNewRefreshToken = tokenService.GenerateRefreshToken();
