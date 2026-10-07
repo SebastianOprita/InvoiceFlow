@@ -34,6 +34,8 @@ try
     builder.Services.AddHttpContextAccessor();
 
     // builder.Services.AddInvoiceFlowExceptionHandling();
+    // builder.Services.AddInvoiceFlowTracing(
+    //     builder.Environment.ApplicationName);
 
     builder.Services.AddInvoiceFlowAuthentication(builder.Configuration);
     builder.Services.AddInvoiceFlowAuthorization();
