@@ -1,8 +1,8 @@
-﻿using FluentAssertions;
+﻿using System.Diagnostics;
+using FluentAssertions;
 using MediatR;
-using Microsoft.AspNetCore.Http;
-using Moq;
 using Microsoft.Extensions.Logging;
+using Moq;
 using Xunit;
 
 namespace InvoiceFlow.BuildingBlocks.Application.Tests;
@@ -10,7 +10,6 @@ namespace InvoiceFlow.BuildingBlocks.Application.Tests;
 public sealed class LoggingBehaviorTests
 {
     private readonly Mock<ILogger<LoggingBehavior<TestRequest, TestResponse>>> _logger = new();
-    private readonly Mock<IHttpContextAccessor> _httpContextAccessor = new();
     private readonly Mock<ISystemDateTimeProvider> _dateTimeProvider = new();
 
     [Fact]
@@ -60,82 +59,23 @@ public sealed class LoggingBehaviorTests
     }
 
     [Fact]
-    public async Task Handle_WithCorrelationIdHeader_ShouldUseHeaderValue()
+    public async Task Handle_WithCurrentActivity_ShouldUseActivityTraceId()
     {
         // Arrange
-        const string correlationId = "test-correlation-id";
+        using var activity = new Activity("test");
+        activity.Start();
 
-        var context = new DefaultHttpContext();
+        var expectedTraceId = activity.TraceId.ToString();
 
-        context.Request.Headers["X-Correlation-ID"] = correlationId;
-
-        _httpContextAccessor
-            .Setup(x => x.HttpContext)
-            .Returns(context);
-
-        var behavior = CreateBehavior();
-
-        // Act
-        await behavior.Handle(
-            new TestRequest(),
-            _ => Task.FromResult(new TestResponse()),
-            CancellationToken.None);
-
-        // Assert
-        _logger.Verify(
-            x => x.BeginScope(
-                It.Is<Dictionary<string, object>>(scope =>
-                    scope["CorrelationId"].ToString() == correlationId)),
-            Times.Once);
-    }
-
-    [Fact]
-    public async Task Handle_WithoutCorrelationIdHeader_ShouldUseTraceIdentifier()
-    {
-        // Arrange
-        const string traceIdentifier = "trace-123";
-
-        var context = new DefaultHttpContext
-        {
-            TraceIdentifier = traceIdentifier
-        };
-
-        _httpContextAccessor
-            .Setup(x => x.HttpContext)
-            .Returns(context);
-
-        var behavior = CreateBehavior();
-
-        // Act
-        await behavior.Handle(
-            new TestRequest(),
-            _ => Task.FromResult(new TestResponse()),
-            CancellationToken.None);
-
-        // Assert
-        _logger.Verify(
-            x => x.BeginScope(
-                It.Is<Dictionary<string, object>>(scope =>
-                    scope["CorrelationId"].ToString() == traceIdentifier)),
-            Times.Once);
-    }
-
-    [Fact]
-    public async Task Handle_WithoutHttpContext_ShouldGenerateCorrelationId()
-    {
-        // Arrange
-        _httpContextAccessor
-            .Setup(x => x.HttpContext)
-            .Returns((HttpContext?)null);
-
-        var behavior = CreateBehavior();
-
-        Dictionary<string, object>? capturedScope = null;
+        Dictionary<string, object?>? capturedScope = null;
 
         _logger
-            .Setup(x => x.BeginScope(It.IsAny<Dictionary<string, object>>()))
-            .Callback((Dictionary<string, object> scope) =>
+            .Setup(x => x.BeginScope(
+                It.IsAny<Dictionary<string, object?>>()))
+            .Callback((Dictionary<string, object?> scope) =>
                 capturedScope = scope);
+
+        var behavior = CreateBehavior();
 
         // Act
         await behavior.Handle(
@@ -146,9 +86,38 @@ public sealed class LoggingBehaviorTests
         // Assert
         capturedScope.Should().NotBeNull();
 
-        var value = capturedScope!["CorrelationId"].ToString();
+        capturedScope!["TraceId"]
+            .Should()
+            .Be(expectedTraceId);
+    }
 
-        Guid.TryParse(value, out _).Should().BeTrue();
+    [Fact]
+    public async Task Handle_WithoutCurrentActivity_ShouldUseNullTraceId()
+    {
+        // Arrange
+        Activity.Current = null;
+
+        Dictionary<string, object?>? capturedScope = null;
+
+        _logger
+            .Setup(x => x.BeginScope(
+                It.IsAny<Dictionary<string, object?>>()))
+            .Callback((Dictionary<string, object?> scope) =>
+                capturedScope = scope);
+
+        var behavior = CreateBehavior();
+
+        // Act
+        await behavior.Handle(
+            new TestRequest(),
+            _ => Task.FromResult(new TestResponse()),
+            CancellationToken.None);
+
+        // Assert
+        capturedScope.Should().NotBeNull();
+
+        capturedScope!.Should().ContainKey("TraceId");
+        capturedScope["TraceId"].Should().BeNull();
     }
 
     [Fact]
@@ -198,7 +167,7 @@ public sealed class LoggingBehaviorTests
                 LogLevel.Information,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((state, _) =>
-                    state != null && 
+                    state != null &&
                     state.ToString()!.Contains("Handled TestRequest")),
                 It.IsAny<Exception?>(),
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
@@ -209,7 +178,14 @@ public sealed class LoggingBehaviorTests
     public async Task Handle_ShouldLogProvidedDateTime()
     {
         // Arrange
-        var now = new DateTime(2026, 10, 2, 12, 30, 0, DateTimeKind.Utc);
+        var now = new DateTime(
+            2026,
+            10,
+            2,
+            12,
+            30,
+            0,
+            DateTimeKind.Utc);
 
         _dateTimeProvider
             .Setup(x => x.Now)
@@ -231,7 +207,10 @@ public sealed class LoggingBehaviorTests
                 It.Is<It.IsAnyType>((state, _) =>
                     state != null &&
                     HasLogProperty(state, "DateTimeUtc", now) &&
-                    HasLogProperty(state, "RequestName", nameof(TestRequest))),
+                    HasLogProperty(
+                        state,
+                        "RequestName",
+                        nameof(TestRequest))),
                 It.IsAny<Exception?>(),
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             Times.Once);
@@ -241,7 +220,6 @@ public sealed class LoggingBehaviorTests
     {
         return new LoggingBehavior<TestRequest, TestResponse>(
             _logger.Object,
-            _httpContextAccessor.Object,
             _dateTimeProvider.Object);
     }
 

@@ -2,27 +2,23 @@
 
 public sealed class DomainException : Exception
 {
-    public string ErrorCode { get; }
-    public string ErrorMessage { get; }
+    public DomainError Error { get; }
 
     public DomainException(string errorCode, string errorMessage)
-        : base(errorMessage)
+        : base($"{errorCode}: {errorMessage}")
     {
-        ErrorCode = errorCode;
-        ErrorMessage = errorMessage;
+        Error = new DomainError(errorCode, errorMessage);
     }
 
     public DomainException((string errorCode, string errorMessage) error)
-        : base(error.errorMessage)
+        : base($"{error.errorCode}: {error.errorMessage}")
     {
-        ErrorCode = error.errorCode;
-        ErrorMessage = error.errorMessage;
+        Error = new DomainError(error.errorCode, error.errorMessage);
     }
 
     public DomainException(DomainError error)
-        : base(error.ErrorMessage)
+        : base($"{error.ErrorCode}: {error.ErrorMessage}")
     {
-        ErrorCode = error.ErrorCode;
-        ErrorMessage = error.ErrorMessage;
+        Error = error;
     }
 }

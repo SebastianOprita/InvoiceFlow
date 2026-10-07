@@ -46,7 +46,7 @@ try
     builder.Services
         .AddHealthChecks()
         .AddCheck("self", () => HealthCheckResult.Healthy(), tags: ["live"])
-        .AddDbContextCheck<IdentityDbContext>(name: "customers-database", tags: ["ready"]);
+        .AddDbContextCheck<IdentityDbContext>(name: "identity-database", tags: ["ready"]);
 
     var app = builder.Build();
 
@@ -76,6 +76,7 @@ try
     await app.ConfigureInfrastructureServices();
 
     await app.RunAsync();
+
 }
 catch (Exception ex)
 {
