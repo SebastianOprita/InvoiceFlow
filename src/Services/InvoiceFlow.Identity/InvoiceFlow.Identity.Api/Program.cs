@@ -34,6 +34,8 @@ try
     builder.Services.AddOpenApi();
     builder.Services.AddHttpContextAccessor();
 
+    // builder.Services.AddInvoiceFlowExceptionHandling();
+
     builder.Services.Configure<JwtSettings>(
         builder.Configuration.GetSection("JwtSettings"));
 
@@ -46,7 +48,7 @@ try
     builder.Services
         .AddHealthChecks()
         .AddCheck("self", () => HealthCheckResult.Healthy(), tags: ["live"])
-        .AddDbContextCheck<IdentityDbContext>(name: "customers-database", tags: ["ready"]);
+        .AddDbContextCheck<IdentityDbContext>(name: "identity-database", tags: ["ready"]);
 
     var app = builder.Build();
 
@@ -54,6 +56,8 @@ try
     {
         app.MapOpenApi();
     }
+
+    app.UseExceptionHandler();
 
     app.UseHttpsRedirection();
 
@@ -76,6 +80,7 @@ try
     await app.ConfigureInfrastructureServices();
 
     await app.RunAsync();
+
 }
 catch (Exception ex)
 {

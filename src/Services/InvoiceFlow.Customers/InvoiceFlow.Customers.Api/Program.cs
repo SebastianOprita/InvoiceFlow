@@ -33,6 +33,8 @@ try
     builder.Services.AddOpenApi();
     builder.Services.AddHttpContextAccessor();
 
+    // builder.Services.AddInvoiceFlowExceptionHandling();
+
     builder.Services.AddInvoiceFlowAuthentication(builder.Configuration);
     builder.Services.AddInvoiceFlowAuthorization();
 
@@ -50,6 +52,8 @@ try
     {
         app.MapOpenApi();
     }
+
+    app.UseExceptionHandler();
 
     app.UseHttpsRedirection();
 
