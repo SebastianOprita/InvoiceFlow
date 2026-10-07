@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics;
 
 namespace InvoiceFlow.BuildingBlocks.Api;
 
@@ -14,14 +15,16 @@ public sealed class GlobalExceptionHandler(
         CancellationToken cancellationToken)
     {
         var errorId = Guid.NewGuid().ToString("N");
+        var traceId = Activity.Current?.TraceId.ToString();
 
         logger.LogError(
             exception,
-            "Unhandled exception. ErrorId: {ErrorId}, Method: {Method}, Path: {Path}, TraceIdentifier: {TraceIdentifier}",
+            "Unhandled exception. ErrorId: {ErrorId}, ExceptionType: {ExceptionType}, TraceId: {TraceId}, Method: {Method}, Path: {Path}",
             errorId,
+            exception.GetType().Name,
+            traceId,
             httpContext.Request.Method,
-            httpContext.Request.Path,
-            httpContext.TraceIdentifier);
+            httpContext.Request.Path);
 
         httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
         httpContext.Response.ContentType = "application/json";

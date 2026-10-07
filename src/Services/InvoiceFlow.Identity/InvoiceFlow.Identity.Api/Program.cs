@@ -34,7 +34,9 @@ try
     builder.Services.AddOpenApi();
     builder.Services.AddHttpContextAccessor();
 
-    // builder.Services.AddInvoiceFlowExceptionHandling();
+    /* builder.Services.AddInvoiceFlowExceptionHandling();
+    builder.Services.AddInvoiceFlowTracing(
+        builder.Environment.ApplicationName); */
 
     builder.Services.Configure<JwtSettings>(
         builder.Configuration.GetSection("JwtSettings"));

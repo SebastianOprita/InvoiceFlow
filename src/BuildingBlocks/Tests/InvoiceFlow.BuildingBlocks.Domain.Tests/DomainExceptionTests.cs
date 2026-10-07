@@ -16,9 +16,9 @@ public sealed class DomainExceptionTests
         var exception = new DomainException(errorCode, errorMessage);
 
         // Assert
-        exception.ErrorCode.Should().Be(errorCode);
-        exception.ErrorMessage.Should().Be(errorMessage);
-        exception.Message.Should().Be(errorMessage);
+        exception.Error.ErrorCode.Should().Be(errorCode);
+        exception.Error.ErrorMessage.Should().Be(errorMessage);
+        exception.Message.Should().Be($"{errorCode}: {errorMessage}");
     }
 
     [Fact]
@@ -33,9 +33,9 @@ public sealed class DomainExceptionTests
         var exception = new DomainException(error);
 
         // Assert
-        exception.ErrorCode.Should().Be(error.errorCode);
-        exception.ErrorMessage.Should().Be(error.errorMessage);
-        exception.Message.Should().Be(error.errorMessage);
+        exception.Error.ErrorCode.Should().Be(error.errorCode);
+        exception.Error.ErrorMessage.Should().Be(error.errorMessage);
+        exception.Message.Should().Be($"{error.errorCode}: {error.errorMessage}");
     }
 
     [Fact]
@@ -50,8 +50,8 @@ public sealed class DomainExceptionTests
         var exception = new DomainException(error);
 
         // Assert
-        exception.ErrorCode.Should().Be(error.ErrorCode);
-        exception.ErrorMessage.Should().Be(error.ErrorMessage);
-        exception.Message.Should().Be(error.ErrorMessage);
+        exception.Error.ErrorCode.Should().Be(error.ErrorCode);
+        exception.Error.ErrorMessage.Should().Be(error.ErrorMessage);
+        exception.Message.Should().Be($"{error.ErrorCode}: {error.ErrorMessage}");
     }
 }
