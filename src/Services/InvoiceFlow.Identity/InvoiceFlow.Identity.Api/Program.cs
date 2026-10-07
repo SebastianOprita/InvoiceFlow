@@ -57,7 +57,7 @@ try
         app.MapOpenApi();
     }
 
-    app.UseExceptionHandler();
+    // app.UseExceptionHandler();
 
     app.UseHttpsRedirection();
 
