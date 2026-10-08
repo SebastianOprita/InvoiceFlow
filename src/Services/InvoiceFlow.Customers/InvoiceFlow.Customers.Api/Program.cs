@@ -7,8 +7,6 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 try
 {
-    Console.WriteLine("Starting up");
-
     var builder = WebApplication.CreateBuilder(args);
 
     if (builder.Configuration["JwtSettings:Secret"] is null)
@@ -67,11 +65,7 @@ try
 }
 catch (Exception ex)
 {
-    Console.Error.WriteLine($"Application terminated unexpectedly: {ex}");
+    await Console.Error.WriteLineAsync($"Application terminated unexpectedly: {ex}");
 
     throw;
-}
-finally
-{
-    Console.WriteLine("Shutting down");
 }
