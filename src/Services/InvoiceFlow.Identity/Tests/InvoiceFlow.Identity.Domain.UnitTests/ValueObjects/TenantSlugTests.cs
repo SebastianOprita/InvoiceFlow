@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Domain;
 using Xunit;
 
@@ -34,7 +34,7 @@ public sealed class TenantSlugTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.SlugRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.SlugRequired);
     }
 
     [Fact]
@@ -46,7 +46,7 @@ public sealed class TenantSlugTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.SlugTooLong.ErrorMessage);
+            .WithDomainError(DomainErrors.SlugTooLong);
     }
 
     [Fact]
@@ -68,7 +68,7 @@ public sealed class TenantSlugTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.SlugStartsOrEndsInvalid.ErrorMessage);
+            .WithDomainError(DomainErrors.SlugStartsOrEndsInvalid);
     }
 
     [Theory]
@@ -83,7 +83,7 @@ public sealed class TenantSlugTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.SlugInvalid.ErrorMessage);
+            .WithDomainError(DomainErrors.SlugInvalid);
     }
 
     [Theory]

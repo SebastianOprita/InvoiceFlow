@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.BuildingBlocks.Domain;
 using Xunit;
@@ -33,7 +33,7 @@ public sealed class RolePermissionsTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.PermissionInvalid.ErrorMessage);
+            .WithDomainError(DomainErrors.PermissionInvalid);
     }
 
     [Fact]
@@ -55,7 +55,7 @@ public sealed class RolePermissionsTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.PermissionRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.PermissionRequired);
     }
 
     [Fact]
@@ -68,7 +68,7 @@ public sealed class RolePermissionsTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.PermissionInvalid.ErrorMessage);
+            .WithDomainError(DomainErrors.PermissionInvalid);
     }
 
     [Fact]
@@ -91,7 +91,7 @@ public sealed class RolePermissionsTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.PermissionRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.PermissionRequired);
     }
 
     [Fact]
@@ -104,7 +104,7 @@ public sealed class RolePermissionsTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.PermissionInvalid.ErrorMessage);
+            .WithDomainError(DomainErrors.PermissionInvalid);
     }
 
     [Fact]
@@ -147,7 +147,7 @@ public sealed class RolePermissionsTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.PermissionInvalid.ErrorMessage);
+            .WithDomainError(DomainErrors.PermissionInvalid);
     }
 
     [Fact]

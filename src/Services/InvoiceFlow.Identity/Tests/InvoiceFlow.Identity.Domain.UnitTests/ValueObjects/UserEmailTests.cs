@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Domain;
 using Xunit;
 
@@ -34,7 +34,7 @@ public sealed class UserEmailTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.EmailRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.EmailRequired);
     }
 
     [Fact]
@@ -46,7 +46,7 @@ public sealed class UserEmailTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.EmailTooLong.ErrorMessage);
+            .WithDomainError(DomainErrors.EmailTooLong);
     }
 
     [Fact]
@@ -70,7 +70,7 @@ public sealed class UserEmailTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.EmailInvalid.ErrorMessage);
+            .WithDomainError(DomainErrors.EmailInvalid);
     }
 
     [Theory]

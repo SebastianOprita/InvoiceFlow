@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Domain;
 using Xunit;
 
@@ -35,7 +35,7 @@ public sealed class PhoneNumberTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.PhoneNumberRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.PhoneNumberRequired);
     }
 
     [Fact]
@@ -45,7 +45,7 @@ public sealed class PhoneNumberTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.PhoneNumberRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.PhoneNumberRequired);
     }
 
     [Fact]
@@ -68,7 +68,7 @@ public sealed class PhoneNumberTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.PhoneNumberTooLong.ErrorMessage);
+            .WithDomainError(DomainErrors.PhoneNumberTooLong);
     }
 
     [Fact]
@@ -129,7 +129,7 @@ public sealed class PhoneNumberTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.PhoneNumberTooLong.ErrorMessage);
+            .WithDomainError(DomainErrors.PhoneNumberTooLong);
     }
 
     [Fact]

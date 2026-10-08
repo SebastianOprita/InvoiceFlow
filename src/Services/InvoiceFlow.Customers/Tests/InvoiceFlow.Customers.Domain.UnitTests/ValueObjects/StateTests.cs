@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Domain;
 using Xunit;
 
@@ -35,7 +35,7 @@ public sealed class StateTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.StateRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.StateRequired);
     }
 
     [Fact]
@@ -45,7 +45,7 @@ public sealed class StateTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.StateRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.StateRequired);
     }
 
     [Fact]
@@ -68,7 +68,7 @@ public sealed class StateTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.StateTooLong.ErrorMessage);
+            .WithDomainError(DomainErrors.StateTooLong);
     }
 
     [Fact]
@@ -129,7 +129,7 @@ public sealed class StateTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.StateTooLong.ErrorMessage);
+            .WithDomainError(DomainErrors.StateTooLong);
     }
 
     [Fact]

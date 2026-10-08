@@ -74,7 +74,7 @@ public sealed class CustomerTests
                 _now);
 
         act.Should().Throw<DomainException>()
-            .Which.ErrorCode.Should().Be(DomainErrors.TenantIdRequired.ErrorCode);
+            .Which.Error.ErrorCode.Should().Be(DomainErrors.TenantIdRequired.ErrorCode);
     }
 
     [Fact]
@@ -103,7 +103,7 @@ public sealed class CustomerTests
                 _now);
 
         act.Should().Throw<DomainException>()
-            .Which.ErrorCode.Should().Be(DomainErrors.IdRequired.ErrorCode);
+            .Which.Error.ErrorCode.Should().Be(DomainErrors.IdRequired.ErrorCode);
     }
 
     [Fact]
@@ -132,7 +132,7 @@ public sealed class CustomerTests
                 default);
 
         act.Should().Throw<DomainException>()
-            .Which.ErrorCode.Should().Be(DomainErrors.CreatedAtUtcRequired.ErrorCode);
+            .Which.Error.ErrorCode.Should().Be(DomainErrors.CreatedAtUtcRequired.ErrorCode);
     }
 
     #endregion

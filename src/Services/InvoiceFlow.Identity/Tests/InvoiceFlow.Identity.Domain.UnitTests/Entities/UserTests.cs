@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Domain;
 using Xunit;
 
@@ -55,7 +55,7 @@ public class UserTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.TenantIdRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.TenantIdRequired);
     }
 
     [Fact]
@@ -72,7 +72,7 @@ public class UserTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.IdRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.IdRequired);
     }
 
     [Fact]
@@ -89,7 +89,7 @@ public class UserTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.CreatedAtUtcRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.CreatedAtUtcRequired);
     }
 
     [Fact]
@@ -248,7 +248,7 @@ public class UserTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.RoleIdRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.RoleIdRequired);
     }
 
     [Fact]
@@ -260,7 +260,7 @@ public class UserTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.AssignedAtUtcRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.AssignedAtUtcRequired);
     }
 
     [Fact]
@@ -293,7 +293,7 @@ public class UserTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage("Role Id is required.");
+            .WithDomainError(DomainErrors.RoleIdRequired);
     }
 
     [Theory]
@@ -306,7 +306,7 @@ public class UserTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.UpdatedAtUtcRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.UpdatedAtUtcRequired);
     }
 
     [Theory]
@@ -319,7 +319,7 @@ public class UserTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.UpdatedAtUtcInvalid.ErrorMessage);
+            .WithDomainError(DomainErrors.UpdatedAtUtcInvalid);
     }
 
     public static TheoryData<Action<User>> UpdateActionsWithDefaultDate => new()
@@ -356,3 +356,4 @@ public class UserTests
             CreatedAtUtc);
     }
 }
+

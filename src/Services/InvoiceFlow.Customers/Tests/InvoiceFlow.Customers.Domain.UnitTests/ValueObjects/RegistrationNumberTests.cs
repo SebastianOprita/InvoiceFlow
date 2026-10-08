@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Domain;
 using Xunit;
 
@@ -35,7 +35,7 @@ public sealed class RegistrationNumberTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.RegistrationNumberRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.RegistrationNumberRequired);
     }
 
     [Fact]
@@ -45,7 +45,7 @@ public sealed class RegistrationNumberTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.RegistrationNumberRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.RegistrationNumberRequired);
     }
 
     [Fact]
@@ -68,7 +68,7 @@ public sealed class RegistrationNumberTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.RegistrationNumberTooLong.ErrorMessage);
+            .WithDomainError(DomainErrors.RegistrationNumberTooLong);
     }
 
     [Fact]

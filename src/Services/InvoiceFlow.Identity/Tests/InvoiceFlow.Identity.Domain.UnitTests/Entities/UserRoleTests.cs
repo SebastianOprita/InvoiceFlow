@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Domain;
 using Xunit;
 
@@ -38,7 +38,7 @@ public class UserRoleTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.TenantIdRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.TenantIdRequired);
     }
 
     [Fact]
@@ -52,7 +52,7 @@ public class UserRoleTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.UserIdRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.UserIdRequired);
     }
 
     [Fact]
@@ -66,7 +66,7 @@ public class UserRoleTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.RoleIdRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.RoleIdRequired);
     }
 
     [Fact]
@@ -80,6 +80,6 @@ public class UserRoleTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.AssignedAtUtcRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.AssignedAtUtcRequired);
     }
 }

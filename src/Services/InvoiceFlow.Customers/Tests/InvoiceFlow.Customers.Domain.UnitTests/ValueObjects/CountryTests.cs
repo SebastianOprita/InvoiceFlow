@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Domain;
 using Xunit;
 
@@ -35,7 +35,7 @@ public sealed class CountryTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.CountryRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.CountryRequired);
     }
 
     [Fact]
@@ -45,7 +45,7 @@ public sealed class CountryTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.CountryRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.CountryRequired);
     }
 
     [Fact]
@@ -68,7 +68,7 @@ public sealed class CountryTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.CountryTooLong.ErrorMessage);
+            .WithDomainError(DomainErrors.CountryTooLong);
     }
 
     [Fact]

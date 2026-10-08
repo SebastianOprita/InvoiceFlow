@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.BuildingBlocks.Domain;
 using Xunit;
@@ -50,7 +50,7 @@ public class RoleTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.TenantIdRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.TenantIdRequired);
     }
 
     [Fact]
@@ -60,7 +60,7 @@ public class RoleTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.IdRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.IdRequired);
     }
 
     [Fact]
@@ -70,7 +70,7 @@ public class RoleTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.CreatedAtUtcRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.CreatedAtUtcRequired);
     }
 
     [Fact]
@@ -176,7 +176,7 @@ public class RoleTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.UpdatedAtUtcRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.UpdatedAtUtcRequired);
     }
 
     [Theory]
@@ -189,7 +189,7 @@ public class RoleTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.UpdatedAtUtcInvalid.ErrorMessage);
+            .WithDomainError(DomainErrors.UpdatedAtUtcInvalid);
     }
 
     public static TheoryData<Action<Role>> UpdateActions => new()

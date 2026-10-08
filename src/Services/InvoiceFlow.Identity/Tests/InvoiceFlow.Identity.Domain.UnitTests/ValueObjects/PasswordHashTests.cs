@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Domain;
 using Xunit;
 
@@ -26,7 +26,7 @@ public sealed class PasswordHashTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.PasswordHashRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.PasswordHashRequired);
     }
 
     [Fact]

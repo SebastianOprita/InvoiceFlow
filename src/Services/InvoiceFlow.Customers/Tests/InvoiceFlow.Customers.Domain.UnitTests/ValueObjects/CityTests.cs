@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Domain;
 using Xunit;
 
@@ -35,7 +35,7 @@ public sealed class CityTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.CityRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.CityRequired);
     }
 
     [Fact]
@@ -45,7 +45,7 @@ public sealed class CityTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.CityRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.CityRequired);
     }
 
     [Fact]
@@ -68,7 +68,7 @@ public sealed class CityTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.CityTooLong.ErrorMessage);
+            .WithDomainError(DomainErrors.CityTooLong);
     }
 
     [Fact]

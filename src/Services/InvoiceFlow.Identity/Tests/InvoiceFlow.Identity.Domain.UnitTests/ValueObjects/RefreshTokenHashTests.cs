@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Domain;
 using Xunit;
 
@@ -34,7 +34,7 @@ public sealed class RefreshTokenHashTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.TokenHashRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.TokenHashRequired);
     }
 
     [Fact]

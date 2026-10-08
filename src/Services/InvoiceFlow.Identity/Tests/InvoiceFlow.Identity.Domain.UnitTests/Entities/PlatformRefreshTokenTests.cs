@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Domain;
 using Xunit;
 
@@ -52,7 +52,7 @@ public sealed class PlatformRefreshTokenTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.IdRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.IdRequired);
     }
 
     [Fact]
@@ -67,7 +67,7 @@ public sealed class PlatformRefreshTokenTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.UserIdRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.UserIdRequired);
     }
 
     [Fact]
@@ -82,7 +82,7 @@ public sealed class PlatformRefreshTokenTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.CreatedAtUtcRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.CreatedAtUtcRequired);
     }
 
     [Fact]
@@ -99,7 +99,7 @@ public sealed class PlatformRefreshTokenTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.ExpiresAtUtcInvalid.ErrorMessage);
+            .WithDomainError(DomainErrors.ExpiresAtUtcInvalid);
     }
 
     [Fact]
@@ -116,7 +116,7 @@ public sealed class PlatformRefreshTokenTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.ExpiresAtUtcInvalid.ErrorMessage);
+            .WithDomainError(DomainErrors.ExpiresAtUtcInvalid);
     }
 
     [Fact]
@@ -194,7 +194,7 @@ public sealed class PlatformRefreshTokenTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.RevokedAtUtcRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.RevokedAtUtcRequired);
     }
 
     [Fact]
@@ -207,7 +207,7 @@ public sealed class PlatformRefreshTokenTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.RevokedAtUtcInvalid.ErrorMessage);
+            .WithDomainError(DomainErrors.RevokedAtUtcInvalid);
     }
 
     [Fact]
@@ -255,7 +255,7 @@ public sealed class PlatformRefreshTokenTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.RefreshTokensRevoked.ErrorMessage);
+            .WithDomainError(DomainErrors.RefreshTokensRevoked);
     }
 
     [Fact]
@@ -272,7 +272,7 @@ public sealed class PlatformRefreshTokenTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.RefreshTokensExpired.ErrorMessage);
+            .WithDomainError(DomainErrors.RefreshTokensExpired);
     }
 
     private static PlatformRefreshToken CreateToken(DateTime createdAtUtc, DateTime expiresAtUtc)
