@@ -29,13 +29,7 @@ public sealed class UnitOfWork : IUnitOfWork
         {
             _logger.LogWarning(ex, "Concurrency conflict while saving changes.");
 
-            return Result.Failure(ApplicationErrors.ConcurencyConflict);
-        }
-        catch (DbUpdateException ex)
-        {
-            _logger.LogError(ex, "Database error while saving changes.");
-
-            return Result.Failure(ApplicationErrors.DbSaveFailed);
+            return Result.Failure(ApplicationErrors.ConcurrencyConflict);
         }
         catch (OperationCanceledException)
         when (cancellationToken.IsCancellationRequested)
@@ -43,7 +37,6 @@ public sealed class UnitOfWork : IUnitOfWork
             _logger.LogDebug("SaveChanges was cancelled.");
             throw;
         }
-
     }
 
     public void Dispose()

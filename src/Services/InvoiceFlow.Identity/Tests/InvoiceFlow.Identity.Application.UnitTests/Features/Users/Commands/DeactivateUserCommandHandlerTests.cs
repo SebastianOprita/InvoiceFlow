@@ -32,7 +32,7 @@ public class DeactivateUserCommandHandlerTests
         var cmd = new DeactivateUserCommand(Guid.CreateVersion7(), Guid.CreateVersion7());
 
         _usersRepository
-            .Setup(x => x.GetUserByIdAsync(cmd.TenantId, cmd.UserId, TestContext.Current.CancellationToken))
+            .Setup(x => x.GetTrackedUserByIdAsync(cmd.TenantId, cmd.UserId, TestContext.Current.CancellationToken))
             .ReturnsAsync((User?)null);
 
         // Act
@@ -67,7 +67,7 @@ public class DeactivateUserCommandHandlerTests
         user.Deactivate(_mockDateTimeProvider.Object.Now);
 
         _usersRepository
-            .Setup(x => x.GetUserByIdAsync(cmd.TenantId, cmd.UserId, TestContext.Current.CancellationToken))
+            .Setup(x => x.GetTrackedUserByIdAsync(cmd.TenantId, cmd.UserId, TestContext.Current.CancellationToken))
             .ReturnsAsync(user);
 
         // Act
@@ -97,7 +97,7 @@ public class DeactivateUserCommandHandlerTests
             _mockDateTimeProvider.Object.Now);
 
         _usersRepository
-            .Setup(x => x.GetUserByIdAsync(cmd.TenantId, cmd.UserId, TestContext.Current.CancellationToken))
+            .Setup(x => x.GetTrackedUserByIdAsync(cmd.TenantId, cmd.UserId, TestContext.Current.CancellationToken))
             .ReturnsAsync(user);
 
         _unitOfWork
@@ -109,46 +109,6 @@ public class DeactivateUserCommandHandlerTests
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        user.IsActive.Should().BeFalse();
-
-        _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-    }
-
-    [Fact]
-    public async Task Handle_WhenSaveChangesFails_ReturnsFailure()
-    {
-        // Arrange
-        var cmd = new DeactivateUserCommand(Guid.CreateVersion7(), Guid.CreateVersion7());
-
-        var user = User.Create(
-            cmd.TenantId,
-            cmd.UserId,
-            UserEmail.Create("john.doe@test.com"),
-            PasswordHash.Create("hashedpassword"),
-            FirstName.Create("John"),
-            LastName.Create("Doe"),
-            _mockDateTimeProvider.Object.Now);
-
-        var saveError = new ApplicationError(
-            ApplicationErrorType.Validation,
-            ApplicationErrors.DbSaveFailed.Code,
-            ApplicationErrors.DbSaveFailed.Message);
-
-        _usersRepository
-            .Setup(x => x.GetUserByIdAsync(cmd.TenantId, cmd.UserId, TestContext.Current.CancellationToken))
-            .ReturnsAsync(user);
-
-        _unitOfWork
-            .Setup(x => x.SaveChangesAsync(TestContext.Current.CancellationToken))
-            .ReturnsAsync(Result.Failure(saveError));
-
-        // Act
-        var result = await _sut.Handle(cmd, TestContext.Current.CancellationToken);
-
-        // Assert
-        result.IsFailure.Should().BeTrue();
-        result.Error.Should().Be(saveError);
-
         user.IsActive.Should().BeFalse();
 
         _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);

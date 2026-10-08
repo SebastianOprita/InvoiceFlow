@@ -7,7 +7,7 @@ public class GetUserByIdQueryHandler(IUsersRepository usersRepository) : IReques
 {
     public async Task<Result<UserDto>> Handle(GetUserByIdQuery qry, CancellationToken cancellationToken)
     {
-        var user = await usersRepository.FindUserByIdAsync(qry.TenantId, qry.UserId);
+        var user = await usersRepository.GetUserByIdAsync(qry.TenantId, qry.UserId);
 
         if (user == null)
             return Result<UserDto>.Failure(ApplicationErrors.UserNotFound);

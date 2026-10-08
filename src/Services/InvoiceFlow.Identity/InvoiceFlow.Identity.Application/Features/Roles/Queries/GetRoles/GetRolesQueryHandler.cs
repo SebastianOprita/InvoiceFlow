@@ -7,7 +7,7 @@ public class GetRolesQueryHandler(IRolesRepository rolesRepository) : IRequestHa
 {
     public async Task<Result<List<RoleDto>>> Handle(GetRolesQuery qry, CancellationToken cancellationToken)
     {
-        var roles = await rolesRepository.FindAllRolesAsync(qry.TenantId);
+        var roles = await rolesRepository.GetAllRolesAsync(qry.TenantId);
         var rolesDto = roles
             .Select(r => r.ToDto())
             .ToList();

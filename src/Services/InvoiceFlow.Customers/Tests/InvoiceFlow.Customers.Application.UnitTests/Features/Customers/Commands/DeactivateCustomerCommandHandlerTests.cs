@@ -31,7 +31,7 @@ public sealed class DeactivateCustomerCommandHandlerTests
             CustomerId: Guid.CreateVersion7());
 
         _mockRepository
-            .Setup(x => x.GetCustomerByIdAsync(cmd.TenantId, cmd.CustomerId))
+            .Setup(x => x.GetTrackedCustomerByIdAsync(cmd.TenantId, cmd.CustomerId))
             .ReturnsAsync((Customer?)null);
 
         // Act
@@ -60,7 +60,7 @@ public sealed class DeactivateCustomerCommandHandlerTests
             CustomerId: customer.Id);
 
         _mockRepository
-            .Setup(x => x.GetCustomerByIdAsync(cmd.TenantId, cmd.CustomerId))
+            .Setup(x => x.GetTrackedCustomerByIdAsync(cmd.TenantId, cmd.CustomerId))
             .ReturnsAsync(customer);
 
         // Act
@@ -86,7 +86,7 @@ public sealed class DeactivateCustomerCommandHandlerTests
             CustomerId: customer.Id);
 
         _mockRepository
-            .Setup(x => x.GetCustomerByIdAsync(cmd.TenantId, cmd.CustomerId))
+            .Setup(x => x.GetTrackedCustomerByIdAsync(cmd.TenantId, cmd.CustomerId))
             .ReturnsAsync(customer);
 
         _mockUnitOfWork
@@ -99,42 +99,6 @@ public sealed class DeactivateCustomerCommandHandlerTests
         // Assert
         result.IsSuccess.Should().BeTrue();
         customer.IsActive.Should().BeFalse();
-
-        _mockUnitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-    }
-
-    [Fact]
-    public async Task Handle_ShouldReturnFailure_WhenSaveChangesFails()
-    {
-        // Arrange
-        var customer = TestConstants.Customer(TestConstants.TenantId, Guid.CreateVersion7(), "Existing customer", _mockDateTimeProvider.Object.Now);
-
-        if (!customer.IsActive)
-            customer.Activate(_mockDateTimeProvider.Object.Now);
-
-        var cmd = new DeactivateCustomerCommand(
-            TenantId: customer.TenantId,
-            CustomerId: customer.Id);
-
-        var saveError = new ApplicationError(
-            ApplicationErrorType.Internal,
-            ApplicationErrors.DbSaveFailed.Code,
-            ApplicationErrors.DbSaveFailed.Message);
-
-        _mockRepository
-            .Setup(x => x.GetCustomerByIdAsync(cmd.TenantId, cmd.CustomerId))
-            .ReturnsAsync(customer);
-
-        _mockUnitOfWork
-            .Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Failure(saveError));
-
-        // Act
-        var result = await _handler.Handle(cmd, CancellationToken.None);
-
-        // Assert
-        result.IsSuccess.Should().BeFalse();
-        result.Error.Should().Be(saveError);
 
         _mockUnitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }

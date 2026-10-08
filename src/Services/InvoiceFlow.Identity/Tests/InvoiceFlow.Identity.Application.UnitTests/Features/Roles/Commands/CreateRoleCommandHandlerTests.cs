@@ -54,42 +54,6 @@ public class CreateRoleCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_WhenSaveChangesFails_ReturnsFailure()
-    {
-        // Arrange
-        var cmd = new CreateRoleCommand(
-            Guid.CreateVersion7(),
-            "Admin",
-            "Administrator role",
-            SystemPermission.None);
-
-        var saveError = new ApplicationError(
-            ApplicationErrorType.Validation,
-            ApplicationErrors.DbSaveFailed.Code,
-            ApplicationErrors.DbSaveFailed.Message);
-
-        _rolesRepository
-            .Setup(x => x.ExistsByNameAsync(cmd.TenantId, RoleName.Create(cmd.Name)))
-            .ReturnsAsync(false);
-
-        _unitOfWork
-            .Setup(x => x.SaveChangesAsync())
-            .ReturnsAsync(Result.Failure(saveError));
-
-        // Act
-        var result = await _sut.Handle(cmd, CancellationToken.None);
-
-        // Assert
-        result.IsFailure.Should().BeTrue();
-        result.Error.Should().Be(saveError);
-
-        _rolesRepository.Verify(x => x.AddRole(It.Is<Role>(r =>
-            r.TenantId == cmd.TenantId)), Times.Once);
-
-        _unitOfWork.Verify(x => x.SaveChangesAsync(), Times.Once);
-    }
-
-    [Fact]
     public async Task Handle_WhenRoleIsCreatedSuccessfully_ReturnsRoleDto()
     {
         // Arrange

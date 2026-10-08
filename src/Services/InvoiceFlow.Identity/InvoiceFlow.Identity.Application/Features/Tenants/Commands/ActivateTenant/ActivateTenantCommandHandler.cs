@@ -11,7 +11,7 @@ public class ActivateTenantCommandHandler(
 {
     public async Task<Result> Handle(ActivateTenantCommand cmd, CancellationToken cancellationToken)
     {
-        var tenant = await tenantsRepository.GetTenantByIdAsync(cmd.TenantId, cancellationToken);
+        var tenant = await tenantsRepository.GetTrackedTenantByIdAsync(cmd.TenantId, cancellationToken);
         if (tenant is null)
             return Result.Failure(ApplicationErrors.TenantNotFound);
 

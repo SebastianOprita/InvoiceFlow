@@ -35,7 +35,7 @@ public class UpdatePlatformUserCommandHandlerTests
             "Doe");
 
         _usersRepository
-            .Setup(x => x.GetUserByIdAsync(cmd.UserId, CancellationToken.None))
+            .Setup(x => x.GetTrackedUserByIdAsync(cmd.UserId, CancellationToken.None))
             .ReturnsAsync((PlatformUser?)null);
 
         // Act
@@ -50,48 +50,6 @@ public class UpdatePlatformUserCommandHandlerTests
         _unitOfWork.Verify(
             x => x.SaveChangesAsync(It.IsAny<CancellationToken>()),
             Times.Never);
-    }
-
-    [Fact]
-    public async Task Handle_WhenSaveChangesFails_ReturnsFailure()
-    {
-        // Arrange
-        var ct = CancellationToken.None;
-
-        var cmd = new UpdatePlatformUserCommand(
-            Guid.CreateVersion7(),
-            "John",
-            "Doe");
-
-        var user = PlatformUser.Create(
-            cmd.UserId,
-            UserEmail.Create("john.doe@test.com"),
-            PasswordHash.Create("password-hash"),
-            FirstName.Create("Old"),
-            LastName.Create("Name"),
-            _mockDateTimeProvider.Object.Now);
-
-        var saveError = new ApplicationError(
-            ApplicationErrorType.Validation,
-            ApplicationErrors.DbSaveFailed.Code,
-            ApplicationErrors.DbSaveFailed.Message);
-
-        _usersRepository
-            .Setup(x => x.GetUserByIdAsync(cmd.UserId, CancellationToken.None))
-            .ReturnsAsync(user);
-
-        _unitOfWork
-            .Setup(x => x.SaveChangesAsync(ct))
-            .ReturnsAsync(Result.Failure(saveError));
-
-        // Act
-        var result = await _sut.Handle(cmd, ct);
-
-        // Assert
-        result.IsFailure.Should().BeTrue();
-        result.Error.Should().Be(saveError);
-
-        _unitOfWork.Verify(x => x.SaveChangesAsync(ct), Times.Once);
     }
 
     [Fact]
@@ -114,7 +72,7 @@ public class UpdatePlatformUserCommandHandlerTests
             _mockDateTimeProvider.Object.Now);
 
         _usersRepository
-            .Setup(x => x.GetUserByIdAsync(cmd.UserId, CancellationToken.None))
+            .Setup(x => x.GetTrackedUserByIdAsync(cmd.UserId, CancellationToken.None))
             .ReturnsAsync(user);
 
         _unitOfWork

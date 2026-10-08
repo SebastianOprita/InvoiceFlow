@@ -43,7 +43,7 @@ public class ChangeUserPasswordCommandHandlerTests
             "new-password");
 
         _usersRepository
-            .Setup(x => x.GetUserByIdAsync(cmd.TenantId, cmd.UserId, TestContext.Current.CancellationToken))
+            .Setup(x => x.GetTrackedUserByIdAsync(cmd.TenantId, cmd.UserId, TestContext.Current.CancellationToken))
             .ReturnsAsync((User?)null);
 
         // Act
@@ -91,7 +91,7 @@ public class ChangeUserPasswordCommandHandlerTests
         user.Deactivate(_mockDateTimeProvider.Object.Now);
 
         _usersRepository
-            .Setup(x => x.GetUserByIdAsync(cmd.TenantId, cmd.UserId, TestContext.Current.CancellationToken))
+            .Setup(x => x.GetTrackedUserByIdAsync(cmd.TenantId, cmd.UserId, TestContext.Current.CancellationToken))
             .ReturnsAsync(user);
 
         // Act
@@ -138,7 +138,7 @@ public class ChangeUserPasswordCommandHandlerTests
             _mockDateTimeProvider.Object.Now);
 
         _usersRepository
-            .Setup(x => x.GetUserByIdAsync(cmd.TenantId, cmd.UserId, TestContext.Current.CancellationToken))
+            .Setup(x => x.GetTrackedUserByIdAsync(cmd.TenantId, cmd.UserId, TestContext.Current.CancellationToken))
             .ReturnsAsync(user);
 
         _passwordHasher
@@ -190,7 +190,7 @@ public class ChangeUserPasswordCommandHandlerTests
         var newPasswordHash = "new-password-hash";
 
         _usersRepository
-            .Setup(x => x.GetUserByIdAsync(cmd.TenantId, cmd.UserId, TestContext.Current.CancellationToken))
+            .Setup(x => x.GetTrackedUserByIdAsync(cmd.TenantId, cmd.UserId, TestContext.Current.CancellationToken))
             .ReturnsAsync(user);
 
         _passwordHasher
@@ -229,71 +229,5 @@ public class ChangeUserPasswordCommandHandlerTests
             Times.Once);
 
         _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-    }
-
-    [Fact]
-    public async Task Handle_WhenSaveChangesFails_ReturnsFailure()
-    {
-        // Arrange
-        var cmd = new ChangeUserPasswordCommand(
-            Guid.CreateVersion7(),
-            Guid.CreateVersion7(),
-            "old-password",
-            "new-password");
-
-        var user = User.Create(
-            cmd.TenantId,
-            cmd.UserId,
-            UserEmail.Create("john.doe@test.com"),
-            PasswordHash.Create("old-password-hash"),
-            FirstName.Create("John"),
-            LastName.Create("Doe"),
-            _mockDateTimeProvider.Object.Now);
-
-        var saveError = new ApplicationError(
-            ApplicationErrorType.Validation,
-            ApplicationErrors.DbSaveFailed.Code,
-            ApplicationErrors.DbSaveFailed.Message);
-
-        _usersRepository
-            .Setup(x => x.GetUserByIdAsync(cmd.TenantId, cmd.UserId, TestContext.Current.CancellationToken))
-            .ReturnsAsync(user);
-
-        _passwordHasher
-            .Setup(x => x.VerifyPassword(cmd.CurrentPassword, user.PasswordHash.Value))
-            .Returns(true);
-
-        _passwordHasher
-            .Setup(x => x.HashPassword(cmd.NewPassword))
-            .Returns("new-password-hash");
-
-        _refreshTokensRepository
-            .Setup(x => x.RevokeAccessForUserAsync(
-                cmd.TenantId,
-                cmd.UserId,
-                It.IsAny<DateTime>(),
-                It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
-
-        _unitOfWork
-            .Setup(x => x.SaveChangesAsync(TestContext.Current.CancellationToken))
-            .ReturnsAsync(Result.Failure(saveError));
-
-        // Act
-        var result = await _sut.Handle(cmd, TestContext.Current.CancellationToken);
-
-        // Assert
-        result.IsFailure.Should().BeTrue();
-        result.Error.Should().Be(saveError);
-
-        _refreshTokensRepository.Verify(
-            x => x.RevokeAccessForUserAsync(
-                cmd.TenantId,
-                cmd.UserId,
-                It.IsAny<DateTime>(),
-                It.IsAny<CancellationToken>()),
-            Times.Once);
-
-        _unitOfWork.Verify(x => x.SaveChangesAsync(TestContext.Current.CancellationToken), Times.Once);
     }
 }

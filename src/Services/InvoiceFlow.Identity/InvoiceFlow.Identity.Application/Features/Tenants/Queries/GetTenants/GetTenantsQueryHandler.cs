@@ -7,7 +7,7 @@ public class GetTenantsQueryHandler(ITenantsRepository tenantsRepository) : IReq
 {
     public async Task<Result<List<TenantDto>>> Handle(GetTenantsQuery qry, CancellationToken cancellationToken)
     {
-        var tenants = await tenantsRepository.FindAllTenantsAsync();
+        var tenants = await tenantsRepository.GetAllTenantsAsync();
         var tenantDtos = tenants
             .Select(t => t.ToDto())
             .ToList();

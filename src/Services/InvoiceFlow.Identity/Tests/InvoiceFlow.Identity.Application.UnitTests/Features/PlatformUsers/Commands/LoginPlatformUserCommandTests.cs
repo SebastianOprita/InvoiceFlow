@@ -55,7 +55,49 @@ public class LoginPlatformUserCommandTests
             null);
 
         _usersRepository
-            .Setup(x => x.FindUserByEmailAsync(It.IsAny<UserEmail>(), CancellationToken.None))
+            .Setup(x => x.GetUserByEmailAsync(It.IsAny<UserEmail>(), CancellationToken.None))
+            .ReturnsAsync((PlatformUser?)null);
+
+        // Act
+        var result = await _sut.Handle(command, CancellationToken.None);
+
+        // Assert
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().NotBeNull();
+        result.Error.Type.Should().Be(ApplicationErrorType.Unauthorized);
+        result.Error.Code.Should().Be(ApplicationErrors.UserUnauthorized.Code);
+
+        _passwordHasher.Verify(
+            x => x.VerifyPassword(It.IsAny<string>(), It.IsAny<string>()),
+            Times.Never);
+
+        _refreshTokensRepository.Verify(
+            x => x.AddPlatformRefreshToken(It.IsAny<PlatformRefreshToken>()),
+            Times.Never);
+
+        _unitOfWork.Verify(x => x.SaveChangesAsync(), Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_ShouldReturnFailure_WhenUserIsInactive()
+    {
+        // Arrange
+        var user = CreateUser("test@email.com", "hashed-password");
+
+        user.Deactivate(_mockDateTimeProvider.Object.Now);
+
+        _usersRepository
+            .Setup(x => x.GetUserByEmailAsync(It.IsAny<UserEmail>(), CancellationToken.None))
+            .ReturnsAsync(user);
+
+        var command = new LoginPlatformUserCommand(
+            "test@email.com",
+            "password",
+            null,
+            null);
+
+        _usersRepository
+            .Setup(x => x.GetUserByEmailAsync(It.IsAny<UserEmail>(), CancellationToken.None))
             .ReturnsAsync((PlatformUser?)null);
 
         // Act
@@ -91,7 +133,7 @@ public class LoginPlatformUserCommandTests
             null);
 
         _usersRepository
-            .Setup(x => x.FindUserByEmailAsync(It.IsAny<UserEmail>(), CancellationToken.None))
+            .Setup(x => x.GetUserByEmailAsync(It.IsAny<UserEmail>(), CancellationToken.None))
             .ReturnsAsync(user);
 
         _passwordHasher
@@ -131,7 +173,7 @@ public class LoginPlatformUserCommandTests
             "127.0.0.1");
 
         _usersRepository
-            .Setup(x => x.FindUserByEmailAsync(It.IsAny<UserEmail>(), CancellationToken.None))
+            .Setup(x => x.GetUserByEmailAsync(It.IsAny<UserEmail>(), CancellationToken.None))
             .ReturnsAsync(user);
 
         _passwordHasher
@@ -192,7 +234,7 @@ public class LoginPlatformUserCommandTests
             "127.0.0.1");
 
         _usersRepository
-            .Setup(x => x.FindUserByEmailAsync(It.IsAny<UserEmail>(), CancellationToken.None))
+            .Setup(x => x.GetUserByEmailAsync(It.IsAny<UserEmail>(), CancellationToken.None))
             .ReturnsAsync(user);
 
         _passwordHasher

@@ -40,7 +40,7 @@ public sealed class GetTenantsQueryHandlerTests
         var query = new GetTenantsQuery();
 
         _tenantsRepositoryMock
-            .Setup(x => x.FindAllTenantsAsync())
+            .Setup(x => x.GetAllTenantsAsync())
             .ReturnsAsync(tenants);
 
         // Act
@@ -54,7 +54,7 @@ public sealed class GetTenantsQueryHandlerTests
             tenants.Select(t => t.ToDto()));
 
         _tenantsRepositoryMock.Verify(
-            x => x.FindAllTenantsAsync(),
+            x => x.GetAllTenantsAsync(),
             Times.Once);
     }
 
@@ -65,7 +65,7 @@ public sealed class GetTenantsQueryHandlerTests
         var query = new GetTenantsQuery();
 
         _tenantsRepositoryMock
-            .Setup(x => x.FindAllTenantsAsync())
+            .Setup(x => x.GetAllTenantsAsync())
             .ReturnsAsync(new List<Tenant>());
 
         // Act
@@ -78,7 +78,7 @@ public sealed class GetTenantsQueryHandlerTests
         result.Value.Should().BeEmpty();
 
         _tenantsRepositoryMock.Verify(
-            x => x.FindAllTenantsAsync(),
+            x => x.GetAllTenantsAsync(),
             Times.Once);
     }
 }

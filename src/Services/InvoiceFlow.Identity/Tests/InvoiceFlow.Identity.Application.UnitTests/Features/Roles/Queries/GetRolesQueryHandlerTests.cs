@@ -43,7 +43,7 @@ public sealed class GetRolesQueryHandlerTests
         var query = new GetRolesQuery(tenantId);
 
         _rolesRepositoryMock
-            .Setup(x => x.FindAllRolesAsync(tenantId))
+            .Setup(x => x.GetAllRolesAsync(tenantId))
             .ReturnsAsync(roles);
 
         // Act
@@ -57,7 +57,7 @@ public sealed class GetRolesQueryHandlerTests
             roles.Select(r => r.ToDto()));
 
         _rolesRepositoryMock.Verify(
-            x => x.FindAllRolesAsync(tenantId),
+            x => x.GetAllRolesAsync(tenantId),
             Times.Once);
     }
 
@@ -70,7 +70,7 @@ public sealed class GetRolesQueryHandlerTests
         var query = new GetRolesQuery(tenantId);
 
         _rolesRepositoryMock
-            .Setup(x => x.FindAllRolesAsync(tenantId))
+            .Setup(x => x.GetAllRolesAsync(tenantId))
             .ReturnsAsync(new List<Role>());
 
         // Act
@@ -83,7 +83,7 @@ public sealed class GetRolesQueryHandlerTests
         result.Value.Should().BeEmpty();
 
         _rolesRepositoryMock.Verify(
-            x => x.FindAllRolesAsync(tenantId),
+            x => x.GetAllRolesAsync(tenantId),
             Times.Once);
     }
 }

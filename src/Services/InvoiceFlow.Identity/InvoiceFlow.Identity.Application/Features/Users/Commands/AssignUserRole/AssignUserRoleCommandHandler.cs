@@ -12,11 +12,11 @@ public class AssignUserRoleCommandHandler(
 {
     public async Task<Result> Handle(AssignRoleCommand cmd, CancellationToken cancellationToken)
     {
-        var user = await usersRepository.GetUserByIdAsync(cmd.TenantId, cmd.UserId, cancellationToken);
+        var user = await usersRepository.GetTrackedUserByIdAsync(cmd.TenantId, cmd.UserId, cancellationToken);
         if (user is null)
             return Result.Failure(ApplicationErrors.UserNotFound);
 
-        var role = await rolesRepository.FindRoleByIdAsync(cmd.TenantId, cmd.RoleId, cancellationToken);
+        var role = await rolesRepository.GetRoleByIdAsync(cmd.TenantId, cmd.RoleId, cancellationToken);
         if (role is null)
             return Result.Failure(ApplicationErrors.RoleNotFound);
 

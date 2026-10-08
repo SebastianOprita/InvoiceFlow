@@ -12,7 +12,7 @@ public class UpdateUserCommandHandler(
 {
     public async Task<Result<UserDto>> Handle(UpdateUserCommand cmd, CancellationToken cancellationToken)
     {
-        var user = await usersRepository.GetUserByIdAsync(cmd.TenantId, cmd.UserId, cancellationToken);
+        var user = await usersRepository.GetTrackedUserByIdAsync(cmd.TenantId, cmd.UserId, cancellationToken);
         if (user is null)
             return Result<UserDto>.Failure(ApplicationErrors.UserNotFound);
 

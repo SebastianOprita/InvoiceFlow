@@ -6,17 +6,17 @@ namespace InvoiceFlow.Identity.Infrastructure;
 
 public class UsersRepository(IdentityDbContext dbContext) : IUsersRepository
 {
-    public async Task<List<User>> FindAllUsersAsync(Guid tenantId, CancellationToken cancellationToken = default)
+    public async Task<List<User>> GetAllUsersAsync(Guid tenantId, CancellationToken cancellationToken = default)
     {
         return await dbContext.Users.AsNoTracking().Where(u => u.TenantId == tenantId).ToListAsync(cancellationToken);
     }
 
-    public async Task<User?> FindUserByIdAsync(Guid tenantId, Guid userId, CancellationToken cancellationToken = default)
+    public async Task<User?> GetUserByIdAsync(Guid tenantId, Guid userId, CancellationToken cancellationToken = default)
     {
         return await dbContext.Users.AsNoTracking().FirstOrDefaultAsync(u => u.TenantId == tenantId && u.Id == userId, cancellationToken);
     }
 
-    public async Task<User?> FindUserByEmailAsync(Guid tenantId, UserEmail email, CancellationToken cancellationToken = default)
+    public async Task<User?> GetUserByEmailAsync(Guid tenantId, UserEmail email, CancellationToken cancellationToken = default)
     {
         return await dbContext.Users.AsNoTracking().FirstOrDefaultAsync(u => u.TenantId == tenantId && u.Email == email, cancellationToken);
     }
@@ -26,7 +26,7 @@ public class UsersRepository(IdentityDbContext dbContext) : IUsersRepository
         return await dbContext.Users.AsNoTracking().AnyAsync(u => u.TenantId == tenantId && u.Email == email, cancellationToken);
     }
 
-    public async Task<User?> FindUserByIdWithPermissionsAsync(Guid tenantId, Guid userId, CancellationToken cancellationToken = default)
+    public async Task<User?> GetUserByIdWithPermissionsAsync(Guid tenantId, Guid userId, CancellationToken cancellationToken = default)
     {
         return await dbContext.Users.AsNoTracking()
             .Include(u => u.UserRoles)
@@ -34,12 +34,12 @@ public class UsersRepository(IdentityDbContext dbContext) : IUsersRepository
             .FirstOrDefaultAsync(u => u.TenantId == tenantId && u.Id == userId && u.IsActive, cancellationToken);
     }
 
-    public async Task<User?> GetUserByIdAsync(Guid tenantId, Guid userId, CancellationToken cancellationToken = default)
+    public async Task<User?> GetTrackedUserByIdAsync(Guid tenantId, Guid userId, CancellationToken cancellationToken = default)
     {
         return await dbContext.Users.FirstOrDefaultAsync(u => u.TenantId == tenantId && u.Id == userId, cancellationToken);
     }
 
-    public async Task<User?> GetUserByEmailAsync(Guid tenantId, UserEmail email, CancellationToken cancellationToken = default)
+    public async Task<User?> GetTrackedUserByEmailAsync(Guid tenantId, UserEmail email, CancellationToken cancellationToken = default)
     {
         return await dbContext.Users.FirstOrDefaultAsync(u => u.TenantId == tenantId && u.Email == email, cancellationToken);
     }

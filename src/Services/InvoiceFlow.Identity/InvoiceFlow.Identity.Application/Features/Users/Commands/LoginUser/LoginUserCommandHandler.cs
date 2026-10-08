@@ -10,6 +10,7 @@ public class LoginUserCommandHandler(
     IOptions<JwtSettings> jwtSettings,
     IUnitOfWork unitOfWork,
     IRefreshTokensRepository refreshTokensRepository,
+    ITenantsRepository tenantsRepository,
     IUsersRepository usersRepository,
     ITokenService tokenService,
     IPasswordHasher passwordHasher,
@@ -20,13 +21,16 @@ public class LoginUserCommandHandler(
     {
         var now = dateTimeProvider.Now;
 
-        var existingUser = await usersRepository.FindUserByEmailAsync(cmd.TenantId, UserEmail.Create(cmd.Email), cancellationToken);
-        if (existingUser is null || !passwordHasher.VerifyPassword(cmd.Password, existingUser.PasswordHash.Value))
+        var tenant = await tenantsRepository.GetTenantByIdAsync(cmd.TenantId, cancellationToken);
+        if (tenant is null || !tenant.IsActive)
             return Result<LoginUserCommandResponse>.Failure(ApplicationErrors.UserUnauthorized);
 
-        var userWithPermissions = await usersRepository.FindUserByIdWithPermissionsAsync(cmd.TenantId, existingUser.Id, cancellationToken);
+        var existingUser = await usersRepository.GetUserByEmailAsync(cmd.TenantId, UserEmail.Create(cmd.Email), cancellationToken);
+        if (existingUser is null || !existingUser.IsActive || !passwordHasher.VerifyPassword(cmd.Password, existingUser.PasswordHash.Value))
+            return Result<LoginUserCommandResponse>.Failure(ApplicationErrors.UserUnauthorized);
 
-        if (userWithPermissions is null)
+        var userWithPermissions = await usersRepository.GetUserByIdWithPermissionsAsync(cmd.TenantId, existingUser.Id, cancellationToken);
+        if (userWithPermissions is null || !userWithPermissions.IsActive)
             return Result<LoginUserCommandResponse>.Failure(ApplicationErrors.UserUnauthorized);
 
         var aggregatedPermissions = userWithPermissions.UserRoles.Select(ur => ur.Role.Permissions)

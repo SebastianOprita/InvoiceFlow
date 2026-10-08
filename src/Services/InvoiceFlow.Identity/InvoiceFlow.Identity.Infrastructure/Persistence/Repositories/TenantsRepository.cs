@@ -11,22 +11,22 @@ public class TenantsRepository(IdentityDbContext dbContext) : ITenantsRepository
         return await dbContext.Tenants.AsNoTracking().AnyAsync(t => t.Slug == slug, cancellationToken);
     }
 
-    public async Task<List<Tenant>> FindAllTenantsAsync(CancellationToken cancellationToken = default)
+    public async Task<List<Tenant>> GetAllTenantsAsync(CancellationToken cancellationToken = default)
     {
         return await dbContext.Tenants.AsNoTracking().ToListAsync(cancellationToken);
     }
 
-    public async Task<Tenant?> FindTenantByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<Tenant?> GetTenantByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await dbContext.Tenants.AsNoTracking().FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
     }
 
-    public async Task<Tenant?> FindTenantBySlugAsync(string slug, CancellationToken cancellationToken = default)
+    public async Task<Tenant?> GetTenantBySlugAsync(string slug, CancellationToken cancellationToken = default)
     {
         return await dbContext.Tenants.AsNoTracking().FirstOrDefaultAsync(t => t.Slug.Value == slug, cancellationToken);
     }
 
-    public async Task<Tenant?> GetTenantByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<Tenant?> GetTrackedTenantByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await dbContext.Tenants.FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
     }

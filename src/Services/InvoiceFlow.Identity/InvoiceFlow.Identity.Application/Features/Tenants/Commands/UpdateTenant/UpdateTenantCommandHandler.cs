@@ -12,7 +12,7 @@ public class UpdateTenantCommandHandler(
 {
     public async Task<Result<TenantDto>> Handle(UpdateTenantCommand cmd, CancellationToken cancellationToken)
     {
-        var tenant = await tenantsRepository.GetTenantByIdAsync(cmd.TenantId, cancellationToken);
+        var tenant = await tenantsRepository.GetTrackedTenantByIdAsync(cmd.TenantId, cancellationToken);
         if (tenant is null)
             return Result<TenantDto>.Failure(ApplicationErrors.TenantNotFound);
 

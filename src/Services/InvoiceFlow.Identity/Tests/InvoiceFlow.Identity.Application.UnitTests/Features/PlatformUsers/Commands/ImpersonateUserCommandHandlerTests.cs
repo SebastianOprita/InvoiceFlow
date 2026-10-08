@@ -13,16 +13,19 @@ public class ImpersonateUserCommandHandlerTests
     private readonly Mock<IUsersRepository> _usersRepository;
     private readonly Mock<ITokenService> _tokenService;
     private readonly Mock<ISystemDateTimeProvider> _mockDateTimeProvider;
+    private readonly Mock<ITenantsRepository> _tenantsRepository;
     private readonly ImpersonateUserCommandHandler _sut;
 
     public ImpersonateUserCommandHandlerTests()
     {
+        _tenantsRepository = new();
         _platformUsersRepository = new();
         _usersRepository = new();
         _tokenService = new();
         _mockDateTimeProvider = new();
         _mockDateTimeProvider.Setup(x => x.Now).Returns(DateTime.UtcNow);
         _sut = new ImpersonateUserCommandHandler(
+            _tenantsRepository.Object,
             _platformUsersRepository.Object,
             _usersRepository.Object,
             _tokenService.Object,
@@ -35,7 +38,7 @@ public class ImpersonateUserCommandHandlerTests
         var command = ValidCommand();
 
         _platformUsersRepository
-            .Setup(x => x.FindUserByIdAsync(command.ActorUserId, CancellationToken.None))
+            .Setup(x => x.GetUserByIdAsync(command.ActorUserId, CancellationToken.None))
             .ReturnsAsync((PlatformUser?)null);
 
         var result = await _sut.Handle(command, CancellationToken.None);
@@ -45,7 +48,121 @@ public class ImpersonateUserCommandHandlerTests
         result.Error.Type.Should().Be(ApplicationErrorType.Unauthorized);
         result.Error.Code.Should().Be(ApplicationErrors.UserUnauthorized.Code);
         _usersRepository.Verify(
-            x => x.FindUserByEmailAsync(It.IsAny<Guid>(), It.IsAny<UserEmail>(), CancellationToken.None),
+            x => x.GetUserByEmailAsync(It.IsAny<Guid>(), It.IsAny<UserEmail>(), CancellationToken.None),
+            Times.Never);
+
+        _tokenService.Verify(
+            x => x.GenerateImpersonationToken(
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<SystemPermission>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string?>(),
+                It.IsAny<DateTime>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_Should_Return_Unauthorized_When_Platform_Is_Inactive()
+    {
+        var command = ValidCommand();
+
+        var platformUser = CreatePlatformUser(command.ActorUserId);
+        platformUser.Deactivate(_mockDateTimeProvider.Object.Now);
+
+        _platformUsersRepository
+            .Setup(x => x.GetUserByIdAsync(command.ActorUserId, CancellationToken.None))
+            .ReturnsAsync(platformUser);
+
+        var result = await _sut.Handle(command, CancellationToken.None);
+
+        result.IsSuccess.Should().BeFalse();
+        result.Error.Should().NotBeNull();
+        result.Error.Type.Should().Be(ApplicationErrorType.Unauthorized);
+        result.Error.Code.Should().Be(ApplicationErrors.UserUnauthorized.Code);
+        _usersRepository.Verify(
+            x => x.GetUserByEmailAsync(It.IsAny<Guid>(), It.IsAny<UserEmail>(), CancellationToken.None),
+            Times.Never);
+
+        _tokenService.Verify(
+            x => x.GenerateImpersonationToken(
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<SystemPermission>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string?>(),
+                It.IsAny<DateTime>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_Should_Return_Unauthorized_When_Tenant_Not_Found()
+    {
+        var command = ValidCommand();
+
+        var platformUser = CreatePlatformUser(command.ActorUserId);
+
+        _platformUsersRepository
+            .Setup(x => x.GetUserByIdAsync(command.ActorUserId, CancellationToken.None))
+            .ReturnsAsync(platformUser);
+
+        var result = await _sut.Handle(command, CancellationToken.None);
+
+        result.IsSuccess.Should().BeFalse();
+        result.Error.Should().NotBeNull();
+        result.Error.Type.Should().Be(ApplicationErrorType.Unauthorized);
+        result.Error.Code.Should().Be(ApplicationErrors.UserUnauthorized.Code);
+        _usersRepository.Verify(
+            x => x.GetUserByEmailAsync(It.IsAny<Guid>(), It.IsAny<UserEmail>(), CancellationToken.None),
+            Times.Never);
+
+        _tokenService.Verify(
+            x => x.GenerateImpersonationToken(
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<SystemPermission>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string?>(),
+                It.IsAny<DateTime>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_Should_Return_Unauthorized_When_Tenant_Is_Inactive()
+    {
+        var command = ValidCommand();
+        var tenant = CreateTenant(command.TargetUserTenantId);
+        tenant.Deactivate(_mockDateTimeProvider.Object.Now);
+
+        _tenantsRepository
+            .Setup(x => x.GetTenantByIdAsync(
+                command.TargetUserTenantId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(tenant);
+
+        var platformUser = CreatePlatformUser(command.ActorUserId);
+
+        _platformUsersRepository
+            .Setup(x => x.GetUserByIdAsync(command.ActorUserId, CancellationToken.None))
+            .ReturnsAsync(platformUser);
+
+        var result = await _sut.Handle(command, CancellationToken.None);
+
+        result.IsSuccess.Should().BeFalse();
+        result.Error.Should().NotBeNull();
+        result.Error.Type.Should().Be(ApplicationErrorType.Unauthorized);
+        result.Error.Code.Should().Be(ApplicationErrors.UserUnauthorized.Code);
+        _usersRepository.Verify(
+            x => x.GetUserByEmailAsync(It.IsAny<Guid>(), It.IsAny<UserEmail>(), CancellationToken.None),
             Times.Never);
 
         _tokenService.Verify(
@@ -66,14 +183,20 @@ public class ImpersonateUserCommandHandlerTests
     public async Task Handle_Should_Return_Unauthorized_When_Target_User_Not_Found_By_Email()
     {
         var command = ValidCommand();
+        _tenantsRepository
+            .Setup(x => x.GetTenantByIdAsync(
+                command.TargetUserTenantId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateTenant(command.TargetUserTenantId));
+
         var platformUser = CreatePlatformUser(command.ActorUserId);
 
         _platformUsersRepository
-            .Setup(x => x.FindUserByIdAsync(command.ActorUserId, CancellationToken.None))
+            .Setup(x => x.GetUserByIdAsync(command.ActorUserId, CancellationToken.None))
             .ReturnsAsync(platformUser);
 
         _usersRepository
-            .Setup(x => x.FindUserByEmailAsync(
+            .Setup(x => x.GetUserByEmailAsync(
                 command.TargetUserTenantId,
                 It.Is<UserEmail>(email => email.Value == command.TargetUserEmail),
                 CancellationToken.None))
@@ -86,7 +209,7 @@ public class ImpersonateUserCommandHandlerTests
         result.Error.Type.Should().Be(ApplicationErrorType.Unauthorized);
         result.Error.Code.Should().Be(ApplicationErrors.UserUnauthorized.Code);
         _usersRepository.Verify(
-            x => x.FindUserByIdWithPermissionsAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), CancellationToken.None),
+            x => x.GetUserByIdWithPermissionsAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), CancellationToken.None),
             Times.Never);
 
         _tokenService.Verify(
@@ -107,22 +230,28 @@ public class ImpersonateUserCommandHandlerTests
     public async Task Handle_Should_Return_Unauthorized_When_Target_User_With_Permissions_Not_Found()
     {
         var command = ValidCommand();
+        _tenantsRepository
+            .Setup(x => x.GetTenantByIdAsync(
+                command.TargetUserTenantId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateTenant(command.TargetUserTenantId));
+
         var platformUser = CreatePlatformUser(command.ActorUserId);
         var targetUser = CreateUser(command.TargetUserTenantId, Guid.CreateVersion7());
 
         _platformUsersRepository
-            .Setup(x => x.FindUserByIdAsync(command.ActorUserId, CancellationToken.None))
+            .Setup(x => x.GetUserByIdAsync(command.ActorUserId, CancellationToken.None))
             .ReturnsAsync(platformUser);
 
         _usersRepository
-            .Setup(x => x.FindUserByEmailAsync(
+            .Setup(x => x.GetUserByEmailAsync(
                 command.TargetUserTenantId,
                 It.Is<UserEmail>(email => email.Value == command.TargetUserEmail),
                 CancellationToken.None))
             .ReturnsAsync(targetUser);
 
         _usersRepository
-            .Setup(x => x.FindUserByIdWithPermissionsAsync(targetUser.TenantId, targetUser.Id, CancellationToken.None))
+            .Setup(x => x.GetUserByIdWithPermissionsAsync(targetUser.TenantId, targetUser.Id, CancellationToken.None))
             .ReturnsAsync((User?)null);
 
         var result = await _sut.Handle(command, CancellationToken.None);
@@ -150,6 +279,11 @@ public class ImpersonateUserCommandHandlerTests
     {
         var tenantId = Guid.CreateVersion7();
         var command = ValidCommand();
+        _tenantsRepository
+            .Setup(x => x.GetTenantByIdAsync(
+                command.TargetUserTenantId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateTenant(command.TargetUserTenantId));
 
         var platformUser = CreatePlatformUser(command.ActorUserId);
         var targetUser = CreateUser(command.TargetUserTenantId, Guid.CreateVersion7());
@@ -162,18 +296,18 @@ public class ImpersonateUserCommandHandlerTests
         var expectedExpiresAt = _mockDateTimeProvider.Object.Now.AddMinutes(15);
 
         _platformUsersRepository
-            .Setup(x => x.FindUserByIdAsync(command.ActorUserId, CancellationToken.None))
+            .Setup(x => x.GetUserByIdAsync(command.ActorUserId, CancellationToken.None))
             .ReturnsAsync(platformUser);
 
         _usersRepository
-            .Setup(x => x.FindUserByEmailAsync(
+            .Setup(x => x.GetUserByEmailAsync(
                 command.TargetUserTenantId,
                 It.Is<UserEmail>(email => email.Value == command.TargetUserEmail),
                 CancellationToken.None))
             .ReturnsAsync(targetUser);
 
         _usersRepository
-            .Setup(x => x.FindUserByIdWithPermissionsAsync(targetUser.TenantId, targetUser.Id, CancellationToken.None))
+            .Setup(x => x.GetUserByIdWithPermissionsAsync(targetUser.TenantId, targetUser.Id, CancellationToken.None))
             .ReturnsAsync(targetUserWithPermissions);
 
         _tokenService
@@ -201,6 +335,11 @@ public class ImpersonateUserCommandHandlerTests
     public async Task Handle_Should_Pass_Aggregated_Permissions_To_Token_Service()
     {
         var command = ValidCommand();
+        _tenantsRepository
+            .Setup(x => x.GetTenantByIdAsync(
+                command.TargetUserTenantId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateTenant(command.TargetUserTenantId));
 
         var platformUser = CreatePlatformUser(command.ActorUserId);
         var targetUser = CreateUser(command.TargetUserTenantId, Guid.CreateVersion7());
@@ -210,18 +349,18 @@ public class ImpersonateUserCommandHandlerTests
             SystemPermission.ManageUsers | SystemPermission.ManageRoles);
 
         _platformUsersRepository
-            .Setup(x => x.FindUserByIdAsync(command.ActorUserId, CancellationToken.None))
+            .Setup(x => x.GetUserByIdAsync(command.ActorUserId, CancellationToken.None))
             .ReturnsAsync(platformUser);
 
         _usersRepository
-            .Setup(x => x.FindUserByEmailAsync(
+            .Setup(x => x.GetUserByEmailAsync(
                 command.TargetUserTenantId,
                 It.Is<UserEmail>(email => email.Value == command.TargetUserEmail),
                 CancellationToken.None))
             .ReturnsAsync(targetUser);
 
         _usersRepository
-            .Setup(x => x.FindUserByIdWithPermissionsAsync(targetUser.TenantId, targetUser.Id, CancellationToken.None))
+            .Setup(x => x.GetUserByIdWithPermissionsAsync(targetUser.TenantId, targetUser.Id, CancellationToken.None))
             .ReturnsAsync(targetUserWithPermissions);
 
         _tokenService
@@ -260,6 +399,15 @@ public class ImpersonateUserCommandHandlerTests
             Reason: "Support request",
             DeviceInfo: "Chrome",
             IpAddress: "127.0.0.1");
+
+    private Tenant CreateTenant(Guid tenantId)
+    {
+        return Tenant.Create(
+            tenantId,
+            TenantName.Create("Test Tenant"),
+            TenantSlug.Create("test-tenant"),
+            _mockDateTimeProvider.Object.Now);
+    }
 
     private User CreateUser(
         Guid tenantId,

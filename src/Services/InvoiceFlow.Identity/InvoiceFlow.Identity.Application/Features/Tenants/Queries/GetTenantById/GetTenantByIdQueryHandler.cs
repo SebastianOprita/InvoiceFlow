@@ -7,7 +7,7 @@ public class GetTenantByIdQueryHandler(ITenantsRepository tenantsRepository) : I
 {
     public async Task<Result<TenantDto>> Handle(GetTenantByIdQuery qry, CancellationToken cancellationToken)
     {
-        var tenant = await tenantsRepository.FindTenantByIdAsync(qry.TenantId);
+        var tenant = await tenantsRepository.GetTenantByIdAsync(qry.TenantId);
 
         if (tenant == null)
             return Result<TenantDto>.Failure(ApplicationErrors.TenantNotFound);

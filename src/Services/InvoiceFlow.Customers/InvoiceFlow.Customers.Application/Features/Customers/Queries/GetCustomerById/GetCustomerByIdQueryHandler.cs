@@ -7,7 +7,7 @@ public class GetCustomerByIdQueryHandler(ICustomersRepository customersRepositor
 {
     public async Task<Result<CustomerDto>> Handle(GetCustomerByIdQuery qry, CancellationToken cancellationToken)
     {
-        var customer = await customersRepository.FindCustomerByIdAsync(qry.TenantId, qry.CustomerId, cancellationToken);
+        var customer = await customersRepository.GetCustomerByIdAsync(qry.TenantId, qry.CustomerId, cancellationToken);
 
         if (customer is null)
             return Result<CustomerDto>.Failure(ApplicationErrors.CustomerNotFound);

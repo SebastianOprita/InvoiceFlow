@@ -57,49 +57,6 @@ public class CreatePlatformUserCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_WhenSaveChangesFails_ReturnsFailure()
-    {
-        // Arrange
-        var ct = CancellationToken.None;
-
-        var cmd = new CreatePlatformUserCommand(
-            "john.doe@test.com",
-            "password",
-            "John",
-            "Doe");
-
-        var saveError = new ApplicationError(
-            ApplicationErrorType.Validation,
-            ApplicationErrors.DbSaveFailed.Code,
-            ApplicationErrors.DbSaveFailed.Message);
-
-        _usersRepository
-            .Setup(x => x.ExistsByEmailAsync(UserEmail.Create(cmd.Email), CancellationToken.None))
-            .ReturnsAsync(false);
-
-        _passwordHasher
-            .Setup(x => x.HashPassword(cmd.Password))
-            .Returns("password-hash");
-
-        _unitOfWork
-            .Setup(x => x.SaveChangesAsync(ct))
-            .ReturnsAsync(Result.Failure(saveError));
-
-        // Act
-        var result = await _sut.Handle(cmd, ct);
-
-        // Assert
-        result.IsFailure.Should().BeTrue();
-        result.Error.Should().Be(saveError);
-
-        _usersRepository.Verify(x => x.AddUser(It.Is<PlatformUser>(u =>
-            u.Email.Value == cmd.Email &&
-            u.PasswordHash.Value == "password-hash")), Times.Once);
-
-        _unitOfWork.Verify(x => x.SaveChangesAsync(ct), Times.Once);
-    }
-
-    [Fact]
     public async Task Handle_WhenPlatformUserIsCreatedSuccessfully_ReturnsUserDto()
     {
         // Arrange

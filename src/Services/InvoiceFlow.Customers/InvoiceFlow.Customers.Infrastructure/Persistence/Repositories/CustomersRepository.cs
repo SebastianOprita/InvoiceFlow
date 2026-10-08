@@ -6,21 +6,21 @@ namespace InvoiceFlow.Customers.Infrastructure;
 
 public class CustomersRepository(CustomersDbContext dbContext) : ICustomersRepository
 {
-    public async Task<List<Customer>> FindAllCustomersAsync(Guid tenantId, CancellationToken cancellationToken = default)
+    public async Task<List<Customer>> GetAllCustomersAsync(Guid tenantId, CancellationToken cancellationToken = default)
     {
         return await dbContext.Customers.AsNoTracking()
             .Where(c => c.TenantId == tenantId)
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<Customer?> FindCustomerByIdAsync(Guid tenantId, Guid customerId, CancellationToken cancellationToken = default)
+    public async Task<Customer?> GetCustomerByIdAsync(Guid tenantId, Guid customerId, CancellationToken cancellationToken = default)
     {
         return await dbContext.Customers.AsNoTracking()
             .FirstOrDefaultAsync(c => c.TenantId == tenantId && c.Id == customerId,
             cancellationToken);
     }
 
-    public async Task<Customer?> GetCustomerByIdAsync(Guid tenantId, Guid customerId, CancellationToken cancellationToken = default)
+    public async Task<Customer?> GetTrackedCustomerByIdAsync(Guid tenantId, Guid customerId, CancellationToken cancellationToken = default)
     {
         return await dbContext.Customers
             .FirstOrDefaultAsync(c => c.TenantId == tenantId && c.Id == customerId,

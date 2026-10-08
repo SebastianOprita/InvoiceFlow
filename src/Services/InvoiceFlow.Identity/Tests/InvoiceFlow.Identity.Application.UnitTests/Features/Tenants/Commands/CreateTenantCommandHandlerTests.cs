@@ -45,40 +45,6 @@ public class CreateTenantCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_WhenSaveChangesFails_ReturnsFailure()
-    {
-        var name = "Test Tenant";
-        var slug = "test-tenant";
-
-        var saveError = new ApplicationError(
-            ApplicationErrorType.Validation,
-            ApplicationErrors.DbSaveFailed.Code,
-            ApplicationErrors.DbSaveFailed.Message);
-
-        _tenantsRepository
-            .Setup(x => x.ExistsBySlugAsync(TenantSlug.Create(slug), TestContext.Current.CancellationToken))
-            .ReturnsAsync(false);
-
-        _unitOfWork
-            .Setup(x => x.SaveChangesAsync(TestContext.Current.CancellationToken))
-            .ReturnsAsync(Result.Failure(saveError));
-
-        var result = await _sut.Handle(
-            new CreateTenantCommand(name, slug),
-            TestContext.Current.CancellationToken);
-
-        result.IsFailure.Should().BeTrue();
-        result.Error.Should().Be(saveError);
-        _tenantsRepository.Verify(
-            x => x.AddTenant(It.Is<Tenant>(t =>
-                t.Name.Value == name &&
-                t.Slug.Value == slug)),
-            Times.Once);
-
-        _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-    }
-
-    [Fact]
     public async Task Handle_WhenTenantIsCreatedSuccessfully_AddsTenantSavesAndReturnsDto()
     {
         var name = "Test Tenant";

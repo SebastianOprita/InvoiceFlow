@@ -12,7 +12,7 @@ public class UpdateRoleCommandHandler(
 {
     public async Task<Result<RoleDto>> Handle(UpdateRoleCommand cmd, CancellationToken cancellationToken)
     {
-        var role = await rolesRepository.GetRoleByIdAsync(cmd.TenantId, cmd.RoleId, cancellationToken);
+        var role = await rolesRepository.GetTrackedRoleByIdAsync(cmd.TenantId, cmd.RoleId, cancellationToken);
 
         if (role == null)
             return Result<RoleDto>.Failure(ApplicationErrors.RoleNotFound);

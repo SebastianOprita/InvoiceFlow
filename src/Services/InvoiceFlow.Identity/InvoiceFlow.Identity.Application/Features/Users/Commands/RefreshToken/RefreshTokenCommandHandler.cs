@@ -10,6 +10,7 @@ public class RefreshTokenCommandHandler(
     IOptions<JwtSettings> jwtSettings,
     IUnitOfWork unitOfWork,
     IRefreshTokensRepository refreshTokensRepository,
+    ITenantsRepository tenantsRepository,
     IUsersRepository usersRepository,
     ITokenService tokenService,
     ISystemDateTimeProvider dateTimeProvider)
@@ -18,19 +19,21 @@ public class RefreshTokenCommandHandler(
     public async Task<Result<RefreshTokenResponse>> Handle(RefreshTokenCommand cmd, CancellationToken cancellationToken)
     {
         var now = dateTimeProvider.Now;
-        var tokenHash = tokenService.CalculateTokenHash(cmd.RefreshToken);
 
-        var existingToken = await refreshTokensRepository.FindRefreshTokenAsync(cmd.TenantId, RefreshTokenHash.Create(tokenHash), cancellationToken);
-
-        if (existingToken is null)
-            return Result<RefreshTokenResponse>.Failure(ApplicationErrors.RefreshTokenNotFound);
-
-        if (!existingToken.IsActive(now))
+        var tenant = await tenantsRepository.GetTenantByIdAsync(cmd.TenantId, cancellationToken);
+        if (tenant is null || !tenant.IsActive)
             return Result<RefreshTokenResponse>.Failure(ApplicationErrors.RefreshTokenInvalid);
 
-        var userWithPermissions = await usersRepository.FindUserByIdWithPermissionsAsync(cmd.TenantId, existingToken.UserId, cancellationToken);
+        var tokenHash = tokenService.CalculateTokenHash(cmd.RefreshToken);
 
-        if (userWithPermissions is null)
+        var existingToken = await refreshTokensRepository.GetTrackedRefreshTokenAsync(cmd.TenantId, RefreshTokenHash.Create(tokenHash), cancellationToken);
+
+        if (existingToken is null || !existingToken.IsActive(now))
+            return Result<RefreshTokenResponse>.Failure(ApplicationErrors.RefreshTokenInvalid);
+
+        var userWithPermissions = await usersRepository.GetUserByIdWithPermissionsAsync(cmd.TenantId, existingToken.UserId, cancellationToken);
+
+        if (userWithPermissions is null || !userWithPermissions.IsActive)
             return Result<RefreshTokenResponse>.Failure(ApplicationErrors.UserNotFound);
 
         var aggregatedPermissions = userWithPermissions.UserRoles.Select(ur => ur.Role.Permissions)
@@ -61,6 +64,7 @@ public class RefreshTokenCommandHandler(
 
         return Result<RefreshTokenResponse>.Success(new RefreshTokenResponse(
             accessToken.Token,
+            accessToken.TokenType,
             accessToken.ExpiresAt,
             rawNewRefreshToken,
             userWithPermissions.Id,

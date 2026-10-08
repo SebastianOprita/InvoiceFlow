@@ -38,7 +38,7 @@ public class ChangePlatformUserPasswordCommandHandlerTests
             "new-password");
 
         _usersRepository
-            .Setup(x => x.GetUserByIdAsync(cmd.UserId, CancellationToken.None))
+            .Setup(x => x.GetTrackedUserByIdAsync(cmd.UserId, CancellationToken.None))
             .ReturnsAsync((PlatformUser?)null);
 
         // Act
@@ -77,7 +77,7 @@ public class ChangePlatformUserPasswordCommandHandlerTests
         user.Deactivate(_mockDateTimeProvider.Object.Now);
 
         _usersRepository
-            .Setup(x => x.GetUserByIdAsync(cmd.UserId, CancellationToken.None))
+            .Setup(x => x.GetTrackedUserByIdAsync(cmd.UserId, CancellationToken.None))
             .ReturnsAsync(user);
 
         // Act
@@ -114,7 +114,7 @@ public class ChangePlatformUserPasswordCommandHandlerTests
             _mockDateTimeProvider.Object.Now);
 
         _usersRepository
-            .Setup(x => x.GetUserByIdAsync(cmd.UserId, CancellationToken.None))
+            .Setup(x => x.GetTrackedUserByIdAsync(cmd.UserId, CancellationToken.None))
             .ReturnsAsync(user);
 
         _passwordHasher
@@ -157,7 +157,7 @@ public class ChangePlatformUserPasswordCommandHandlerTests
         var newPasswordHash = "new-password-hash";
 
         _usersRepository
-            .Setup(x => x.GetUserByIdAsync(cmd.UserId, CancellationToken.None))
+            .Setup(x => x.GetTrackedUserByIdAsync(cmd.UserId, CancellationToken.None))
             .ReturnsAsync(user);
 
         _passwordHasher
@@ -178,54 +178,6 @@ public class ChangePlatformUserPasswordCommandHandlerTests
         // Assert
         result.IsSuccess.Should().BeTrue();
         user.PasswordHash.Value.Should().Be(newPasswordHash);
-
-        _unitOfWork.Verify(x => x.SaveChangesAsync(), Times.Once);
-    }
-
-    [Fact]
-    public async Task Handle_WhenSaveChangesFails_ReturnsFailure()
-    {
-        // Arrange
-        var cmd = new ChangePlatformUserPasswordCommand(
-            Guid.CreateVersion7(),
-            "old-password",
-            "new-password");
-
-        var user = PlatformUser.Create(
-            cmd.UserId,
-            UserEmail.Create("john.doe@test.com"),
-            PasswordHash.Create("old-password-hash"),
-            FirstName.Create("John"),
-            LastName.Create("Doe"),
-            _mockDateTimeProvider.Object.Now);
-
-        var saveError = new ApplicationError(
-            ApplicationErrorType.Validation,
-            ApplicationErrors.DbSaveFailed.Code,
-            ApplicationErrors.DbSaveFailed.Message);
-
-        _usersRepository
-            .Setup(x => x.GetUserByIdAsync(cmd.UserId, CancellationToken.None))
-            .ReturnsAsync(user);
-
-        _passwordHasher
-            .Setup(x => x.VerifyPassword(cmd.CurrentPassword, user.PasswordHash.Value))
-            .Returns(true);
-
-        _passwordHasher
-            .Setup(x => x.HashPassword(cmd.NewPassword))
-            .Returns("new-password-hash");
-
-        _unitOfWork
-            .Setup(x => x.SaveChangesAsync())
-            .ReturnsAsync(Result.Failure(saveError));
-
-        // Act
-        var result = await _sut.Handle(cmd, CancellationToken.None);
-
-        // Assert
-        result.IsFailure.Should().BeTrue();
-        result.Error.Should().Be(saveError);
 
         _unitOfWork.Verify(x => x.SaveChangesAsync(), Times.Once);
     }

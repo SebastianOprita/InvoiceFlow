@@ -11,7 +11,7 @@ public class DeactivatePlatformUserCommandHandler(
 {
     public async Task<Result> Handle(DeactivatePlatformUserCommand cmd, CancellationToken cancellationToken)
     {
-        var platformUser = await platformUsersRepository.GetUserByIdAsync(cmd.UserId, cancellationToken);
+        var platformUser = await platformUsersRepository.GetTrackedUserByIdAsync(cmd.UserId, cancellationToken);
         if (platformUser is null)
             return Result.Failure(ApplicationErrors.UserNotFound);
 

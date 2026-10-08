@@ -35,7 +35,7 @@ public class GetTenantByIdQueryHandlerTests
         var query = new GetTenantByIdQuery(tenantId);
 
         _tenantsRepositoryMock
-            .Setup(x => x.FindTenantByIdAsync(tenantId))
+            .Setup(x => x.GetTenantByIdAsync(tenantId))
             .ReturnsAsync(tenant);
 
         // Act
@@ -46,7 +46,7 @@ public class GetTenantByIdQueryHandlerTests
         result.Value.Should().BeEquivalentTo(tenant.ToDto());
 
         _tenantsRepositoryMock.Verify(
-            x => x.FindTenantByIdAsync(tenantId),
+            x => x.GetTenantByIdAsync(tenantId),
             Times.Once);
     }
 
@@ -59,7 +59,7 @@ public class GetTenantByIdQueryHandlerTests
         var query = new GetTenantByIdQuery(tenantId);
 
         _tenantsRepositoryMock
-            .Setup(x => x.FindTenantByIdAsync(tenantId))
+            .Setup(x => x.GetTenantByIdAsync(tenantId))
             .ReturnsAsync((Tenant?)null);
 
         // Act
@@ -74,7 +74,7 @@ public class GetTenantByIdQueryHandlerTests
             ApplicationErrors.TenantNotFound.Message));
 
         _tenantsRepositoryMock.Verify(
-            x => x.FindTenantByIdAsync(tenantId),
+            x => x.GetTenantByIdAsync(tenantId),
             Times.Once);
     }
 }

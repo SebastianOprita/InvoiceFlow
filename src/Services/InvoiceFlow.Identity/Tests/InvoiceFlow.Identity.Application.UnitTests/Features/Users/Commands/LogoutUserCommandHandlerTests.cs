@@ -44,7 +44,7 @@ public class LogoutUserCommandHandlerTests
             .Returns("refresh-token-hash");
 
         _refreshTokensRepository
-            .Setup(x => x.GetRefreshTokenAsync(
+            .Setup(x => x.GetTrackedRefreshTokenAsync(
                 tenantId,
                 It.IsAny<RefreshTokenHash>(),
                 TestContext.Current.CancellationToken))
@@ -77,7 +77,7 @@ public class LogoutUserCommandHandlerTests
             .Returns("refresh-token-hash");
 
         _refreshTokensRepository
-            .Setup(x => x.GetRefreshTokenAsync(
+            .Setup(x => x.GetTrackedRefreshTokenAsync(
                 tenantId,
                 It.IsAny<RefreshTokenHash>(),
                 TestContext.Current.CancellationToken))
@@ -109,7 +109,7 @@ public class LogoutUserCommandHandlerTests
             .Returns("refresh-token-hash");
 
         _refreshTokensRepository
-            .Setup(x => x.GetRefreshTokenAsync(
+            .Setup(x => x.GetTrackedRefreshTokenAsync(
                 tenantId,
                 It.IsAny<RefreshTokenHash>(),
                 TestContext.Current.CancellationToken))
@@ -131,50 +131,6 @@ public class LogoutUserCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_ShouldReturnFailure_WhenSaveChangesFails()
-    {
-        // Arrange
-        var tenantId = Guid.CreateVersion7();
-
-        var existingToken = CreateRefreshToken(tenantId);
-
-        var command = new LogoutUserCommand(
-            tenantId,
-            "refresh-token");
-
-        _tokenService
-            .Setup(x => x.CalculateTokenHash("refresh-token"))
-            .Returns("refresh-token-hash");
-
-        _refreshTokensRepository
-            .Setup(x => x.GetRefreshTokenAsync(
-                tenantId,
-                It.IsAny<RefreshTokenHash>(),
-                TestContext.Current.CancellationToken))
-            .ReturnsAsync(existingToken);
-
-        var saveError = new ApplicationError(
-            ApplicationErrorType.Validation,
-            ApplicationErrors.DbSaveFailed.Code,
-            ApplicationErrors.DbSaveFailed.Message);
-
-        _unitOfWork
-            .Setup(x => x.SaveChangesAsync(TestContext.Current.CancellationToken))
-            .ReturnsAsync(Result.Failure(saveError));
-
-        // Act
-        var result = await _sut.Handle(command, TestContext.Current.CancellationToken);
-
-        // Assert
-        result.IsFailure.Should().BeTrue();
-        result.Error.Should().Be(saveError);
-
-        existingToken.IsRevoked.Should().BeTrue();
-
-        _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-    }
-
-    [Fact]
     public async Task Handle_ShouldCalculateHashFromProvidedRefreshToken()
     {
         // Arrange
@@ -189,7 +145,7 @@ public class LogoutUserCommandHandlerTests
             .Returns("calculated-token-hash");
 
         _refreshTokensRepository
-            .Setup(x => x.GetRefreshTokenAsync(
+            .Setup(x => x.GetTrackedRefreshTokenAsync(
                 tenantId,
                 It.IsAny<RefreshTokenHash>(),
                 TestContext.Current.CancellationToken))

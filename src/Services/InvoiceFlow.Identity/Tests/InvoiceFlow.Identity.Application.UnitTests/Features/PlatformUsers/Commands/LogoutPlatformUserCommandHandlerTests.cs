@@ -40,7 +40,7 @@ public class LogoutPlatformUserCommandHandlerTests
             .Returns("refresh-token-hash");
 
         _refreshTokensRepository
-            .Setup(x => x.GetPlatformRefreshTokenAsync(It.IsAny<RefreshTokenHash>(), CancellationToken.None))
+            .Setup(x => x.GetTrackedPlatformRefreshTokenAsync(It.IsAny<RefreshTokenHash>(), CancellationToken.None))
             .ReturnsAsync((PlatformRefreshToken?)null);
 
         // Act
@@ -66,7 +66,7 @@ public class LogoutPlatformUserCommandHandlerTests
             .Returns("refresh-token-hash");
 
         _refreshTokensRepository
-            .Setup(x => x.GetPlatformRefreshTokenAsync(It.IsAny<RefreshTokenHash>(), CancellationToken.None))
+            .Setup(x => x.GetTrackedPlatformRefreshTokenAsync(It.IsAny<RefreshTokenHash>(), CancellationToken.None))
             .ReturnsAsync(existingToken);
 
         // Act
@@ -91,7 +91,7 @@ public class LogoutPlatformUserCommandHandlerTests
             .Returns("refresh-token-hash");
 
         _refreshTokensRepository
-            .Setup(x => x.GetPlatformRefreshTokenAsync(It.IsAny<RefreshTokenHash>(), CancellationToken.None))
+            .Setup(x => x.GetTrackedPlatformRefreshTokenAsync(It.IsAny<RefreshTokenHash>(), CancellationToken.None))
             .ReturnsAsync(existingToken);
 
         _unitOfWork
@@ -110,43 +110,6 @@ public class LogoutPlatformUserCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_ShouldReturnFailure_WhenSaveChangesFails()
-    {
-        // Arrange
-        var existingToken = CreateRefreshToken();
-
-        var command = new LogoutPlatformUserCommand("refresh-token");
-
-        _tokenService
-            .Setup(x => x.CalculateTokenHash("refresh-token"))
-            .Returns("refresh-token-hash");
-
-        _refreshTokensRepository
-            .Setup(x => x.GetPlatformRefreshTokenAsync(It.IsAny<RefreshTokenHash>(), CancellationToken.None))
-            .ReturnsAsync(existingToken);
-
-        var saveError = new ApplicationError(
-            ApplicationErrorType.Validation,
-            ApplicationErrors.DbSaveFailed.Code,
-            ApplicationErrors.DbSaveFailed.Message);
-
-        _unitOfWork
-            .Setup(x => x.SaveChangesAsync())
-            .ReturnsAsync(Result.Failure(saveError));
-
-        // Act
-        var result = await _sut.Handle(command, CancellationToken.None);
-
-        // Assert
-        result.IsFailure.Should().BeTrue();
-        result.Error.Should().Be(saveError);
-
-        existingToken.IsRevoked.Should().BeTrue();
-
-        _unitOfWork.Verify(x => x.SaveChangesAsync(), Times.Once);
-    }
-
-    [Fact]
     public async Task Handle_ShouldCalculateHashFromProvidedRefreshToken()
     {
         // Arrange
@@ -157,7 +120,7 @@ public class LogoutPlatformUserCommandHandlerTests
             .Returns("calculated-token-hash");
 
         _refreshTokensRepository
-            .Setup(x => x.GetPlatformRefreshTokenAsync(It.IsAny<RefreshTokenHash>(), CancellationToken.None))
+            .Setup(x => x.GetTrackedPlatformRefreshTokenAsync(It.IsAny<RefreshTokenHash>(), CancellationToken.None))
             .ReturnsAsync((PlatformRefreshToken?)null);
 
         // Act

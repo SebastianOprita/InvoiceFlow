@@ -6,6 +6,7 @@ using MediatR;
 namespace InvoiceFlow.Identity.Application;
 
 public class ImpersonateUserCommandHandler(
+    ITenantsRepository tenantsRepository,
     IPlatformUsersRepository platformUsersRepository,
     IUsersRepository usersRepository,
     ITokenService tokenService,
@@ -16,16 +17,19 @@ public class ImpersonateUserCommandHandler(
     {
         var now = dateTimeProvider.Now;
 
-        var existingPlatfromUser = await platformUsersRepository.FindUserByIdAsync(cmd.ActorUserId, cancellationToken);
-        if (existingPlatfromUser is null)
+        var platformUser = await platformUsersRepository.GetUserByIdAsync(cmd.ActorUserId, cancellationToken);
+        if (platformUser is null || !platformUser.IsActive)
             return Result<ImpersonateUserCommandResponse>.Failure(ApplicationErrors.UserUnauthorized);
 
-        var existingUser = await usersRepository.FindUserByEmailAsync(cmd.TargetUserTenantId, UserEmail.Create(cmd.TargetUserEmail), cancellationToken);
+        var tenant = await tenantsRepository.GetTenantByIdAsync(cmd.TargetUserTenantId,cancellationToken);
+        if (tenant is null || !tenant.IsActive)
+            return Result<ImpersonateUserCommandResponse>.Failure(ApplicationErrors.UserUnauthorized);
+
+        var existingUser = await usersRepository.GetUserByEmailAsync(cmd.TargetUserTenantId, UserEmail.Create(cmd.TargetUserEmail), cancellationToken);
         if (existingUser is null)
             return Result<ImpersonateUserCommandResponse>.Failure(ApplicationErrors.UserUnauthorized);
 
-        var userWithPermissions = await usersRepository.FindUserByIdWithPermissionsAsync(existingUser.TenantId, existingUser.Id, cancellationToken);
-
+        var userWithPermissions = await usersRepository.GetUserByIdWithPermissionsAsync(existingUser.TenantId, existingUser.Id, cancellationToken);
         if (userWithPermissions is null)
             return Result<ImpersonateUserCommandResponse>.Failure(ApplicationErrors.UserUnauthorized);
 
@@ -33,8 +37,8 @@ public class ImpersonateUserCommandHandler(
             .Aggregate(SystemPermission.None, (current, rolePermissions) => current | rolePermissions.Value);
 
         var impersonationToken = tokenService.GenerateImpersonationToken(
-            platformUserId: existingPlatfromUser.Id,
-            platformEmail: existingPlatfromUser.Email.Value,
+            platformUserId: platformUser.Id,
+            platformEmail: platformUser.Email.Value,
             targetUserId: userWithPermissions.Id,
             targetTenantId: userWithPermissions.TenantId,
             targetEmail: userWithPermissions.Email.Value,

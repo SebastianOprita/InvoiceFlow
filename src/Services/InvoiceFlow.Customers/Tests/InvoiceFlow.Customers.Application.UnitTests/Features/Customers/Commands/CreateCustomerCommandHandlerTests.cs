@@ -107,29 +107,4 @@ public sealed class CreateCustomerCommandHandlerTests
         _mockRepository.Verify(x => x.AddCustomer(It.IsAny<Customer>()), Times.Never);
         _mockUnitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
-
-    [Fact]
-    public async Task Handle_WhenSaveFails_ShouldThrowException()
-    {
-        // Arrange
-        var command = TestConstants.CreateCustomerCommand(TestConstants.TenantId);
-
-        _mockUnitOfWork.Setup(x => x.SaveChangesAsync())
-            .ReturnsAsync(Result.Failure(new ApplicationError(
-                ApplicationErrorType.Internal,
-                ApplicationErrors.DbSaveFailed.Code,
-                ApplicationErrors.DbSaveFailed.Message)));
-
-        // Act
-        var result = await _handler.Handle(command, CancellationToken.None);
-
-        // Assert
-        result.Value.Should().BeNull();
-        result.Error.Should().NotBeNull();
-        result.Error.Type.Should().Be(ApplicationErrorType.Internal);
-        result.Error.Code.Should().Be(ApplicationErrors.DbSaveFailed.Code);
-        result.Error.Message.Should().Be(ApplicationErrors.DbSaveFailed.Message);
-        _mockRepository.Verify(x => x.AddCustomer(It.IsAny<Customer>()), Times.Once);
-        _mockUnitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-    }
 }

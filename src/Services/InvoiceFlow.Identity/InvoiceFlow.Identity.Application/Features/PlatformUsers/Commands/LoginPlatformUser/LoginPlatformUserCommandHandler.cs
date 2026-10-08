@@ -20,8 +20,8 @@ public class LoginPlatformUserCommandHandler(
     {
         var now = dateTimeProvider.Now;
 
-        var existingPlatfromUser = await platformUsersRepository.FindUserByEmailAsync(UserEmail.Create(cmd.Email), cancellationToken);
-        if (existingPlatfromUser is null || !passwordHasher.VerifyPassword(cmd.Password, existingPlatfromUser.PasswordHash.Value))
+        var existingPlatfromUser = await platformUsersRepository.GetUserByEmailAsync(UserEmail.Create(cmd.Email), cancellationToken);
+        if (existingPlatfromUser is null || !existingPlatfromUser.IsActive || !passwordHasher.VerifyPassword(cmd.Password, existingPlatfromUser.PasswordHash.Value))
             return Result<LoginPlatformUserCommandResponse>.Failure(ApplicationErrors.UserUnauthorized);
 
         var accessToken = tokenService.GeneratePlatformUserAccessToken(

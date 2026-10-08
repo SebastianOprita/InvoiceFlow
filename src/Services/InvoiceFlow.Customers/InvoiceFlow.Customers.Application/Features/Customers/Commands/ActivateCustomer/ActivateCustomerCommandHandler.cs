@@ -11,7 +11,7 @@ public class ActivateCustomerCommandHandler(
 {
     public async Task<Result> Handle(ActivateCustomerCommand cmd, CancellationToken cancellationToken)
     {
-        var customer = await customersRepository.GetCustomerByIdAsync(cmd.TenantId, cmd.CustomerId, cancellationToken);
+        var customer = await customersRepository.GetTrackedCustomerByIdAsync(cmd.TenantId, cmd.CustomerId, cancellationToken);
         if (customer is null)
             return Result.Failure(ApplicationErrors.CustomerNotFound);
 

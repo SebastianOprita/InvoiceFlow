@@ -15,7 +15,7 @@ public class LogoutUserCommandHandler(
     {
         var tokenHash = tokenService.CalculateTokenHash(cmd.RefreshToken);
 
-        var existingToken = await refreshTokensRepository.GetRefreshTokenAsync(cmd.TenantId, RefreshTokenHash.Create(tokenHash), cancellationToken);
+        var existingToken = await refreshTokensRepository.GetTrackedRefreshTokenAsync(cmd.TenantId, RefreshTokenHash.Create(tokenHash), cancellationToken);
         if (existingToken is null || existingToken.IsRevoked)
             return Result.Success();
 
