@@ -7,7 +7,7 @@ public class GetPlatformUsersQueryHandler(IPlatformUsersRepository platformUsers
 {
     public async Task<Result<List<PlatformUserDto>>> Handle(GetPlatformUsersQuery qry, CancellationToken cancellationToken)
     {
-        var platformUsers = await platformUsersRepository.GetAllUsersAsync();
+        var platformUsers = await platformUsersRepository.GetAllUsersAsync(cancellationToken);
         var platformUsersDtos = platformUsers
             .Select(u => u.ToDto())
             .ToList();

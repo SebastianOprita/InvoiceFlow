@@ -5,9 +5,9 @@ namespace InvoiceFlow.Identity.Application;
 
 public class GetRoleByIdQueryHandler(IRolesRepository rolesRepository) : IRequestHandler<GetRoleByIdQuery, Result<RoleDto>>
 {
-    public async Task<Result<RoleDto>> Handle(GetRoleByIdQuery qry, CancellationToken cmd)
+    public async Task<Result<RoleDto>> Handle(GetRoleByIdQuery qry, CancellationToken cancellationToken)
     {
-        var role = await rolesRepository.GetRoleByIdAsync(qry.TenantId, qry.RoleId);
+        var role = await rolesRepository.GetRoleByIdAsync(qry.TenantId, qry.RoleId, cancellationToken);
 
         if (role == null)
             return Result<RoleDto>.Failure(ApplicationErrors.RoleNotFound);
