@@ -21,4 +21,8 @@
 	<PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="InvoiceFlow.BuildingBlocks.Application.Tests" />
+  </ItemGroup>
+
 </Project>

@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using OpenTelemetry.Logs;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
@@ -6,11 +9,14 @@ namespace InvoiceFlow.BuildingBlocks.Api;
 
 public static class OpenTelemetryExtensions
 {
-    public static IServiceCollection AddInvoiceFlowTracing(
-        this IServiceCollection services,
+    public static WebApplicationBuilder AddInvoiceFlowObservability(
+        this WebApplicationBuilder builder,
         string serviceName)
     {
-        services
+        builder.Logging.ClearProviders();
+        builder.Logging.AddConsole();
+
+        builder.Services
             .AddOpenTelemetry()
             .ConfigureResource(resource =>
             {
@@ -19,22 +25,25 @@ public static class OpenTelemetryExtensions
             .WithTracing(tracing =>
             {
                 tracing
-                    // Incoming HTTP
                     .AddAspNetCoreInstrumentation()
-
-                    // Outgoing HttpClient
                     .AddHttpClientInstrumentation()
-
-                    // EF Core -> Microsoft.Data.SqlClient
                     .AddSqlClientInstrumentation()
-
-                    // MassTransit -> RabbitMQ
                     .AddSource("MassTransit")
-
-                    // Export to OTLP collector / Aspire
+                    .AddSource("InvoiceFlow.BuildingBlocks.Application")
                     .AddOtlpExporter();
+            })
+            .WithLogging(logging =>
+            {
+                logging.AddOtlpExporter();
             });
 
-        return services;
+        builder.Services.Configure<OpenTelemetryLoggerOptions>(options =>
+        {
+            options.IncludeScopes = true;
+            options.ParseStateValues = true;
+            options.IncludeFormattedMessage = true;
+        });
+
+        return builder;
     }
 }
