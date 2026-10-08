@@ -11,7 +11,7 @@ public class ActivateUserCommandHandler(
 {
     public async Task<Result> Handle(ActivateUserCommand cmd, CancellationToken cancellationToken)
     {
-        var user = await usersRepository.GetUserByIdAsync(cmd.TenantId, cmd.UserId, cancellationToken);
+        var user = await usersRepository.GetTrackedUserByIdAsync(cmd.TenantId, cmd.UserId, cancellationToken);
         if (user is null)
             return Result.Failure(ApplicationErrors.UserNotFound);
 

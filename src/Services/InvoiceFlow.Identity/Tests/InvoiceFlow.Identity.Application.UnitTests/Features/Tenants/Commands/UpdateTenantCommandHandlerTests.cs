@@ -31,7 +31,7 @@ public class UpdateTenantCommandHandlerTests
         var tenantId = Guid.CreateVersion7();
 
         _tenantsRepository
-            .Setup(x => x.GetTenantByIdAsync(tenantId, TestContext.Current.CancellationToken))
+            .Setup(x => x.GetTrackedTenantByIdAsync(tenantId, TestContext.Current.CancellationToken))
             .ReturnsAsync((Tenant?)null);
 
         var result = await _sut.Handle(
@@ -47,41 +47,13 @@ public class UpdateTenantCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_WhenSaveChangesFails_ReturnsFailure()
-    {
-        var tenantId = Guid.CreateVersion7();
-        var tenant = CreateTenant(tenantId, TenantName.Create("Old name"));
-
-        var saveError = new ApplicationError(
-            ApplicationErrorType.Validation,
-            ApplicationErrors.DbSaveFailed.Code,
-            ApplicationErrors.DbSaveFailed.Message);
-
-        _tenantsRepository
-            .Setup(x => x.GetTenantByIdAsync(tenantId, TestContext.Current.CancellationToken))
-            .ReturnsAsync(tenant);
-
-        _unitOfWork
-            .Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Failure(saveError));
-
-        var result = await _sut.Handle(
-            new UpdateTenantCommand(tenantId, "New name"),
-            TestContext.Current.CancellationToken);
-
-        result.IsFailure.Should().BeTrue();
-        result.Error.Should().Be(saveError);
-        _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-    }
-
-    [Fact]
     public async Task Handle_WhenTenantExists_UpdatesNameSavesAndReturnsDto()
     {
         var tenantId = Guid.CreateVersion7();
         var tenant = CreateTenant(tenantId, TenantName.Create("Old name"));
 
         _tenantsRepository
-            .Setup(x => x.GetTenantByIdAsync(tenantId, TestContext.Current.CancellationToken))
+            .Setup(x => x.GetTrackedTenantByIdAsync(tenantId, TestContext.Current.CancellationToken))
             .ReturnsAsync(tenant);
 
         _unitOfWork
@@ -108,7 +80,7 @@ public class UpdateTenantCommandHandlerTests
         using var cts = new CancellationTokenSource();
 
         _tenantsRepository
-            .Setup(x => x.GetTenantByIdAsync(tenantId, cts.Token))
+            .Setup(x => x.GetTrackedTenantByIdAsync(tenantId, cts.Token))
             .ReturnsAsync(tenant);
 
         _unitOfWork

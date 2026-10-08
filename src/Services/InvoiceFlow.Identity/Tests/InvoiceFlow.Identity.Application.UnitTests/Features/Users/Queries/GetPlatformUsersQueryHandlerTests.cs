@@ -49,7 +49,7 @@ public sealed class GetPlatformUsersQueryHandlerTests
         var query = new GetUsersQuery(tenantId);
 
         _usersRepositoryMock
-            .Setup(x => x.FindAllUsersAsync(tenantId))
+            .Setup(x => x.GetAllUsersAsync(tenantId))
             .ReturnsAsync(users);
 
         // Act
@@ -63,7 +63,7 @@ public sealed class GetPlatformUsersQueryHandlerTests
             users.Select(u => u.ToDto()));
 
         _usersRepositoryMock.Verify(
-            x => x.FindAllUsersAsync(tenantId),
+            x => x.GetAllUsersAsync(tenantId),
             Times.Once);
     }
 
@@ -76,7 +76,7 @@ public sealed class GetPlatformUsersQueryHandlerTests
         var query = new GetUsersQuery(tenantId);
 
         _usersRepositoryMock
-            .Setup(x => x.FindAllUsersAsync(tenantId))
+            .Setup(x => x.GetAllUsersAsync(tenantId))
             .ReturnsAsync(new List<User>());
 
         // Act
@@ -89,7 +89,7 @@ public sealed class GetPlatformUsersQueryHandlerTests
         result.Value.Should().BeEmpty();
 
         _usersRepositoryMock.Verify(
-            x => x.FindAllUsersAsync(tenantId),
+            x => x.GetAllUsersAsync(tenantId),
             Times.Once);
     }
 }

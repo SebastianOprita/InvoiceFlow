@@ -20,7 +20,7 @@ public class RefreshPlatformTokenCommandHandler(
         var now = dateTimeProvider.Now;
         var tokenHash = tokenService.CalculateTokenHash(cmd.RefreshToken);
 
-        var existingToken = await platformRefreshTokensRepository.GetPlatformRefreshTokenAsync(RefreshTokenHash.Create(tokenHash), cancellationToken);
+        var existingToken = await platformRefreshTokensRepository.GetTrackedPlatformRefreshTokenAsync(RefreshTokenHash.Create(tokenHash), cancellationToken);
 
         if (existingToken is null)
             return Result<RefreshPlatformTokenResponse>.Failure(ApplicationErrors.RefreshTokenNotFound);
@@ -28,9 +28,9 @@ public class RefreshPlatformTokenCommandHandler(
         if (!existingToken.IsActive(now))
             return Result<RefreshPlatformTokenResponse>.Failure(ApplicationErrors.RefreshTokenInvalid);
 
-        var platformUser = await platformUsersRepository.FindUserByIdAsync(existingToken.UserId, cancellationToken);
+        var platformUser = await platformUsersRepository.GetUserByIdAsync(existingToken.UserId, cancellationToken);
 
-        if (platformUser is null)
+        if (platformUser is null || !platformUser.IsActive)
             return Result<RefreshPlatformTokenResponse>.Failure(ApplicationErrors.RefreshTokenInvalid);
 
         var accessToken = tokenService.GeneratePlatformUserAccessToken(

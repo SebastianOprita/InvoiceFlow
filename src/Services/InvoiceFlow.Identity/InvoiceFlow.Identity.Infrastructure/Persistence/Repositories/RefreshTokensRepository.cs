@@ -6,7 +6,7 @@ namespace InvoiceFlow.Identity.Infrastructure;
 
 public class RefreshTokensRepository(IdentityDbContext dbContext) : IRefreshTokensRepository
 {
-    public Task<RefreshToken?> FindRefreshTokenAsync(Guid tenantId, RefreshTokenHash tokenHash, CancellationToken cancellationToken = default)
+    public Task<RefreshToken?> GetRefreshTokenAsync(Guid tenantId, RefreshTokenHash tokenHash, CancellationToken cancellationToken = default)
     {
         var refreshToken = dbContext.RefreshTokens
             .AsNoTracking()
@@ -16,7 +16,7 @@ public class RefreshTokensRepository(IdentityDbContext dbContext) : IRefreshToke
         return refreshToken;
     }
 
-    public Task<RefreshToken?> GetRefreshTokenAsync(Guid tenantId, RefreshTokenHash tokenHash, CancellationToken cancellationToken = default)
+    public Task<RefreshToken?> GetTrackedRefreshTokenAsync(Guid tenantId, RefreshTokenHash tokenHash, CancellationToken cancellationToken = default)
     {
         var refreshToken = dbContext.RefreshTokens
             .FirstOrDefaultAsync(t =>
@@ -36,13 +36,17 @@ public class RefreshTokensRepository(IdentityDbContext dbContext) : IRefreshToke
         DateTime revokedAtUtc,
         CancellationToken cancellationToken = default)
     {
-        await dbContext.RefreshTokens
-            .Where(t =>
-                t.TenantId == tenantId &&
-                t.UserId == userId &&
-                t.RevokedAtUtc == null &&
-                t.ExpiresAtUtc > revokedAtUtc)
-            .ExecuteUpdateAsync(
-                setters => setters.SetProperty(t => t.RevokedAtUtc, revokedAtUtc), cancellationToken);
+        var activeTokens = await dbContext.RefreshTokens
+        .Where(t =>
+            t.TenantId == tenantId &&
+            t.UserId == userId &&
+            t.RevokedAtUtc == null &&
+            t.ExpiresAtUtc > revokedAtUtc)
+        .ToListAsync(cancellationToken);
+
+        foreach (var token in activeTokens)
+        {
+            token.Revoke(revokedAtUtc);
+        }
     }
 }

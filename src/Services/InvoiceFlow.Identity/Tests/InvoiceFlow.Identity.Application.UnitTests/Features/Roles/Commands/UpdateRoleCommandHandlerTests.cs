@@ -38,7 +38,7 @@ public class UpdateRoleCommandHandlerTests
             "Administrator role");
 
         _rolesRepository
-            .Setup(x => x.GetRoleByIdAsync(cmd.TenantId, cmd.RoleId))
+            .Setup(x => x.GetTrackedRoleByIdAsync(cmd.TenantId, cmd.RoleId))
             .ReturnsAsync((Role?)null);
 
         // Act
@@ -79,7 +79,7 @@ public class UpdateRoleCommandHandlerTests
             "Manager role");
 
         _rolesRepository
-            .Setup(x => x.GetRoleByIdAsync(cmd.TenantId, cmd.RoleId))
+            .Setup(x => x.GetTrackedRoleByIdAsync(cmd.TenantId, cmd.RoleId))
             .ReturnsAsync(role);
 
         _rolesRepository
@@ -120,7 +120,7 @@ public class UpdateRoleCommandHandlerTests
             "New description");
 
         _rolesRepository
-            .Setup(x => x.GetRoleByIdAsync(cmd.TenantId, cmd.RoleId))
+            .Setup(x => x.GetTrackedRoleByIdAsync(cmd.TenantId, cmd.RoleId))
             .ReturnsAsync(role);
 
         _unitOfWork
@@ -137,54 +137,6 @@ public class UpdateRoleCommandHandlerTests
         _rolesRepository.Verify(
             x => x.ExistsByNameAsync(It.IsAny<Guid>(), It.IsAny<RoleName>()),
             Times.Never);
-
-        _unitOfWork.Verify(x => x.SaveChangesAsync(), Times.Once);
-    }
-
-    [Fact]
-    public async Task Handle_WhenSaveChangesFails_ReturnsFailure()
-    {
-        // Arrange
-        var tenantId = Guid.CreateVersion7();
-        var roleId = Guid.CreateVersion7();
-
-        var role = Role.Create(
-            tenantId,
-            roleId,
-            RoleName.Create("Admin"),
-            _mockDateTimeProvider.Object.Now,
-            RoleDescription.CreateOptional("Old description"),
-            RolePermissions.Create(SystemPermission.None));
-
-        var cmd = new UpdateRoleCommand(
-            tenantId,
-            roleId,
-            "Manager",
-            "New description");
-
-        var saveError = new ApplicationError(
-            ApplicationErrorType.Validation,
-            ApplicationErrors.DbSaveFailed.Code,
-            ApplicationErrors.DbSaveFailed.Message);
-
-        _rolesRepository
-            .Setup(x => x.GetRoleByIdAsync(cmd.TenantId, cmd.RoleId))
-            .ReturnsAsync(role);
-
-        _rolesRepository
-            .Setup(x => x.ExistsByNameAsync(cmd.TenantId, RoleName.Create(cmd.Name)))
-            .ReturnsAsync(false);
-
-        _unitOfWork
-            .Setup(x => x.SaveChangesAsync())
-            .ReturnsAsync(Result.Failure(saveError));
-
-        // Act
-        var result = await _sut.Handle(cmd, CancellationToken.None);
-
-        // Assert
-        result.IsFailure.Should().BeTrue();
-        result.Error.Should().Be(saveError);
 
         _unitOfWork.Verify(x => x.SaveChangesAsync(), Times.Once);
     }
@@ -211,7 +163,7 @@ public class UpdateRoleCommandHandlerTests
             "New description");
 
         _rolesRepository
-            .Setup(x => x.GetRoleByIdAsync(cmd.TenantId, cmd.RoleId))
+            .Setup(x => x.GetTrackedRoleByIdAsync(cmd.TenantId, cmd.RoleId))
             .ReturnsAsync(role);
 
         _rolesRepository

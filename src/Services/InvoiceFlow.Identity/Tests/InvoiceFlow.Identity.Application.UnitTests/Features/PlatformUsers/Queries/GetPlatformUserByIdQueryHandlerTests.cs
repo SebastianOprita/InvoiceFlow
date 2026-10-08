@@ -37,7 +37,7 @@ public class GetPlatformUserByIdQueryHandlerTests
         var query = new GetPlatformUserByIdQuery(userId);
 
         _usersRepositoryMock
-            .Setup(x => x.FindUserByIdAsync(userId))
+            .Setup(x => x.GetUserByIdAsync(userId))
             .ReturnsAsync(user);
 
         // Act
@@ -48,7 +48,7 @@ public class GetPlatformUserByIdQueryHandlerTests
         result.Value.Should().BeEquivalentTo(user.ToDto());
 
         _usersRepositoryMock.Verify(
-            x => x.FindUserByIdAsync(userId),
+            x => x.GetUserByIdAsync(userId),
             Times.Once);
     }
 
@@ -61,7 +61,7 @@ public class GetPlatformUserByIdQueryHandlerTests
         var query = new GetPlatformUserByIdQuery(userId);
 
         _usersRepositoryMock
-            .Setup(x => x.FindUserByIdAsync(userId))
+            .Setup(x => x.GetUserByIdAsync(userId))
             .ReturnsAsync((PlatformUser?)null);
 
         // Act
@@ -76,7 +76,7 @@ public class GetPlatformUserByIdQueryHandlerTests
             ApplicationErrors.UserUnauthorized.Message));
 
         _usersRepositoryMock.Verify(
-            x => x.FindUserByIdAsync(userId),
+            x => x.GetUserByIdAsync(userId),
             Times.Once);
     }
 }

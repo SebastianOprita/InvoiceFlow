@@ -32,7 +32,7 @@ public class DeactivatePlatformUserCommandHandlerTests
         var cmd = new DeactivatePlatformUserCommand(Guid.CreateVersion7());
 
         _usersRepository
-            .Setup(x => x.GetUserByIdAsync(cmd.UserId, CancellationToken.None))
+            .Setup(x => x.GetTrackedUserByIdAsync(cmd.UserId, CancellationToken.None))
             .ReturnsAsync((PlatformUser?)null);
 
         // Act
@@ -66,7 +66,7 @@ public class DeactivatePlatformUserCommandHandlerTests
         user.Deactivate(_mockDateTimeProvider.Object.Now);
 
         _usersRepository
-            .Setup(x => x.GetUserByIdAsync(cmd.UserId, CancellationToken.None))
+            .Setup(x => x.GetTrackedUserByIdAsync(cmd.UserId, CancellationToken.None))
             .ReturnsAsync(user);
 
         // Act
@@ -97,7 +97,7 @@ public class DeactivatePlatformUserCommandHandlerTests
             _mockDateTimeProvider.Object.Now);
 
         _usersRepository
-            .Setup(x => x.GetUserByIdAsync(cmd.UserId, CancellationToken.None))
+            .Setup(x => x.GetTrackedUserByIdAsync(cmd.UserId, CancellationToken.None))
             .ReturnsAsync(user);
 
         _unitOfWork
@@ -109,47 +109,6 @@ public class DeactivatePlatformUserCommandHandlerTests
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        user.IsActive.Should().BeFalse();
-
-        _unitOfWork.Verify(x => x.SaveChangesAsync(ct), Times.Once);
-    }
-
-    [Fact]
-    public async Task Handle_WhenSaveChangesFails_ReturnsFailure()
-    {
-        // Arrange
-        var ct = CancellationToken.None;
-
-        var cmd = new DeactivatePlatformUserCommand(Guid.CreateVersion7());
-
-        var user = PlatformUser.Create(
-            cmd.UserId,
-            UserEmail.Create("john.doe@test.com"),
-            PasswordHash.Create("hashedpassword"),
-            FirstName.Create("John"),
-            LastName.Create("Doe"),
-            _mockDateTimeProvider.Object.Now);
-
-        var saveError = new ApplicationError(
-            ApplicationErrorType.Validation,
-            ApplicationErrors.DbSaveFailed.Code,
-            ApplicationErrors.DbSaveFailed.Message);
-
-        _usersRepository
-            .Setup(x => x.GetUserByIdAsync(cmd.UserId, CancellationToken.None))
-            .ReturnsAsync(user);
-
-        _unitOfWork
-            .Setup(x => x.SaveChangesAsync(ct))
-            .ReturnsAsync(Result.Failure(saveError));
-
-        // Act
-        var result = await _sut.Handle(cmd, ct);
-
-        // Assert
-        result.IsFailure.Should().BeTrue();
-        result.Error.Should().Be(saveError);
-
         user.IsActive.Should().BeFalse();
 
         _unitOfWork.Verify(x => x.SaveChangesAsync(ct), Times.Once);

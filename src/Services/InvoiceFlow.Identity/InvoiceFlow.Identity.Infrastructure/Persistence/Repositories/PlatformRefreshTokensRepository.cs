@@ -6,7 +6,7 @@ namespace InvoiceFlow.Identity.Infrastructure;
 
 public class PlatformRefreshTokensRepository(IdentityDbContext dbContext) : IPlatformRefreshTokensRepository
 {
-    public async Task<PlatformRefreshToken?> FindPlatformRefreshTokenAsync(RefreshTokenHash tokenHash, CancellationToken cancellationToken = default)
+    public async Task<PlatformRefreshToken?> GetPlatformRefreshTokenAsync(RefreshTokenHash tokenHash, CancellationToken cancellationToken = default)
     {
         var refreshToken = await dbContext.PlatformRefreshTokens
             .AsNoTracking()
@@ -15,7 +15,7 @@ public class PlatformRefreshTokensRepository(IdentityDbContext dbContext) : IPla
         return refreshToken;
     }
 
-    public async Task<PlatformRefreshToken?> GetPlatformRefreshTokenAsync(RefreshTokenHash tokenHash, CancellationToken cancellationToken = default)
+    public async Task<PlatformRefreshToken?> GetTrackedPlatformRefreshTokenAsync(RefreshTokenHash tokenHash, CancellationToken cancellationToken = default)
     {
         var refreshToken = await dbContext.PlatformRefreshTokens
             .FirstOrDefaultAsync(t => t.TokenHash == tokenHash, cancellationToken);
@@ -33,12 +33,16 @@ public class PlatformRefreshTokensRepository(IdentityDbContext dbContext) : IPla
         DateTime revokedAtUtc,
         CancellationToken cancellationToken = default)
     {
-        await dbContext.PlatformRefreshTokens
-            .Where(t =>
-                t.UserId == userId &&
-                t.RevokedAtUtc == null &&
-                t.ExpiresAtUtc > revokedAtUtc)
-            .ExecuteUpdateAsync(
-                setters => setters.SetProperty(t => t.RevokedAtUtc, revokedAtUtc), cancellationToken);
+        var activeTokens = await dbContext.PlatformRefreshTokens
+        .Where(t =>
+            t.UserId == userId &&
+            t.RevokedAtUtc == null &&
+            t.ExpiresAtUtc > revokedAtUtc)
+        .ToListAsync(cancellationToken);
+
+        foreach (var token in activeTokens)
+        {
+            token.Revoke(revokedAtUtc);
+        }
     }
 }

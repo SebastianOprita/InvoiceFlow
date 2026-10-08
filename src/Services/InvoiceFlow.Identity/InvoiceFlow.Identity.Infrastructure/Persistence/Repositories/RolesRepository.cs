@@ -6,17 +6,17 @@ namespace InvoiceFlow.Identity.Infrastructure;
 
 public class RolesRepository(IdentityDbContext dbContext) : IRolesRepository
 {
-    public async Task<List<Role>> FindAllRolesAsync(Guid tenantId, CancellationToken cancellationToken = default)
+    public async Task<List<Role>> GetAllRolesAsync(Guid tenantId, CancellationToken cancellationToken = default)
     {
         var roles = await dbContext.Roles.AsNoTracking().Where(r => r.TenantId == tenantId).ToListAsync(cancellationToken);
         return roles;
     }
-    public async Task<Role?> FindRoleByIdAsync(Guid tenantId, Guid roleId, CancellationToken cancellationToken = default)
+    public async Task<Role?> GetRoleByIdAsync(Guid tenantId, Guid roleId, CancellationToken cancellationToken = default)
     {
         var role = await dbContext.Roles.AsNoTracking().FirstOrDefaultAsync(r => r.TenantId == tenantId && r.Id == roleId, cancellationToken);
         return role;
     }
-    public async Task<Role?> GetRoleByIdAsync(Guid tenantId, Guid roleId, CancellationToken cancellationToken = default)
+    public async Task<Role?> GetTrackedRoleByIdAsync(Guid tenantId, Guid roleId, CancellationToken cancellationToken = default)
     {
         var role = await dbContext.Roles.FirstOrDefaultAsync(r => r.TenantId == tenantId && r.Id == roleId, cancellationToken);
         return role;

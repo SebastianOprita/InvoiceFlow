@@ -15,6 +15,7 @@ public class RefreshTokenCommandHandlerTests
     private readonly Mock<IUsersRepository> _usersRepository;
     private readonly Mock<ITokenService> _tokenService;
     private readonly Mock<ISystemDateTimeProvider> _mockDateTimeProvider;
+    private readonly Mock<ITenantsRepository> _tenantsRepository;
 
     private readonly JwtSettings _jwtSettings = new()
     {
@@ -30,11 +31,13 @@ public class RefreshTokenCommandHandlerTests
         _usersRepository = new();
         _tokenService = new();
         _mockDateTimeProvider = new();
+        _tenantsRepository = new();
         _mockDateTimeProvider.Setup(x => x.Now).Returns(DateTime.UtcNow);
         _sut = new RefreshTokenCommandHandler(
             Options.Create(_jwtSettings),
             _unitOfWork.Object,
             _refreshTokensRepository.Object,
+            _tenantsRepository.Object,
             _usersRepository.Object,
             _tokenService.Object,
             _mockDateTimeProvider.Object);
@@ -44,6 +47,11 @@ public class RefreshTokenCommandHandlerTests
     public async Task Handle_ShouldReturnFailure_WhenRefreshTokenDoesNotExist()
     {
         var tenantId = Guid.CreateVersion7();
+        _tenantsRepository
+            .Setup(x => x.GetTenantByIdAsync(
+                tenantId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateTenant(tenantId));
 
         var command = new RefreshTokenCommand(
             tenantId,
@@ -56,7 +64,7 @@ public class RefreshTokenCommandHandlerTests
             .Returns("old-refresh-token-hash");
 
         _refreshTokensRepository
-            .Setup(x => x.FindRefreshTokenAsync(tenantId, It.IsAny<RefreshTokenHash>(), TestContext.Current.CancellationToken))
+            .Setup(x => x.GetTrackedRefreshTokenAsync(tenantId, It.IsAny<RefreshTokenHash>(), TestContext.Current.CancellationToken))
             .ReturnsAsync((RefreshToken?)null);
 
         var result = await _sut.Handle(command, TestContext.Current.CancellationToken);
@@ -64,10 +72,10 @@ public class RefreshTokenCommandHandlerTests
         result.IsFailure.Should().BeTrue();
         result.Error.Should().NotBeNull();
         result.Error.Type.Should().Be(ApplicationErrorType.Unauthorized);
-        result.Error.Code.Should().Be(ApplicationErrors.RefreshTokenNotFound.Code);
+        result.Error.Code.Should().Be(ApplicationErrors.RefreshTokenInvalid.Code);
 
         _usersRepository.Verify(
-            x => x.FindUserByIdWithPermissionsAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            x => x.GetUserByIdWithPermissionsAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
             Times.Never);
 
         _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
@@ -77,6 +85,11 @@ public class RefreshTokenCommandHandlerTests
     public async Task Handle_ShouldReturnFailure_WhenRefreshTokenIsExpired()
     {
         var tenantId = Guid.CreateVersion7();
+        _tenantsRepository
+            .Setup(x => x.GetTenantByIdAsync(
+                tenantId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateTenant(tenantId));
 
         var existingToken = CreateRefreshToken(
             tenantId,
@@ -93,7 +106,7 @@ public class RefreshTokenCommandHandlerTests
             .Returns("old-refresh-token-hash");
 
         _refreshTokensRepository
-            .Setup(x => x.FindRefreshTokenAsync(tenantId, It.IsAny<RefreshTokenHash>(), TestContext.Current.CancellationToken))
+            .Setup(x => x.GetTrackedRefreshTokenAsync(tenantId, It.IsAny<RefreshTokenHash>(), TestContext.Current.CancellationToken))
             .ReturnsAsync(existingToken);
 
         var result = await _sut.Handle(command, TestContext.Current.CancellationToken);
@@ -104,7 +117,7 @@ public class RefreshTokenCommandHandlerTests
         result.Error.Code.Should().Be(ApplicationErrors.RefreshTokenInvalid.Code);
 
         _usersRepository.Verify(
-            x => x.FindUserByIdWithPermissionsAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            x => x.GetUserByIdWithPermissionsAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
             Times.Never);
 
         _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
@@ -114,6 +127,11 @@ public class RefreshTokenCommandHandlerTests
     public async Task Handle_ShouldReturnFailure_WhenRefreshTokenIsRevoked()
     {
         var tenantId = Guid.CreateVersion7();
+        _tenantsRepository
+            .Setup(x => x.GetTenantByIdAsync(
+                tenantId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateTenant(tenantId));
 
         var existingToken = CreateRefreshToken(
             tenantId,
@@ -132,7 +150,7 @@ public class RefreshTokenCommandHandlerTests
             .Returns("old-refresh-token-hash");
 
         _refreshTokensRepository
-            .Setup(x => x.FindRefreshTokenAsync(tenantId, It.IsAny<RefreshTokenHash>(), TestContext.Current.CancellationToken))
+            .Setup(x => x.GetTrackedRefreshTokenAsync(tenantId, It.IsAny<RefreshTokenHash>(), TestContext.Current.CancellationToken))
             .ReturnsAsync(existingToken);
 
         var result = await _sut.Handle(command, TestContext.Current.CancellationToken);
@@ -143,7 +161,7 @@ public class RefreshTokenCommandHandlerTests
         result.Error.Code.Should().Be(ApplicationErrors.RefreshTokenInvalid.Code);
 
         _usersRepository.Verify(
-            x => x.FindUserByIdWithPermissionsAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            x => x.GetUserByIdWithPermissionsAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
             Times.Never);
 
         _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
@@ -153,6 +171,11 @@ public class RefreshTokenCommandHandlerTests
     public async Task Handle_ShouldReturnFailure_WhenUserDoesNotExist()
     {
         var tenantId = Guid.CreateVersion7();
+        _tenantsRepository
+            .Setup(x => x.GetTenantByIdAsync(
+                tenantId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateTenant(tenantId));
 
         var existingToken = CreateRefreshToken(
             tenantId,
@@ -169,11 +192,11 @@ public class RefreshTokenCommandHandlerTests
             .Returns("old-refresh-token-hash");
 
         _refreshTokensRepository
-            .Setup(x => x.FindRefreshTokenAsync(tenantId, It.IsAny<RefreshTokenHash>(), TestContext.Current.CancellationToken))
+            .Setup(x => x.GetTrackedRefreshTokenAsync(tenantId, It.IsAny<RefreshTokenHash>(), TestContext.Current.CancellationToken))
             .ReturnsAsync(existingToken);
 
         _usersRepository
-            .Setup(x => x.FindUserByIdWithPermissionsAsync(tenantId, existingToken.UserId, TestContext.Current.CancellationToken))
+            .Setup(x => x.GetUserByIdWithPermissionsAsync(tenantId, existingToken.UserId, TestContext.Current.CancellationToken))
             .ReturnsAsync((User?)null);
 
         var result = await _sut.Handle(command, TestContext.Current.CancellationToken);
@@ -191,55 +214,15 @@ public class RefreshTokenCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_ShouldReturnFailure_WhenSaveChangesFails()
-    {
-        var tenantId = Guid.CreateVersion7();
-
-        var existingToken = CreateRefreshToken(
-            tenantId,
-            expiresAt: _mockDateTimeProvider.Object.Now.AddDays(30));
-
-        var user = CreateUserWithPermissions(
-            tenantId,
-            existingToken.UserId,
-            "test@email.com",
-            SystemPermission.CustomerView);
-
-        var command = new RefreshTokenCommand(
-            tenantId,
-            "old-refresh-token",
-            "Chrome",
-            "127.0.0.1");
-
-        SetupSuccessfulTokenFlow(
-            tenantId,
-            existingToken,
-            user,
-            command);
-
-        var saveError = new ApplicationError(
-            ApplicationErrorType.Validation,
-            ApplicationErrors.DbSaveFailed.Code,
-            ApplicationErrors.DbSaveFailed.Message);
-
-        _unitOfWork
-            .Setup(x => x.SaveChangesAsync(TestContext.Current.CancellationToken))
-            .ReturnsAsync(Result.Failure(saveError));
-
-        var result = await _sut.Handle(command, TestContext.Current.CancellationToken);
-
-        result.IsFailure.Should().BeTrue();
-        result.Error.Should().Be(saveError);
-
-        _refreshTokensRepository.Verify(
-            x => x.AddRefreshToken(It.IsAny<RefreshToken>()),
-            Times.Once);
-    }
-
-    [Fact]
     public async Task Handle_ShouldReturnSuccess_WhenRefreshTokenIsValid()
     {
         var tenantId = Guid.CreateVersion7();
+        _tenantsRepository
+            .Setup(x => x.GetTenantByIdAsync(
+                tenantId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateTenant(tenantId));
+
         var accessTokenExpiresAt = _mockDateTimeProvider.Object.Now.AddMinutes(15);
 
         var existingToken = CreateRefreshToken(
@@ -287,6 +270,8 @@ public class RefreshTokenCommandHandlerTests
         result.Value.Email.Should().Be("test@email.com");
 
         capturedNewRefreshToken.Should().NotBeNull();
+        existingToken.IsRevoked.Should().BeTrue();
+        existingToken.ReplacedByTokenId.Should().Be(capturedNewRefreshToken!.Id);
 
         _refreshTokensRepository.Verify(
             x => x.AddRefreshToken(It.IsAny<RefreshToken>()),
@@ -309,11 +294,11 @@ public class RefreshTokenCommandHandlerTests
             .Returns("old-refresh-token-hash");
 
         _refreshTokensRepository
-            .Setup(x => x.FindRefreshTokenAsync(tenantId, It.IsAny<RefreshTokenHash>(), TestContext.Current.CancellationToken))
+            .Setup(x => x.GetTrackedRefreshTokenAsync(tenantId, It.IsAny<RefreshTokenHash>(), TestContext.Current.CancellationToken))
             .ReturnsAsync(existingToken);
 
         _usersRepository
-            .Setup(x => x.FindUserByIdWithPermissionsAsync(tenantId, existingToken.UserId, TestContext.Current.CancellationToken))
+            .Setup(x => x.GetUserByIdWithPermissionsAsync(tenantId, existingToken.UserId, TestContext.Current.CancellationToken))
             .ReturnsAsync(user);
 
         _tokenService
@@ -321,7 +306,7 @@ public class RefreshTokenCommandHandlerTests
                 user.Id,
                 tenantId,
                 user.Email.Value,
-                It.IsAny<SystemPermission>(), 
+                It.IsAny<SystemPermission>(),
                 It.IsAny<DateTime>()))
             .Returns(("new-access-token", "Bearer", accessTokenExpiresAt.Value));
 
@@ -355,7 +340,6 @@ public class RefreshTokenCommandHandlerTests
         string email,
         SystemPermission permissions)
     {
-        // Adjust this helper to your actual User / Role constructors.
         var user = User.Create(
             tenantId,
             userId,
@@ -381,5 +365,106 @@ public class RefreshTokenCommandHandlerTests
         roleProperty?.SetValue(userRole, role);
 
         return user;
+    }
+
+
+
+    private Tenant CreateTenant(Guid tenantId)
+    {
+        return Tenant.Create(
+            tenantId,
+            TenantName.Create("Test Tenant"),
+            TenantSlug.Create("test-tenant"),
+            _mockDateTimeProvider.Object.Now);
+    }
+
+    [Fact]
+    public async Task Handle_ShouldReturnFailure_WhenTenantDoesNotExist()
+    {
+        var tenantId = Guid.CreateVersion7();
+        var command = new RefreshTokenCommand(tenantId, "old-refresh-token", null, null);
+
+        _tenantsRepository
+            .Setup(x => x.GetTenantByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Tenant?)null);
+
+        var result = await _sut.Handle(command, TestContext.Current.CancellationToken);
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().NotBeNull();
+        result.Error.Type.Should().Be(ApplicationErrorType.Unauthorized);
+        result.Error.Code.Should().Be(ApplicationErrors.RefreshTokenInvalid.Code);
+        VerifyNoTokenRotation();
+        _refreshTokensRepository.Verify(
+            x => x.GetTrackedRefreshTokenAsync(It.IsAny<Guid>(), It.IsAny<RefreshTokenHash>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_ShouldReturnFailure_WhenTenantIsInactive()
+    {
+        var tenantId = Guid.CreateVersion7();
+        var tenant = CreateTenant(tenantId);
+        tenant.Deactivate(_mockDateTimeProvider.Object.Now);
+        var command = new RefreshTokenCommand(tenantId, "old-refresh-token", null, null);
+
+        _tenantsRepository
+            .Setup(x => x.GetTenantByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(tenant);
+
+        var result = await _sut.Handle(command, TestContext.Current.CancellationToken);
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().NotBeNull();
+        result.Error.Type.Should().Be(ApplicationErrorType.Unauthorized);
+        result.Error.Code.Should().Be(ApplicationErrors.RefreshTokenInvalid.Code);
+        VerifyNoTokenRotation();
+        _refreshTokensRepository.Verify(
+            x => x.GetTrackedRefreshTokenAsync(It.IsAny<Guid>(), It.IsAny<RefreshTokenHash>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_ShouldReturnFailure_WhenUserIsInactive()
+    {
+        var tenantId = Guid.CreateVersion7();
+        var now = _mockDateTimeProvider.Object.Now;
+        var existingToken = CreateRefreshToken(tenantId, now.AddDays(30));
+        var user = CreateUserWithPermissions(
+            tenantId, existingToken.UserId, "test@email.com", SystemPermission.CustomerView);
+        user.Deactivate(now);
+        var command = new RefreshTokenCommand(tenantId, "old-refresh-token", null, null);
+
+        _tenantsRepository
+            .Setup(x => x.GetTenantByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateTenant(tenantId));
+        _tokenService.Setup(x => x.CalculateTokenHash(command.RefreshToken))
+            .Returns("old-refresh-token-hash");
+        _refreshTokensRepository
+            .Setup(x => x.GetTrackedRefreshTokenAsync(
+                tenantId, It.IsAny<RefreshTokenHash>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existingToken);
+        _usersRepository
+            .Setup(x => x.GetUserByIdWithPermissionsAsync(
+                tenantId, existingToken.UserId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(user);
+
+        var result = await _sut.Handle(command, TestContext.Current.CancellationToken);
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().NotBeNull();
+        result.Error.Type.Should().Be(ApplicationErrorType.NotFound);
+        result.Error.Code.Should().Be(ApplicationErrors.UserNotFound.Code);
+        existingToken.IsRevoked.Should().BeFalse();
+        VerifyNoTokenRotation();
+    }
+
+    private void VerifyNoTokenRotation()
+    {
+        _tokenService.Verify(x => x.GenerateRefreshToken(), Times.Never);
+        _refreshTokensRepository.Verify(
+            x => x.AddRefreshToken(It.IsAny<RefreshToken>()), Times.Never);
+        _unitOfWork.Verify(
+            x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 }

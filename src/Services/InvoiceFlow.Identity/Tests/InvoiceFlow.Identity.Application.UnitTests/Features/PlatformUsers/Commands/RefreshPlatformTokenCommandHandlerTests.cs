@@ -5,7 +5,6 @@ using InvoiceFlow.Identity.Domain;
 using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
-using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
 namespace InvoiceFlow.Identity.Application.UnitTests.Features.PlatformUsers;
 
@@ -55,7 +54,7 @@ public class RefreshPlatformTokenCommandHandlerTests
             .Returns("old-refresh-token-hash");
 
         _refreshTokensRepository
-            .Setup(x => x.FindPlatformRefreshTokenAsync(It.IsAny<RefreshTokenHash>(), CancellationToken.None))
+            .Setup(x => x.GetPlatformRefreshTokenAsync(It.IsAny<RefreshTokenHash>(), CancellationToken.None))
             .ReturnsAsync((PlatformRefreshToken?)null);
 
         var result = await _sut.Handle(command, CancellationToken.None);
@@ -83,7 +82,7 @@ public class RefreshPlatformTokenCommandHandlerTests
             .Returns("old-refresh-token-hash");
 
         _refreshTokensRepository
-            .Setup(x => x.FindPlatformRefreshTokenAsync(It.IsAny<RefreshTokenHash>(), CancellationToken.None))
+            .Setup(x => x.GetPlatformRefreshTokenAsync(It.IsAny<RefreshTokenHash>(), CancellationToken.None))
             .ReturnsAsync(existingToken);
 
         var result = await _sut.Handle(command, CancellationToken.None);
@@ -113,7 +112,7 @@ public class RefreshPlatformTokenCommandHandlerTests
             .Returns("old-refresh-token-hash");
 
         _refreshTokensRepository
-            .Setup(x => x.FindPlatformRefreshTokenAsync(It.IsAny<RefreshTokenHash>(), CancellationToken.None))
+            .Setup(x => x.GetPlatformRefreshTokenAsync(It.IsAny<RefreshTokenHash>(), CancellationToken.None))
             .ReturnsAsync(existingToken);
 
         var result = await _sut.Handle(command, CancellationToken.None);
@@ -141,15 +140,15 @@ public class RefreshPlatformTokenCommandHandlerTests
             .Returns("old-refresh-token-hash");
 
         _refreshTokensRepository
-            .Setup(x => x.FindPlatformRefreshTokenAsync(It.IsAny<RefreshTokenHash>(), CancellationToken.None))
+            .Setup(x => x.GetPlatformRefreshTokenAsync(It.IsAny<RefreshTokenHash>(), CancellationToken.None))
             .ReturnsAsync(existingToken);
 
         _usersRepository
-            .Setup(x => x.FindUserByIdAsync(existingToken.UserId, CancellationToken.None))
+            .Setup(x => x.GetUserByIdAsync(existingToken.UserId, CancellationToken.None))
             .ReturnsAsync((PlatformUser?)null);
 
         _refreshTokensRepository
-            .Setup(x => x.GetPlatformRefreshTokenAsync(It.IsAny<RefreshTokenHash>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetTrackedPlatformRefreshTokenAsync(It.IsAny<RefreshTokenHash>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(existingToken);
 
         var result = await _sut.Handle(command, CancellationToken.None);
@@ -167,45 +166,49 @@ public class RefreshPlatformTokenCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_ShouldReturnFailure_WhenSaveChangesFails()
+    public async Task Handle_ShouldReturnFailure_WhenUserIsInactive()
     {
         var existingToken = CreateRefreshToken(_mockDateTimeProvider.Object.Now.AddDays(30));
+
+        var command = new RefreshPlatformTokenCommand(
+            "old-refresh-token",
+            null,
+            null);
 
         var user = CreateUser(
             existingToken.UserId,
             "test@email.com");
 
-        var command = new RefreshPlatformTokenCommand(
-            "old-refresh-token",
-            "Chrome",
-            "127.0.0.1");
+        user.Deactivate(_mockDateTimeProvider.Object.Now);
+
+        _tokenService
+            .Setup(x => x.CalculateTokenHash("old-refresh-token"))
+            .Returns("old-refresh-token-hash");
 
         _refreshTokensRepository
-            .Setup(x => x.GetPlatformRefreshTokenAsync(It.IsAny<RefreshTokenHash>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetPlatformRefreshTokenAsync(It.IsAny<RefreshTokenHash>(), CancellationToken.None))
             .ReturnsAsync(existingToken);
 
-        SetupSuccessfulTokenFlow(
-            existingToken,
-            user,
-            command);
+        _usersRepository
+            .Setup(x => x.GetUserByIdAsync(existingToken.UserId, CancellationToken.None))
+            .ReturnsAsync(user);
 
-        var saveError = new ApplicationError(
-            ApplicationErrorType.Validation,
-            ApplicationErrors.DbSaveFailed.Code,
-            ApplicationErrors.DbSaveFailed.Message);
-
-        _unitOfWork
-            .Setup(x => x.SaveChangesAsync(CancellationToken.None))
-            .ReturnsAsync(Result.Failure(saveError));
+        _refreshTokensRepository
+            .Setup(x => x.GetTrackedPlatformRefreshTokenAsync(It.IsAny<RefreshTokenHash>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existingToken);
 
         var result = await _sut.Handle(command, CancellationToken.None);
 
         result.IsFailure.Should().BeTrue();
-        result.Error.Should().Be(saveError);
+        result.Error.Should().NotBeNull();
+        result.Error.Type.Should().Be(ApplicationErrorType.Unauthorized);
+        result.Error.Code.Should().Be(ApplicationErrors.RefreshTokenInvalid.Code);
 
         _refreshTokensRepository.Verify(
             x => x.AddPlatformRefreshToken(It.IsAny<PlatformRefreshToken>()),
-            Times.Once);
+            Times.Never);
+
+        _unitOfWork.Verify(x => x.SaveChangesAsync(CancellationToken.None), Times.Never);
     }
 
     [Fact]
@@ -231,7 +234,7 @@ public class RefreshPlatformTokenCommandHandlerTests
             accessTokenExpiresAt);
 
         _refreshTokensRepository
-            .Setup(x => x.GetPlatformRefreshTokenAsync(It.IsAny<RefreshTokenHash>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetTrackedPlatformRefreshTokenAsync(It.IsAny<RefreshTokenHash>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(existingToken);
 
         _unitOfWork
@@ -277,11 +280,11 @@ public class RefreshPlatformTokenCommandHandlerTests
             .Returns("old-refresh-token-hash");
 
         _refreshTokensRepository
-            .Setup(x => x.FindPlatformRefreshTokenAsync(It.IsAny<RefreshTokenHash>(), CancellationToken.None))
+            .Setup(x => x.GetPlatformRefreshTokenAsync(It.IsAny<RefreshTokenHash>(), CancellationToken.None))
             .ReturnsAsync(existingToken);
 
         _usersRepository
-            .Setup(x => x.FindUserByIdAsync(existingToken.UserId, CancellationToken.None))
+            .Setup(x => x.GetUserByIdAsync(existingToken.UserId, CancellationToken.None))
             .ReturnsAsync(user);
 
         _tokenService

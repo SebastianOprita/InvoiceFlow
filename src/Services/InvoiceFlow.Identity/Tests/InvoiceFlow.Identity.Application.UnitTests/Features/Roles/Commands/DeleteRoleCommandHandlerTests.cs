@@ -31,7 +31,7 @@ public class DeleteRoleCommandHandlerTests
         var cmd = new DeleteRoleCommand(Guid.CreateVersion7(), Guid.CreateVersion7());
 
         _rolesRepository
-            .Setup(x => x.GetRoleByIdAsync(cmd.TenantId, cmd.RoleId))
+            .Setup(x => x.GetTrackedRoleByIdAsync(cmd.TenantId, cmd.RoleId))
             .ReturnsAsync((Role?)null);
 
         // Act
@@ -62,7 +62,7 @@ public class DeleteRoleCommandHandlerTests
             RolePermissions.Create(SystemPermission.None));
 
         _rolesRepository
-            .Setup(x => x.GetRoleByIdAsync(cmd.TenantId, cmd.RoleId))
+            .Setup(x => x.GetTrackedRoleByIdAsync(cmd.TenantId, cmd.RoleId))
             .ReturnsAsync(role);
 
         _unitOfWork
@@ -99,7 +99,7 @@ public class DeleteRoleCommandHandlerTests
             "Save failed.");
 
         _rolesRepository
-            .Setup(x => x.GetRoleByIdAsync(cmd.TenantId, cmd.RoleId))
+            .Setup(x => x.GetTrackedRoleByIdAsync(cmd.TenantId, cmd.RoleId))
             .ReturnsAsync(role);
 
         _unitOfWork

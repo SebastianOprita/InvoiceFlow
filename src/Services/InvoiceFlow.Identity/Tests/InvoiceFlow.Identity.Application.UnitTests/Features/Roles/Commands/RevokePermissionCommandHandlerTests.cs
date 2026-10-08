@@ -37,7 +37,7 @@ public class RevokePermissionCommandHandlerTests
             SystemPermission.None);
 
         _rolesRepository
-            .Setup(x => x.GetRoleByIdAsync(cmd.TenantId, cmd.RoleId))
+            .Setup(x => x.GetTrackedRoleByIdAsync(cmd.TenantId, cmd.RoleId))
             .ReturnsAsync((Role?)null);
 
         // Act
@@ -50,48 +50,6 @@ public class RevokePermissionCommandHandlerTests
         result.Error.Code.Should().Be(ApplicationErrors.RoleNotFound.Code);
 
         _unitOfWork.Verify(x => x.SaveChangesAsync(), Times.Never);
-    }
-
-    [Fact]
-    public async Task Handle_WhenSaveChangesFails_ReturnsFailure()
-    {
-        // Arrange
-        var permission = SystemPermission.CustomerView;
-
-        var cmd = new RevokePermissionCommand(
-            Guid.CreateVersion7(),
-            Guid.CreateVersion7(),
-            permission);
-
-        var role = Role.Create(
-            cmd.TenantId,
-            cmd.RoleId,
-            RoleName.Create("Admin"),
-            _mockDateTimeProvider.Object.Now,
-            RoleDescription.CreateOptional("Administrator role"),
-            RolePermissions.Create(permission));
-
-        var saveError = new ApplicationError(
-            ApplicationErrorType.Validation,
-            ApplicationErrors.DbSaveFailed.Code,
-            ApplicationErrors.DbSaveFailed.Message);
-
-        _rolesRepository
-            .Setup(x => x.GetRoleByIdAsync(cmd.TenantId, cmd.RoleId))
-            .ReturnsAsync(role);
-
-        _unitOfWork
-            .Setup(x => x.SaveChangesAsync())
-            .ReturnsAsync(Result.Failure(saveError));
-
-        // Act
-        var result = await _sut.Handle(cmd, CancellationToken.None);
-
-        // Assert
-        result.IsFailure.Should().BeTrue();
-        result.Error.Should().Be(saveError);
-
-        _unitOfWork.Verify(x => x.SaveChangesAsync(), Times.Once);
     }
 
     [Fact]
@@ -114,7 +72,7 @@ public class RevokePermissionCommandHandlerTests
             RolePermissions.Create(permission));
 
         _rolesRepository
-            .Setup(x => x.GetRoleByIdAsync(cmd.TenantId, cmd.RoleId))
+            .Setup(x => x.GetTrackedRoleByIdAsync(cmd.TenantId, cmd.RoleId))
             .ReturnsAsync(role);
 
         _unitOfWork

@@ -7,7 +7,7 @@ public class GetCustomersQueryHandler(ICustomersRepository customersRepository) 
 {
     public async Task<Result<List<CustomerDto>>> Handle(GetCustomersQuery qry, CancellationToken cancellationToken)
     {
-        var customers = await customersRepository.FindAllCustomersAsync(qry.TenantId, cancellationToken);
+        var customers = await customersRepository.GetAllCustomersAsync(qry.TenantId, cancellationToken);
         var customerDtos = customers.Select(c => c.ToDto()).ToList();
 
         return Result<List<CustomerDto>>.Success(customerDtos);

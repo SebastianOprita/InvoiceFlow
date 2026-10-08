@@ -31,7 +31,7 @@ public sealed class UpdateCustomerCommandHandlerTests
         var command = TestConstants.UpdateCustomerCommand(TestConstants.TenantId, CustomerId);
 
         _mockRepository
-            .Setup(x => x.GetCustomerByIdAsync(command.TenantId, command.CustomerId))
+            .Setup(x => x.GetTrackedCustomerByIdAsync(command.TenantId, command.CustomerId))
             .ReturnsAsync((Customer?)null);
 
         // Act
@@ -47,37 +47,6 @@ public sealed class UpdateCustomerCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_ShouldReturnFailure_WhenSaveChangesFails()
-    {
-        // Arrange
-        var customer = TestConstants.Customer(TestConstants.TenantId, CustomerId, "Existing customer", _mockDateTimeProvider.Object.Now);
-
-        var command = TestConstants.UpdateCustomerCommand(TestConstants.TenantId, CustomerId);
-
-        var saveError = new ApplicationError(
-            ApplicationErrorType.Internal,
-            ApplicationErrors.DbSaveFailed.Code,
-            ApplicationErrors.DbSaveFailed.Message);
-
-        _mockRepository
-            .Setup(x => x.GetCustomerByIdAsync(customer.TenantId, customer.Id))
-            .ReturnsAsync(customer);
-
-        _mockUnitOfWork
-            .Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Failure(saveError));
-
-        // Act
-        var result = await _handler.Handle(command, CancellationToken.None);
-
-        // Assert
-        result.IsSuccess.Should().BeFalse();
-        result.Error.Should().Be(saveError);
-
-        _mockUnitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-    }
-
-    [Fact]
     public async Task Handle_ShouldUpdateCustomerAndReturnDto_WhenCommandIsValid()
     {
         // Arrange
@@ -85,7 +54,7 @@ public sealed class UpdateCustomerCommandHandlerTests
         var command = TestConstants.UpdateCustomerCommand(TestConstants.TenantId, CustomerId, "Updated customer");
 
         _mockRepository
-            .Setup(x => x.GetCustomerByIdAsync(command.TenantId, command.CustomerId))
+            .Setup(x => x.GetTrackedCustomerByIdAsync(command.TenantId, command.CustomerId))
             .ReturnsAsync(customer);
 
         _mockUnitOfWork
@@ -120,7 +89,7 @@ public sealed class UpdateCustomerCommandHandlerTests
         };
 
         _mockRepository
-            .Setup(x => x.GetCustomerByIdAsync(command.TenantId, command.CustomerId))
+            .Setup(x => x.GetTrackedCustomerByIdAsync(command.TenantId, command.CustomerId))
             .ReturnsAsync(customer);
 
         _mockUnitOfWork

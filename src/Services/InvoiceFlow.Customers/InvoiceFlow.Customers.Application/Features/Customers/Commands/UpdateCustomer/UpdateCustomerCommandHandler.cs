@@ -12,7 +12,7 @@ public class UpdateCustomerCommandHandler(
 {
     public async Task<Result<CustomerDto>> Handle(UpdateCustomerCommand cmd, CancellationToken cancellationToken)
     {
-        var customer = await customersRepository.GetCustomerByIdAsync(cmd.TenantId, cmd.CustomerId, cancellationToken);
+        var customer = await customersRepository.GetTrackedCustomerByIdAsync(cmd.TenantId, cmd.CustomerId, cancellationToken);
         if (customer is null)
             return Result<CustomerDto>.Failure(ApplicationErrors.CustomerNotFound);
 

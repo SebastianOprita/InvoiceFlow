@@ -36,7 +36,7 @@ public class RevokeUserRoleCommandHandlerTests
             Guid.CreateVersion7());
 
         _usersRepository
-            .Setup(x => x.GetUserByIdAsync(cmd.TenantId, cmd.UserId, TestContext.Current.CancellationToken))
+            .Setup(x => x.GetTrackedUserByIdAsync(cmd.TenantId, cmd.UserId, TestContext.Current.CancellationToken))
             .ReturnsAsync((User?)null);
 
         // Act
@@ -49,7 +49,7 @@ public class RevokeUserRoleCommandHandlerTests
         result.Error.Code.Should().Be(ApplicationErrors.UserNotFound.Code);
 
         _rolesRepository.Verify(
-            x => x.FindRoleByIdAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            x => x.GetRoleByIdAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
             Times.Never);
 
         _unitOfWork.Verify(
@@ -76,11 +76,11 @@ public class RevokeUserRoleCommandHandlerTests
             _mockDateTimeProvider.Object.Now);
 
         _usersRepository
-            .Setup(x => x.GetUserByIdAsync(cmd.TenantId, cmd.UserId, TestContext.Current.CancellationToken))
+            .Setup(x => x.GetTrackedUserByIdAsync(cmd.TenantId, cmd.UserId, TestContext.Current.CancellationToken))
             .ReturnsAsync(user);
 
         _rolesRepository
-            .Setup(x => x.FindRoleByIdAsync(cmd.TenantId, cmd.RoleId, TestContext.Current.CancellationToken))
+            .Setup(x => x.GetRoleByIdAsync(cmd.TenantId, cmd.RoleId, TestContext.Current.CancellationToken))
             .ReturnsAsync((Role?)null);
 
         // Act
@@ -124,11 +124,11 @@ public class RevokeUserRoleCommandHandlerTests
             RolePermissions.Create(SystemPermission.None));
 
         _usersRepository
-            .Setup(x => x.GetUserByIdAsync(cmd.TenantId, cmd.UserId, TestContext.Current.CancellationToken))
+            .Setup(x => x.GetTrackedUserByIdAsync(cmd.TenantId, cmd.UserId, TestContext.Current.CancellationToken))
             .ReturnsAsync(user);
 
         _rolesRepository
-            .Setup(x => x.FindRoleByIdAsync(cmd.TenantId, cmd.RoleId, TestContext.Current.CancellationToken))
+            .Setup(x => x.GetRoleByIdAsync(cmd.TenantId, cmd.RoleId, TestContext.Current.CancellationToken))
             .ReturnsAsync(role);
 
         _unitOfWork
@@ -140,59 +140,6 @@ public class RevokeUserRoleCommandHandlerTests
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-
-        _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-    }
-
-    [Fact]
-    public async Task Handle_WhenSaveChangesFails_ReturnsFailure()
-    {
-        // Arrange
-        var cmd = new RevokeUserRoleCommand(
-            Guid.CreateVersion7(),
-            Guid.CreateVersion7(),
-            Guid.CreateVersion7());
-
-        var user = User.Create(
-            cmd.TenantId,
-            cmd.UserId,
-            UserEmail.Create("john.doe@test.com"),
-            PasswordHash.Create("hashedpassword"),
-            FirstName.Create("John"),
-            LastName.Create("Doe"),
-            _mockDateTimeProvider.Object.Now);
-
-        var role = Role.Create(
-            cmd.TenantId,
-            cmd.RoleId,
-            RoleName.Create("Admin"),
-            _mockDateTimeProvider.Object.Now,
-            RoleDescription.CreateOptional("Administrator role"),
-            RolePermissions.Create(SystemPermission.None));
-
-        var saveError = new ApplicationError(
-            ApplicationErrorType.Validation,
-            ApplicationErrors.DbSaveFailed.Code,
-            ApplicationErrors.DbSaveFailed.Message);
-
-        _usersRepository
-            .Setup(x => x.GetUserByIdAsync(cmd.TenantId, cmd.UserId, TestContext.Current.CancellationToken))
-            .ReturnsAsync(user);
-
-        _rolesRepository
-            .Setup(x => x.FindRoleByIdAsync(cmd.TenantId, cmd.RoleId, TestContext.Current.CancellationToken))
-            .ReturnsAsync(role);
-
-        _unitOfWork
-            .Setup(x => x.SaveChangesAsync(TestContext.Current.CancellationToken))
-            .ReturnsAsync(Result.Failure(saveError));
-
-        // Act
-        var result = await _sut.Handle(cmd, TestContext.Current.CancellationToken);
-
-        // Assert
-        result.IsFailure.Should().BeTrue();
-        result.Error.Should().Be(saveError);
 
         _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }

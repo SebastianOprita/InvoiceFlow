@@ -29,7 +29,7 @@ public sealed class GetCustomerByIdQueryHandlerTests
         var name = "CustomerName";
         var customer = TestConstants.Customer(TenantId, customerId, name, _mockDateTimeProvider.Object.Now);
 
-        _mockRepository.Setup(x => x.FindCustomerByIdAsync(TenantId, customerId, CancellationToken.None))
+        _mockRepository.Setup(x => x.GetCustomerByIdAsync(TenantId, customerId, CancellationToken.None))
             .ReturnsAsync(customer);
 
         var query = new GetCustomerByIdQuery(TenantId, customerId);
@@ -41,7 +41,7 @@ public sealed class GetCustomerByIdQueryHandlerTests
         result.Value.Should().NotBeNull();
         result.Value.Id.Should().Be(customerId);
         result.Value.Name.Should().Be(name);
-        _mockRepository.Verify(x => x.FindCustomerByIdAsync(TenantId, customerId, CancellationToken.None), Times.Once);
+        _mockRepository.Verify(x => x.GetCustomerByIdAsync(TenantId, customerId, CancellationToken.None), Times.Once);
     }
 
     [Fact]
@@ -50,7 +50,7 @@ public sealed class GetCustomerByIdQueryHandlerTests
         // Arrange
         var customerId = Guid.CreateVersion7();
 
-        _mockRepository.Setup(x => x.FindCustomerByIdAsync(TenantId, customerId, CancellationToken.None))
+        _mockRepository.Setup(x => x.GetCustomerByIdAsync(TenantId, customerId, CancellationToken.None))
             .ReturnsAsync((Customer)null!);
 
         var query = new GetCustomerByIdQuery(TenantId, customerId);
