@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Domain;
 using Xunit;
 
@@ -43,7 +43,7 @@ public sealed class CustomerEmailTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.EmailRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.EmailRequired);
     }
 
     [Fact]
@@ -53,7 +53,7 @@ public sealed class CustomerEmailTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.EmailRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.EmailRequired);
     }
 
     [Fact]
@@ -78,7 +78,7 @@ public sealed class CustomerEmailTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.EmailTooLong.ErrorMessage);
+            .WithDomainError(DomainErrors.EmailTooLong);
     }
 
     [Theory]
@@ -93,7 +93,7 @@ public sealed class CustomerEmailTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage("Email is invalid.");
+            .WithDomainError(DomainErrors.EmailInvalid);
     }
 
     [Fact]
@@ -145,7 +145,7 @@ public sealed class CustomerEmailTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.EmailTooLong.ErrorMessage);
+            .WithDomainError(DomainErrors.EmailTooLong);
     }
 
     [Fact]
@@ -155,7 +155,7 @@ public sealed class CustomerEmailTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.EmailInvalid.ErrorMessage);
+            .WithDomainError(DomainErrors.EmailInvalid);
     }
 
     [Fact]
@@ -166,3 +166,4 @@ public sealed class CustomerEmailTests
         result.ToString().Should().Be("john.doe@example.com");
     }
 }
+

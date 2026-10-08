@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Domain;
 using Xunit;
 
@@ -34,7 +34,7 @@ public sealed class DeviceInfoTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.DeviceInfoRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.DeviceInfoRequired);
     }
 
     [Fact]
@@ -46,7 +46,7 @@ public sealed class DeviceInfoTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.DeviceInfoTooLong.ErrorMessage);
+            .WithDomainError(DomainErrors.DeviceInfoTooLong);
     }
 
     [Fact]

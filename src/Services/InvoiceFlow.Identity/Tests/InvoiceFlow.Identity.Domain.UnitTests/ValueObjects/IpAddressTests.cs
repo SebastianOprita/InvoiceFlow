@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Domain;
 using Xunit;
 
@@ -34,7 +34,7 @@ public sealed class IpAddressTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.IpAddressRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.IpAddressRequired);
     }
 
     [Fact]
@@ -46,7 +46,7 @@ public sealed class IpAddressTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.IpAddressTooLong.ErrorMessage);
+            .WithDomainError(DomainErrors.IpAddressTooLong);
     }
 
     [Fact]

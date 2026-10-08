@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Domain;
 using Xunit;
 
@@ -35,7 +35,7 @@ public sealed class PostalCodeTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.PostalCodeRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.PostalCodeRequired);
     }
 
     [Fact]
@@ -45,7 +45,7 @@ public sealed class PostalCodeTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.PostalCodeRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.PostalCodeRequired);
     }
 
     [Fact]
@@ -68,7 +68,7 @@ public sealed class PostalCodeTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.PostalCodeTooLong.ErrorMessage);
+            .WithDomainError(DomainErrors.PostalCodeTooLong);
     }
 
     [Fact]

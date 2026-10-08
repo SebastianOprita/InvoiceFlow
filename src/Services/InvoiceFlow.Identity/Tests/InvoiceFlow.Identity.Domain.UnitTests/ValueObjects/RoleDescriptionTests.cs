@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Domain;
 using Xunit;
 
@@ -34,7 +34,7 @@ public sealed class RoleDescriptionTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.DescriptionRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.DescriptionRequired);
     }
 
     [Fact]
@@ -46,7 +46,7 @@ public sealed class RoleDescriptionTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.DescriptionTooLong.ErrorMessage);
+            .WithDomainError(DomainErrors.DescriptionTooLong);
     }
 
     [Fact]

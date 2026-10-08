@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Domain;
 using Xunit;
 
@@ -34,7 +34,7 @@ public sealed class TenantNameTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.NameRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.NameRequired);
     }
 
     [Fact]
@@ -46,7 +46,7 @@ public sealed class TenantNameTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.NameTooLong.ErrorMessage);
+            .WithDomainError(DomainErrors.NameTooLong);
     }
 
     [Fact]

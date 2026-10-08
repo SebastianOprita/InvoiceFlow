@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Domain;
 using Xunit;
 
@@ -49,7 +49,7 @@ public class PlatformUserTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.IdRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.IdRequired);
     }
 
     [Fact]
@@ -65,7 +65,7 @@ public class PlatformUserTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.CreatedAtUtcRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.CreatedAtUtcRequired);
     }
 
     [Fact]
@@ -199,7 +199,7 @@ public class PlatformUserTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.UpdatedAtUtcRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.UpdatedAtUtcRequired);
     }
 
     [Theory]
@@ -212,7 +212,7 @@ public class PlatformUserTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.UpdatedAtUtcInvalid.ErrorMessage);
+            .WithDomainError(DomainErrors.UpdatedAtUtcInvalid);
     }
 
     public static TheoryData<Action<PlatformUser>> UpdateActionsWithDefaultDate => new()

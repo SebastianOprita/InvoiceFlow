@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Domain;
 using Xunit;
 
@@ -37,7 +37,7 @@ public class TenantTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage("*Id is required*");
+            .WithDomainError(DomainErrors.IdRequired);
     }
 
     [Fact]
@@ -51,7 +51,7 @@ public class TenantTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.CreatedAtUtcRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.CreatedAtUtcRequired);
     }
 
     [Fact]
@@ -136,7 +136,7 @@ public class TenantTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.UpdatedAtUtcRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.UpdatedAtUtcRequired);
     }
 
     [Theory]
@@ -149,7 +149,7 @@ public class TenantTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.UpdatedAtUtcInvalid.ErrorMessage);
+            .WithDomainError(DomainErrors.UpdatedAtUtcInvalid);
     }
 
     public static TheoryData<Action<Tenant>> UpdateActionsWithDefaultDate => new()
@@ -175,3 +175,4 @@ public class TenantTests
             CreatedAtUtc);
     }
 }
+

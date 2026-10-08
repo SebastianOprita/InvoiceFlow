@@ -28,6 +28,8 @@
 		<PackageVersion Include="InvoiceFlow.BuildingBlocks.Application" Version="1.0.0" />
 		<PackageVersion Include="InvoiceFlow.BuildingBlocks.Authorization" Version="1.0.0" />
 		<PackageVersion Include="InvoiceFlow.BuildingBlocks.Currency" Version="1.0.0" />
+
+		<PackageVersion Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="3.3.4" />
 	</ItemGroup>
 	
 </Project>

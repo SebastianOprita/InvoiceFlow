@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Domain;
 using Xunit;
 
@@ -35,7 +35,7 @@ public sealed class AddressLine2Tests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.AddressLine2Required.ErrorMessage);
+            .WithDomainError(DomainErrors.AddressLine2Required);
     }
 
     [Fact]
@@ -45,7 +45,7 @@ public sealed class AddressLine2Tests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.AddressLine2Required.ErrorMessage);
+            .WithDomainError(DomainErrors.AddressLine2Required);
     }
 
     [Fact]
@@ -68,7 +68,7 @@ public sealed class AddressLine2Tests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.AddressLine2TooLong.ErrorMessage);
+            .WithDomainError(DomainErrors.AddressLine2TooLong);
     }
 
     [Fact]
@@ -129,6 +129,6 @@ public sealed class AddressLine2Tests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.AddressLine2TooLong.ErrorMessage);
+            .WithDomainError(DomainErrors.AddressLine2TooLong);
     }
 }

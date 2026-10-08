@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Domain;
 using Xunit;
 
@@ -35,7 +35,7 @@ public sealed class TaxNumberTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.TaxNumberRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.TaxNumberRequired);
     }
 
     [Fact]
@@ -45,7 +45,7 @@ public sealed class TaxNumberTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.TaxNumberRequired.ErrorMessage);
+            .WithDomainError(DomainErrors.TaxNumberRequired);
     }
 
     [Fact]
@@ -68,7 +68,7 @@ public sealed class TaxNumberTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.TaxNumberTooLong.ErrorMessage);
+            .WithDomainError(DomainErrors.TaxNumberTooLong);
     }
 
     [Fact]
@@ -129,7 +129,7 @@ public sealed class TaxNumberTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.TaxNumberTooLong.ErrorMessage);
+            .WithDomainError(DomainErrors.TaxNumberTooLong);
     }
 
     [Fact]

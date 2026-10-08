@@ -15,6 +15,7 @@ public static class DependencyInjection
         {
             cfg.RegisterServicesFromAssemblies(typeof(DependencyInjection).Assembly);
 
+            cfg.AddOpenBehavior(typeof(TracingBehavior<,>));
             cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
             cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
         });

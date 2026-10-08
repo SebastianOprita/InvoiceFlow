@@ -5,37 +5,24 @@ using InvoiceFlow.Identity.Application;
 using InvoiceFlow.Identity.Infrastructure;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Serilog;
-
-Log.Logger = new LoggerConfiguration()
-    .ReadFrom.Configuration(new ConfigurationBuilder()
-        .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-        .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", optional: true, reloadOnChange: true)
-        .AddEnvironmentVariables()
-        .Build())
-    .Enrich.FromLogContext()
-    .CreateLogger();
 
 try
 {
-    Log.Information("Starting up");
-
     var builder = WebApplication.CreateBuilder(args);
 
     if (builder.Configuration["JwtSettings:Secret"] is null)
     {
-        throw new InvalidOperationException(
-            "JwtSettings:Secret is not configured.");
+        throw new InvalidOperationException("JwtSettings:Secret is not configured.");
     }
-
-    builder.Host.UseSerilog();
 
     builder.Services.AddControllers();
     builder.Services.AddOpenApi();
     builder.Services.AddHttpContextAccessor();
 
-    builder.Services.Configure<JwtSettings>(
-        builder.Configuration.GetSection("JwtSettings"));
+    builder.Services.AddInvoiceFlowExceptionHandling();
+    builder.AddInvoiceFlowObservability(builder.Environment.ApplicationName);
+
+    builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 
     builder.Services.AddInvoiceFlowAuthentication(builder.Configuration);
     builder.Services.AddInvoiceFlowAuthorization();
@@ -55,9 +42,10 @@ try
         app.MapOpenApi();
     }
 
+    app.UseExceptionHandler();
+
     app.UseHttpsRedirection();
 
-    app.UseValidationExceptionHandler();
     app.UseAuthentication();
     app.UseAuthorization();
 
@@ -80,11 +68,7 @@ try
 }
 catch (Exception ex)
 {
-    Log.Fatal(ex, "Application start-up failed");
+    await Console.Error.WriteLineAsync($"Application terminated unexpectedly: {ex}");
+
     throw;
-}
-finally
-{
-    Log.Information("Shutting down");
-    await Log.CloseAndFlushAsync();
 }

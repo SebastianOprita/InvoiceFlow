@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Domain;
 using Xunit;
 
@@ -31,7 +31,7 @@ public sealed class PaymentTermDaysTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.PaymentTermDaysInvalid.ErrorMessage);
+            .WithDomainError(DomainErrors.PaymentTermDaysInvalid);
     }
 
     [Theory]
@@ -44,7 +44,7 @@ public sealed class PaymentTermDaysTests
 
         act.Should()
             .Throw<DomainException>()
-            .WithMessage(DomainErrors.PaymentTermDaysInvalid.ErrorMessage);
+            .WithDomainError(DomainErrors.PaymentTermDaysInvalid);
     }
 
     [Fact]
