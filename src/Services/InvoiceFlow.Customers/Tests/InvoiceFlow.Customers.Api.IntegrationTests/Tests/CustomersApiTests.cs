@@ -131,7 +131,7 @@ public sealed class CustomersApiTests : IAsyncLifetime
         string customerCode = "Test", registrationNumber = "Test", taxNumber = "Test";
 
         // Act
-        var response = await _client.SendAsync(HttpMethod.Post, _baseUrl, CreateValidCustomerRequest(customerCode, registrationNumber, taxNumber), _customerAccessToken);
+        var response = await _client.SendAsync(HttpMethod.Post, _baseUrl, _customerAccessToken, CreateValidCustomerRequest(customerCode, registrationNumber, taxNumber));
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Created);
@@ -158,7 +158,7 @@ public sealed class CustomersApiTests : IAsyncLifetime
             taxNumber: "NewTest");
 
         // Act
-        var response = await _client.SendAsync(HttpMethod.Post, _baseUrl, request, _customerAccessToken);
+        var response = await _client.SendAsync(HttpMethod.Post, _baseUrl, _customerAccessToken, request);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Conflict);
@@ -181,7 +181,7 @@ public sealed class CustomersApiTests : IAsyncLifetime
             taxNumber: "NewTest");
 
         // Act
-        var response = await _client.SendAsync(HttpMethod.Post, _baseUrl, request, _customerAccessToken);
+        var response = await _client.SendAsync(HttpMethod.Post, _baseUrl, _customerAccessToken, request);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Conflict);
@@ -203,7 +203,7 @@ public sealed class CustomersApiTests : IAsyncLifetime
             taxNumber: taxNumber);
 
         // Act
-        var response = await _client.SendAsync(HttpMethod.Post, _baseUrl, request, _customerAccessToken);
+        var response = await _client.SendAsync(HttpMethod.Post, _baseUrl, _customerAccessToken, request);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Conflict);
@@ -237,7 +237,7 @@ public sealed class CustomersApiTests : IAsyncLifetime
         );
 
         // Act
-        var response = await _client.SendAsync(HttpMethod.Patch, _baseUrl + $"{createCustomerId}", updateRequest, _customerAccessToken);
+        var response = await _client.SendAsync(HttpMethod.Patch, _baseUrl + $"{createCustomerId}", _customerAccessToken, updateRequest);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -277,7 +277,7 @@ public sealed class CustomersApiTests : IAsyncLifetime
         );
 
         // Act
-        var response = await _client.SendAsync(HttpMethod.Patch, _baseUrl + $"{Guid.CreateVersion7()}", updateRequest, _customerAccessToken);
+        var response = await _client.SendAsync(HttpMethod.Patch, _baseUrl + $"{Guid.CreateVersion7()}", _customerAccessToken, updateRequest);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);

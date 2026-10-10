@@ -33,8 +33,8 @@ internal sealed class TestClient
     public async Task<HttpResponseMessage> SendAsync<T>(
         HttpMethod method,
         string url,
-        T? content = default,
-        string? token = null)
+        string? token = null,
+        T? content = default)
     {
         using var request = new HttpRequestMessage(method, url);
 

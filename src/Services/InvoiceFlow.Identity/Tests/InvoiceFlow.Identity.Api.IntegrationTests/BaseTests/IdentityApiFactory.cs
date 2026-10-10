@@ -186,4 +186,22 @@ public sealed class IdentityApiFactory
 
         return user.Id;
     }
+
+    internal Guid InsertTenant(string name, string slug)
+    {
+        using var scope = Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
+        var dateTimeProvider = scope.ServiceProvider.GetRequiredService<ISystemDateTimeProvider>();
+
+        var tenant = Tenant.Create
+        (
+            Guid.CreateVersion7(),
+            TenantName.Create(name),
+            TenantSlug.Create(slug),
+            dateTimeProvider.Now
+        );
+        db.Tenants.Add(tenant);
+        db.SaveChanges();
+        return tenant.Id;
+    }
 }

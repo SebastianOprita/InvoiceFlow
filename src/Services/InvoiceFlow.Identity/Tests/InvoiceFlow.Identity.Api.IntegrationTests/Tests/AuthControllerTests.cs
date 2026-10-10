@@ -40,7 +40,7 @@ public sealed class AuthControllerTests : IAsyncLifetime
 
         // Act
         var request = new LoginRequest(email, TestConstants.Password);
-        var response = await _client.SendAsync(HttpMethod.Post, BaseUrl + "login", request);
+        var response = await _client.SendAsync(HttpMethod.Post, BaseUrl + "login", null, request);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -59,7 +59,7 @@ public sealed class AuthControllerTests : IAsyncLifetime
 
         // Act
         var request = new LoginRequest(email, "WrongPassword");
-        var response = await _client.SendAsync(HttpMethod.Post, BaseUrl + "login", request);
+        var response = await _client.SendAsync(HttpMethod.Post, BaseUrl + "login", null, request);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);

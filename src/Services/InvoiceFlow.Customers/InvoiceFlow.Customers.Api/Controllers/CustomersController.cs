@@ -12,7 +12,7 @@ namespace InvoiceFlow.Customers.Api;
 [Authorize]
 [TenantScoped]
 [TenantUserLogin]
-[Route("api/{tenantId:guid}/[controller]")]
+[Route("api/{tenantId:guid}/customers")]
 public class CustomersController(IMediator mediator) : ControllerBase
 {
     [HttpGet]
