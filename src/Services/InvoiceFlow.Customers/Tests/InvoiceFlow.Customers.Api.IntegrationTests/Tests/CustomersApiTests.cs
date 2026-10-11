@@ -42,15 +42,16 @@ public sealed class CustomersApiTests : IAsyncLifetime
         return ValueTask.CompletedTask;
     }
 
-    public static IEnumerable<object[]> ProtectedEndpoints =>
-    [
-        [HttpMethod.Get,    "/api/{tenantId}/customers"],
-        [HttpMethod.Get,    "/api/{tenantId}/customers/{customerId}"],
-        [HttpMethod.Post,   "/api/{tenantId}/customers"],
-        [HttpMethod.Patch,  "/api/{tenantId}/customers/{customerId}"],
-        [HttpMethod.Post,   "/api/{tenantId}/customers/activate/{customerId}"],
-        [HttpMethod.Delete, "/api/{tenantId}/customers/deactivate/{customerId}"]
-    ];
+    public static TheoryData<HttpMethod, string> ProtectedEndpoints =>
+        new()
+        {
+            { HttpMethod.Get, "/api/{tenantId}/customers" },
+            { HttpMethod.Get, "/api/{tenantId}/customers/{customerId}" },
+            { HttpMethod.Post, "/api/{tenantId}/customers" },
+            { HttpMethod.Patch, "/api/{tenantId}/customers/{customerId}" },
+            { HttpMethod.Post, "/api/{tenantId}/customers/activate/{customerId}" },
+            { HttpMethod.Delete, "/api/{tenantId}/customers/deactivate/{customerId}" }
+        };
 
     [Theory]
     [MemberData(nameof(ProtectedEndpoints))]
@@ -62,7 +63,7 @@ public sealed class CustomersApiTests : IAsyncLifetime
             .Replace("{tenantId}", _tenantId.ToString())
             .Replace("{customerId}", Guid.CreateVersion7().ToString());
 
-        var response = await _client.SendAsync(method, url, "");
+        var response = await _client.SendAsync(method, url, "", TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
@@ -77,7 +78,7 @@ public sealed class CustomersApiTests : IAsyncLifetime
             .Replace("{tenantId}", _tenantId.ToString())
             .Replace("{customerId}", Guid.CreateVersion7().ToString());
 
-        var response = await _client.SendAsync(method, url, TestJwtTokenFactory.CreateAccessToken(_tenantId, SystemPermission.None, _factory.JwtSettings));
+        var response = await _client.SendAsync(method, url, TestJwtTokenFactory.CreateAccessToken(_tenantId, SystemPermission.None, _factory.JwtSettings), TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
@@ -85,7 +86,7 @@ public sealed class CustomersApiTests : IAsyncLifetime
     [Fact]
     public async Task GetAll_Should_ReturnOk()
     {
-        var response = await _client.SendAsync(HttpMethod.Get, _baseUrl, _customerAccessToken);
+        var response = await _client.SendAsync(HttpMethod.Get, _baseUrl, _customerAccessToken, TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
@@ -98,7 +99,7 @@ public sealed class CustomersApiTests : IAsyncLifetime
         var customerId = await _factory.InsertCustomerAsync(_tenantId, customerCode, registrationNumber, taxNumber);
 
         // Act
-        var response = await _client.SendAsync(HttpMethod.Get, _baseUrl + customerId, _customerAccessToken);
+        var response = await _client.SendAsync(HttpMethod.Get, _baseUrl + customerId, _customerAccessToken, TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -118,7 +119,7 @@ public sealed class CustomersApiTests : IAsyncLifetime
     public async Task GetById_WhenCustomerDoesNotExist_Should_ReturnNotFound()
     {
         // Act
-        var response = await _client.SendAsync(HttpMethod.Get, _baseUrl + Guid.CreateVersion7(), _customerAccessToken);
+        var response = await _client.SendAsync(HttpMethod.Get, _baseUrl + Guid.CreateVersion7(), _customerAccessToken, TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -131,7 +132,7 @@ public sealed class CustomersApiTests : IAsyncLifetime
         string customerCode = "Test", registrationNumber = "Test", taxNumber = "Test";
 
         // Act
-        var response = await _client.SendAsync(HttpMethod.Post, _baseUrl, _customerAccessToken, CreateValidCustomerRequest(customerCode, registrationNumber, taxNumber));
+        var response = await _client.SendAsync(HttpMethod.Post, _baseUrl, _customerAccessToken, CreateValidCustomerRequest(customerCode, registrationNumber, taxNumber), TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Created);
@@ -158,7 +159,7 @@ public sealed class CustomersApiTests : IAsyncLifetime
             taxNumber: "NewTest");
 
         // Act
-        var response = await _client.SendAsync(HttpMethod.Post, _baseUrl, _customerAccessToken, request);
+        var response = await _client.SendAsync(HttpMethod.Post, _baseUrl, _customerAccessToken, request, TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Conflict);
@@ -181,7 +182,7 @@ public sealed class CustomersApiTests : IAsyncLifetime
             taxNumber: "NewTest");
 
         // Act
-        var response = await _client.SendAsync(HttpMethod.Post, _baseUrl, _customerAccessToken, request);
+        var response = await _client.SendAsync(HttpMethod.Post, _baseUrl, _customerAccessToken, request, TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Conflict);
@@ -203,7 +204,7 @@ public sealed class CustomersApiTests : IAsyncLifetime
             taxNumber: taxNumber);
 
         // Act
-        var response = await _client.SendAsync(HttpMethod.Post, _baseUrl, _customerAccessToken, request);
+        var response = await _client.SendAsync(HttpMethod.Post, _baseUrl, _customerAccessToken, request, TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Conflict);
@@ -237,7 +238,7 @@ public sealed class CustomersApiTests : IAsyncLifetime
         );
 
         // Act
-        var response = await _client.SendAsync(HttpMethod.Patch, _baseUrl + $"{createCustomerId}", _customerAccessToken, updateRequest);
+        var response = await _client.SendAsync(HttpMethod.Patch, _baseUrl + $"{createCustomerId}", _customerAccessToken, updateRequest, TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -277,7 +278,7 @@ public sealed class CustomersApiTests : IAsyncLifetime
         );
 
         // Act
-        var response = await _client.SendAsync(HttpMethod.Patch, _baseUrl + $"{Guid.CreateVersion7()}", _customerAccessToken, updateRequest);
+        var response = await _client.SendAsync(HttpMethod.Patch, _baseUrl + $"{Guid.CreateVersion7()}", _customerAccessToken, updateRequest, TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -291,12 +292,12 @@ public sealed class CustomersApiTests : IAsyncLifetime
         var createCustomerId = await _factory.InsertCustomerAsync(_tenantId, customerCode, registrationNumber, taxNumber);
 
         // Act
-        var response = await _client.SendAsync(HttpMethod.Delete, _baseUrl + $"deactivate/{createCustomerId}", _customerAccessToken);
+        var response = await _client.SendAsync(HttpMethod.Delete, _baseUrl + $"deactivate/{createCustomerId}", _customerAccessToken, TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-        var updatedResponse = await _client.SendAsync(HttpMethod.Get, _baseUrl + $"{createCustomerId}", _customerAccessToken);
+        var updatedResponse = await _client.SendAsync(HttpMethod.Get, _baseUrl + $"{createCustomerId}", _customerAccessToken, TestContext.Current.CancellationToken);
 
         var updatedCustomer = await updatedResponse.Content.ReadFromJsonAsync<CustomerDto>(TestContext.Current.CancellationToken);
 
@@ -308,7 +309,7 @@ public sealed class CustomersApiTests : IAsyncLifetime
     public async Task Deactivate_WhenCustomerDoesNotExist_Should_ReturnNotFound()
     {
         // Act
-        var response = await _client.SendAsync(HttpMethod.Delete, _baseUrl + $"deactivate/{Guid.CreateVersion7()}", _customerAccessToken);
+        var response = await _client.SendAsync(HttpMethod.Delete, _baseUrl + $"deactivate/{Guid.CreateVersion7()}", _customerAccessToken, TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -322,17 +323,17 @@ public sealed class CustomersApiTests : IAsyncLifetime
         var createCustomerId = await _factory.InsertCustomerAsync(_tenantId, customerCode, registrationNumber, taxNumber);
 
         // deactivate first
-        var deactivateResponse = await _client.SendAsync(HttpMethod.Delete, _baseUrl + $"deactivate/{createCustomerId}", _customerAccessToken);
+        var deactivateResponse = await _client.SendAsync(HttpMethod.Delete, _baseUrl + $"deactivate/{createCustomerId}", _customerAccessToken, TestContext.Current.CancellationToken);
 
         deactivateResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         // Act
-        var activateResponse = await _client.SendAsync(HttpMethod.Post, _baseUrl + $"activate/{createCustomerId}", _customerAccessToken);
+        var activateResponse = await _client.SendAsync(HttpMethod.Post, _baseUrl + $"activate/{createCustomerId}", _customerAccessToken, TestContext.Current.CancellationToken);
 
         // Assert
         activateResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-        var updatedResponse = await _client.SendAsync(HttpMethod.Get, _baseUrl + $"{createCustomerId}", _customerAccessToken);
+        var updatedResponse = await _client.SendAsync(HttpMethod.Get, _baseUrl + $"{createCustomerId}", _customerAccessToken, TestContext.Current.CancellationToken);
 
         var updatedCustomer = await updatedResponse.Content.ReadFromJsonAsync<CustomerDto>(TestContext.Current.CancellationToken);
 
@@ -344,7 +345,7 @@ public sealed class CustomersApiTests : IAsyncLifetime
     public async Task Activate_WhenCustomerDoesNotExist_Should_ReturnNotFound()
     {
         // Act
-        var response = await _client.SendAsync(HttpMethod.Post, _baseUrl + $"activate/{Guid.CreateVersion7()}", _customerAccessToken);
+        var response = await _client.SendAsync(HttpMethod.Post, _baseUrl + $"activate/{Guid.CreateVersion7()}", _customerAccessToken, TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);

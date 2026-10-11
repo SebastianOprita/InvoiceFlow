@@ -21,8 +21,10 @@ public sealed class CustomersApiInfrastructureTests
     public async Task GetErrors_Should_ReturnOk()
     {
         var response = await _client.SendAsync(
-            HttpMethod.Get,
-            "/api/errors");
+            method: HttpMethod.Get,
+            url: "/api/errors",
+            token: null,
+            cancellationToken: TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
@@ -31,8 +33,10 @@ public sealed class CustomersApiInfrastructureTests
     public async Task LiveHealth_Should_ReturnHealthy()
     {
         var response = await _client.SendAsync(
-            HttpMethod.Get,
-            "/health/live");
+            method: HttpMethod.Get,
+            url: "/health/live",
+            token:null,
+            cancellationToken: TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -46,8 +50,10 @@ public sealed class CustomersApiInfrastructureTests
     public async Task ReadyHealth_Should_ReturnHealthy()
     {
         var response = await _client.SendAsync(
-            HttpMethod.Get,
-            "/health/ready");
+            method: HttpMethod.Get,
+            url: "/health/ready",
+            token: null,
+            cancellationToken: TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 

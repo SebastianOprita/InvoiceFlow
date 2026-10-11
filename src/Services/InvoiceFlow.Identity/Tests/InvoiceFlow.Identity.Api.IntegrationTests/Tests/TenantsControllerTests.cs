@@ -12,15 +12,15 @@ public sealed class TenantsControllerTests : IAsyncLifetime
 {
     private readonly IdentityApiFactory _factory;
     private readonly TestClient _client;
-    private string BaseUrl =>
-        $"/api/platform/tenants/";
-    public readonly string AccessToken;
+    private readonly string _baseUrl;
+    private readonly string _accessToken;
 
     public TenantsControllerTests(IdentityApiFactory factory)
     {
         _factory = factory;
         _client = new TestClient(factory);
-        AccessToken = TestJwtTokenFactory.CreatePlatformUserAccessToken(_factory.PlatformUser.Id, _factory.JwtSettings);
+        _baseUrl = $"/api/platform/tenants/";
+        _accessToken = TestJwtTokenFactory.CreatePlatformUserAccessToken(_factory.PlatformUser.Id, _factory.JwtSettings);
     }
 
     public async ValueTask InitializeAsync()
@@ -36,7 +36,7 @@ public sealed class TenantsControllerTests : IAsyncLifetime
     [Fact]
     public async Task GetAll_Should_Return_Ok()
     {
-        var response = await _client.SendAsync(HttpMethod.Get, BaseUrl, AccessToken);
+        var response = await _client.SendAsync(HttpMethod.Get, _baseUrl, _accessToken, TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
@@ -46,7 +46,7 @@ public sealed class TenantsControllerTests : IAsyncLifetime
     {
         // Act
         var tenantId = _factory.Tenant.Id;
-        var response = await _client.SendAsync(HttpMethod.Get, BaseUrl + $"{tenantId}", AccessToken);
+        var response = await _client.SendAsync(HttpMethod.Get, _baseUrl + $"{tenantId}", _accessToken, TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -61,7 +61,7 @@ public sealed class TenantsControllerTests : IAsyncLifetime
     public async Task GetById_WhenUserDoesNotExist_Should_ReturnNotFound()
     {
         // Act
-        var response = await _client.SendAsync(HttpMethod.Get, BaseUrl + $"{Guid.CreateVersion7()}", AccessToken);
+        var response = await _client.SendAsync(HttpMethod.Get, _baseUrl + $"{Guid.CreateVersion7()}", _accessToken, TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -75,7 +75,7 @@ public sealed class TenantsControllerTests : IAsyncLifetime
         string slug = "test-tenant2";
 
         // Act
-        var response = await _client.SendAsync(HttpMethod.Post, BaseUrl, AccessToken, CreateValidTenantRequest(name, slug));
+        var response = await _client.SendAsync(HttpMethod.Post, _baseUrl, _accessToken, CreateValidTenantRequest(name, slug), TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Created);
@@ -99,7 +99,7 @@ public sealed class TenantsControllerTests : IAsyncLifetime
         var request = CreateValidTenantRequest(name, slug);
 
         // Act
-        var response = await _client.SendAsync(HttpMethod.Post, BaseUrl, AccessToken, request);
+        var response = await _client.SendAsync(HttpMethod.Post, _baseUrl, _accessToken, request, TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Conflict);
@@ -119,7 +119,7 @@ public sealed class TenantsControllerTests : IAsyncLifetime
         var updateRequest = new UpdateTenantRequest("Test Tenant4 Updated");
 
         // Act
-        var response = await _client.SendAsync(HttpMethod.Put, BaseUrl + $"{createTenantId}", AccessToken, updateRequest);
+        var response = await _client.SendAsync(HttpMethod.Put, _baseUrl + $"{createTenantId}", _accessToken, updateRequest, TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -139,7 +139,7 @@ public sealed class TenantsControllerTests : IAsyncLifetime
         var updateRequest = new UpdateTenantRequest("Test Tenant Updated");
 
         // Act
-        var response = await _client.SendAsync(HttpMethod.Put, BaseUrl + $"{Guid.CreateVersion7()}", AccessToken, updateRequest);
+        var response = await _client.SendAsync(HttpMethod.Put, _baseUrl + $"{Guid.CreateVersion7()}", _accessToken, updateRequest, TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -154,17 +154,17 @@ public sealed class TenantsControllerTests : IAsyncLifetime
         var createTenantId = _factory.InsertTenant(name, slug);
 
         // deactivate first
-        var deactivateResponse = await _client.SendAsync(HttpMethod.Delete, BaseUrl + $"deactivate/{createTenantId}", AccessToken);
+        var deactivateResponse = await _client.SendAsync(HttpMethod.Delete, _baseUrl + $"deactivate/{createTenantId}", _accessToken, TestContext.Current.CancellationToken);
 
         deactivateResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         // Act
-        var activateResponse = await _client.SendAsync(HttpMethod.Post, BaseUrl + $"activate/{createTenantId}", AccessToken);
+        var activateResponse = await _client.SendAsync(HttpMethod.Post, _baseUrl + $"activate/{createTenantId}", _accessToken, TestContext.Current.CancellationToken);
 
         // Assert
         activateResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-        var updatedResponse = await _client.SendAsync(HttpMethod.Get, BaseUrl + $"{createTenantId}", AccessToken);
+        var updatedResponse = await _client.SendAsync(HttpMethod.Get, _baseUrl + $"{createTenantId}", _accessToken, TestContext.Current.CancellationToken);
 
         var updatedTenant = await updatedResponse.Content
             .ReadFromJsonAsync<TenantDto>(TestContext.Current.CancellationToken);
@@ -177,7 +177,7 @@ public sealed class TenantsControllerTests : IAsyncLifetime
     public async Task Activate_WhenTenantDoesNotExist_Should_ReturnNotFound()
     {
         // Act
-        var response = await _client.SendAsync(HttpMethod.Post, BaseUrl + $"activate/{Guid.CreateVersion7()}", AccessToken);
+        var response = await _client.SendAsync(HttpMethod.Post, _baseUrl + $"activate/{Guid.CreateVersion7()}", _accessToken, TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -192,11 +192,11 @@ public sealed class TenantsControllerTests : IAsyncLifetime
         var createTenantId = _factory.InsertTenant(name, slug);
 
         // Act
-        var deactivateResponse = await _client.SendAsync(HttpMethod.Delete, BaseUrl + $"deactivate/{createTenantId}", AccessToken);
+        var deactivateResponse = await _client.SendAsync(HttpMethod.Delete, _baseUrl + $"deactivate/{createTenantId}", _accessToken, TestContext.Current.CancellationToken);
         deactivateResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         // Assert
-        var updatedResponse = await _client.SendAsync(HttpMethod.Get, BaseUrl + $"{createTenantId}", AccessToken);
+        var updatedResponse = await _client.SendAsync(HttpMethod.Get, _baseUrl + $"{createTenantId}", _accessToken, TestContext.Current.CancellationToken);
 
         var updatedTenant = await updatedResponse.Content
             .ReadFromJsonAsync<TenantDto>(TestContext.Current.CancellationToken);
@@ -209,21 +209,22 @@ public sealed class TenantsControllerTests : IAsyncLifetime
     public async Task Deactivate_WhenTenantDoesNotExist_Should_ReturnNotFound()
     {
         // Act
-        var response = await _client.SendAsync(HttpMethod.Delete, BaseUrl + $"deactivate/{Guid.CreateVersion7()}", AccessToken);
+        var response = await _client.SendAsync(HttpMethod.Delete, _baseUrl + $"deactivate/{Guid.CreateVersion7()}", _accessToken, TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
-    public static IEnumerable<object[]> AuthorizedEndpoints =>
-    [
-        [HttpMethod.Get,    "/api/platform/tenants"],
-        [HttpMethod.Get,    "/api/platform/tenants/{tenantId}"],
-        [HttpMethod.Post,   "/api/platform/tenants"],
-        [HttpMethod.Put,    "/api/platform/tenants/{tenantId}"],
-        [HttpMethod.Post,   "/api/platform/tenants/activate/{tenantId}"],
-        [HttpMethod.Delete, "/api/platform/tenants/deactivate/{tenantId}"],
-    ];
+    public static TheoryData<HttpMethod, string> AuthorizedEndpoints =>
+        new()
+        {
+            { HttpMethod.Get, "/api/platform/tenants" },
+            { HttpMethod.Get, "/api/platform/tenants/{tenantId}" },
+            { HttpMethod.Post, "/api/platform/tenants" },
+            { HttpMethod.Put, "/api/platform/tenants/{tenantId}" },
+            { HttpMethod.Post, "/api/platform/tenants/activate/{tenantId}" },
+            { HttpMethod.Delete, "/api/platform/tenants/deactivate/{tenantId}" },
+        };
 
     [Theory]
     [MemberData(nameof(AuthorizedEndpoints))]
@@ -233,7 +234,7 @@ public sealed class TenantsControllerTests : IAsyncLifetime
     {
         url = url.Replace("{tenantId}", Guid.CreateVersion7().ToString());
 
-        var response = await _client.SendAsync(method, url, "");
+        var response = await _client.SendAsync(method, url, "", TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
