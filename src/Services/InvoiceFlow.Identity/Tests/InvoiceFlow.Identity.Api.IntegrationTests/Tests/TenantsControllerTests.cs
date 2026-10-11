@@ -215,16 +215,15 @@ public sealed class TenantsControllerTests : IAsyncLifetime
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
-    public static TheoryData<HttpMethod, string> AuthorizedEndpoints =>
-        new()
-        {
-            { HttpMethod.Get, "/api/platform/tenants" },
-            { HttpMethod.Get, "/api/platform/tenants/{tenantId}" },
-            { HttpMethod.Post, "/api/platform/tenants" },
-            { HttpMethod.Put, "/api/platform/tenants/{tenantId}" },
-            { HttpMethod.Post, "/api/platform/tenants/activate/{tenantId}" },
-            { HttpMethod.Delete, "/api/platform/tenants/deactivate/{tenantId}" },
-        };
+    public static IEnumerable<object[]> AuthorizedEndpoints =>
+    [
+        [ HttpMethod.Get, "/api/platform/tenants" ],
+        [ HttpMethod.Get, "/api/platform/tenants/{tenantId}" ],
+        [ HttpMethod.Post, "/api/platform/tenants" ],
+        [ HttpMethod.Put, "/api/platform/tenants/{tenantId}" ],
+        [ HttpMethod.Post, "/api/platform/tenants/activate/{tenantId}" ],
+        [ HttpMethod.Delete, "/api/platform/tenants/deactivate/{tenantId}" ],
+    ];
 
     [Theory]
     [MemberData(nameof(AuthorizedEndpoints))]

@@ -42,16 +42,15 @@ public sealed class CustomersApiTests : IAsyncLifetime
         return ValueTask.CompletedTask;
     }
 
-    public static TheoryData<HttpMethod, string> ProtectedEndpoints =>
-        new()
-        {
-            { HttpMethod.Get, "/api/{tenantId}/customers" },
-            { HttpMethod.Get, "/api/{tenantId}/customers/{customerId}" },
-            { HttpMethod.Post, "/api/{tenantId}/customers" },
-            { HttpMethod.Patch, "/api/{tenantId}/customers/{customerId}" },
-            { HttpMethod.Post, "/api/{tenantId}/customers/activate/{customerId}" },
-            { HttpMethod.Delete, "/api/{tenantId}/customers/deactivate/{customerId}" }
-        };
+    public static IEnumerable<object[]> ProtectedEndpoints =>
+    [
+        [ HttpMethod.Get,    "/api/{tenantId}/customers" ],
+        [ HttpMethod.Get,    "/api/{tenantId}/customers/{customerId}" ],
+        [ HttpMethod.Post,   "/api/{tenantId}/customers" ],
+        [ HttpMethod.Patch,  "/api/{tenantId}/customers/{customerId}" ],
+        [ HttpMethod.Post,   "/api/{tenantId}/customers/activate/{customerId}" ],
+        [ HttpMethod.Delete, "/api/{tenantId}/customers/deactivate/{customerId}" ]
+    ];
 
     [Theory]
     [MemberData(nameof(ProtectedEndpoints))]
