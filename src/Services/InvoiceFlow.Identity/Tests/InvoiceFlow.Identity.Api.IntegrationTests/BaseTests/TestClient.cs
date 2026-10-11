@@ -1,6 +1,5 @@
 ﻿using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using Xunit;
 
 namespace InvoiceFlow.Identity.Api.IntegrationTests.BaseTests;
 
@@ -15,7 +14,8 @@ internal sealed class TestClient
     public async Task<HttpResponseMessage> SendAsync(
         HttpMethod method,
         string url,
-        string? token = null)
+        string? token,
+        CancellationToken cancellationToken)
     {
         using var request = new HttpRequestMessage(method, url);
 
@@ -27,14 +27,15 @@ internal sealed class TestClient
 
         return await _client.SendAsync(
             request,
-            TestContext.Current.CancellationToken);
+            cancellationToken);
     }
 
     public async Task<HttpResponseMessage> SendAsync<T>(
         HttpMethod method,
         string url,
-        T? content = default,
-        string? token = null)
+        string? token,
+        T? content,
+        CancellationToken cancellationToken)
     {
         using var request = new HttpRequestMessage(method, url);
 
@@ -51,6 +52,6 @@ internal sealed class TestClient
 
         return await _client.SendAsync(
             request,
-            TestContext.Current.CancellationToken);
+            cancellationToken);
     }
 }

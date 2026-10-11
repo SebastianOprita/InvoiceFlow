@@ -10,7 +10,7 @@ public record LoginRequest(string Email, string Password);
 
 [ApiController]
 [TenantScoped]
-[Route("api/{tenantId:guid}/[controller]")]
+[Route("api/{tenantId:guid}/auth")]
 public class AuthController(IMediator mediator) : ApiController
 {
     [HttpPost("login")]

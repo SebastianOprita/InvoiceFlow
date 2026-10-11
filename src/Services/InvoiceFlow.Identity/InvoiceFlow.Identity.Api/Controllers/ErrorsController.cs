@@ -6,7 +6,7 @@ using InvoiceFlow.Identity.Domain;
 using Microsoft.AspNetCore.Mvc;
 using System.Reflection;
 
-namespace InvoiceFlow.Identity.Api.Controllers;
+namespace InvoiceFlow.Identity.Api;
 
 [ApiController]
 [Route("api/errors")]

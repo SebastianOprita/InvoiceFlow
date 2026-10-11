@@ -22,7 +22,9 @@ public sealed class IdentityApiInfrastructureTests
     {
         var response = await _client.SendAsync(
             HttpMethod.Get,
-            "/api/errors");
+            "/api/errors",
+            null,
+            TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
@@ -32,7 +34,9 @@ public sealed class IdentityApiInfrastructureTests
     {
         var response = await _client.SendAsync(
             HttpMethod.Get,
-            "/health/live");
+            "/health/live",
+            null,
+            TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -47,7 +51,9 @@ public sealed class IdentityApiInfrastructureTests
     {
         var response = await _client.SendAsync(
             HttpMethod.Get,
-            "/health/ready");
+            "/health/ready",
+            null,
+            TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 

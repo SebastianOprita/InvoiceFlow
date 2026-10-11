@@ -8,7 +8,7 @@ public record PermissionResponse(string Name, int Value);
 
 [ApiController]
 [Authorize]
-[Route("api/[controller]")]
+[Route("api/permissions")]
 public class PermissionsController : ControllerBase
 {
     [HttpGet]
