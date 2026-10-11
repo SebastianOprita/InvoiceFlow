@@ -217,4 +217,17 @@ public sealed class IdentityApiFactory
 
         return user.Id;
     }
+
+    internal Guid InsertUser(Guid tenantId, string email, string password = "Password", Guid? userId = null)
+    {
+        using var scope = Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
+        var dateTimeProvider = scope.ServiceProvider.GetRequiredService<ISystemDateTimeProvider>();
+
+        var user = CreateUser(tenantId, email, dateTimeProvider.Now, password, userId);
+        db.Users.Add(user);
+        db.SaveChanges();
+
+        return user.Id;
+    }
 }
