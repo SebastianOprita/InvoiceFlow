@@ -1,18 +1,23 @@
 using InvoiceFlow.BuildingBlocks.Api;
+using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.BuildingBlocks.Authorization.ExtensionMethods;
 using InvoiceFlow.Customers.Application;
 using InvoiceFlow.Customers.Infrastructure;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Options;
 
 try
 {
     var builder = WebApplication.CreateBuilder(args);
 
-    if (builder.Configuration["JwtSettings:Secret"] is null)
-    {
-        throw new InvalidOperationException("JwtSettings:Secret is not configured.");
-    }
+    builder.Services
+        .AddOptions<JwtSettings>()
+        .Bind(builder.Configuration.GetSection("JwtSettings"))
+        .Validate(
+            settings => !string.IsNullOrWhiteSpace(settings.Secret),
+            "JwtSettings:Secret is not configured.")
+        .ValidateOnStart();
 
     builder.Services.AddControllers();
     builder.Services.AddOpenApi();
@@ -33,6 +38,8 @@ try
         .AddDbContextCheck<CustomersDbContext>(name:"customers-database", tags: ["ready"]);
 
     var app = builder.Build();
+
+    _ = app.Services.GetRequiredService<IOptions<JwtSettings>>().Value;
 
     if (app.Environment.IsDevelopment())
     {
