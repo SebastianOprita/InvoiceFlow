@@ -204,4 +204,17 @@ public sealed class IdentityApiFactory
         db.SaveChanges();
         return tenant.Id;
     }
+
+    internal Guid InsertPlatformUser(string email, string password = "Password", Guid? userId = null)
+    {
+        using var scope = Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
+        var dateTimeProvider = scope.ServiceProvider.GetRequiredService<ISystemDateTimeProvider>();
+
+        var user = CreatePlatformUser(email, dateTimeProvider.Now, password, userId);
+        db.PlatformUsers.Add(user);
+        db.SaveChanges();
+
+        return user.Id;
+    }
 }

@@ -19,4 +19,23 @@ public static class Mapper
             request.Name
         );
     }
+
+    public static CreatePlatformUserCommand ToCommand(this CreatePlatformUserRequest request)
+    {
+        return new CreatePlatformUserCommand(
+            request.Email,
+            request.Password,
+            request.FirstName,
+            request.LastName
+        );
+    }
+
+    public static UpdatePlatformUserCommand ToCommand(this UpdatePlatformUserRequest request, Guid userId)
+    {
+        return new UpdatePlatformUserCommand(
+            userId,
+            request.FirstName,
+            request.LastName
+        );
+    }
 }
