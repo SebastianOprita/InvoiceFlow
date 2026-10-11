@@ -71,7 +71,7 @@ public class GetPlatformUserByIdQueryHandlerTests
         result.IsFailure.Should().BeTrue();
 
         result.Error.Should().BeEquivalentTo(new ApplicationError(
-            ApplicationErrorType.Unauthorized,
+            ApplicationErrorType.NotFound,
             ApplicationErrors.UserNotFound.Code,
             ApplicationErrors.UserNotFound.Message));
 
