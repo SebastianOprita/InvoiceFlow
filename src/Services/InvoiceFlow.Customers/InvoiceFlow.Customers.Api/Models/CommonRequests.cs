@@ -1,21 +1,23 @@
-﻿namespace InvoiceFlow.Customers.Api;
+﻿using System.Text.Json.Serialization;
+
+namespace InvoiceFlow.Customers.Api;
 
 public record CustomerContactRequest(
-    string? Email,
-    string? Phone);
+    [property: JsonRequired] string? Email,
+    [property: JsonRequired] string? Phone);
 
 public record CustomerAddressRequest(
-    string AddressLine1,
+    [property: JsonRequired] string AddressLine1,
     string? AddressLine2,
-    string City,
+    [property: JsonRequired] string City,
     string? State,
-    string Country,
-    string PostalCode);
+    [property: JsonRequired] string Country,
+    [property: JsonRequired] string PostalCode);
 
 public record CustomerCreditPolicyRequest(
-    decimal CreditLimit,
-    int PaymentTermDays);
+    [property: JsonRequired] decimal CreditLimit,
+    [property: JsonRequired] int PaymentTermDays);
 
 public record CustomerTaxDetailsRequest(
     string? TaxNumber,
-    string RegistrationNumber);
+    [property: JsonRequired] string RegistrationNumber);

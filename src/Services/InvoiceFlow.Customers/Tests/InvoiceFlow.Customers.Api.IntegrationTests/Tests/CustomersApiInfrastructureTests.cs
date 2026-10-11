@@ -2,6 +2,7 @@
 using InvoiceFlow.Customers.Api.IntegrationTests.BaseTests;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using System.Net;
 using Xunit;
 
@@ -64,9 +65,10 @@ public sealed class CustomersApiInfrastructureTests
     }
 
     [Fact]
-    public async Task Application_Should_FailToStart_WhenJwtSecretIsMissing()
+    public void Application_Should_FailToStart_WhenJwtSecretIsMissing()
     {
-        var factory = new WebApplicationFactory<Program>()
+        // Arrange
+        using var factory = new WebApplicationFactory<Program>()
             .WithWebHostBuilder(builder =>
             {
                 builder.ConfigureAppConfiguration((_, config) =>
@@ -80,19 +82,15 @@ public sealed class CustomersApiInfrastructureTests
                             ["JwtSettings:Audience"] = "InvoiceFlow",
                             ["JwtSettings:Secret"] = null
                         });
-
                 });
             });
 
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-            async () =>
-            {
-                using var client = factory.CreateClient();
+        // Act
+        var exception = Assert.Throws<OptionsValidationException>(
+            () => factory.CreateClient());
 
-                await client.GetAsync("/health/live", TestContext.Current.CancellationToken);
-            });
-
+        // Assert
         exception.Message.Should()
-            .Be("JwtSettings:Secret is not configured.");
+            .Contain("JwtSettings:Secret is not configured.");
     }
 }

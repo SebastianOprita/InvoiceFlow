@@ -1,10 +1,12 @@
-﻿namespace InvoiceFlow.Customers.Api;
+﻿using System.Text.Json.Serialization;
+
+namespace InvoiceFlow.Customers.Api;
 
 public record CreateCustomerRequest(
-    string Name,
-    string CustomerCode,
-    CustomerContactRequest CustomerContact,
-    CustomerTaxDetailsRequest CustomerTaxDetails,
-    CustomerAddressRequest CustomerAddress,
-    string CurrencyCode,
-    CustomerCreditPolicyRequest CustomerCreditPolicy);
+    [property: JsonRequired] string Name,
+    [property: JsonRequired] string CustomerCode,
+    [property: JsonRequired] CustomerContactRequest CustomerContact,
+    [property: JsonRequired] CustomerTaxDetailsRequest CustomerTaxDetails,
+    [property: JsonRequired] CustomerAddressRequest CustomerAddress,
+    [property: JsonRequired] string CurrencyCode,
+    [property: JsonRequired] CustomerCreditPolicyRequest CustomerCreditPolicy);
