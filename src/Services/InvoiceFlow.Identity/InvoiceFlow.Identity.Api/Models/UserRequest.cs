@@ -1,5 +1,12 @@
-﻿namespace InvoiceFlow.Identity.Api;
+﻿using System.Text.Json.Serialization;
 
-public record LoginRequest(string Email, string Password);
-public record RefreshTokenRequest(string RefreshToken);
-public record ChangePasswordRequest(string CurrentPassword, string NewPassword);
+namespace InvoiceFlow.Identity.Api;
+
+public record LoginRequest(
+    [property: JsonRequired] string Email,
+    [property: JsonRequired] string Password);
+public record RefreshTokenRequest(
+    [property: JsonRequired] string RefreshToken);
+public record ChangePasswordRequest(
+    [property: JsonRequired] string CurrentPassword,
+    [property: JsonRequired] string NewPassword);

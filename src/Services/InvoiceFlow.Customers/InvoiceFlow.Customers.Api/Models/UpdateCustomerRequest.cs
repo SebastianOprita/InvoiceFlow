@@ -1,7 +1,9 @@
-﻿namespace InvoiceFlow.Customers.Api;
+﻿using System.Text.Json.Serialization;
+
+namespace InvoiceFlow.Customers.Api;
 
 public record UpdateCustomerRequest(
-    string Name,
-    CustomerContactRequest CustomerContact,
-    CustomerAddressRequest CustomerAddress,
-    CustomerCreditPolicyRequest CustomerCreditPolicy);
+    [property: JsonRequired] string Name,
+    [property: JsonRequired] CustomerContactRequest CustomerContact,
+    [property: JsonRequired] CustomerAddressRequest CustomerAddress,
+    [property: JsonRequired] CustomerCreditPolicyRequest CustomerCreditPolicy);

@@ -38,7 +38,7 @@ public class PlatformAuthController(IMediator mediator) : ApiController
     public async Task<IActionResult> Logout([FromBody] RefreshTokenRequest request, CancellationToken ct)
     {
         var userIdClaim = User.FindFirst("user_id")?.Value;
-        if (!Guid.TryParse(userIdClaim, out var currentUserId))
+        if (!Guid.TryParse(userIdClaim, out var _))
             return Unauthorized();
 
         var result = await mediator.Send(new LogoutPlatformUserCommand(request.RefreshToken), ct);
