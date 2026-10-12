@@ -2,13 +2,11 @@
 using InvoiceFlow.BuildingBlocks.Authorization.Policies;
 using InvoiceFlow.Identity.Application;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InvoiceFlow.Identity.Api;
 
 [ApiController]
-[Authorize]
 [PlatformUserLogin]
 [Route("api/platform/users")]
 public class PlatformUsersController(IMediator mediator) : ApiController

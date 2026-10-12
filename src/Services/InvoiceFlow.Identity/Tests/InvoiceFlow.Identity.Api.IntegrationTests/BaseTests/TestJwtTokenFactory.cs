@@ -71,4 +71,30 @@ public static class TestJwtTokenFactory
             signingCredentials: credentials);
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
+
+    public static string CreateImpersonationToken(Guid tenantId, Guid userId, SystemPermission permissions, JwtSettings jwtSettings)
+    {
+        var dateTime = DateTime.UtcNow;
+        var claims = new List<Claim>
+        {
+            new("principal_type", "tenant_user"),
+            new("auth_mode", "impersonation"),
+            new("user_id", userId.ToString()),
+            new("email_address", "integration-test-user@email.com"),
+            new("tenant_id", tenantId.ToString()),
+            new("permissions", ((long)permissions).ToString()),
+
+            // The actor performing the impersonation
+            new("actor_principal_type", "platform_user"),
+            new("actor_user_id", "platformUserId"),
+            new("actor_email_address", "platformEmail"),
+
+            // Optional audit metadata
+            new("impersonation_session_id", Guid.CreateVersion7().ToString()),
+            new("impersonation_started_at", dateTime.ToString()),
+            new("impersonation_reason", string.Empty)
+        };
+
+        return GenerateToken(claims, dateTime, jwtSettings);
+    }
 }

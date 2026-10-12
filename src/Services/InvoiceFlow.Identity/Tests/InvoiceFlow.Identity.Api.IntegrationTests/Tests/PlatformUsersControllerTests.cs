@@ -45,11 +45,10 @@ public sealed class PlatformUsersControllerTests : IAsyncLifetime
     public async Task GetById_WhenUserExists_Should_ReturnOk()
     {
         // Arrange
-        string email = "test1@example.com";
-        var createUserId = _factory.InsertPlatformUser(email);
+        var platformUser = _factory.PlatformUser;
 
         // Act
-        var response = await _client.SendAsync(HttpMethod.Get, _baseUrl + $"{createUserId}", _accessToken, TestContext.Current.CancellationToken);
+        var response = await _client.SendAsync(HttpMethod.Get, _baseUrl + $"{platformUser.Id}", _accessToken, TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -57,8 +56,8 @@ public sealed class PlatformUsersControllerTests : IAsyncLifetime
         var user = await response.Content.ReadFromJsonAsync<PlatformUserDto>(TestContext.Current.CancellationToken);
 
         user.Should().NotBeNull();
-        user!.Id.Should().Be(createUserId);
-        user.Email.Should().Be(email);
+        user!.Id.Should().Be(platformUser.Id);
+        user.Email.Should().Be(platformUser.Email.Value);
     }
 
     [Fact]
@@ -93,32 +92,30 @@ public sealed class PlatformUsersControllerTests : IAsyncLifetime
     public async Task Create_WhenUserEmailAlreadyExists_Should_ReturnConflict()
     {
         // Arrange
-        string email = "test3@example.com";
-        var createUserId = _factory.InsertPlatformUser(email);
+        var platformUser = _factory.PlatformUser;
 
-        var request = CreateValidUserRequest(email);
+        var request = CreateValidUserRequest(platformUser.Email.Value);
 
         // Act
-        var response = await _client.SendAsync(HttpMethod.Post, _baseUrl, _accessToken, CreateValidUserRequest(email), TestContext.Current.CancellationToken);
+        var response = await _client.SendAsync(HttpMethod.Post, _baseUrl, _accessToken, request, TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Conflict);
         var body = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
-        body.Should().Contain("userEmail.alreadyExists");
+        body.Should().Contain(ApplicationErrors.UserEmailAlreadyExists.Code);
     }
 
     [Fact]
     public async Task Update_WhenUserExists_Should_ReturnOk()
     {
         // Arrange
-        string email = "test4@example.com";
-        var createUserId = _factory.InsertPlatformUser(email);
+        var platformUser = _factory.PlatformUser;
         var updateRequest = new UpdatePlatformUserRequest
             ("FirstName", "LastName");
 
         // Act
-        var response = await _client.SendAsync(HttpMethod.Put, _baseUrl + $"{createUserId}", _accessToken, updateRequest, TestContext.Current.CancellationToken);
+        var response = await _client.SendAsync(HttpMethod.Put, _baseUrl + $"{platformUser.Id}", _accessToken, updateRequest, TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -127,7 +124,7 @@ public sealed class PlatformUsersControllerTests : IAsyncLifetime
             .ReadFromJsonAsync<PlatformUserDto>(TestContext.Current.CancellationToken);
 
         updatedUser.Should().NotBeNull();
-        updatedUser!.Id.Should().Be(createUserId);
+        updatedUser!.Id.Should().Be(platformUser.Id);
         updatedUser.FirstName.Should().Be("FirstName");
         updatedUser.LastName.Should().Be("LastName");
     }
@@ -151,12 +148,7 @@ public sealed class PlatformUsersControllerTests : IAsyncLifetime
     {
         // Arrange
         string email = "test5@example.com";
-        var createUserId = _factory.InsertPlatformUser(email);
-
-        // deactivate first
-        var deactivateResponse = await _client.SendAsync(HttpMethod.Delete, _baseUrl + $"deactivate/{createUserId}", _accessToken, TestContext.Current.CancellationToken);
-
-        deactivateResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
+        var createUserId = await _factory.InsertPlatformUserAsync(email, TestConstants.PasswordHash, null, false);
 
         // Act
         var activateResponse = await _client.SendAsync(HttpMethod.Post, _baseUrl + $"activate/{createUserId}", _accessToken, TestContext.Current.CancellationToken);
@@ -187,8 +179,8 @@ public sealed class PlatformUsersControllerTests : IAsyncLifetime
     public async Task Deactivate_WhenUserIsInactive_Should_ReturnOk()
     {
         // Arrange
-        string email = "test6@example.com";
-        var createUserId = _factory.InsertPlatformUser(email);
+        string email = "test5@example.com";
+        var createUserId = await _factory.InsertPlatformUserAsync(email, TestConstants.PasswordHash, null, false);
 
         // Act
         var deactivateResponse = await _client.SendAsync(HttpMethod.Delete, _baseUrl + $"deactivate/{createUserId}", _accessToken, TestContext.Current.CancellationToken);

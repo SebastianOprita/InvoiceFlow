@@ -1,7 +1,7 @@
 ﻿using InvoiceFlow.BuildingBlocks.Application;
+using InvoiceFlow.BuildingBlocks.Authorization.Policies;
 using InvoiceFlow.Identity.Application;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InvoiceFlow.Identity.Api.Controllers;
@@ -33,7 +33,7 @@ public class PlatformAuthController(IMediator mediator) : ApiController
         return result.ToActionResult();
     }
 
-    [Authorize]
+    [PlatformUserLogin]
     [HttpPost("logout")]
     public async Task<IActionResult> Logout([FromBody] RefreshTokenRequest request, CancellationToken ct)
     {
@@ -46,7 +46,7 @@ public class PlatformAuthController(IMediator mediator) : ApiController
         return result.ToActionResult();
     }
 
-    [Authorize]
+    [PlatformUserLogin]
     [HttpPost("change-password")]
     public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request, CancellationToken ct)
     {
@@ -62,7 +62,7 @@ public class PlatformAuthController(IMediator mediator) : ApiController
         return result.ToActionResult();
     }
 
-    [Authorize]
+    [PlatformUserLogin]
     [HttpPost("impersonate-user")]
     public async Task<IActionResult> ImpersonateUser([FromBody] ImpersonateUserRequest request, CancellationToken ct)
     {
