@@ -1,7 +1,6 @@
 ﻿using InvoiceFlow.BuildingBlocks.Authorization.Policies;
 using InvoiceFlow.Customers.Application;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.BuildingBlocks.Application;
@@ -9,7 +8,6 @@ using InvoiceFlow.BuildingBlocks.Application;
 namespace InvoiceFlow.Customers.Api;
 
 [ApiController]
-[Authorize]
 [TenantScoped]
 [TenantUserLogin]
 [Route("api/{tenantId:guid}/customers")]

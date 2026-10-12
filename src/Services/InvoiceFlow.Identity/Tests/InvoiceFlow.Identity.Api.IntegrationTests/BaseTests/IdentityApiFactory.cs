@@ -99,7 +99,6 @@ public sealed class IdentityApiFactory
         await InitializeTestDataAsync();
     }
 
-
     public new async ValueTask DisposeAsync()
     {
         await _dbFixture.DisposeAsync();
@@ -107,7 +106,6 @@ public sealed class IdentityApiFactory
     }
 
     public Tenant Tenant { get; private set; } = null!;
-    public Tenant InactiveTenant { get; private set; } = null!;
     public User User { get; private set; } = null!;
     public PlatformUser PlatformUser { get; private set; } = null!;
 
@@ -125,22 +123,13 @@ public sealed class IdentityApiFactory
             dateTimeProvider.Now
         );
         db.Tenants.Add(tenant);
-        var inactiveTenant = Tenant.Create
-        (
-            Guid.CreateVersion7(),
-            TenantName.Create("InactiveTestTenant"),
-            TenantSlug.Create("inactive-test-tenant"),
-            dateTimeProvider.Now
-        );
-        db.Tenants.Add(inactiveTenant);
-        var user = CreateUser(tenant.Id, "user@email.com", dateTimeProvider.Now, TestConstants.Password);
+        var user = CreateUser(tenant.Id, "user@email.com", dateTimeProvider.Now, TestConstants.PasswordHash);
         db.Users.Add(user);
-        var platformUser = CreatePlatformUser("platformuser@email.com", dateTimeProvider.Now, TestConstants.Password);
+        var platformUser = CreatePlatformUser("platformuser@email.com", dateTimeProvider.Now, TestConstants.PasswordHash);
         db.PlatformUsers.Add(platformUser);
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         Tenant = tenant;
-        InactiveTenant = inactiveTenant;
         User = user;
         PlatformUser = platformUser;
     }
@@ -174,22 +163,26 @@ public sealed class IdentityApiFactory
         );
     }
 
-    internal async Task<Guid> InsertUserAsync(Guid tenantId, string email, string password = "Password", Guid? userId = null)
+    internal async Task<Guid> InsertUserAsync(Guid tenantId, string email, string password = "Password", Guid? userId = null, bool? isActive = true)
     {
         using var scope = Services.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
         var dateTimeProvider = scope.ServiceProvider.GetRequiredService<ISystemDateTimeProvider>();
 
         var user = CreateUser(tenantId, email, dateTimeProvider.Now, password, userId);
+        if (isActive.HasValue && !isActive.Value)
+        {
+            user.Deactivate(dateTimeProvider.Now);
+        }
         db.Users.Add(user);
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         return user.Id;
     }
 
-    internal Guid InsertTenant(string name, string slug)
+    internal async Task<Guid> InsertTenantAsync(string name, string slug, bool? isActive = true)
     {
-        using var scope = Services.CreateScope();
+        using var scope = Services.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
         var dateTimeProvider = scope.ServiceProvider.GetRequiredService<ISystemDateTimeProvider>();
 
@@ -200,33 +193,28 @@ public sealed class IdentityApiFactory
             TenantSlug.Create(slug),
             dateTimeProvider.Now
         );
+        if (isActive.HasValue && !isActive.Value)
+        {
+            tenant.Deactivate(dateTimeProvider.Now);
+        }
         db.Tenants.Add(tenant);
-        db.SaveChanges();
+        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
         return tenant.Id;
     }
 
-    internal Guid InsertPlatformUser(string email, string password = "Password", Guid? userId = null)
+    internal async Task<Guid> InsertPlatformUserAsync(string email, string password = "Password", Guid? userId = null, bool? isActive = true)
     {
-        using var scope = Services.CreateScope();
+        using var scope = Services.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
         var dateTimeProvider = scope.ServiceProvider.GetRequiredService<ISystemDateTimeProvider>();
 
         var user = CreatePlatformUser(email, dateTimeProvider.Now, password, userId);
+        if (isActive.HasValue && !isActive.Value)
+        {
+            user.Deactivate(dateTimeProvider.Now);
+        }
         db.PlatformUsers.Add(user);
-        db.SaveChanges();
-
-        return user.Id;
-    }
-
-    internal Guid InsertUser(Guid tenantId, string email, string password = "Password", Guid? userId = null)
-    {
-        using var scope = Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
-        var dateTimeProvider = scope.ServiceProvider.GetRequiredService<ISystemDateTimeProvider>();
-
-        var user = CreateUser(tenantId, email, dateTimeProvider.Now, password, userId);
-        db.Users.Add(user);
-        db.SaveChanges();
+        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         return user.Id;
     }

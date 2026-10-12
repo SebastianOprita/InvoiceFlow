@@ -36,11 +36,10 @@ public sealed class PlatformAuthControllerTests : IAsyncLifetime
     public async Task Login_WithValidCredentials_ShouldReturnOkAndTokens()
     {
         // Arrange
-        string email = "test1@example.com";
-        var createUserId = _factory.InsertPlatformUser(email, TestConstants.PasswordHash);
+        var platformUser = _factory.PlatformUser;
 
         // Act
-        var request = new LoginRequest(email, TestConstants.Password);
+        var request = new LoginRequest(platformUser.Email.Value, TestConstants.Password);
         var response = await _client.SendAsync(HttpMethod.Post, _baseUrl + "login", null, request, TestContext.Current.CancellationToken);
 
         // Assert
@@ -55,11 +54,10 @@ public sealed class PlatformAuthControllerTests : IAsyncLifetime
     public async Task Login_WithInvalidCredentials_ShouldReturnUnauthorized()
     {
         // Arrange
-        string email = "test2@example.com";
-        var createUserId = _factory.InsertPlatformUser(email, TestConstants.PasswordHash);
+        var platformUser = _factory.PlatformUser;
 
         // Act
-        var request = new LoginRequest(email, "WrongPassword");
+        var request = new LoginRequest(platformUser.Email.Value, "WrongPassword");
         var response = await _client.SendAsync(HttpMethod.Post, _baseUrl + "login", null, request, TestContext.Current.CancellationToken);
 
         // Assert
@@ -70,9 +68,8 @@ public sealed class PlatformAuthControllerTests : IAsyncLifetime
     public async Task Refresh_WithValidRefreshToken_ShouldReturnNewTokens()
     {
         // Arrange
-        string email = "test3@example.com";
-        var createUserId = _factory.InsertPlatformUser(email, TestConstants.PasswordHash);
-        var loginRequest = new LoginRequest(email, TestConstants.Password);
+        var platformUser = _factory.PlatformUser;
+        var loginRequest = new LoginRequest(platformUser.Email.Value, TestConstants.Password);
         var loginResponse = await _client.SendAsync(HttpMethod.Post, _baseUrl + "login", null, loginRequest, TestContext.Current.CancellationToken);
         var loginResult = await loginResponse.Content.ReadFromJsonAsync<LoginPlatformUserCommandResponse>(TestContext.Current.CancellationToken);
         var refreshRequest = new RefreshTokenRequest(loginResult!.RefreshToken);
@@ -100,9 +97,8 @@ public sealed class PlatformAuthControllerTests : IAsyncLifetime
     public async Task Logout_WithValidRefreshToken_ShouldReturnNoContent()
     {
         // Arrange
-        string email = "test4@example.com";
-        var createUserId = _factory.InsertPlatformUser(email, TestConstants.PasswordHash);
-        var loginRequest = new LoginRequest(email, TestConstants.Password);
+        var platformUser = _factory.PlatformUser;
+        var loginRequest = new LoginRequest(platformUser.Email.Value, TestConstants.Password);
 
         // Act
         var loginResponse = await _client.SendAsync(HttpMethod.Post, _baseUrl + "login", null, loginRequest, TestContext.Current.CancellationToken);
@@ -118,9 +114,8 @@ public sealed class PlatformAuthControllerTests : IAsyncLifetime
     public async Task ChangePassword_WithValidData_ShouldReturnNoContent()
     {
         // Arrange
-        string email = "test5@example.com";
-        var createUserId = _factory.InsertPlatformUser(email, TestConstants.PasswordHash);
-        var loginRequest = new LoginRequest(email, TestConstants.Password);
+        var platformUser = _factory.PlatformUser;
+        var loginRequest = new LoginRequest(platformUser.Email.Value, TestConstants.Password);
         var loginResponse = await _client.SendAsync(HttpMethod.Post, _baseUrl + "login", null, loginRequest, TestContext.Current.CancellationToken);
         var loginResult = await loginResponse.Content.ReadFromJsonAsync<LoginPlatformUserCommandResponse>(TestContext.Current.CancellationToken);
         var changeRequest = new ChangePasswordRequest(TestConstants.Password, "NewPassword123!");
@@ -136,17 +131,15 @@ public sealed class PlatformAuthControllerTests : IAsyncLifetime
     public async Task Impersonate_ShouldReturnOkAndTokens()
     {
         // Arrange
-        string email = "test6@example.com";
-        var createUserId = _factory.InsertPlatformUser(email, TestConstants.PasswordHash);
-        string targetUserEmail = "target6@example.com";
-        var createTargetUserId = _factory.InsertUser(_factory.Tenant.Id, targetUserEmail, TestConstants.PasswordHash);
+        var platformUser = _factory.PlatformUser;
+        var user = _factory.User;
 
         // Act
-        var loginRequest = new LoginRequest(email, TestConstants.Password);
+        var loginRequest = new LoginRequest(platformUser.Email.Value, TestConstants.Password);
         var loginResponse = await _client.SendAsync(HttpMethod.Post, _baseUrl + "login", null, loginRequest, TestContext.Current.CancellationToken);
         var loginResult = await loginResponse.Content.ReadFromJsonAsync<LoginPlatformUserCommandResponse>(TestContext.Current.CancellationToken);
 
-        var impersonationRequest = new ImpersonateUserRequest(_factory.Tenant.Id, targetUserEmail, "reason");
+        var impersonationRequest = new ImpersonateUserRequest(_factory.Tenant.Id, user.Email.Value, "reason");
         var impersonationResponse = await _client.SendAsync(HttpMethod.Post, _baseUrl + "impersonate-user", loginResult!.AccessToken, impersonationRequest, TestContext.Current.CancellationToken);
 
         // Assert

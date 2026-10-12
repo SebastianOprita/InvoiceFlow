@@ -92,11 +92,9 @@ public sealed class TenantsControllerTests : IAsyncLifetime
     public async Task Create_WhenTenantSlugAlreadyExists_Should_ReturnConflict()
     {
         // Arrange
-        string name = "Test3 Tenant3";
-        string slug = "test3-tenant3";
-        var createTenantId = _factory.InsertTenant(name, slug);
+        var tenant = _factory.Tenant;
 
-        var request = CreateValidTenantRequest(name, slug);
+        var request = CreateValidTenantRequest(tenant.Name.Value, tenant.Slug.Value);
 
         // Act
         var response = await _client.SendAsync(HttpMethod.Post, _baseUrl, _accessToken, request, TestContext.Current.CancellationToken);
@@ -112,14 +110,12 @@ public sealed class TenantsControllerTests : IAsyncLifetime
     public async Task Update_WhenTenantExists_Should_ReturnOk()
     {
         // Arrange
-        string name = "Test4 Tenant4";
-        string slug = "test4-tenant4";
-        var createTenantId = _factory.InsertTenant(name, slug);
+        var tenant = _factory.Tenant;
 
         var updateRequest = new UpdateTenantRequest("Test Tenant4 Updated");
 
         // Act
-        var response = await _client.SendAsync(HttpMethod.Put, _baseUrl + $"{createTenantId}", _accessToken, updateRequest, TestContext.Current.CancellationToken);
+        var response = await _client.SendAsync(HttpMethod.Put, _baseUrl + $"{tenant.Id}", _accessToken, updateRequest, TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -128,7 +124,7 @@ public sealed class TenantsControllerTests : IAsyncLifetime
             .ReadFromJsonAsync<TenantDto>(TestContext.Current.CancellationToken);
 
         updatedTenant.Should().NotBeNull();
-        updatedTenant!.Id.Should().Be(createTenantId);
+        updatedTenant!.Id.Should().Be(tenant.Id);
         updatedTenant.Name.Should().Be("Test Tenant4 Updated");
     }
 
@@ -149,14 +145,9 @@ public sealed class TenantsControllerTests : IAsyncLifetime
     public async Task Activate_WhenTenantIsInactive_Should_ReturnOk()
     {
         // Arrange
-        string name = "Test Tenant5";
-        string slug = "test-tenant5";
-        var createTenantId = _factory.InsertTenant(name, slug);
-
-        // deactivate first
-        var deactivateResponse = await _client.SendAsync(HttpMethod.Delete, _baseUrl + $"deactivate/{createTenantId}", _accessToken, TestContext.Current.CancellationToken);
-
-        deactivateResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
+        string name = "Test Tenant-inactive";
+        string slug = "test-tenant-inactive";
+        var createTenantId = await _factory.InsertTenantAsync(name, slug, false);
 
         // Act
         var activateResponse = await _client.SendAsync(HttpMethod.Post, _baseUrl + $"activate/{createTenantId}", _accessToken, TestContext.Current.CancellationToken);
@@ -187,9 +178,9 @@ public sealed class TenantsControllerTests : IAsyncLifetime
     public async Task Deactivate_WhenTenantIsInactive_Should_ReturnOk()
     {
         // Arrange
-        string name = "Test Tenant6";
-        string slug = "test-tenant6";
-        var createTenantId = _factory.InsertTenant(name, slug);
+        string name = "Test Tenant-inactive";
+        string slug = "test-tenant-inactive";
+        var createTenantId = await _factory.InsertTenantAsync(name, slug, false);
 
         // Act
         var deactivateResponse = await _client.SendAsync(HttpMethod.Delete, _baseUrl + $"deactivate/{createTenantId}", _accessToken, TestContext.Current.CancellationToken);
