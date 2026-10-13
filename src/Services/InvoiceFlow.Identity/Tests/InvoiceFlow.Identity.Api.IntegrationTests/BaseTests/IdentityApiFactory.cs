@@ -163,6 +163,20 @@ public sealed class IdentityApiFactory
         );
     }
 
+    private static Role CreateRole(Guid tenantId, string name, DateTime dateTime, SystemPermission systemPermission = SystemPermission.None)
+    {
+        var id = Guid.CreateVersion7();
+        return Role.Create
+        (
+            tenantId,
+            id,
+            RoleName.Create(name),
+            dateTime,
+            RoleDescription.Create($"Description for {name}"),
+            RolePermissions.Create(systemPermission)
+        );
+    }
+
     internal async Task<Guid> InsertUserAsync(Guid tenantId, string email, string password = "Password", Guid? userId = null, bool? isActive = true)
     {
         using var scope = Services.CreateAsyncScope();
@@ -217,5 +231,18 @@ public sealed class IdentityApiFactory
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         return user.Id;
+    }
+
+    internal async Task<Guid> InsertRoleAsync(Guid tenantId, string name, SystemPermission systemPermission = SystemPermission.None)
+    {
+        using var scope = Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
+        var dateTimeProvider = scope.ServiceProvider.GetRequiredService<ISystemDateTimeProvider>();
+
+        var role = CreateRole(tenantId, name, dateTimeProvider.Now, systemPermission);
+        db.Roles.Add(role);
+        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        return role.Id;
     }
 }
