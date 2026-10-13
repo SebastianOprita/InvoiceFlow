@@ -3,7 +3,6 @@ using InvoiceFlow.Customers.Application;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using InvoiceFlow.BuildingBlocks.Authorization;
-using InvoiceFlow.BuildingBlocks.Application;
 
 namespace InvoiceFlow.Customers.Api;
 

@@ -1,5 +1,4 @@
 ﻿using InvoiceFlow.BuildingBlocks.Application;
-using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.Identity.Domain;
 
 namespace InvoiceFlow.Identity.Infrastructure;
@@ -29,12 +28,12 @@ public static class IdentityDbSeed
             RoleName.Create("Admin"),
             dateTimeProvider.Now,
             RoleDescription.CreateOptional("Administration role with full permissions."));
-        role.GrantPermission(SystemPermission.CustomerView, dateTimeProvider.Now);
-        role.GrantPermission(SystemPermission.CustomerCreate, dateTimeProvider.Now);
-        role.GrantPermission(SystemPermission.CustomerUpdate, dateTimeProvider.Now);
-        role.GrantPermission(SystemPermission.CustomerDelete, dateTimeProvider.Now);
-        role.GrantPermission(SystemPermission.ManageRoles, dateTimeProvider.Now);
-        role.GrantPermission(SystemPermission.ManageUsers, dateTimeProvider.Now);
+        role.GrantPermission(1L << 3, dateTimeProvider.Now);
+        role.GrantPermission(1L << 4, dateTimeProvider.Now);
+        role.GrantPermission(1L << 5, dateTimeProvider.Now);
+        role.GrantPermission(1L << 6, dateTimeProvider.Now);
+        role.GrantPermission(1L << 1, dateTimeProvider.Now);
+        role.GrantPermission(1L << 0, dateTimeProvider.Now);
 
         user.AssignRole(role.Id, dateTimeProvider.Now);
 

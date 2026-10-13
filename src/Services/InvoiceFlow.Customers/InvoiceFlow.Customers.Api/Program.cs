@@ -1,5 +1,4 @@
 using InvoiceFlow.BuildingBlocks.Api;
-using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.BuildingBlocks.Authorization.ExtensionMethods;
 using InvoiceFlow.Customers.Application;
 using InvoiceFlow.Customers.Infrastructure;
@@ -10,14 +9,6 @@ using Microsoft.Extensions.Options;
 try
 {
     var builder = WebApplication.CreateBuilder(args);
-
-    builder.Services
-        .AddOptions<JwtSettings>()
-        .Bind(builder.Configuration.GetSection("JwtSettings"))
-        .Validate(
-            settings => !string.IsNullOrWhiteSpace(settings.Secret),
-            "JwtSettings:Secret is not configured.")
-        .ValidateOnStart();
 
     builder.Services.AddControllers();
     builder.Services.AddOpenApi();

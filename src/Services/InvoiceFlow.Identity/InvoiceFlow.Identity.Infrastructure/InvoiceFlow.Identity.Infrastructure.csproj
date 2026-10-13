@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+    <PackageReference Include="InvoiceFlow.BuildingBlocks.Authorization" />
   </ItemGroup>
 
   <ItemGroup>

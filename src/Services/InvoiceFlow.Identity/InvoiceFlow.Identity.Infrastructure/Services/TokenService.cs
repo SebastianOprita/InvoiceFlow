@@ -1,5 +1,4 @@
 ﻿using InvoiceFlow.BuildingBlocks.Authorization.Claims;
-using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.Identity.Application;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
@@ -13,10 +12,12 @@ namespace InvoiceFlow.Identity.Infrastructure;
 
 public class TokenService(IOptions<JwtSettings> jwtSettings) : ITokenService
 {
-    public string GenerateRefreshToken()
+    public (string Token, DateTime ExpiresAt) GenerateRefreshToken(DateTime dateTime)
     {
         var bytes = RandomNumberGenerator.GetBytes(32);
-        return WebEncoders.Base64UrlEncode(bytes);
+        var refreshToken =  WebEncoders.Base64UrlEncode(bytes);
+        var expiresAt = dateTime.AddMinutes(jwtSettings.Value.RefreshTokenDays);
+        return (refreshToken, expiresAt);
     }
 
     public string CalculateTokenHash(string token)
@@ -29,7 +30,7 @@ public class TokenService(IOptions<JwtSettings> jwtSettings) : ITokenService
         Guid userId,
         Guid tenantId,
         string email,
-        SystemPermission permissions,
+        long permissions,
         DateTime dateTime)
     {
         var expiresAt = dateTime.AddMinutes(jwtSettings.Value.AccessTokenMinutes);
@@ -41,7 +42,7 @@ public class TokenService(IOptions<JwtSettings> jwtSettings) : ITokenService
             new(InvoiceFlowClaimTypes.UserId, userId.ToString()),
             new(InvoiceFlowClaimTypes.EmailAddress, email),
             new(InvoiceFlowClaimTypes.TenantId, tenantId.ToString()),
-            new(InvoiceFlowClaimTypes.Permissions, ((long)permissions).ToString())
+            new(InvoiceFlowClaimTypes.Permissions, (permissions).ToString())
         };
 
         return (GenerateToken(claims, dateTime, expiresAt), "Bearer", expiresAt);
@@ -71,7 +72,7 @@ public class TokenService(IOptions<JwtSettings> jwtSettings) : ITokenService
         Guid targetUserId,
         Guid targetTenantId,
         string targetEmail,
-        SystemPermission targetPermissions,
+        long targetPermissions,
         Guid sessionId,
         string? reason,
         DateTime dateTime)
@@ -85,7 +86,7 @@ public class TokenService(IOptions<JwtSettings> jwtSettings) : ITokenService
             new(InvoiceFlowClaimTypes.UserId, targetUserId.ToString()),
             new(InvoiceFlowClaimTypes.EmailAddress, targetEmail),
             new(InvoiceFlowClaimTypes.TenantId, targetTenantId.ToString()),
-            new(InvoiceFlowClaimTypes.Permissions, ((long)targetPermissions).ToString()),
+            new(InvoiceFlowClaimTypes.Permissions, (targetPermissions).ToString()),
 
             // The actor performing the impersonation
             new(InvoiceFlowClaimTypes.ActorPrincipalType, PrincipalTypes.PlatformUser),

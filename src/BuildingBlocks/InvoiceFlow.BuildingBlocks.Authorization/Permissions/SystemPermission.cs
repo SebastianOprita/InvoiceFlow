@@ -6,25 +6,25 @@ public enum SystemPermission : long
     None = 0,
 
     // Administration
-    ManageUsers = 1 << 0,
-    ManageRoles = 1 << 1,
+    ManageUsers = 1L << 0,
+    ManageRoles = 1L << 1,
 
     // Reports
-    ReportView = 1 << 2,
+    ReportRead = 1L << 2,
 
     // Customers
-    CustomerView = 1 << 3,
-    CustomerCreate = 1 << 4,
-    CustomerUpdate = 1 << 5,
-    CustomerDelete = 1 << 6,
+    CustomerRead = 1L << 3,
+    CustomerCreate = 1L << 4,
+    CustomerUpdate = 1L << 5,
+    CustomerDelete = 1L << 6,
 
     // Invoices
-    InvoiceView = 1 << 7,
-    InvoiceCreate = 1 << 8,
-    InvoiceUpdate = 1 << 9,
-    InvoiceDelete = 1 << 10,
+    InvoiceRead = 1L << 7,
+    InvoiceCreate = 1L << 8,
+    InvoiceUpdate = 1L << 9,
+    InvoiceDelete = 1L << 10,
 
     // Payments
-    PaymentView = 1 << 11,
-    PaymentCreate = 1 << 12,
+    PaymentRead = 1L << 11,
+    PaymentCreate = 1L << 12,
 }

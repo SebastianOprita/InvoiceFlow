@@ -1,55 +1,58 @@
-﻿using InvoiceFlow.BuildingBlocks.Authorization;
-using InvoiceFlow.BuildingBlocks.Domain;
+﻿using InvoiceFlow.BuildingBlocks.Domain;
 
 namespace InvoiceFlow.Identity.Domain;
 
 public sealed record RolePermissions
 {
-    public static readonly RolePermissions None = new(SystemPermission.None);
+    private const long ValidPermissionsMask = (1L << 13) - 1;
+    public static readonly RolePermissions None = new(0);
 
-    public SystemPermission Value { get; }
+    public long Value { get; }
 
-    private RolePermissions(SystemPermission value)
+    private RolePermissions(long value)
     {
-        if (!value.IsValid())
+        if (!IsValid(value))
             throw new DomainException(DomainErrors.PermissionInvalid);
 
         Value = value;
     }
 
-    public static RolePermissions Create(SystemPermission value) => new(value);
+    public static RolePermissions Create(long value) => new(value);
 
-    public RolePermissions Grant(SystemPermission permission)
+    public RolePermissions Grant(long permission)
     {
         EnsurePermissionForChange(permission);
 
         return new RolePermissions(Value | permission);
     }
 
-    public RolePermissions Revoke(SystemPermission permission)
+    public RolePermissions Revoke(long permission)
     {
         EnsurePermissionForChange(permission);
 
         return new RolePermissions(Value & ~permission);
     }
 
-    public bool Has(SystemPermission permission)
+    public bool Has(long permission)
     {
-        if (!permission.IsValid())
+        if (!IsValid(permission))
             throw new DomainException(DomainErrors.PermissionInvalid);
 
-        return permission != SystemPermission.None &&
+        return permission != None.Value &&
                (Value & permission) == permission;
     }
 
-    private static void EnsurePermissionForChange(SystemPermission permission)
+    private static void EnsurePermissionForChange(long permission)
     {
-        if (permission == SystemPermission.None)
+        if (permission == None.Value)
             throw new DomainException(DomainErrors.PermissionRequired);
 
-        if (!permission.IsValid())
+        if (!IsValid(permission))
             throw new DomainException(DomainErrors.PermissionInvalid);
     }
+
+    public static bool IsValid(long value)
+        => value >= 0 && (value & ~ValidPermissionsMask) == 0;
 
     public override string ToString() => Value.ToString();
 }

@@ -1,13 +1,10 @@
 ﻿using InvoiceFlow.BuildingBlocks.Application;
-using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.Identity.Domain;
 using MediatR;
-using Microsoft.Extensions.Options;
 
 namespace InvoiceFlow.Identity.Application;
 
 public class RefreshPlatformTokenCommandHandler(
-    IOptions<JwtSettings> jwtSettings,
     IUnitOfWork unitOfWork,
     IPlatformRefreshTokensRepository platformRefreshTokensRepository,
     IPlatformUsersRepository platformUsersRepository,
@@ -38,12 +35,12 @@ public class RefreshPlatformTokenCommandHandler(
             platformUser.Email.Value,
             now);
 
-        var rawNewRefreshToken = tokenService.GenerateRefreshToken();
-        var newTokenHash = tokenService.CalculateTokenHash(rawNewRefreshToken);
+        var rawNewRefreshToken = tokenService.GenerateRefreshToken(now);
+        var newTokenHash = tokenService.CalculateTokenHash(rawNewRefreshToken.Token);
 
         var newToken = existingToken.Rotate(
             RefreshTokenHash.Create(newTokenHash),
-            now.AddDays(jwtSettings.Value.RefreshTokenDays),
+            rawNewRefreshToken.ExpiresAt,
             now,
             DeviceInfo.CreateOptional(cmd.DeviceInfo),
             IpAddress.CreateOptional(cmd.IpAddress));
@@ -57,7 +54,7 @@ public class RefreshPlatformTokenCommandHandler(
         return Result<RefreshPlatformTokenResponse>.Success(new RefreshPlatformTokenResponse(
             accessToken.Token,
             accessToken.ExpiresAt,
-            rawNewRefreshToken,
+            rawNewRefreshToken.Token,
             platformUser.Id,
             platformUser.Email.Value));
     }

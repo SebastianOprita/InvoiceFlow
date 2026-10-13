@@ -1,5 +1,4 @@
 using FluentAssertions;
-using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.Identity.Domain;
 using Xunit;
 
@@ -74,7 +73,7 @@ public sealed class RoleMapperTests
             description: withDescription
                 ? RoleDescription.Create("Administrator role")
                 : null,
-            permissions: RolePermissions.Create(SystemPermission.CustomerView),
+            permissions: RolePermissions.Create(1L << 3),
             createdAtUtc: createdAtUtc ?? new DateTime(2024, 1, 1, 10, 0, 0, DateTimeKind.Utc));
     }
 }

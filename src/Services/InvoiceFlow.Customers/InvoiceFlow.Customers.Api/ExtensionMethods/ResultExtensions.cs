@@ -1,31 +1,29 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using InvoiceFlow.BuildingBlocks.Application;
 using Microsoft.AspNetCore.Mvc;
 
-namespace InvoiceFlow.BuildingBlocks.Application;
+namespace InvoiceFlow.Customers.Api;
 
 public static class ResultExtensions
 {
     public static IActionResult ToActionResult(this Result result)
     {
         if (result.IsSuccess)
-        {
             return new NoContentResult();
-        }
 
         return result.Error!.ToActionResult();
     }
 
-    public static IActionResult ToActionResult<T>(this Result<T> result)
+    public static IActionResult ToActionResult<T>(
+        this Result<T> result)
     {
         if (result.IsSuccess)
-        {
             return new OkObjectResult(result.Value);
-        }
 
         return result.Error!.ToActionResult();
     }
 
-    private static ObjectResult ToActionResult(this ApplicationError error)
+    private static ObjectResult ToActionResult(
+        this ApplicationError error)
     {
         var status = error.Type switch
         {
@@ -42,14 +40,14 @@ public static class ResultExtensions
         {
             Title = error.Code,
             Detail = status == StatusCodes.Status500InternalServerError
-            ? "An internal server error occurred."
-            : error.Message,
+                ? "An internal server error occurred."
+                : error.Message,
             Status = status
         };
 
         return new ObjectResult(problem)
         {
-            StatusCode = problem.Status
+            StatusCode = status
         };
     }
 }

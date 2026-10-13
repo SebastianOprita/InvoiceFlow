@@ -1,13 +1,10 @@
 ﻿using InvoiceFlow.BuildingBlocks.Application;
-using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.Identity.Domain;
 using MediatR;
-using Microsoft.Extensions.Options;
 
 namespace InvoiceFlow.Identity.Application;
 
 public class LoginUserCommandHandler(
-    IOptions<JwtSettings> jwtSettings,
     IUnitOfWork unitOfWork,
     IRefreshTokensRepository refreshTokensRepository,
     ITenantsRepository tenantsRepository,
@@ -34,7 +31,7 @@ public class LoginUserCommandHandler(
             return Result<LoginUserCommandResponse>.Failure(ApplicationErrors.UserUnauthorized);
 
         var aggregatedPermissions = userWithPermissions.UserRoles.Select(ur => ur.Role.Permissions)
-            .Aggregate(SystemPermission.None, (current, rolePermissions) => current | rolePermissions.Value);
+            .Aggregate(RolePermissions.None.Value, (current, rolePermissions) => current | rolePermissions.Value);
 
         var accessToken = tokenService.GenerateUserAccessToken(
             userId: userWithPermissions.Id,
@@ -43,14 +40,14 @@ public class LoginUserCommandHandler(
             permissions: aggregatedPermissions,
             now);
 
-        var rawNewRefreshToken = tokenService.GenerateRefreshToken();
-        var newTokenHash = tokenService.CalculateTokenHash(rawNewRefreshToken);
+        var rawNewRefreshToken = tokenService.GenerateRefreshToken(now);
+        var newTokenHash = tokenService.CalculateTokenHash(rawNewRefreshToken.Token);
         var refershToken = new RefreshToken(
             cmd.TenantId,
             Guid.CreateVersion7(),
             userWithPermissions.Id,
             RefreshTokenHash.Create(newTokenHash),
-            now.AddDays(jwtSettings.Value.RefreshTokenDays),
+            rawNewRefreshToken.ExpiresAt,
             now,
             DeviceInfo.CreateOptional(cmd.DeviceInfo),
             IpAddress.CreateOptional(cmd.IpAddress));
@@ -65,7 +62,7 @@ public class LoginUserCommandHandler(
             accessToken.Token,
             accessToken.TokenType,
             accessToken.ExpiresAt,
-            rawNewRefreshToken,
+            rawNewRefreshToken.Token,
             userWithPermissions.Id,
             userWithPermissions.Email.Value));
     }

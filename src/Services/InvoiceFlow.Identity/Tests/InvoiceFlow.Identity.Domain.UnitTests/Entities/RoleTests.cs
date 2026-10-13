@@ -1,5 +1,4 @@
 using FluentAssertions;
-using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.BuildingBlocks.Domain;
 using Xunit;
 
@@ -11,7 +10,7 @@ public class RoleTests
     private static readonly Guid RoleId = Guid.CreateVersion7();
     private static readonly DateTime CreatedAtUtc = new(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc);
     private static readonly DateTime UpdatedAtUtc = CreatedAtUtc.AddHours(1);
-    private static readonly SystemPermission Permission = SystemPermission.CustomerView;
+    private static readonly long Permission = 1L << 3;
 
     [Fact]
     public void Constructor_Should_CreateRole_WithRequiredValues()

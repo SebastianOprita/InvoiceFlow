@@ -67,7 +67,7 @@ public sealed class ClaimsPrincipalExtensionsTests
     public void GetPermissions_WithValidPermissions_ShouldReturnPermissions()
     {
         var permissions =
-            SystemPermission.CustomerView |
+            SystemPermission.CustomerRead |
             SystemPermission.CustomerCreate;
 
         var principal = CreatePrincipal(
@@ -82,7 +82,7 @@ public sealed class ClaimsPrincipalExtensionsTests
     public void HasPermission_WhenPermissionExists_ShouldReturnTrue()
     {
         var permissions =
-            SystemPermission.CustomerView |
+            SystemPermission.CustomerRead |
             SystemPermission.CustomerCreate;
 
         var principal = CreatePrincipal(
@@ -91,7 +91,7 @@ public sealed class ClaimsPrincipalExtensionsTests
                 ((long)permissions).ToString()));
 
         principal
-            .HasPermission(SystemPermission.CustomerView)
+            .HasPermission(SystemPermission.CustomerRead)
             .Should()
             .BeTrue();
     }
@@ -102,7 +102,7 @@ public sealed class ClaimsPrincipalExtensionsTests
         var principal = CreatePrincipal(
             new Claim(
                 InvoiceFlowClaimTypes.Permissions,
-                ((long)SystemPermission.CustomerView).ToString()));
+                ((long)SystemPermission.CustomerRead).ToString()));
 
         principal
             .HasPermission(SystemPermission.CustomerDelete)

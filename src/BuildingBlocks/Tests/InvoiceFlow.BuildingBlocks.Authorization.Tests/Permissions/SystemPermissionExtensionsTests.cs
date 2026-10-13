@@ -17,7 +17,7 @@ public sealed class SystemPermissionExtensionsTests
     [Fact]
     public void IsValid_WithSingleValidPermission_ShouldReturnTrue()
     {
-        SystemPermission.CustomerView
+        SystemPermission.CustomerRead
             .IsValid()
             .Should()
             .BeTrue();
@@ -27,7 +27,7 @@ public sealed class SystemPermissionExtensionsTests
     public void IsValid_WithMultipleValidPermissions_ShouldReturnTrue()
     {
         var permissions =
-            SystemPermission.CustomerView |
+            SystemPermission.CustomerRead |
             SystemPermission.CustomerCreate |
             SystemPermission.CustomerUpdate;
 
@@ -61,7 +61,7 @@ public sealed class SystemPermissionExtensionsTests
     public void IsValid_WithValidAndUnknownPermissionBits_ShouldReturnFalse()
     {
         var permissions =
-            SystemPermission.CustomerView |
+            SystemPermission.CustomerRead |
             (SystemPermission)(1L << 62);
 
         permissions

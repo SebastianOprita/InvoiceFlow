@@ -1,13 +1,10 @@
 ﻿using InvoiceFlow.BuildingBlocks.Application;
-using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.Identity.Domain;
 using MediatR;
-using Microsoft.Extensions.Options;
 
 namespace InvoiceFlow.Identity.Application;
 
 public class RefreshTokenCommandHandler(
-    IOptions<JwtSettings> jwtSettings,
     IUnitOfWork unitOfWork,
     IRefreshTokensRepository refreshTokensRepository,
     ITenantsRepository tenantsRepository,
@@ -37,7 +34,7 @@ public class RefreshTokenCommandHandler(
             return Result<RefreshTokenResponse>.Failure(ApplicationErrors.UserNotFound);
 
         var aggregatedPermissions = userWithPermissions.UserRoles.Select(ur => ur.Role.Permissions)
-            .Aggregate(SystemPermission.None, (current, rolePermissions) => current | rolePermissions.Value);
+            .Aggregate(RolePermissions.None.Value, (current, rolePermissions) => current | rolePermissions.Value);
 
         var accessToken = tokenService.GenerateUserAccessToken(
             userId: userWithPermissions.Id,
@@ -46,12 +43,12 @@ public class RefreshTokenCommandHandler(
             permissions: aggregatedPermissions,
             now);
 
-        var rawNewRefreshToken = tokenService.GenerateRefreshToken();
-        var newTokenHash = tokenService.CalculateTokenHash(rawNewRefreshToken);
+        var rawNewRefreshToken = tokenService.GenerateRefreshToken(now);
+        var newTokenHash = tokenService.CalculateTokenHash(rawNewRefreshToken.Token);
 
         var newToken = existingToken.Rotate(
             RefreshTokenHash.Create(newTokenHash),
-            now.AddDays(jwtSettings.Value.RefreshTokenDays),
+            rawNewRefreshToken.ExpiresAt,
             now,
             DeviceInfo.CreateOptional(cmd.DeviceInfo),
             IpAddress.CreateOptional(cmd.IpAddress));
@@ -66,7 +63,7 @@ public class RefreshTokenCommandHandler(
             accessToken.Token,
             accessToken.TokenType,
             accessToken.ExpiresAt,
-            rawNewRefreshToken,
+            rawNewRefreshToken.Token,
             userWithPermissions.Id,
             userWithPermissions.Email.Value));
     }

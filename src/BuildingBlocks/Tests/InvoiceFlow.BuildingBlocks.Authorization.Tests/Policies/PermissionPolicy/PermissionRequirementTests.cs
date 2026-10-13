@@ -9,7 +9,7 @@ public sealed class PermissionRequirementTests
     [Fact]
     public void Constructor_WithValidPermission_ShouldSetPermission()
     {
-        var permission = SystemPermission.CustomerView;
+        var permission = SystemPermission.CustomerRead;
 
         var requirement = new PermissionRequirement(permission);
 
@@ -45,7 +45,7 @@ public sealed class PermissionRequirementTests
     public void Constructor_WithMultipleValidPermissions_ShouldSucceed()
     {
         var permission =
-            SystemPermission.CustomerView |
+            SystemPermission.CustomerRead |
             SystemPermission.CustomerUpdate;
 
         var requirement = new PermissionRequirement(permission);

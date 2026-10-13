@@ -1,5 +1,4 @@
 using FluentValidation.TestHelper;
-using InvoiceFlow.BuildingBlocks.Authorization;
 using Xunit;
 
 namespace InvoiceFlow.Identity.Application.UnitTests.Features.Roles;
@@ -15,7 +14,7 @@ public class GrantPermissionCommandValidatorTests
         var command = new GrantPermissionCommand(
             Guid.Empty,
             Guid.CreateVersion7(),
-            SystemPermission.CustomerView);
+            1L << 3);
 
         // Act
         var result = _validator.TestValidate(command);
@@ -31,7 +30,7 @@ public class GrantPermissionCommandValidatorTests
         var command = new GrantPermissionCommand(
             Guid.CreateVersion7(),
             Guid.Empty,
-            SystemPermission.CustomerView);
+            1L << 3);
 
         // Act
         var result = _validator.TestValidate(command);
@@ -44,7 +43,7 @@ public class GrantPermissionCommandValidatorTests
     public void Should_Have_Error_When_Permission_Is_Invalid()
     {
         // Arrange
-        var invalidPermission = (SystemPermission)999999;
+        var invalidPermission = (long)999999;
 
         var command = new GrantPermissionCommand(
             Guid.CreateVersion7(),
@@ -66,7 +65,7 @@ public class GrantPermissionCommandValidatorTests
         var command = new GrantPermissionCommand(
             Guid.CreateVersion7(),
             Guid.CreateVersion7(),
-            SystemPermission.CustomerView);
+            1L << 3);
 
         // Act
         var result = _validator.TestValidate(command);
