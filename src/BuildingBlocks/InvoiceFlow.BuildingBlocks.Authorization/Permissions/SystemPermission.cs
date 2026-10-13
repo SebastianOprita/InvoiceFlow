@@ -1,7 +1,7 @@
 ﻿namespace InvoiceFlow.BuildingBlocks.Authorization;
 
 [Flags]
-public enum SystemPermission : long
+public enum SystemPermissions : long
 {
     None = 0,
 

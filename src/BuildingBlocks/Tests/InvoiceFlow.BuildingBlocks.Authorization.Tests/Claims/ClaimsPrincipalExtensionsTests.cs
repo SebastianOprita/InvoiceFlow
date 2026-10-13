@@ -51,7 +51,7 @@ public sealed class ClaimsPrincipalExtensionsTests
     {
         var principal = CreatePrincipal();
 
-        principal.GetPermissions().Should().Be(SystemPermission.None);
+        principal.GetPermissions().Should().Be(SystemPermissions.None);
     }
 
     [Fact]
@@ -60,15 +60,15 @@ public sealed class ClaimsPrincipalExtensionsTests
         var principal = CreatePrincipal(
             new Claim(InvoiceFlowClaimTypes.Permissions, "invalid"));
 
-        principal.GetPermissions().Should().Be(SystemPermission.None);
+        principal.GetPermissions().Should().Be(SystemPermissions.None);
     }
 
     [Fact]
     public void GetPermissions_WithValidPermissions_ShouldReturnPermissions()
     {
         var permissions =
-            SystemPermission.CustomerRead |
-            SystemPermission.CustomerCreate;
+            SystemPermissions.CustomerRead |
+            SystemPermissions.CustomerCreate;
 
         var principal = CreatePrincipal(
             new Claim(
@@ -82,8 +82,8 @@ public sealed class ClaimsPrincipalExtensionsTests
     public void HasPermission_WhenPermissionExists_ShouldReturnTrue()
     {
         var permissions =
-            SystemPermission.CustomerRead |
-            SystemPermission.CustomerCreate;
+            SystemPermissions.CustomerRead |
+            SystemPermissions.CustomerCreate;
 
         var principal = CreatePrincipal(
             new Claim(
@@ -91,7 +91,7 @@ public sealed class ClaimsPrincipalExtensionsTests
                 ((long)permissions).ToString()));
 
         principal
-            .HasPermission(SystemPermission.CustomerRead)
+            .HasPermission(SystemPermissions.CustomerRead)
             .Should()
             .BeTrue();
     }
@@ -102,10 +102,10 @@ public sealed class ClaimsPrincipalExtensionsTests
         var principal = CreatePrincipal(
             new Claim(
                 InvoiceFlowClaimTypes.Permissions,
-                ((long)SystemPermission.CustomerRead).ToString()));
+                ((long)SystemPermissions.CustomerRead).ToString()));
 
         principal
-            .HasPermission(SystemPermission.CustomerDelete)
+            .HasPermission(SystemPermissions.CustomerDelete)
             .Should()
             .BeFalse();
     }

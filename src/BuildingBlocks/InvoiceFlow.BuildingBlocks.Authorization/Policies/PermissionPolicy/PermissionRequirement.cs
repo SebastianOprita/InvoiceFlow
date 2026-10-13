@@ -4,9 +4,9 @@ namespace InvoiceFlow.BuildingBlocks.Authorization.Policies;
 
 public sealed class PermissionRequirement : IAuthorizationRequirement
 {
-    public PermissionRequirement(SystemPermission permission)
+    public PermissionRequirement(SystemPermissions permission)
     {
-        if (permission == SystemPermission.None || !permission.IsValid())
+        if (permission == SystemPermissions.None || !permission.IsValid())
         {
             throw new ArgumentOutOfRangeException(nameof(permission));
         }
@@ -14,5 +14,5 @@ public sealed class PermissionRequirement : IAuthorizationRequirement
         Permission = permission;
     }
 
-    public SystemPermission Permission { get; }
+    public SystemPermissions Permission { get; }
 }

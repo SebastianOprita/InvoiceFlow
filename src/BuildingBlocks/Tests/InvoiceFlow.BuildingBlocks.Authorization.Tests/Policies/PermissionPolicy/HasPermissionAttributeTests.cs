@@ -10,11 +10,11 @@ public sealed class HasPermissionAttributeTests
     public void Constructor_ShouldSetExpectedPolicy()
     {
         var attribute =
-            new HasPermissionAttribute(SystemPermission.CustomerRead);
+            new HasPermissionAttribute(SystemPermissions.CustomerRead);
 
         attribute.Policy
             .Should()
             .Be(PermissionPolicy.CreateName(
-                SystemPermission.CustomerRead));
+                SystemPermissions.CustomerRead));
     }
 }

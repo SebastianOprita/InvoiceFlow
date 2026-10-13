@@ -10,8 +10,8 @@ public sealed class PermissionPolicyTests
     public void CreateName_ShouldReturnExpectedPolicyName()
     {
         var permission =
-            SystemPermission.CustomerRead |
-            SystemPermission.CustomerUpdate;
+            SystemPermissions.CustomerRead |
+            SystemPermissions.CustomerUpdate;
 
         var result = PermissionPolicy.CreateName(permission);
 
