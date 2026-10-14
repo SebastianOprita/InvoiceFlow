@@ -29,13 +29,12 @@ public class LoggingBehavior<TRequest, TResponse>
 
         using (_logger.BeginScope(new Dictionary<string, object>
         {
-            ["TraceId"] = traceId
+            ["TraceId"] = traceId ?? "N/A"
         }))
         {
             _logger.LogInformation(
-                "Handling {RequestName} with TraceId {TraceId} at {DateTimeUtc}",
+                "Handling {RequestName} at {DateTimeUtc}",
                 requestName,
-                traceId,
                 _dateTimeProvider.Now);
 
             var stopwatch = Stopwatch.StartNew();

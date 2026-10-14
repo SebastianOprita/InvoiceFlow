@@ -1,6 +1,5 @@
 using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Application;
-using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.Identity.Domain;
 using Moq;
 using Xunit;
@@ -59,7 +58,7 @@ public class DeleteRoleCommandHandlerTests
             RoleName.Create("Admin"),
             _mockDateTimeProvider.Object.Now,
             RoleDescription.CreateOptional("Administrator role"),
-            RolePermissions.Create(SystemPermission.None));
+            RolePermissions.Create(RolePermissions.None.Value));
 
         _rolesRepository
             .Setup(x => x.GetTrackedRoleByIdAsync(cmd.TenantId, cmd.RoleId))
@@ -91,7 +90,7 @@ public class DeleteRoleCommandHandlerTests
             RoleName.Create("Admin"),
             _mockDateTimeProvider.Object.Now,
             RoleDescription.CreateOptional("Administrator role"),
-            RolePermissions.Create(SystemPermission.None));
+            RolePermissions.Create(RolePermissions.None.Value));
 
         var saveError = new ApplicationError(
             ApplicationErrorType.Validation,

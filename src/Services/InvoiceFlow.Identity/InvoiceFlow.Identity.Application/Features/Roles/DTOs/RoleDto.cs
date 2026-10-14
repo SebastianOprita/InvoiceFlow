@@ -1,6 +1,4 @@
-﻿using InvoiceFlow.BuildingBlocks.Authorization;
-
-namespace InvoiceFlow.Identity.Application;
+﻿namespace InvoiceFlow.Identity.Application;
 
 public record RoleDto
 {
@@ -8,7 +6,7 @@ public record RoleDto
     public required Guid Id { get; set; }
     public required string Name { get; set; }
     public string? Description { get; set; }
-    public required SystemPermission Permissions { get; set; }
+    public required long Permissions { get; set; }
     public required DateTime CreatedAtUtc { get; set; }
     public DateTime? UpdatedAtUtc { get; set; }
 }

@@ -1,5 +1,4 @@
 using FluentAssertions;
-using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.BuildingBlocks.Domain;
 using Xunit;
 
@@ -7,13 +6,15 @@ namespace InvoiceFlow.Identity.Domain.UnitTests.ValueObjects;
 
 public sealed class RolePermissionsTests
 {
-    private const SystemPermission PermissionA = SystemPermission.CustomerView;
-    private const SystemPermission PermissionB = SystemPermission.CustomerCreate;
+    private const long PermissionA = 1L << 3; // CustomerRead
+    private const long PermissionB = 1L << 4; // CustomerCreate
+    private const long InvalidPermission = 1L << 13;
+
 
     [Fact]
     public void None_ShouldContainNoPermissions()
     {
-        RolePermissions.None.Value.Should().Be(SystemPermission.None);
+        RolePermissions.None.Value.Should().Be(RolePermissions.None.Value);
     }
 
     [Fact]
@@ -27,9 +28,7 @@ public sealed class RolePermissionsTests
     [Fact]
     public void Create_WithInvalidPermissions_ShouldThrowDomainException()
     {
-        var invalidPermission = (SystemPermission)int.MaxValue;
-
-        var act = () => RolePermissions.Create(invalidPermission);
+        var act = () => RolePermissions.Create(InvalidPermission);
 
         act.Should()
             .Throw<DomainException>()
@@ -51,7 +50,7 @@ public sealed class RolePermissionsTests
     {
         var permissions = RolePermissions.None;
 
-        var act = () => permissions.Grant(SystemPermission.None);
+        var act = () => permissions.Grant(RolePermissions.None.Value);
 
         act.Should()
             .Throw<DomainException>()
@@ -62,7 +61,7 @@ public sealed class RolePermissionsTests
     public void Grant_WithInvalidPermission_ShouldThrowDomainException()
     {
         var permissions = RolePermissions.None;
-        var invalidPermission = (SystemPermission)int.MaxValue;
+        var invalidPermission = InvalidPermission;
 
         var act = () => permissions.Grant(invalidPermission);
 
@@ -87,7 +86,7 @@ public sealed class RolePermissionsTests
     {
         var permissions = RolePermissions.Create(PermissionA);
 
-        var act = () => permissions.Revoke(SystemPermission.None);
+        var act = () => permissions.Revoke(RolePermissions.None.Value);
 
         act.Should()
             .Throw<DomainException>()
@@ -98,7 +97,7 @@ public sealed class RolePermissionsTests
     public void Revoke_WithInvalidPermission_ShouldThrowDomainException()
     {
         var permissions = RolePermissions.Create(PermissionA);
-        var invalidPermission = (SystemPermission)int.MaxValue;
+        var invalidPermission = InvalidPermission;
 
         var act = () => permissions.Revoke(invalidPermission);
 
@@ -132,7 +131,7 @@ public sealed class RolePermissionsTests
     {
         var permissions = RolePermissions.Create(PermissionA);
 
-        var result = permissions.Has(SystemPermission.None);
+        var result = permissions.Has(RolePermissions.None.Value);
 
         result.Should().BeFalse();
     }
@@ -141,7 +140,7 @@ public sealed class RolePermissionsTests
     public void Has_WithInvalidPermission_ShouldThrowDomainException()
     {
         var permissions = RolePermissions.Create(PermissionA);
-        var invalidPermission = (SystemPermission)int.MaxValue;
+        var invalidPermission = InvalidPermission;
 
         var act = () => permissions.Has(invalidPermission);
 

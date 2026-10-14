@@ -1,6 +1,5 @@
 using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Application;
-using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.Identity.Domain;
 using Moq;
 using Xunit;
@@ -70,7 +69,7 @@ public class UpdateRoleCommandHandlerTests
             RoleName.Create("Admin"),
             _mockDateTimeProvider.Object.Now,
             RoleDescription.CreateOptional("Administrator role"),
-            RolePermissions.Create(SystemPermission.None));
+            RolePermissions.Create(RolePermissions.None.Value));
 
         var cmd = new UpdateRoleCommand(
             tenantId,
@@ -111,7 +110,7 @@ public class UpdateRoleCommandHandlerTests
             RoleName.Create("Admin"),
             _mockDateTimeProvider.Object.Now,
             RoleDescription.CreateOptional("Old description"),
-            RolePermissions.Create(SystemPermission.None));
+            RolePermissions.Create(RolePermissions.None.Value));
 
         var cmd = new UpdateRoleCommand(
             tenantId,
@@ -154,7 +153,7 @@ public class UpdateRoleCommandHandlerTests
             RoleName.Create("Admin"),
             _mockDateTimeProvider.Object.Now,
             RoleDescription.CreateOptional("Old description"),
-            RolePermissions.Create(SystemPermission.None));
+            RolePermissions.Create(RolePermissions.None.Value));
 
         var cmd = new UpdateRoleCommand(
             tenantId,

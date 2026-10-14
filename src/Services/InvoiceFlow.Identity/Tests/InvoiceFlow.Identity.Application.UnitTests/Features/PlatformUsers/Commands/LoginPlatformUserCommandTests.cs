@@ -1,6 +1,5 @@
 using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Application;
-using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.Identity.Domain;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -17,11 +16,6 @@ public class LoginPlatformUserCommandTests
     private readonly Mock<IPasswordHasher> _passwordHasher;
     private readonly Mock<ISystemDateTimeProvider> _mockDateTimeProvider;
 
-    private readonly JwtSettings _jwtSettings = new()
-    {
-        RefreshTokenDays = 30
-    };
-
     private readonly LoginPlatformUserCommandHandler _sut;
 
     public LoginPlatformUserCommandTests()
@@ -35,7 +29,6 @@ public class LoginPlatformUserCommandTests
         _mockDateTimeProvider.Setup(x => x.Now).Returns(DateTime.UtcNow);
 
         _sut = new LoginPlatformUserCommandHandler(
-            Options.Create(_jwtSettings),
             _unitOfWork.Object,
             _refreshTokensRepository.Object,
             _usersRepository.Object,
@@ -188,8 +181,8 @@ public class LoginPlatformUserCommandTests
             .Returns(("access-token", "Bearer", _mockDateTimeProvider.Object.Now.AddMinutes(15)));
 
         _tokenService
-            .Setup(x => x.GenerateRefreshToken())
-            .Returns("refresh-token");
+            .Setup(x => x.GenerateRefreshToken(It.IsAny<DateTime>()))
+            .Returns(("refresh-token", _mockDateTimeProvider.Object.Now.AddDays(30)));
 
         _tokenService
             .Setup(x => x.CalculateTokenHash("refresh-token"))
@@ -249,8 +242,8 @@ public class LoginPlatformUserCommandTests
             .Returns(("access-token", "Bearer", expiresAt));
 
         _tokenService
-            .Setup(x => x.GenerateRefreshToken())
-            .Returns("refresh-token");
+            .Setup(x => x.GenerateRefreshToken(It.IsAny<DateTime>()))
+            .Returns(("refresh-token", _mockDateTimeProvider.Object.Now.AddDays(30)));
 
         _tokenService
             .Setup(x => x.CalculateTokenHash("refresh-token"))

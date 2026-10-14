@@ -92,7 +92,7 @@ public sealed class LoggingBehaviorTests
     }
 
     [Fact]
-    public async Task Handle_WithoutCurrentActivity_ShouldUseNullTraceId()
+    public async Task Handle_WithoutCurrentActivity_ShouldUseNATraceId()
     {
         // Arrange
         Activity.Current = null;
@@ -117,7 +117,8 @@ public sealed class LoggingBehaviorTests
         capturedScope.Should().NotBeNull();
 
         capturedScope!.Should().ContainKey("TraceId");
-        capturedScope["TraceId"].Should().BeNull();
+        capturedScope["TraceId"].Should().NotBeNull();
+        capturedScope["TraceId"].Should().Be("N/A");
     }
 
     [Fact]

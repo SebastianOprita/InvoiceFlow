@@ -4,6 +4,6 @@ public static class PermissionPolicy
 {
     public const string Prefix = "Permission:";
 
-    public static string CreateName(SystemPermission permission)
+    public static string CreateName(SystemPermissions permission)
         => $"{Prefix}{(long)permission}";
 }

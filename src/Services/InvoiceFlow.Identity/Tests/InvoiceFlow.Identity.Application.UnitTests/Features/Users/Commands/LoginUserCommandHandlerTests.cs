@@ -1,8 +1,6 @@
 using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Application;
-using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.Identity.Domain;
-using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
 
@@ -17,11 +15,6 @@ public sealed class LoginUserCommandHandlerTests
     private readonly Mock<IPasswordHasher> _passwordHasher;
     private readonly Mock<ISystemDateTimeProvider> _mockDateTimeProvider;
     private readonly Mock<ITenantsRepository> _tenantsRepository;
-
-    private readonly JwtSettings _jwtSettings = new()
-    {
-        RefreshTokenDays = 30
-    };
 
     private LoginUserCommandHandler _sut;
 
@@ -40,7 +33,6 @@ public sealed class LoginUserCommandHandlerTests
             .Returns(DateTime.UtcNow);
 
         _sut = new LoginUserCommandHandler(
-            Options.Create(_jwtSettings),
             _unitOfWork.Object,
             _refreshTokensRepository.Object,
             _tenantsRepository.Object,
@@ -186,7 +178,7 @@ public sealed class LoginUserCommandHandlerTests
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
                 It.IsAny<string>(),
-                It.IsAny<SystemPermission>(),
+                It.IsAny<long>(),
                 It.IsAny<DateTime>()),
             Times.Never);
 
@@ -209,12 +201,13 @@ public sealed class LoginUserCommandHandlerTests
             .ReturnsAsync(CreateTenant(tenantId));
 
         var expiresAt = _mockDateTimeProvider.Object.Now.AddMinutes(15);
+        var refreshExpiresAt = _mockDateTimeProvider.Object.Now.AddDays(30);
 
         var user = CreateUserWithPermissions(
             tenantId,
             "test@email.com",
             "hashed-password",
-            SystemPermission.CustomerView | SystemPermission.CustomerCreate);
+            1L << 3 | 1L << 4);
 
         var command = new LoginUserCommand(
             tenantId,
@@ -240,13 +233,13 @@ public sealed class LoginUserCommandHandlerTests
                 user.Id,
                 tenantId,
                 "test@email.com",
-                SystemPermission.CustomerView | SystemPermission.CustomerCreate,
+                1L << 3 | 1L << 4,
                 It.IsAny<DateTime>()))
             .Returns(("access-token", "Bearer", expiresAt));
 
         _tokenService
-            .Setup(x => x.GenerateRefreshToken())
-            .Returns("refresh-token");
+            .Setup(x => x.GenerateRefreshToken(It.IsAny<DateTime>()))
+            .Returns(("refresh-token", refreshExpiresAt));
 
         _tokenService
             .Setup(x => x.CalculateTokenHash("refresh-token"))
@@ -317,7 +310,7 @@ public sealed class LoginUserCommandHandlerTests
         _usersRepository.VerifyNoOtherCalls();
 
         _tokenService.Verify(
-            x => x.GenerateRefreshToken(),
+            x => x.GenerateRefreshToken(It.IsAny<DateTime>()),
             Times.Never);
 
         _refreshTokensRepository.Verify(
@@ -506,7 +499,7 @@ public sealed class LoginUserCommandHandlerTests
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
                 It.IsAny<string>(),
-                It.IsAny<SystemPermission>(),
+                It.IsAny<long>(),
                 It.IsAny<DateTime>()),
             Times.Never);
 
@@ -561,7 +554,7 @@ public sealed class LoginUserCommandHandlerTests
                 user.Id,
                 tenantId,
                 user.Email.Value,
-                SystemPermission.None,
+                RolePermissions.None.Value,
                 It.IsAny<DateTime>()))
             .Returns((
                 "access-token",
@@ -569,8 +562,8 @@ public sealed class LoginUserCommandHandlerTests
                 _mockDateTimeProvider.Object.Now.AddMinutes(15)));
 
         _tokenService
-            .Setup(x => x.GenerateRefreshToken())
-            .Returns("refresh-token");
+            .Setup(x => x.GenerateRefreshToken(It.IsAny<DateTime>()))
+            .Returns(("refresh-token", _mockDateTimeProvider.Object.Now.AddDays(30)));
 
         _tokenService
             .Setup(x => x.CalculateTokenHash("refresh-token"))
@@ -601,7 +594,7 @@ public sealed class LoginUserCommandHandlerTests
                 user.Id,
                 tenantId,
                 user.Email.Value,
-                SystemPermission.None,
+                RolePermissions.None.Value,
                 It.IsAny<DateTime>()),
             Times.Once);
 
@@ -638,7 +631,7 @@ public sealed class LoginUserCommandHandlerTests
         Guid tenantId,
         string email,
         string passwordHash,
-        SystemPermission permissions)
+        long permissions)
     {
         var user = CreateUser(tenantId, email, passwordHash);
 

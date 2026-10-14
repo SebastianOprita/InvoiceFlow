@@ -15,7 +15,7 @@ public sealed class PermissionAuthorizationHandlerTests
     public async Task HandleAsync_WhenUserIsUnauthenticated_ShouldNotSucceed()
     {
         var requirement =
-            new PermissionRequirement(SystemPermission.CustomerView);
+            new PermissionRequirement(SystemPermissions.CustomerRead);
 
         var principal = new ClaimsPrincipal(
             new ClaimsIdentity());
@@ -34,10 +34,10 @@ public sealed class PermissionAuthorizationHandlerTests
     public async Task HandleAsync_WhenUserHasRequiredPermission_ShouldSucceed()
     {
         var requirement =
-            new PermissionRequirement(SystemPermission.CustomerView);
+            new PermissionRequirement(SystemPermissions.CustomerRead);
 
         var principal = CreateAuthenticatedPrincipal(
-            SystemPermission.CustomerView);
+            SystemPermissions.CustomerRead);
 
         var context = new AuthorizationHandlerContext(
             [requirement],
@@ -53,10 +53,10 @@ public sealed class PermissionAuthorizationHandlerTests
     public async Task HandleAsync_WhenUserDoesNotHaveRequiredPermission_ShouldNotSucceed()
     {
         var requirement =
-            new PermissionRequirement(SystemPermission.CustomerDelete);
+            new PermissionRequirement(SystemPermissions.CustomerDelete);
 
         var principal = CreateAuthenticatedPrincipal(
-            SystemPermission.CustomerView);
+            SystemPermissions.CustomerRead);
 
         var context = new AuthorizationHandlerContext(
             [requirement],
@@ -72,8 +72,8 @@ public sealed class PermissionAuthorizationHandlerTests
     public async Task HandleAsync_WhenRequirementContainsMultiplePermissionsAndUserHasAll_ShouldSucceed()
     {
         var required =
-            SystemPermission.CustomerView |
-            SystemPermission.CustomerUpdate;
+            SystemPermissions.CustomerRead |
+            SystemPermissions.CustomerUpdate;
 
         var principal = CreateAuthenticatedPrincipal(required);
 
@@ -94,11 +94,11 @@ public sealed class PermissionAuthorizationHandlerTests
     {
         var requirement =
             new PermissionRequirement(
-                SystemPermission.CustomerView |
-                SystemPermission.CustomerUpdate);
+                SystemPermissions.CustomerRead |
+                SystemPermissions.CustomerUpdate);
 
         var principal = CreateAuthenticatedPrincipal(
-            SystemPermission.CustomerView);
+            SystemPermissions.CustomerRead);
 
         var context = new AuthorizationHandlerContext(
             [requirement],
@@ -111,7 +111,7 @@ public sealed class PermissionAuthorizationHandlerTests
     }
 
     private static ClaimsPrincipal CreateAuthenticatedPrincipal(
-        SystemPermission permissions)
+        SystemPermissions permissions)
     {
         var identity = new ClaimsIdentity(
         [

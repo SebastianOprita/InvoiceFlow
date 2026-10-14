@@ -14,6 +14,19 @@ public static class DependencyInjection
 {
     public static void AddInfrastructureServices(this WebApplicationBuilder builder)
     {
+        builder.Services
+            .AddOptions<JwtSettings>()
+            .Bind(builder.Configuration.GetSection("JwtSettings"))
+            .Validate(
+                settings => !string.IsNullOrWhiteSpace(settings.Secret),
+                "JwtSettings:Secret is not configured.")
+            .Validate(
+                settings => settings.AccessTokenMinutes > 0 &&
+                            settings.RefreshTokenDays > 0 &&
+                            settings.ImpersonationTokenMinutes > 0,
+                "JWT token lifetimes must be positive.")
+            .ValidateOnStart();
+
         var connectionString = builder.Configuration.GetConnectionString("IdentityDb");
 
         builder.Services.AddDbContext<IdentityDbContext>(options =>

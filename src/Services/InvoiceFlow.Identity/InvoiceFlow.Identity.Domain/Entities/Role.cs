@@ -1,5 +1,4 @@
-﻿using InvoiceFlow.BuildingBlocks.Authorization;
-using InvoiceFlow.BuildingBlocks.Domain;
+﻿using InvoiceFlow.BuildingBlocks.Domain;
 
 namespace InvoiceFlow.Identity.Domain;
 
@@ -72,7 +71,7 @@ public sealed class Role
         UpdatedAtUtc = updatedAtUtc;
     }
 
-    public void GrantPermission(SystemPermission permission, DateTime updatedAtUtc)
+    public void GrantPermission(long permission, DateTime updatedAtUtc)
     {
         EnsureValidUpdateTime(updatedAtUtc);
 
@@ -84,7 +83,7 @@ public sealed class Role
         UpdatedAtUtc = updatedAtUtc;
     }
 
-    public void RevokePermission(SystemPermission permission, DateTime updatedAtUtc)
+    public void RevokePermission(long permission, DateTime updatedAtUtc)
     {
         EnsureValidUpdateTime(updatedAtUtc);
 
@@ -107,7 +106,7 @@ public sealed class Role
         UpdatedAtUtc = updatedAtUtc;
     }
 
-    public bool HasPermission(SystemPermission permission)
+    public bool HasPermission(long permission)
     {
         return Permissions.Has(permission);
     }

@@ -22,10 +22,10 @@ public sealed class PermissionPolicyProvider : DefaultAuthorizationPolicyProvide
 
             if (long.TryParse(value, out var raw))
             {
-                var permission = (SystemPermission)raw;
+                var permission = (SystemPermissions)raw;
 
                 if (permission.IsValid() &&
-                    permission != SystemPermission.None)
+                    permission != SystemPermissions.None)
                 {
                     var policy = new AuthorizationPolicyBuilder()
                         .RequireAuthenticatedUser()

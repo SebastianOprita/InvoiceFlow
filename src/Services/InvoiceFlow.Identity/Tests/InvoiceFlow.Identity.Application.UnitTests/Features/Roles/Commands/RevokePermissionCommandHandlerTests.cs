@@ -1,6 +1,5 @@
 using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Application;
-using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.Identity.Domain;
 using Moq;
 using Xunit;
@@ -34,7 +33,7 @@ public class RevokePermissionCommandHandlerTests
         var cmd = new RevokePermissionCommand(
             Guid.CreateVersion7(),
             Guid.CreateVersion7(),
-            SystemPermission.None);
+            RolePermissions.None.Value);
 
         _rolesRepository
             .Setup(x => x.GetTrackedRoleByIdAsync(cmd.TenantId, cmd.RoleId))
@@ -56,7 +55,7 @@ public class RevokePermissionCommandHandlerTests
     public async Task Handle_WhenRoleExists_RevokesPermissionAndReturnsRoleDto()
     {
         // Arrange
-        var permission = SystemPermission.CustomerView;
+        var permission = 1L << 3;
 
         var cmd = new RevokePermissionCommand(
             Guid.CreateVersion7(),

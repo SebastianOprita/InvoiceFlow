@@ -1,6 +1,5 @@
 using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Application;
-using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.Identity.Domain;
 using Moq;
 using Xunit;
@@ -34,7 +33,7 @@ public class GrantPermissionCommandHandlerTests
         var cmd = new GrantPermissionCommand(
             Guid.CreateVersion7(),
             Guid.CreateVersion7(),
-            SystemPermission.None);
+            RolePermissions.None.Value);
 
         _rolesRepository
             .Setup(x => x.GetTrackedRoleByIdAsync(cmd.TenantId, cmd.RoleId))
@@ -59,7 +58,7 @@ public class GrantPermissionCommandHandlerTests
         var cmd = new GrantPermissionCommand(
             Guid.CreateVersion7(),
             Guid.CreateVersion7(),
-            SystemPermission.CustomerView);
+            1L << 3);
 
         var role = Role.Create(
             cmd.TenantId,
@@ -67,7 +66,7 @@ public class GrantPermissionCommandHandlerTests
             RoleName.Create("Admin"),
             _mockDateTimeProvider.Object.Now,
             RoleDescription.CreateOptional("Administrator role"),
-            RolePermissions.Create(SystemPermission.None));
+            RolePermissions.Create(RolePermissions.None.Value));
 
         _rolesRepository
             .Setup(x => x.GetTrackedRoleByIdAsync(cmd.TenantId, cmd.RoleId))

@@ -1,17 +1,15 @@
-﻿using InvoiceFlow.BuildingBlocks.Authorization;
-
-namespace InvoiceFlow.Identity.Application;
+﻿namespace InvoiceFlow.Identity.Application;
 
 public interface ITokenService
 {
-    string GenerateRefreshToken();
-    string CalculateTokenHash(string token);
+    public (string Token, DateTime ExpiresAt) GenerateRefreshToken(DateTime dateTime);
+    public string CalculateTokenHash(string token);
 
     public (string Token, string TokenType, DateTime ExpiresAt) GenerateUserAccessToken(
         Guid userId,
         Guid tenantId,
         string email,
-        SystemPermission permissions,
+        long permissions,
         DateTime dateTime);
 
     public (string Token, string TokenType, DateTime ExpiresAt) GeneratePlatformUserAccessToken(
@@ -25,7 +23,7 @@ public interface ITokenService
         Guid targetUserId,
         Guid targetTenantId,
         string targetEmail,
-        SystemPermission targetPermissions,
+        long targetPermissions,
         Guid sessionId,
         string? reason,
         DateTime dateTime);

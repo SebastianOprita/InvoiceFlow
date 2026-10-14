@@ -1,5 +1,4 @@
 using FluentValidation.TestHelper;
-using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.Identity.Domain;
 using Xunit;
 
@@ -17,7 +16,7 @@ public class CreateRoleCommandValidatorTests
             Guid.Empty,
             "Admin",
             null,
-            SystemPermission.CustomerView);
+            1L << 3);
 
         // Act
         var result = _validator.TestValidate(command);
@@ -34,7 +33,7 @@ public class CreateRoleCommandValidatorTests
             Guid.CreateVersion7(),
             string.Empty,
             null,
-            SystemPermission.CustomerView);
+            1L << 3);
 
         // Act
         var result = _validator.TestValidate(command);
@@ -53,7 +52,7 @@ public class CreateRoleCommandValidatorTests
             Guid.CreateVersion7(),
             "Admin",
             description,
-            SystemPermission.CustomerView);
+            1L << 3);
 
         // Act
         var result = _validator.TestValidate(command);
@@ -66,7 +65,7 @@ public class CreateRoleCommandValidatorTests
     public void Should_Have_Error_When_Permissions_Are_Invalid()
     {
         // Arrange
-        var invalidPermissions = (SystemPermission)999999;
+        var invalidPermissions = (long)999999;
 
         var command = new CreateRoleCommand(
             Guid.CreateVersion7(),
@@ -90,7 +89,7 @@ public class CreateRoleCommandValidatorTests
             Guid.CreateVersion7(),
             "Admin",
             "Administrator role",
-            SystemPermission.CustomerView | SystemPermission.CustomerCreate);
+            1L << 3 | 1L << 4);
 
         // Act
         var result = _validator.TestValidate(command);

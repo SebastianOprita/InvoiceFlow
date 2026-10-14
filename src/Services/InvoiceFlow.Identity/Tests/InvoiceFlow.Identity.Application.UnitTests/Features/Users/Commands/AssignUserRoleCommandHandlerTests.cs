@@ -1,6 +1,5 @@
 ﻿using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Application;
-using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.Identity.Domain;
 using Moq;
 using Xunit;
@@ -125,7 +124,7 @@ public class AssignUserRoleCommandHandlerTests
             RoleName.Create("Admin"),
             _mockDateTimeProvider.Object.Now,
             RoleDescription.CreateOptional("Administrator role"),
-            RolePermissions.Create(SystemPermission.None));
+            RolePermissions.Create(RolePermissions.None.Value));
 
         _usersRepository
             .Setup(x => x.GetTrackedUserByIdAsync(cmd.TenantId, cmd.UserId, TestContext.Current.CancellationToken))

@@ -22,7 +22,7 @@ public sealed class IdentityApiFactory
     private readonly JwtSettingsTestFixture _jwtSettingsFixture;
     private readonly DatabaseTestFixture _dbFixture;
     private Respawner _respawner = null!;
-    public JwtSettings JwtSettings
+    public InvoiceFlow.Identity.Infrastructure.JwtSettings JwtSettings
     {
         get
         {
@@ -31,7 +31,7 @@ public sealed class IdentityApiFactory
 
             return configuration
                 .GetSection("JwtSettings")
-                .Get<JwtSettings>()
+                .Get<InvoiceFlow.Identity.Infrastructure.JwtSettings>()
                 ?? throw new InvalidOperationException(
                     "JwtSettings are not configured.");
         }
@@ -173,7 +173,7 @@ public sealed class IdentityApiFactory
             RoleName.Create(name),
             dateTime,
             RoleDescription.Create($"Description for {name}"),
-            RolePermissions.Create(systemPermission)
+            RolePermissions.Create((long)systemPermission)
         );
     }
 

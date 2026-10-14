@@ -3,12 +3,12 @@ using Xunit;
 
 namespace InvoiceFlow.BuildingBlocks.Authorization.Tests;
 
-public sealed class SystemPermissionExtensionsTests
+public sealed class SystemPermissionsExtensionsTests
 {
     [Fact]
     public void IsValid_WithNone_ShouldReturnTrue()
     {
-        SystemPermission.None
+        SystemPermissions.None
             .IsValid()
             .Should()
             .BeTrue();
@@ -17,7 +17,7 @@ public sealed class SystemPermissionExtensionsTests
     [Fact]
     public void IsValid_WithSingleValidPermission_ShouldReturnTrue()
     {
-        SystemPermission.CustomerView
+        SystemPermissions.CustomerRead
             .IsValid()
             .Should()
             .BeTrue();
@@ -27,9 +27,9 @@ public sealed class SystemPermissionExtensionsTests
     public void IsValid_WithMultipleValidPermissions_ShouldReturnTrue()
     {
         var permissions =
-            SystemPermission.CustomerView |
-            SystemPermission.CustomerCreate |
-            SystemPermission.CustomerUpdate;
+            SystemPermissions.CustomerRead |
+            SystemPermissions.CustomerCreate |
+            SystemPermissions.CustomerUpdate;
 
         permissions
             .IsValid()
@@ -40,7 +40,7 @@ public sealed class SystemPermissionExtensionsTests
     [Fact]
     public void IsValid_WithAllValidPermissions_ShouldReturnTrue()
     {
-        SystemPermissionExtensions.AllValidPermissions
+        SystemPermissionsExtensions.AllValidPermissions
             .IsValid()
             .Should()
             .BeTrue();
@@ -49,7 +49,7 @@ public sealed class SystemPermissionExtensionsTests
     [Fact]
     public void IsValid_WithUnknownPermissionBit_ShouldReturnFalse()
     {
-        var unknownPermission = (SystemPermission)(1L << 62);
+        var unknownPermission = (SystemPermissions)(1L << 62);
 
         unknownPermission
             .IsValid()
@@ -61,8 +61,8 @@ public sealed class SystemPermissionExtensionsTests
     public void IsValid_WithValidAndUnknownPermissionBits_ShouldReturnFalse()
     {
         var permissions =
-            SystemPermission.CustomerView |
-            (SystemPermission)(1L << 62);
+            SystemPermissions.CustomerRead |
+            (SystemPermissions)(1L << 62);
 
         permissions
             .IsValid()
@@ -73,11 +73,11 @@ public sealed class SystemPermissionExtensionsTests
     [Fact]
     public void AllValidPermissions_ShouldContainEveryDefinedPermission()
     {
-        var definedPermissions = Enum.GetValues<SystemPermission>();
+        var definedPermissions = Enum.GetValues<SystemPermissions>();
 
         foreach (var permission in definedPermissions)
         {
-            (SystemPermissionExtensions.AllValidPermissions & permission)
+            (SystemPermissionsExtensions.AllValidPermissions & permission)
                 .Should()
                 .Be(permission);
         }

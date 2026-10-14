@@ -21,8 +21,4 @@
     <ProjectReference Include="..\..\InvoiceFlow.Identity.Application\InvoiceFlow.Identity.Application.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Features\PlatformUsers\Commands\" />
-  </ItemGroup>
-
 </Project>

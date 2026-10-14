@@ -9,7 +9,7 @@ public sealed class PermissionRequirementTests
     [Fact]
     public void Constructor_WithValidPermission_ShouldSetPermission()
     {
-        var permission = SystemPermission.CustomerView;
+        var permission = SystemPermissions.CustomerRead;
 
         var requirement = new PermissionRequirement(permission);
 
@@ -20,7 +20,7 @@ public sealed class PermissionRequirementTests
     public void Constructor_WithNone_ShouldThrow()
     {
         var action = () =>
-            new PermissionRequirement(SystemPermission.None);
+            new PermissionRequirement(SystemPermissions.None);
 
         action.Should()
             .Throw<ArgumentOutOfRangeException>()
@@ -31,7 +31,7 @@ public sealed class PermissionRequirementTests
     public void Constructor_WithInvalidPermission_ShouldThrow()
     {
         var invalidPermission =
-            (SystemPermission)(1L << 62);
+            (SystemPermissions)(1L << 62);
 
         var action = () =>
             new PermissionRequirement(invalidPermission);
@@ -45,8 +45,8 @@ public sealed class PermissionRequirementTests
     public void Constructor_WithMultipleValidPermissions_ShouldSucceed()
     {
         var permission =
-            SystemPermission.CustomerView |
-            SystemPermission.CustomerUpdate;
+            SystemPermissions.CustomerRead |
+            SystemPermissions.CustomerUpdate;
 
         var requirement = new PermissionRequirement(permission);
 

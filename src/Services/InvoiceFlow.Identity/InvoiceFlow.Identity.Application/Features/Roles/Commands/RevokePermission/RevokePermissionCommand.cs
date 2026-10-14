@@ -1,5 +1,4 @@
 ﻿using InvoiceFlow.BuildingBlocks.Application;
-using InvoiceFlow.BuildingBlocks.Authorization;
 using MediatR;
 
 namespace InvoiceFlow.Identity.Application;
@@ -7,5 +6,5 @@ namespace InvoiceFlow.Identity.Application;
 public record RevokePermissionCommand(
     Guid TenantId,
     Guid RoleId,
-    SystemPermission Permission)
+    long Permission)
     : IRequest<Result<RoleDto>>;

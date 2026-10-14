@@ -1,6 +1,5 @@
 using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Application;
-using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.Identity.Domain;
 using Moq;
 using Xunit;
@@ -34,7 +33,7 @@ public class UpdatePermissionsCommandHandlerTests
         var cmd = new UpdatePermissionsCommand(
             Guid.CreateVersion7(),
             Guid.CreateVersion7(),
-            SystemPermission.None);
+            RolePermissions.None.Value);
 
         _rolesRepository
             .Setup(x => x.GetTrackedRoleByIdAsync(cmd.TenantId, cmd.RoleId))
@@ -56,7 +55,7 @@ public class UpdatePermissionsCommandHandlerTests
     public async Task Handle_WhenRoleExists_UpdatesPermissionsAndReturnsRoleDto()
     {
         // Arrange
-        var updatedPermissions = SystemPermission.None;
+        var updatedPermissions = RolePermissions.None.Value;
 
         var cmd = new UpdatePermissionsCommand(
             Guid.CreateVersion7(),
@@ -69,7 +68,7 @@ public class UpdatePermissionsCommandHandlerTests
             RoleName.Create("Admin"),
             _mockDateTimeProvider.Object.Now,
             RoleDescription.CreateOptional("Administrator role"),
-            RolePermissions.Create(SystemPermission.None));
+            RolePermissions.Create(RolePermissions.None.Value));
 
         _rolesRepository
             .Setup(x => x.GetTrackedRoleByIdAsync(cmd.TenantId, cmd.RoleId))

@@ -1,5 +1,4 @@
-﻿using InvoiceFlow.BuildingBlocks.Application;
-using InvoiceFlow.BuildingBlocks.Authorization.Policies;
+﻿using InvoiceFlow.BuildingBlocks.Authorization.Policies;
 using InvoiceFlow.Identity.Application;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;

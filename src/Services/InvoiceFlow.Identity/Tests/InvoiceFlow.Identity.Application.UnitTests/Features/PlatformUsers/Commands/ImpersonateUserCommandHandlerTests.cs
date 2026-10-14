@@ -1,6 +1,5 @@
 ﻿using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Application;
-using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.Identity.Domain;
 using Moq;
 using Xunit;
@@ -58,7 +57,7 @@ public class ImpersonateUserCommandHandlerTests
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
                 It.IsAny<string>(),
-                It.IsAny<SystemPermission>(),
+                It.IsAny<long>(),
                 It.IsAny<Guid>(),
                 It.IsAny<string?>(),
                 It.IsAny<DateTime>()),
@@ -94,7 +93,7 @@ public class ImpersonateUserCommandHandlerTests
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
                 It.IsAny<string>(),
-                It.IsAny<SystemPermission>(),
+                It.IsAny<long>(),
                 It.IsAny<Guid>(),
                 It.IsAny<string?>(),
                 It.IsAny<DateTime>()),
@@ -129,7 +128,7 @@ public class ImpersonateUserCommandHandlerTests
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
                 It.IsAny<string>(),
-                It.IsAny<SystemPermission>(),
+                It.IsAny<long>(),
                 It.IsAny<Guid>(),
                 It.IsAny<string?>(),
                 It.IsAny<DateTime>()),
@@ -172,7 +171,7 @@ public class ImpersonateUserCommandHandlerTests
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
                 It.IsAny<string>(),
-                It.IsAny<SystemPermission>(),
+                It.IsAny<long>(),
                 It.IsAny<Guid>(),
                 It.IsAny<string?>(),
                 It.IsAny<DateTime>()),
@@ -219,7 +218,7 @@ public class ImpersonateUserCommandHandlerTests
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
                 It.IsAny<string>(),
-                It.IsAny<SystemPermission>(),
+                It.IsAny<long>(),
                 It.IsAny<Guid>(),
                 It.IsAny<string?>(),
                 It.IsAny<DateTime>()),
@@ -267,7 +266,7 @@ public class ImpersonateUserCommandHandlerTests
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
                 It.IsAny<string>(),
-                It.IsAny<SystemPermission>(),
+                It.IsAny<long>(),
                 It.IsAny<Guid>(),
                 It.IsAny<string?>(),
                 It.IsAny<DateTime>()),
@@ -290,7 +289,7 @@ public class ImpersonateUserCommandHandlerTests
         var targetUserWithPermissions = CreateUserWithPermissions(
             targetUser.TenantId,
             targetUser.Id,
-            SystemPermission.ManageUsers | SystemPermission.ManageRoles);
+            1L << 0 | 1L << 1);
 
         var expectedToken = "impersonation-token";
         var expectedExpiresAt = _mockDateTimeProvider.Object.Now.AddMinutes(15);
@@ -317,7 +316,7 @@ public class ImpersonateUserCommandHandlerTests
                 targetUserWithPermissions.Id,
                 targetUserWithPermissions.TenantId,
                 targetUserWithPermissions.Email.Value,
-                SystemPermission.ManageUsers | SystemPermission.ManageRoles,
+                1L << 0 | 1L << 1,
                 It.IsAny<Guid>(),
                 command.Reason,
                 It.IsAny<DateTime>()))
@@ -346,7 +345,7 @@ public class ImpersonateUserCommandHandlerTests
         var targetUserWithPermissions = CreateUserWithPermissions(
             targetUser.TenantId,
             targetUser.Id,
-            SystemPermission.ManageUsers | SystemPermission.ManageRoles);
+            1L << 0 | 1L << 1);
 
         _platformUsersRepository
             .Setup(x => x.GetUserByIdAsync(command.ActorUserId, CancellationToken.None))
@@ -370,7 +369,7 @@ public class ImpersonateUserCommandHandlerTests
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
                 It.IsAny<string>(),
-                It.IsAny<SystemPermission>(),
+                It.IsAny<long>(),
                 It.IsAny<Guid>(),
                 It.IsAny<string?>(),
                 It.IsAny<DateTime>()))
@@ -384,7 +383,7 @@ public class ImpersonateUserCommandHandlerTests
             targetUserWithPermissions.Id,
             targetUserWithPermissions.TenantId,
             targetUserWithPermissions.Email.Value,
-            SystemPermission.ManageUsers | SystemPermission.ManageRoles,
+            1L << 0 | 1L << 1,
             It.IsAny<Guid>(),
             command.Reason,
             It.IsAny<DateTime>()),
@@ -427,7 +426,7 @@ public class ImpersonateUserCommandHandlerTests
     private User CreateUserWithPermissions(
         Guid tenantId,
         Guid id,
-        SystemPermission permissions)
+        long permissions)
     {
         var user = CreateUser(tenantId, id);
 

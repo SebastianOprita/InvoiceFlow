@@ -1,5 +1,4 @@
-﻿using InvoiceFlow.BuildingBlocks.Application;
-using InvoiceFlow.BuildingBlocks.Authorization;
+﻿using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.BuildingBlocks.Authorization.Policies;
 using InvoiceFlow.Identity.Application;
 using MediatR;
@@ -30,7 +29,7 @@ public class RolesController(IMediator mediator) : ApiController
     [HttpPost]
     public async Task<IActionResult> Create([FromRoute] Guid tenantId, [FromBody] CreateRoleRequest request, CancellationToken ct)
     {
-        var result = await mediator.Send(new CreateRoleCommand(tenantId, request.Name, request.Description, request.Permissions), ct);
+        var result = await mediator.Send(new CreateRoleCommand(tenantId, request.Name, request.Description, (long)request.Permissions), ct);
         return result.IsSuccess
             ? CreatedAtAction(nameof(GetById), new { tenantId, roleId = result.Value!.Id }, result.Value)
             : result.ToActionResult();
@@ -56,7 +55,7 @@ public class RolesController(IMediator mediator) : ApiController
     [HttpPost("{roleId:guid}/permissions")]
     public async Task<IActionResult> UpdatePermissions([FromRoute] Guid tenantId, [FromRoute] Guid roleId, [FromBody] UpdatePermissionsRequest request, CancellationToken ct)
     {
-        var result = await mediator.Send(new UpdatePermissionsCommand(tenantId, roleId, request.Permissions), ct);
+        var result = await mediator.Send(new UpdatePermissionsCommand(tenantId, roleId, (long)request.Permissions), ct);
         return result.ToActionResult();
     }
 
@@ -64,7 +63,7 @@ public class RolesController(IMediator mediator) : ApiController
     [HttpPost("{roleId:guid}/permissions/grant")]
     public async Task<IActionResult> GrantPermission([FromRoute] Guid tenantId, [FromRoute] Guid roleId, [FromBody] UpdatePermissionsRequest request, CancellationToken ct)
     {
-        var result = await mediator.Send(new GrantPermissionCommand(tenantId, roleId, request.Permissions), ct);
+        var result = await mediator.Send(new GrantPermissionCommand(tenantId, roleId, (long)request.Permissions), ct);
         return result.ToActionResult();
     }
 
@@ -72,7 +71,7 @@ public class RolesController(IMediator mediator) : ApiController
     [HttpPost("{roleId:guid}/permissions/revoke")]
     public async Task<IActionResult> RevokePermission([FromRoute] Guid tenantId, [FromRoute] Guid roleId, [FromBody] UpdatePermissionsRequest request, CancellationToken ct)
     {
-        var result = await mediator.Send(new RevokePermissionCommand(tenantId, roleId, request.Permissions), ct);
+        var result = await mediator.Send(new RevokePermissionCommand(tenantId, roleId, (long)request.Permissions), ct);
         return result.ToActionResult();
     }
 }

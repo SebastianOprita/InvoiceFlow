@@ -9,7 +9,7 @@ namespace InvoiceFlow.Identity.Api.IntegrationTests.BaseTests;
 
 public static class TestJwtTokenFactory
 {
-    public static string CreateAccessToken(Guid tenantId, SystemPermission permissions, JwtSettings jwtSettings)
+    public static string CreateAccessToken(Guid tenantId, SystemPermission permissions, InvoiceFlow.Identity.Infrastructure.JwtSettings jwtSettings)
     {
         var dateTime = DateTime.UtcNow;
         var expiresAt = dateTime.AddMinutes(jwtSettings.AccessTokenMinutes);
@@ -42,7 +42,7 @@ public static class TestJwtTokenFactory
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-    public static string CreatePlatformUserAccessToken(Guid userId, JwtSettings jwtSettings)
+    public static string CreatePlatformUserAccessToken(Guid userId, InvoiceFlow.Identity.Infrastructure.JwtSettings jwtSettings)
     {
         var dateTime = DateTime.UtcNow;
         var claims = new List<Claim>
@@ -56,7 +56,7 @@ public static class TestJwtTokenFactory
         return GenerateToken(claims, dateTime, jwtSettings);
     }
 
-    private static string GenerateToken(IEnumerable<Claim> claims, DateTime dateTime, JwtSettings jwtSettings)
+    private static string GenerateToken(IEnumerable<Claim> claims, DateTime dateTime, InvoiceFlow.Identity.Infrastructure.JwtSettings jwtSettings)
     {
         var expiresAt = dateTime.AddMinutes(jwtSettings.AccessTokenMinutes);
 
@@ -72,7 +72,7 @@ public static class TestJwtTokenFactory
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-    public static string CreateImpersonationToken(Guid tenantId, Guid userId, SystemPermission permissions, JwtSettings jwtSettings)
+    public static string CreateImpersonationToken(Guid tenantId, Guid userId, SystemPermission permissions, InvoiceFlow.Identity.Infrastructure.JwtSettings jwtSettings)
     {
         var dateTime = DateTime.UtcNow;
         var claims = new List<Claim>

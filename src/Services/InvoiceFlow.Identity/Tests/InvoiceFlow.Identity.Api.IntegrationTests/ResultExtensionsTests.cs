@@ -1,9 +1,10 @@
 ﻿using FluentAssertions;
+using InvoiceFlow.BuildingBlocks.Application;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Xunit;
 
-namespace InvoiceFlow.BuildingBlocks.Application.Tests;
+namespace InvoiceFlow.Identity.Api.IntegrationTests;
 
 public sealed class ResultExtensionsTests
 {

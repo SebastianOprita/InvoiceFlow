@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using InvoiceFlow.BuildingBlocks.Authorization;
+using InvoiceFlow.Identity.Domain;
 
 namespace InvoiceFlow.Identity.Application;
 
@@ -10,7 +10,7 @@ public class RevokePermissionCommandValidator : AbstractValidator<RevokePermissi
         RuleFor(x => x.TenantId).NotEmpty();
         RuleFor(x => x.RoleId).NotEmpty();
         RuleFor(x => x.Permission)
-            .Must(p => p.IsValid())
+            .Must(p => RolePermissions.IsValid(p))
             .WithMessage("Permission contain invalid flags.");
     }
 }

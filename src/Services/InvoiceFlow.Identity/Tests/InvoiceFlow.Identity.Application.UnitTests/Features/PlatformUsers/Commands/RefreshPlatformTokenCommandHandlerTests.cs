@@ -1,8 +1,6 @@
 using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Application;
-using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.Identity.Domain;
-using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
 
@@ -15,12 +13,6 @@ public class RefreshPlatformTokenCommandHandlerTests
     private readonly Mock<IPlatformUsersRepository> _usersRepository;
     private readonly Mock<ITokenService> _tokenService;
     private readonly Mock<ISystemDateTimeProvider> _mockDateTimeProvider;
-
-    private readonly JwtSettings _jwtSettings = new()
-    {
-        RefreshTokenDays = 30
-    };
-
     private readonly RefreshPlatformTokenCommandHandler _sut;
 
     public RefreshPlatformTokenCommandHandlerTests()
@@ -33,7 +25,6 @@ public class RefreshPlatformTokenCommandHandlerTests
         _mockDateTimeProvider.Setup(x => x.Now).Returns(DateTime.UtcNow);
 
         _sut = new RefreshPlatformTokenCommandHandler(
-            Options.Create(_jwtSettings),
             _unitOfWork.Object,
             _refreshTokensRepository.Object,
             _usersRepository.Object,
@@ -215,6 +206,7 @@ public class RefreshPlatformTokenCommandHandlerTests
     public async Task Handle_ShouldReturnSuccess_WhenRefreshTokenIsValid()
     {
         var accessTokenExpiresAt = _mockDateTimeProvider.Object.Now.AddMinutes(15);
+        var refreshTokenExpiresAt = _mockDateTimeProvider.Object.Now.AddDays(30);
 
         var existingToken = CreateRefreshToken(_mockDateTimeProvider.Object.Now.AddDays(30));
 
@@ -231,7 +223,8 @@ public class RefreshPlatformTokenCommandHandlerTests
             existingToken,
             user,
             command,
-            accessTokenExpiresAt);
+            accessTokenExpiresAt,
+            refreshTokenExpiresAt);
 
         _refreshTokensRepository
             .Setup(x => x.GetTrackedPlatformRefreshTokenAsync(It.IsAny<RefreshTokenHash>(), It.IsAny<CancellationToken>()))
@@ -271,9 +264,11 @@ public class RefreshPlatformTokenCommandHandlerTests
         PlatformRefreshToken existingToken,
         PlatformUser user,
         RefreshPlatformTokenCommand command,
-        DateTime? accessTokenExpiresAt = null)
+        DateTime? accessTokenExpiresAt = null,
+        DateTime? refreshTokenExpiresAt = null)
     {
         accessTokenExpiresAt ??= _mockDateTimeProvider.Object.Now.AddMinutes(15);
+        refreshTokenExpiresAt ??= _mockDateTimeProvider.Object.Now.AddDays(30);
 
         _tokenService
             .Setup(x => x.CalculateTokenHash(command.RefreshToken))
@@ -295,8 +290,8 @@ public class RefreshPlatformTokenCommandHandlerTests
             .Returns(("new-access-token", "Bearer", accessTokenExpiresAt.Value));
 
         _tokenService
-            .Setup(x => x.GenerateRefreshToken())
-            .Returns("new-refresh-token");
+            .Setup(x => x.GenerateRefreshToken(It.IsAny<DateTime>()))
+            .Returns(("new-refresh-token", refreshTokenExpiresAt.Value));
 
         _tokenService
             .Setup(x => x.CalculateTokenHash("new-refresh-token"))

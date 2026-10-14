@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="InvoiceFlow.BuildingBlocks.Authorization" />
     <PackageReference Include="InvoiceFlow.BuildingBlocks.Domain" />
   </ItemGroup>
 

@@ -27,7 +27,7 @@ public static class ClaimsPrincipalExtensions
             : null;
     }
 
-    public static SystemPermission GetPermissions(
+    public static SystemPermissions GetPermissions(
         this ClaimsPrincipal principal)
     {
         var value = principal
@@ -40,19 +40,19 @@ public static class ClaimsPrincipalExtensions
                 CultureInfo.InvariantCulture,
                 out var raw))
         {
-            return SystemPermission.None;
+            return SystemPermissions.None;
         }
 
-        var permissions = (SystemPermission)raw;
+        var permissions = (SystemPermissions)raw;
 
         return permissions.IsValid()
             ? permissions
-            : SystemPermission.None;
+            : SystemPermissions.None;
     }
 
     public static bool HasPermission(
         this ClaimsPrincipal principal,
-        SystemPermission permission)
+        SystemPermissions permission)
     {
         var permissions = principal.GetPermissions();
 

@@ -1,5 +1,4 @@
 ﻿using InvoiceFlow.BuildingBlocks.Application;
-using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.Customers.Domain;
 using InvoiceFlow.Customers.Infrastructure;
 using Microsoft.AspNetCore.Hosting;

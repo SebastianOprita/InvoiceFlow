@@ -1,6 +1,5 @@
 using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Application;
-using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.Identity.Domain;
 using Moq;
 using Xunit;
@@ -34,7 +33,7 @@ public class CreateRoleCommandHandlerTests
             Guid.CreateVersion7(),
             "Admin",
             "Administrator role",
-            SystemPermission.None);
+            RolePermissions.None.Value);
 
         _rolesRepository
             .Setup(x => x.ExistsByNameAsync(cmd.TenantId, RoleName.Create(cmd.Name)))
@@ -61,7 +60,7 @@ public class CreateRoleCommandHandlerTests
             Guid.CreateVersion7(),
             "Admin",
             "Administrator role",
-            SystemPermission.None);
+            RolePermissions.None.Value);
 
         Role? addedRole = null;
 
