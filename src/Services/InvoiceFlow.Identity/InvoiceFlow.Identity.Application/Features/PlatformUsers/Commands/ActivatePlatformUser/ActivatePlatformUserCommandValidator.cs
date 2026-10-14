@@ -2,7 +2,7 @@
 
 namespace InvoiceFlow.Identity.Application;
 
-public class ActivatePlatformUserCommandValidator : AbstractValidator<ActivatePlatformUserCommand>
+internal sealed class ActivatePlatformUserCommandValidator : AbstractValidator<ActivatePlatformUserCommand>
 {
     public ActivatePlatformUserCommandValidator()
     {

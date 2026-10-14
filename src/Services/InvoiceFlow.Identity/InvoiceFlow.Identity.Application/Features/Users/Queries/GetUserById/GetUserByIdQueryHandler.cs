@@ -3,7 +3,7 @@ using MediatR;
 
 namespace InvoiceFlow.Identity.Application;
 
-public class GetUserByIdQueryHandler(IUsersRepository usersRepository) : IRequestHandler<GetUserByIdQuery, Result<UserDto>>
+internal class GetUserByIdQueryHandler(IUsersRepository usersRepository) : IRequestHandler<GetUserByIdQuery, Result<UserDto>>
 {
     public async Task<Result<UserDto>> Handle(GetUserByIdQuery qry, CancellationToken cancellationToken)
     {

@@ -1,5 +1,4 @@
 ﻿using InvoiceFlow.Customers.Application;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,29 +9,20 @@ namespace InvoiceFlow.Customers.Infrastructure;
 [ExcludeFromCodeCoverage]
 public static class DependencyInjection
 {
-    public static void AddInfrastructureServices(this WebApplicationBuilder builder)
+    public static IServiceCollection AddInfrastructureServices(
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
-        builder.Services
-            .AddOptions<JwtSettings>()
-            .Bind(builder.Configuration.GetSection("JwtSettings"))
-            .Validate(
-                settings => !string.IsNullOrWhiteSpace(settings.Secret),
-                "JwtSettings:Secret is not configured.")
-            .Validate(
-                settings => settings.AccessTokenMinutes > 0 &&
-                            settings.RefreshTokenDays > 0 &&
-                            settings.ImpersonationTokenMinutes > 0,
-                "JWT token lifetimes must be positive.")
-            .ValidateOnStart();
+        var connectionString =
+            configuration.GetConnectionString("CustomersDb");
 
-        var connectionString = builder.Configuration.GetConnectionString("CustomersDb");
-
-        builder.Services.AddDbContext<CustomersDbContext>(options =>
+        services.AddDbContext<CustomersDbContext>(options =>
         {
             options.UseSqlServer(connectionString, sql =>
             {
                 sql.EnableRetryOnFailure();
-                sql.MigrationsAssembly(typeof(CustomersDbContext).Assembly.FullName);
+                sql.MigrationsAssembly(
+                    typeof(CustomersDbContext).Assembly.FullName);
             });
 
             #if DEBUG
@@ -41,26 +31,31 @@ public static class DependencyInjection
             #endif
         });
 
-        builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-        builder.RegisterRepositories();
+        services.RegisterRepositories();
+
+        return services;
     }
 
-    private static void RegisterRepositories(this WebApplicationBuilder builder)
+    private static IServiceCollection RegisterRepositories(
+        this IServiceCollection services)
     {
-        builder.Services.AddScoped<ICustomersRepository, CustomersRepository>();
+        services.AddScoped<ICustomersRepository, CustomersRepository>();
+
+        return services;
     }
 
-    public static async Task<WebApplication> ConfigureInfrastructureServices(this WebApplication app)
+    public static async Task ConfigureInfrastructureServicesAsync(
+        this IServiceProvider serviceProvider,
+        CancellationToken cancellationToken = default)
     {
-        using var scope = app.Services.CreateScope();
+        await using var scope = serviceProvider.CreateAsyncScope();
+
         var db = scope.ServiceProvider.GetRequiredService<CustomersDbContext>();
 
-        await db.Database.EnsureDeletedAsync();
-        await db.Database.MigrateAsync();
+        await db.Database.MigrateAsync(cancellationToken);
 
-        await CustomersDbSeed.SeedAsync(db);
-
-        return app;
+        await CustomersDbSeed.SeedAsync(db, cancellationToken);
     }
 }

@@ -4,7 +4,7 @@ using MediatR;
 
 namespace InvoiceFlow.Customers.Application;
 
-public class UpdateCustomerCommandHandler(
+internal class UpdateCustomerCommandHandler(
     IUnitOfWork unitOfWork,
     ICustomersRepository customersRepository,
     ISystemDateTimeProvider dateTimeProvider) 

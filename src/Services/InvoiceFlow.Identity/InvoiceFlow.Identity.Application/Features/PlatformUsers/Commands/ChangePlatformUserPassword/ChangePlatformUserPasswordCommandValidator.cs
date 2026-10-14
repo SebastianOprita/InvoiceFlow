@@ -2,7 +2,7 @@
 
 namespace InvoiceFlow.Identity.Application;
 
-public class ChangePlatformUserPasswordCommandValidator : AbstractValidator<ChangePlatformUserPasswordCommand>
+internal sealed class ChangePlatformUserPasswordCommandValidator : AbstractValidator<ChangePlatformUserPasswordCommand>
 {
     public ChangePlatformUserPasswordCommandValidator()
     {

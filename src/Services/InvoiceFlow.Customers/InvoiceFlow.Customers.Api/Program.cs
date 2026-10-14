@@ -4,7 +4,6 @@ using InvoiceFlow.Customers.Application;
 using InvoiceFlow.Customers.Infrastructure;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.Extensions.Options;
 
 try
 {
@@ -20,8 +19,10 @@ try
     builder.Services.AddInvoiceFlowAuthentication(builder.Configuration);
     builder.Services.AddInvoiceFlowAuthorization();
 
-    builder.AddApplicationServices();
-    builder.AddInfrastructureServices();
+    builder.Services.AddApplicationServices();
+    builder.Services.AddInfrastructureServices(builder.Configuration);
+
+    builder.Services.AddHttpContextAccessor();
 
     builder.Services
         .AddHealthChecks()
@@ -29,8 +30,6 @@ try
         .AddDbContextCheck<CustomersDbContext>(name:"customers-database", tags: ["ready"]);
 
     var app = builder.Build();
-
-    _ = app.Services.GetRequiredService<IOptions<JwtSettings>>().Value;
 
     if (app.Environment.IsDevelopment())
     {
@@ -56,7 +55,10 @@ try
         Predicate = (check) => check.Tags.Contains("ready")
     });
 
-    await app.ConfigureInfrastructureServices();
+    if (app.Environment.IsDevelopment())
+    {
+        await app.Services.ConfigureInfrastructureServicesAsync();
+    }
 
     await app.RunAsync();
 

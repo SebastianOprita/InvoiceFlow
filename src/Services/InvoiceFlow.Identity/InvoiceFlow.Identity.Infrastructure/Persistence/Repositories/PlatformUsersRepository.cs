@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace InvoiceFlow.Identity.Infrastructure;
 
-public class PlatformUsersRepository(IdentityDbContext dbContext) : IPlatformUsersRepository
+internal class PlatformUsersRepository(IdentityDbContext dbContext) : IPlatformUsersRepository
 {
     public async Task<List<PlatformUser>> GetAllUsersAsync(CancellationToken cancellationToken = default)
     {

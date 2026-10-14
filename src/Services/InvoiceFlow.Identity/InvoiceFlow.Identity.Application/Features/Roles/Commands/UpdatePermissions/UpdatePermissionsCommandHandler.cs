@@ -4,7 +4,7 @@ using MediatR;
 
 namespace InvoiceFlow.Identity.Application;
 
-public class UpdatePermissionsCommandHandler(
+internal class UpdatePermissionsCommandHandler(
     IUnitOfWork unitOfWork,
     IRolesRepository rolesRepository,
     ISystemDateTimeProvider dateTimeProvider)

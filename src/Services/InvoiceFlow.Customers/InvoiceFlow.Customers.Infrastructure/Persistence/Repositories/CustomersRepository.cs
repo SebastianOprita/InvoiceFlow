@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace InvoiceFlow.Customers.Infrastructure;
 
-public class CustomersRepository(CustomersDbContext dbContext) : ICustomersRepository
+internal class CustomersRepository(CustomersDbContext dbContext) : ICustomersRepository
 {
     public async Task<List<Customer>> GetAllCustomersAsync(Guid tenantId, CancellationToken cancellationToken = default)
     {

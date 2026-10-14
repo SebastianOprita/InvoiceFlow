@@ -4,7 +4,7 @@ using MediatR;
 
 namespace InvoiceFlow.Identity.Application;
 
-public class LogoutUserCommandHandler(
+internal class LogoutUserCommandHandler(
     IUnitOfWork unitOfWork,
     IRefreshTokensRepository refreshTokensRepository,
     ITokenService tokenService,

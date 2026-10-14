@@ -2,7 +2,7 @@
 
 namespace InvoiceFlow.Customers.Application;
 
-public sealed class CustomerContactValidator
+internal sealed class CustomerContactValidator
     : AbstractValidator<CustomerContact>
 {
     public CustomerContactValidator()
@@ -24,7 +24,7 @@ public sealed class CustomerContactValidator
     }
 }
 
-public sealed class CustomerAddressValidator
+internal sealed class CustomerAddressValidator
     : AbstractValidator<CustomerAddress>
 {
     public CustomerAddressValidator()
@@ -55,7 +55,7 @@ public sealed class CustomerAddressValidator
     }
 }
 
-public sealed class CustomerCreditPolicyValidator
+internal sealed class CustomerCreditPolicyValidator
     : AbstractValidator<CustomerCreditPolicy>
 {
     public CustomerCreditPolicyValidator()
@@ -68,7 +68,7 @@ public sealed class CustomerCreditPolicyValidator
     }
 }
 
-public sealed class CustomerTaxDetailsValidator
+internal sealed class CustomerTaxDetailsValidator
     : AbstractValidator<CustomerTaxDetails>
 {
     public CustomerTaxDetailsValidator()

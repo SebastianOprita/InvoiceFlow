@@ -9,10 +9,10 @@ namespace InvoiceFlow.Customers.Api.IntegrationTests.BaseTests;
 
 public static class TestJwtTokenFactory
 {
-    public static string CreateAccessToken(Guid tenantId, SystemPermission permissions, InvoiceFlow.Customers.Infrastructure.JwtSettings jwtSettings)
+    public static string CreateAccessToken(Guid tenantId, SystemPermissions permissions, JwtValidationSettings jwtSettings)
     {
         var dateTime = DateTime.UtcNow;
-        var expiresAt = dateTime.AddMinutes(jwtSettings.AccessTokenMinutes);
+        var expiresAt = dateTime.AddMinutes(15);
 
         var claims = new List<Claim>
         {

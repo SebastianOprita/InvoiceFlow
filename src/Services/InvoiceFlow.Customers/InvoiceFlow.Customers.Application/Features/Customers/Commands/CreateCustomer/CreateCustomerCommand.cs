@@ -3,7 +3,7 @@ using MediatR;
 
 namespace InvoiceFlow.Customers.Application;
 
-public record CreateCustomerCommand(
+public sealed record CreateCustomerCommand(
     Guid TenantId,
     string CustomerCode,
     string Name,

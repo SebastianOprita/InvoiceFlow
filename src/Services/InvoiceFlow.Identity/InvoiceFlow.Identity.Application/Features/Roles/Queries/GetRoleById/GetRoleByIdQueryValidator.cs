@@ -2,7 +2,7 @@
 
 namespace InvoiceFlow.Identity.Application;
 
-public class GetRoleByIdQueryValidator : AbstractValidator<GetRoleByIdQuery>
+internal sealed class GetRoleByIdQueryValidator : AbstractValidator<GetRoleByIdQuery>
 {
     public GetRoleByIdQueryValidator()
     {

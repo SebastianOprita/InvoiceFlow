@@ -3,6 +3,6 @@ using MediatR;
 
 namespace InvoiceFlow.Identity.Application;
 
-public record GetRolesQuery(
+public sealed record GetRolesQuery(
     Guid TenantId)
     : IRequest<Result<List<RoleDto>>>;

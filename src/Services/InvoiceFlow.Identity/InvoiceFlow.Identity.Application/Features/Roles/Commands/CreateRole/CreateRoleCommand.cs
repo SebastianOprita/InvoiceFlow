@@ -3,7 +3,7 @@ using MediatR;
 
 namespace InvoiceFlow.Identity.Application;
 
-public record CreateRoleCommand(
+public sealed record CreateRoleCommand(
     Guid TenantId,
     string Name,
     string? Description,

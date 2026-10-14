@@ -2,7 +2,7 @@
 
 namespace InvoiceFlow.Customers.Application;
 
-public class GetCustomerByIdQueryValidator : AbstractValidator<GetCustomerByIdQuery>
+internal sealed class GetCustomerByIdQueryValidator : AbstractValidator<GetCustomerByIdQuery>
 {
     public GetCustomerByIdQueryValidator()
     {

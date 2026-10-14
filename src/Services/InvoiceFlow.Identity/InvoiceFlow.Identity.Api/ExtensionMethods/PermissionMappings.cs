@@ -6,14 +6,14 @@ namespace InvoiceFlow.Identity.Api;
 public static class PermissionMappings
 {
     public static RolePermissions ToRolePermissions(
-        this SystemPermission permission)
+        this SystemPermissions permission)
     {
         return RolePermissions.Create((long)permission);
     }
 
-    public static SystemPermission ToSystemPermission(
+    public static SystemPermissions ToSystemPermission(
         this RolePermissions permissions)
     {
-        return (SystemPermission)permissions.Value;
+        return (SystemPermissions)permissions.Value;
     }
 }

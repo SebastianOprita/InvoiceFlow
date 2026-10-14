@@ -4,7 +4,7 @@ using MediatR;
 
 namespace InvoiceFlow.Identity.Application;
 
-public class UpdateUserCommandHandler(
+internal class UpdateUserCommandHandler(
     IUnitOfWork unitOfWork,
     IUsersRepository usersRepository,
     ISystemDateTimeProvider dateTimeProvider)

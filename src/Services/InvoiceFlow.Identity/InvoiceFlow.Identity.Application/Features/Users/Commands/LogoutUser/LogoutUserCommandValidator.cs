@@ -2,7 +2,7 @@
 
 namespace InvoiceFlow.Identity.Application;
 
-public class LogoutUserCommandValidator : AbstractValidator<LogoutUserCommand>
+internal sealed class LogoutUserCommandValidator : AbstractValidator<LogoutUserCommand>
 {
     public LogoutUserCommandValidator()
     {

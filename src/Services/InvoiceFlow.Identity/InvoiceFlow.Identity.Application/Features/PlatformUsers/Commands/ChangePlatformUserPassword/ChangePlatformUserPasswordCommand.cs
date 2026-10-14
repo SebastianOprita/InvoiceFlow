@@ -3,7 +3,7 @@ using MediatR;
 
 namespace InvoiceFlow.Identity.Application;
 
-public record ChangePlatformUserPasswordCommand(
+public sealed record ChangePlatformUserPasswordCommand(
     Guid UserId,
     string CurrentPassword,
     string NewPassword)

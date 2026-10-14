@@ -4,7 +4,7 @@ using MediatR;
 
 namespace InvoiceFlow.Identity.Application;
 
-public class ImpersonateUserCommandHandler(
+internal class ImpersonateUserCommandHandler(
     ITenantsRepository tenantsRepository,
     IPlatformUsersRepository platformUsersRepository,
     IUsersRepository usersRepository,

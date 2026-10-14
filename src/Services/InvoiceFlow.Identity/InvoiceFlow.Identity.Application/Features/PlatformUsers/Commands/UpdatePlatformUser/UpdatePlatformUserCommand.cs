@@ -3,7 +3,7 @@ using MediatR;
 
 namespace InvoiceFlow.Identity.Application;
 
-public record UpdatePlatformUserCommand(
+public sealed record UpdatePlatformUserCommand(
     Guid UserId,
     string FirstName,
     string LastName)

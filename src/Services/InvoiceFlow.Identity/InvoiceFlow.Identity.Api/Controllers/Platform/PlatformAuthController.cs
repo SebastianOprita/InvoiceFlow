@@ -1,6 +1,7 @@
 ﻿using InvoiceFlow.BuildingBlocks.Authorization.Policies;
 using InvoiceFlow.Identity.Application;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InvoiceFlow.Identity.Api.Controllers;
@@ -9,6 +10,7 @@ namespace InvoiceFlow.Identity.Api.Controllers;
 [Route("api/platform/auth")]
 public class PlatformAuthController(IMediator mediator) : ApiController
 {
+    [AllowAnonymous]
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request, CancellationToken ct)
     {
@@ -21,6 +23,7 @@ public class PlatformAuthController(IMediator mediator) : ApiController
         return result.ToActionResult();
     }
 
+    [AllowAnonymous]
     [HttpPost("refresh")]
     public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequest request, CancellationToken ct)
     {

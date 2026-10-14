@@ -3,7 +3,7 @@ using MediatR;
 
 namespace InvoiceFlow.Identity.Application;
 
-public class GrantPermissionCommandHandler(
+internal class GrantPermissionCommandHandler(
     IUnitOfWork unitOfWork,
     IRolesRepository rolesRepository,
     ISystemDateTimeProvider dateTimeProvider)

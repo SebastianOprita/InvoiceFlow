@@ -3,7 +3,7 @@ using MediatR;
 
 namespace InvoiceFlow.Identity.Application;
 
-public class GetRolesQueryHandler(IRolesRepository rolesRepository) : IRequestHandler<GetRolesQuery, Result<List<RoleDto>>>
+internal class GetRolesQueryHandler(IRolesRepository rolesRepository) : IRequestHandler<GetRolesQuery, Result<List<RoleDto>>>
 {
     public async Task<Result<List<RoleDto>>> Handle(GetRolesQuery qry, CancellationToken cancellationToken)
     {

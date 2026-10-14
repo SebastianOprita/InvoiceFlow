@@ -3,7 +3,7 @@ using MediatR;
 
 namespace InvoiceFlow.Identity.Application;
 
-public class ActivateUserCommandHandler(
+internal class ActivateUserCommandHandler(
     IUnitOfWork unitOfWork,
     IUsersRepository usersRepository,
     ISystemDateTimeProvider dateTimeProvider)

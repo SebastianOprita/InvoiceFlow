@@ -6,23 +6,23 @@ using Xunit;
 
 namespace InvoiceFlow.Identity.Application.UnitTests.Features.Users;
 
-public class AssignUserRoleCommandHandlerTests
+public class AssignRoleCommandHandlerTests
 {
     private readonly Mock<IUnitOfWork> _unitOfWork;
     private readonly Mock<IUsersRepository> _usersRepository;
     private readonly Mock<IRolesRepository> _rolesRepository;
     private readonly Mock<ISystemDateTimeProvider> _mockDateTimeProvider;
 
-    private AssignUserRoleCommandHandler _sut;
+    private AssignRoleCommandHandler _sut;
 
-    public AssignUserRoleCommandHandlerTests()
+    public AssignRoleCommandHandlerTests()
     {
         _unitOfWork = new();
         _usersRepository = new();
         _rolesRepository = new();
         _mockDateTimeProvider = new();
         _mockDateTimeProvider.Setup(x => x.Now).Returns(DateTime.UtcNow);
-        _sut = new AssignUserRoleCommandHandler(
+        _sut = new AssignRoleCommandHandler(
             _unitOfWork.Object,
             _usersRepository.Object,
             _rolesRepository.Object,

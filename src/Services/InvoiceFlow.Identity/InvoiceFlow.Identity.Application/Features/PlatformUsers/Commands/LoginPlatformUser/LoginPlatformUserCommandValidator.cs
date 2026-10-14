@@ -3,7 +3,7 @@ using InvoiceFlow.Identity.Domain;
 
 namespace InvoiceFlow.Identity.Application;
 
-public class LoginPlatformUserCommandValidator : AbstractValidator<LoginPlatformUserCommand>
+internal sealed class LoginPlatformUserCommandValidator : AbstractValidator<LoginPlatformUserCommand>
 {
     public LoginPlatformUserCommandValidator()
     {

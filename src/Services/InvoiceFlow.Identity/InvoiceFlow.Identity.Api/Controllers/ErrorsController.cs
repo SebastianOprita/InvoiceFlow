@@ -3,12 +3,14 @@ using InvoiceFlow.BuildingBlocks.Application;
 using InvoiceFlow.BuildingBlocks.Domain;
 using InvoiceFlow.Identity.Application;
 using InvoiceFlow.Identity.Domain;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Reflection;
 
 namespace InvoiceFlow.Identity.Api;
 
 [ApiController]
+[AllowAnonymous]
 [Route("api/errors")]
 public sealed class ErrorsController : ControllerBase
 {

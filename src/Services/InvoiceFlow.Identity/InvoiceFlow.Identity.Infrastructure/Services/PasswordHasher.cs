@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace InvoiceFlow.Identity.Infrastructure;
 
-public class PasswordHasher(PasswordHasher<object> hasher) : IPasswordHasher
+internal class PasswordHasher(PasswordHasher<object> hasher) : IPasswordHasher
 {
     public string HashPassword(string password)
     {

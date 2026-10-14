@@ -3,7 +3,7 @@ using MediatR;
 
 namespace InvoiceFlow.Identity.Application;
 
-public record CreateTenantCommand(
+public sealed record CreateTenantCommand(
     string Name,
     string Slug)
     : IRequest<Result<TenantDto>>;

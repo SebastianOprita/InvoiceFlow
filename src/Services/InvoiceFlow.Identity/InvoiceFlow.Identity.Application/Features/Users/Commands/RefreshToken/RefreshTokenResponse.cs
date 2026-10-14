@@ -1,6 +1,6 @@
 ﻿namespace InvoiceFlow.Identity.Application;
 
-public record RefreshTokenResponse(
+public sealed record RefreshTokenResponse(
     string AccessToken,
     string TokenType,
     DateTime AccessTokenExpiresAt,

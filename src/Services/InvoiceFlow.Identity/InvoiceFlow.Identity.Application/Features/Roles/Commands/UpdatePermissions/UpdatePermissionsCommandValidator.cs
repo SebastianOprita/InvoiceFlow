@@ -3,7 +3,7 @@ using InvoiceFlow.Identity.Domain;
 
 namespace InvoiceFlow.Identity.Application;
 
-public class UpdatePermissionsCommandValidator : AbstractValidator<UpdatePermissionsCommand>
+internal sealed class UpdatePermissionsCommandValidator : AbstractValidator<UpdatePermissionsCommand>
 {
     public UpdatePermissionsCommandValidator()
     {

@@ -3,7 +3,7 @@ using MediatR;
 
 namespace InvoiceFlow.Identity.Application;
 
-public record RefreshTokenCommand(
+public sealed record RefreshTokenCommand(
     Guid TenantId,
     string RefreshToken,
     string? DeviceInfo,

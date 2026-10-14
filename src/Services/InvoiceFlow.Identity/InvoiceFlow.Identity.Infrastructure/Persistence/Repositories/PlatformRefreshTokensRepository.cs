@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace InvoiceFlow.Identity.Infrastructure;
 
-public class PlatformRefreshTokensRepository(IdentityDbContext dbContext) : IPlatformRefreshTokensRepository
+internal class PlatformRefreshTokensRepository(IdentityDbContext dbContext) : IPlatformRefreshTokensRepository
 {
     public async Task<PlatformRefreshToken?> GetPlatformRefreshTokenAsync(RefreshTokenHash tokenHash, CancellationToken cancellationToken = default)
     {

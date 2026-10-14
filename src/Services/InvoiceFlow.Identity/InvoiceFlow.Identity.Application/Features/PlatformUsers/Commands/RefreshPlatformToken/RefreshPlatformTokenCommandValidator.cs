@@ -3,7 +3,7 @@ using InvoiceFlow.Identity.Domain;
 
 namespace InvoiceFlow.Identity.Application;
 
-public class RefreshPlatformTokenCommandValidator : AbstractValidator<RefreshPlatformTokenCommand>
+internal sealed class RefreshPlatformTokenCommandValidator : AbstractValidator<RefreshPlatformTokenCommand>
 {
     public RefreshPlatformTokenCommandValidator()
     {

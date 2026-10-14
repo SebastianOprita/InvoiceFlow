@@ -3,7 +3,7 @@ using MediatR;
 
 namespace InvoiceFlow.Identity.Application;
 
-public record DeleteRoleCommand(
+public sealed record DeleteRoleCommand(
     Guid TenantId,
     Guid RoleId)
     : IRequest<Result>;

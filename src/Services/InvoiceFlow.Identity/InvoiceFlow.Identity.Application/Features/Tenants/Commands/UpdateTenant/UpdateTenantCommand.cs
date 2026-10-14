@@ -3,7 +3,7 @@ using MediatR;
 
 namespace InvoiceFlow.Identity.Application;
 
-public record UpdateTenantCommand(
+public sealed record UpdateTenantCommand(
     Guid TenantId,
     string Name)
     : IRequest<Result<TenantDto>>;

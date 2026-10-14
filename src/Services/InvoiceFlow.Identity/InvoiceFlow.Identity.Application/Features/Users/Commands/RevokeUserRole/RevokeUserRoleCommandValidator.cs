@@ -2,7 +2,7 @@
 
 namespace InvoiceFlow.Identity.Application;
 
-public class RevokeUserRoleCommandValidator : AbstractValidator<RevokeUserRoleCommand>
+internal sealed class RevokeUserRoleCommandValidator : AbstractValidator<RevokeUserRoleCommand>
 {
     public RevokeUserRoleCommandValidator()
     {

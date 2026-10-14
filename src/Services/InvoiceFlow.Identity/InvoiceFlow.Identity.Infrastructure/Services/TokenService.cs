@@ -10,7 +10,7 @@ using System.Text;
 
 namespace InvoiceFlow.Identity.Infrastructure;
 
-public class TokenService(IOptions<JwtSettings> jwtSettings) : ITokenService
+internal class TokenService(IOptions<JwtSettings> jwtSettings) : ITokenService
 {
     public (string Token, DateTime ExpiresAt) GenerateRefreshToken(DateTime dateTime)
     {

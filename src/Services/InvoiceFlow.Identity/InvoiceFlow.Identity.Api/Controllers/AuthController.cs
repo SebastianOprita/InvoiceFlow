@@ -2,6 +2,7 @@
 using InvoiceFlow.BuildingBlocks.Authorization.Policies;
 using InvoiceFlow.Identity.Application;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InvoiceFlow.Identity.Api;
@@ -11,6 +12,7 @@ namespace InvoiceFlow.Identity.Api;
 [Route("api/{tenantId:guid}/auth")]
 public class AuthController(IMediator mediator) : ApiController
 {
+    [AllowAnonymous]
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromRoute] Guid tenantId, [FromBody] LoginRequest request, CancellationToken ct)
     {
@@ -24,6 +26,7 @@ public class AuthController(IMediator mediator) : ApiController
         return result.ToActionResult();
     }
 
+    [AllowAnonymous]
     [HttpPost("refresh")]
     public async Task<IActionResult> Refresh([FromRoute] Guid tenantId, [FromBody] RefreshTokenRequest request, CancellationToken ct)
     {

@@ -3,6 +3,6 @@ using MediatR;
 
 namespace InvoiceFlow.Customers.Application;
 
-public record GetCustomersQuery(
+public sealed record GetCustomersQuery(
     Guid TenantId)
     : IRequest<Result<List<CustomerDto>>>;
