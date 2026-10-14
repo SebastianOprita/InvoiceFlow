@@ -15,7 +15,7 @@ public class PermissionsController : ControllerBase
     [HttpGet]
     [ProducesResponseType<ErrorCatalogueResponse>(StatusCodes.Status200OK)]
     public IActionResult GetAll() =>
-        Ok(Enum.GetValues<SystemPermission>()
-            .Where(p => p != SystemPermission.None)
+        Ok(Enum.GetValues<SystemPermissions>()
+            .Where(p => p != SystemPermissions.None)
             .Select(p => new PermissionResponse(p.ToString(), (int)p)));
 }

@@ -2,7 +2,7 @@
 
 namespace InvoiceFlow.Customers.Application;
 
-public sealed class CreateCustomerCommandValidator : AbstractValidator<CreateCustomerCommand>
+internal sealed class CreateCustomerCommandValidator : AbstractValidator<CreateCustomerCommand>
 {
     public CreateCustomerCommandValidator()
     {

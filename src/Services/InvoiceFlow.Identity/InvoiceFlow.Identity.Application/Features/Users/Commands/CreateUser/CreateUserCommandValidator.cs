@@ -3,7 +3,7 @@ using InvoiceFlow.Identity.Application.Features;
 
 namespace InvoiceFlow.Identity.Application;
 
-public class CreateUserCommandValidator : AbstractValidator<CreateUserCommand>
+internal sealed class CreateUserCommandValidator : AbstractValidator<CreateUserCommand>
 {
     public CreateUserCommandValidator()
     {

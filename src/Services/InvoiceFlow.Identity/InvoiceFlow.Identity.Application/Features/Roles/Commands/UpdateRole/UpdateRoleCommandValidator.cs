@@ -2,7 +2,7 @@
 
 namespace InvoiceFlow.Identity.Application;
 
-public class UpdateRoleCommandValidator : AbstractValidator<UpdateRoleCommand>
+internal sealed class UpdateRoleCommandValidator : AbstractValidator<UpdateRoleCommand>
 {
     public UpdateRoleCommandValidator()
     {

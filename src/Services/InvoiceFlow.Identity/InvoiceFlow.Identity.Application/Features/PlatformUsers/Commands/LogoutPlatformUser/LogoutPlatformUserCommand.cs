@@ -3,5 +3,5 @@ using MediatR;
 
 namespace InvoiceFlow.Identity.Application;
 
-public record LogoutPlatformUserCommand(string RefreshToken)
+public sealed record LogoutPlatformUserCommand(string RefreshToken)
     : IRequest<Result>;

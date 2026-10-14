@@ -13,7 +13,7 @@ namespace InvoiceFlow.Customers.Api;
 public class CustomersController(IMediator mediator) : ControllerBase
 {
     [HttpGet]
-    [HasPermission(SystemPermission.CustomerView)]
+    [HasPermission(SystemPermissions.CustomerRead)]
     public async Task<IActionResult> GetAll([FromRoute] Guid tenantId, CancellationToken cancellationToken)
     {
         var result = await mediator.Send(new GetCustomersQuery(tenantId), cancellationToken);
@@ -21,7 +21,7 @@ public class CustomersController(IMediator mediator) : ControllerBase
     }
 
     [HttpGet("{customerId:guid}")]
-    [HasPermission(SystemPermission.CustomerView)]
+    [HasPermission(SystemPermissions.CustomerRead)]
     public async Task<IActionResult> GetById([FromRoute] Guid tenantId, [FromRoute] Guid customerId, CancellationToken cancellationToken)
     {
         var result = await mediator.Send(new GetCustomerByIdQuery(tenantId, customerId), cancellationToken);
@@ -29,7 +29,7 @@ public class CustomersController(IMediator mediator) : ControllerBase
     }
 
     [HttpPost]
-    [HasPermission(SystemPermission.CustomerCreate)]
+    [HasPermission(SystemPermissions.CustomerCreate)]
     public async Task<IActionResult> Create([FromRoute] Guid tenantId, [FromBody] CreateCustomerRequest request, CancellationToken ct)
     {
         var result = await mediator.Send(request.ToCommand(tenantId), ct);
@@ -39,7 +39,7 @@ public class CustomersController(IMediator mediator) : ControllerBase
     }
 
     [HttpPatch("{customerId:guid}")]
-    [HasPermission(SystemPermission.CustomerUpdate)]
+    [HasPermission(SystemPermissions.CustomerUpdate)]
     public async Task<IActionResult> Update([FromRoute] Guid tenantId, [FromRoute] Guid customerId, [FromBody] UpdateCustomerRequest request, CancellationToken ct)
     {
         var result = await mediator.Send(request.ToCommand(tenantId, customerId), ct);
@@ -47,7 +47,7 @@ public class CustomersController(IMediator mediator) : ControllerBase
     }
 
     [HttpPost("activate/{customerId:guid}")]
-    [HasPermission(SystemPermission.CustomerDelete)]
+    [HasPermission(SystemPermissions.CustomerDelete)]
     public async Task<IActionResult> Activate([FromRoute] Guid tenantId, [FromRoute] Guid customerId, CancellationToken ct)
     {
         var result = await mediator.Send(new ActivateCustomerCommand(tenantId, customerId), ct);
@@ -55,7 +55,7 @@ public class CustomersController(IMediator mediator) : ControllerBase
     }
 
     [HttpDelete("deactivate/{customerId:guid}")]
-    [HasPermission(SystemPermission.CustomerDelete)]
+    [HasPermission(SystemPermissions.CustomerDelete)]
     public async Task<IActionResult> Deactivate([FromRoute] Guid tenantId, [FromRoute] Guid customerId, CancellationToken ct)
     {
         var result = await mediator.Send(new DeactivateCustomerCommand(tenantId, customerId), ct);

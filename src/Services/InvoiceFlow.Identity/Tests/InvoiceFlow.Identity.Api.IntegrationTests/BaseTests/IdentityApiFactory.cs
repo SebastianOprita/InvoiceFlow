@@ -163,7 +163,7 @@ public sealed class IdentityApiFactory
         );
     }
 
-    private static Role CreateRole(Guid tenantId, string name, DateTime dateTime, SystemPermission systemPermission = SystemPermission.None)
+    private static Role CreateRole(Guid tenantId, string name, DateTime dateTime, SystemPermissions systemPermission = SystemPermissions.None)
     {
         var id = Guid.CreateVersion7();
         return Role.Create
@@ -233,7 +233,7 @@ public sealed class IdentityApiFactory
         return user.Id;
     }
 
-    internal async Task<Guid> InsertRoleAsync(Guid tenantId, string name, SystemPermission systemPermission = SystemPermission.None)
+    internal async Task<Guid> InsertRoleAsync(Guid tenantId, string name, SystemPermissions systemPermission = SystemPermissions.None)
     {
         using var scope = Services.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();

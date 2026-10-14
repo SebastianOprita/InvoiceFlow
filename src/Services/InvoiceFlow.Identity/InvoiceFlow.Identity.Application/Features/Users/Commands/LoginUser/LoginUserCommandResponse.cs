@@ -1,6 +1,6 @@
 ﻿namespace InvoiceFlow.Identity.Application;
 
-public record LoginUserCommandResponse(
+public sealed record LoginUserCommandResponse(
     string AccessToken,
     string TokenType,
     DateTime AccessTokenExpiresAt,

@@ -2,7 +2,7 @@
 
 namespace InvoiceFlow.Identity.Application;
 
-public class DeactivateTenantCommandValidator : AbstractValidator<DeactivateTenantCommand>
+internal sealed class DeactivateTenantCommandValidator : AbstractValidator<DeactivateTenantCommand>
 {
     public DeactivateTenantCommandValidator()
     {

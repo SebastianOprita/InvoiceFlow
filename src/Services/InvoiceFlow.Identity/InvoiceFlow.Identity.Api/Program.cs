@@ -20,8 +20,10 @@ try
     builder.Services.AddInvoiceFlowAuthentication(builder.Configuration);
     builder.Services.AddInvoiceFlowAuthorization();
 
-    builder.AddApplicationServices();
-    builder.AddInfrastructureServices();
+    builder.Services.AddApplicationServices();
+    builder.Services.AddInfrastructureServices(builder.Configuration);
+
+    builder.Services.AddHttpContextAccessor();
 
     builder.Services
         .AddHealthChecks()
@@ -56,7 +58,10 @@ try
         Predicate = (check) => check.Tags.Contains("ready")
     });
 
-    await app.ConfigureInfrastructureServices();
+    if (app.Environment.IsDevelopment())
+    {
+        await app.Services.ConfigureInfrastructureServicesAsync();
+    }
 
     await app.RunAsync();
 

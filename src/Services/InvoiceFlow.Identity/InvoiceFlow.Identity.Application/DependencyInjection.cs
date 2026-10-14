@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using InvoiceFlow.BuildingBlocks.Application;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics.CodeAnalysis;
 
@@ -9,9 +8,9 @@ namespace InvoiceFlow.Identity.Application;
 [ExcludeFromCodeCoverage]
 public static class DependencyInjection
 {
-    public static WebApplicationBuilder AddApplicationServices(this WebApplicationBuilder builder)
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
-        builder.Services.AddMediatR(cfg =>
+        services.AddMediatR(cfg =>
         {
             cfg.RegisterServicesFromAssemblies(typeof(DependencyInjection).Assembly);
 
@@ -20,12 +19,10 @@ public static class DependencyInjection
             cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
         });
 
-        builder.Services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
+        services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
 
-        builder.Services.AddHttpContextAccessor();
+        services.AddSingleton<ISystemDateTimeProvider, SystemDateTimeProvider>();
 
-        builder.Services.AddSingleton<ISystemDateTimeProvider, SystemDateTimeProvider>();
-
-        return builder;
+        return services;
     }
 }

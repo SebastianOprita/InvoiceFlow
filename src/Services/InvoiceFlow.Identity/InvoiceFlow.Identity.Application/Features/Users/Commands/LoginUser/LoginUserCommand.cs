@@ -3,7 +3,7 @@ using MediatR;
 
 namespace InvoiceFlow.Identity.Application;
 
-public record LoginUserCommand(
+public sealed record LoginUserCommand(
     Guid TenantId,
     string Email,
     string Password,

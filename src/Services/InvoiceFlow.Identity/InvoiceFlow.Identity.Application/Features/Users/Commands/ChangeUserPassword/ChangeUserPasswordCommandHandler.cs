@@ -4,7 +4,7 @@ using MediatR;
 
 namespace InvoiceFlow.Identity.Application;
 
-public class ChangeUserPasswordCommandHandler(
+internal class ChangeUserPasswordCommandHandler(
     IUnitOfWork unitOfWork,
     IUsersRepository usersRepository,
     IRefreshTokensRepository refreshTokensRepository,

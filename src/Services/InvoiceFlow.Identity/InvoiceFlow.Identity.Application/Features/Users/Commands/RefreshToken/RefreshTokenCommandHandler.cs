@@ -4,7 +4,7 @@ using MediatR;
 
 namespace InvoiceFlow.Identity.Application;
 
-public class RefreshTokenCommandHandler(
+internal class RefreshTokenCommandHandler(
     IUnitOfWork unitOfWork,
     IRefreshTokensRepository refreshTokensRepository,
     ITenantsRepository tenantsRepository,

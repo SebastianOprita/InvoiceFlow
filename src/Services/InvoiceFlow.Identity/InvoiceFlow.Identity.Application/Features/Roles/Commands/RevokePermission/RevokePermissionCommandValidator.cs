@@ -3,7 +3,7 @@ using InvoiceFlow.Identity.Domain;
 
 namespace InvoiceFlow.Identity.Application;
 
-public class RevokePermissionCommandValidator : AbstractValidator<RevokePermissionCommand>
+internal sealed class RevokePermissionCommandValidator : AbstractValidator<RevokePermissionCommand>
 {
     public RevokePermissionCommandValidator()
     {

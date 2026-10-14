@@ -3,7 +3,7 @@ using MediatR;
 
 namespace InvoiceFlow.Identity.Application;
 
-public class RevokeUserRoleCommandHandler(
+internal class RevokeUserRoleCommandHandler(
     IUnitOfWork unitOfWork,
     IUsersRepository usersRepository,
     IRolesRepository rolesRepository)

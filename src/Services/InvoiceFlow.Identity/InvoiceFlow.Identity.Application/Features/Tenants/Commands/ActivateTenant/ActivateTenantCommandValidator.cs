@@ -2,7 +2,7 @@
 
 namespace InvoiceFlow.Identity.Application;
 
-public class ActivateTenantCommandValidator : AbstractValidator<ActivateTenantCommand>
+internal sealed class ActivateTenantCommandValidator : AbstractValidator<ActivateTenantCommand>
 {
     public ActivateTenantCommandValidator()
     {

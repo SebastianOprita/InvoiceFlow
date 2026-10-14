@@ -3,5 +3,5 @@ using MediatR;
 
 namespace InvoiceFlow.Identity.Application;
 
-public record GetTenantsQuery
+public sealed record GetTenantsQuery
     : IRequest<Result<List<TenantDto>>>;

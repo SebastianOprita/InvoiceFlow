@@ -1,5 +1,5 @@
 ﻿namespace InvoiceFlow.Identity.Application;
 
-public record ImpersonateUserCommandResponse(
+public sealed record ImpersonateUserCommandResponse(
     string ImpersonationToken,
     DateTime ImpersonationTokenExpiresAt);

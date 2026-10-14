@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace InvoiceFlow.Identity.Infrastructure;
 
-public class TenantsRepository(IdentityDbContext dbContext) : ITenantsRepository
+internal class TenantsRepository(IdentityDbContext dbContext) : ITenantsRepository
 {
     public async Task<bool> ExistsBySlugAsync(TenantSlug slug, CancellationToken cancellationToken = default)
     {

@@ -2,7 +2,7 @@
 
 namespace InvoiceFlow.Identity.Application;
 
-public class GetTenantsQueryValidator : AbstractValidator<GetTenantsQuery>
+internal sealed class GetTenantsQueryValidator : AbstractValidator<GetTenantsQuery>
 {
     public GetTenantsQueryValidator()
     {

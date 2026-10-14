@@ -2,7 +2,7 @@
 
 namespace InvoiceFlow.Identity.Application;
 
-public class DeactivateUserCommandValidator : AbstractValidator<DeactivateUserCommand>
+internal sealed class DeactivateUserCommandValidator : AbstractValidator<DeactivateUserCommand>
 {
     public DeactivateUserCommandValidator()
     {

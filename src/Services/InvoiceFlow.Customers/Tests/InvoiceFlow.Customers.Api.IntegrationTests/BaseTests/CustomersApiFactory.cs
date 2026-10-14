@@ -1,4 +1,5 @@
 ﻿using InvoiceFlow.BuildingBlocks.Application;
+using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.Customers.Domain;
 using InvoiceFlow.Customers.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
@@ -21,7 +22,7 @@ public sealed class CustomersApiFactory
     private readonly JwtSettingsTestFixture _jwtSettingsFixture;
     private readonly DatabaseTestFixture _dbFixture;
     private Respawner _respawner = null!;
-    public JwtSettings JwtSettings
+    public JwtValidationSettings JwtSettings
     {
         get
         {
@@ -30,7 +31,7 @@ public sealed class CustomersApiFactory
 
             return configuration
                 .GetSection("JwtSettings")
-                .Get<JwtSettings>()
+                .Get<JwtValidationSettings>()
                 ?? throw new InvalidOperationException(
                     "JwtSettings are not configured.");
         }

@@ -3,6 +3,6 @@ using MediatR;
 
 namespace InvoiceFlow.Identity.Application;
 
-public record GetPlatformUserByIdQuery(
+public sealed record GetPlatformUserByIdQuery(
     Guid UserId)
     : IRequest<Result<PlatformUserDto>>;

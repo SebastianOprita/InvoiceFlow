@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace InvoiceFlow.Identity.Infrastructure;
 
-public class RolesRepository(IdentityDbContext dbContext) : IRolesRepository
+internal class RolesRepository(IdentityDbContext dbContext) : IRolesRepository
 {
     public async Task<List<Role>> GetAllRolesAsync(Guid tenantId, CancellationToken cancellationToken = default)
     {

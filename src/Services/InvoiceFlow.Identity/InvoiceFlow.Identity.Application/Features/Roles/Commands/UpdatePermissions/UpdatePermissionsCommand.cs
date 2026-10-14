@@ -3,7 +3,7 @@ using MediatR;
 
 namespace InvoiceFlow.Identity.Application;
 
-public record UpdatePermissionsCommand(
+public sealed record UpdatePermissionsCommand(
     Guid TenantId,
     Guid RoleId,
     long Permissions)

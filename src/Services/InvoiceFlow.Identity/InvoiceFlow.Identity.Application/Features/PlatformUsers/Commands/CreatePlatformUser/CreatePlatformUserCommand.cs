@@ -3,7 +3,7 @@ using MediatR;
 
 namespace InvoiceFlow.Identity.Application;
 
-public record CreatePlatformUserCommand(
+public sealed record CreatePlatformUserCommand(
     string Email,
     string Password,
     string FirstName,

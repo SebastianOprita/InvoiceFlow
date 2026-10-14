@@ -2,7 +2,7 @@
 
 namespace InvoiceFlow.Identity.Application;
 
-public class CreateTenantCommandValidator : AbstractValidator<CreateTenantCommand>
+internal sealed class CreateTenantCommandValidator : AbstractValidator<CreateTenantCommand>
 {
     public CreateTenantCommandValidator()
     {

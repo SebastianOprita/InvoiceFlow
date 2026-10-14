@@ -3,7 +3,7 @@ using MediatR;
 
 namespace InvoiceFlow.Identity.Application;
 
-public class DeleteRoleCommandHandler(
+internal class DeleteRoleCommandHandler(
     IUnitOfWork unitOfWork,
     IRolesRepository rolesRepository)
     : IRequestHandler<DeleteRoleCommand, Result>

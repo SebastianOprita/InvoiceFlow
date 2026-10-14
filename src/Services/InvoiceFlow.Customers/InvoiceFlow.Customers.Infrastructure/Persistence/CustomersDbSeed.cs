@@ -4,7 +4,7 @@ namespace InvoiceFlow.Customers.Infrastructure;
 
 public static class CustomersDbSeed
 {
-    public static async Task SeedAsync(CustomersDbContext db)
+    public static async Task SeedAsync(CustomersDbContext db, CancellationToken cancellationToken = default)
     {
         var tenantId = Guid.Parse("f305e3f0-e634-470b-b9c1-cc0c7559dc0a");
         var customer1 = Customer.Create(
@@ -50,6 +50,6 @@ public static class CustomersDbSeed
             );
 
         await db.Customers.AddRangeAsync(customer1, customer2);
-        await db.SaveChangesAsync();
+        await db.SaveChangesAsync(cancellationToken);
     }
 }

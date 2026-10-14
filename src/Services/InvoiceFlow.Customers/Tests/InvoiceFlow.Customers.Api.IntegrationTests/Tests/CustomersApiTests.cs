@@ -25,10 +25,10 @@ public sealed class CustomersApiTests : IAsyncLifetime
         _baseUrl = $"/api/{_tenantId}/customers/";
         _customerAccessToken = TestJwtTokenFactory.CreateAccessToken(
             _tenantId,
-            SystemPermission.CustomerView |
-            SystemPermission.CustomerCreate |
-            SystemPermission.CustomerUpdate |
-            SystemPermission.CustomerDelete,
+            SystemPermissions.CustomerRead |
+            SystemPermissions.CustomerCreate |
+            SystemPermissions.CustomerUpdate |
+            SystemPermissions.CustomerDelete,
             _factory.JwtSettings);
     }
 
@@ -77,7 +77,7 @@ public sealed class CustomersApiTests : IAsyncLifetime
             .Replace("{tenantId}", _tenantId.ToString())
             .Replace("{customerId}", Guid.CreateVersion7().ToString());
 
-        var response = await _client.SendAsync(method, url, TestJwtTokenFactory.CreateAccessToken(_tenantId, SystemPermission.None, _factory.JwtSettings), TestContext.Current.CancellationToken);
+        var response = await _client.SendAsync(method, url, TestJwtTokenFactory.CreateAccessToken(_tenantId, SystemPermissions.None, _factory.JwtSettings), TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }

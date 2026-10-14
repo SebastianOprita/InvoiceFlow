@@ -39,6 +39,7 @@
   <Folder Name="/src/Services/InvoiceFlow.Customers/Tests/">
     <Project Path="Services/InvoiceFlow.Customers/Tests/InvoiceFlow.Customers.Api.IntegrationTests/InvoiceFlow.Customers.Api.IntegrationTests.csproj" Id="73c1f2c3-960e-4a08-b1eb-02814caf1a63" />
     <Project Path="Services/InvoiceFlow.Customers/Tests/InvoiceFlow.Customers.Application.UnitTests/InvoiceFlow.Customers.Application.UnitTests.csproj" Id="7db2b317-bfcd-44b6-a774-c3bbb6978bb5" />
+    <Project Path="Services/InvoiceFlow.Customers/Tests/InvoiceFlow.Customers.ArchitectureTests/InvoiceFlow.Customers.ArchitectureTests.csproj" Id="3cb60397-a785-4aba-8f3f-e1adb4f4d02a" />
     <Project Path="Services/InvoiceFlow.Customers/Tests/InvoiceFlow.Customers.Domain.UnitTests/InvoiceFlow.Customers.Domain.UnitTests.csproj" Id="33ea896c-1263-4e0a-aa97-041c6992c8ce" />
   </Folder>
   <Folder Name="/src/Services/InvoiceFlow.Identity/">
@@ -50,6 +51,7 @@
   <Folder Name="/src/Services/InvoiceFlow.Identity/Tests/">
     <Project Path="Services/InvoiceFlow.Identity/Tests/InvoiceFlow.Identity.Api.IntegrationTests/InvoiceFlow.Identity.Api.IntegrationTests.csproj" Id="cdce0e89-4acc-4caa-bb6a-b7fa7b2c0475" />
     <Project Path="Services/InvoiceFlow.Identity/Tests/InvoiceFlow.Identity.Application.UnitTests/InvoiceFlow.Identity.Application.UnitTests.csproj" Id="054eab9b-8344-4d0a-9ed1-8d41d0207c81" />
+    <Project Path="Services/InvoiceFlow.Identity/Tests/InvoiceFlow.Identity.ArchitectureTests/InvoiceFlow.Identity.ArchitectureTests.csproj" Id="e2942a55-cb08-4605-b31a-30ea0a0e0068" />
     <Project Path="Services/InvoiceFlow.Identity/Tests/InvoiceFlow.Identity.Domain.UnitTests/InvoiceFlow.Identity.Domain.UnitTests.csproj" Id="c53f766f-0232-44a9-b845-de725c89a067" />
   </Folder>
   <Folder Name="/src/Services/InvoiceFlow.Invoices/">

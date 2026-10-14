@@ -3,7 +3,7 @@ using InvoiceFlow.Identity.Domain;
 
 namespace InvoiceFlow.Identity.Application;
 
-public class GrantPermissionCommandValidator : AbstractValidator<GrantPermissionCommand>
+internal sealed class GrantPermissionCommandValidator : AbstractValidator<GrantPermissionCommand>
 {
     public GrantPermissionCommandValidator()
     {

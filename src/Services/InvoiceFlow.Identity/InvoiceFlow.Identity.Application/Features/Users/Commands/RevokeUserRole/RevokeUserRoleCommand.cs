@@ -3,7 +3,7 @@ using MediatR;
 
 namespace InvoiceFlow.Identity.Application;
 
-public record RevokeUserRoleCommand(
+public sealed record RevokeUserRoleCommand(
     Guid TenantId,
     Guid UserId,
     Guid RoleId)

@@ -3,7 +3,7 @@ using MediatR;
 
 namespace InvoiceFlow.Identity.Application;
 
-public record ActivateUserCommand(
+public sealed record ActivateUserCommand(
     Guid TenantId,
     Guid UserId)
     : IRequest<Result>;

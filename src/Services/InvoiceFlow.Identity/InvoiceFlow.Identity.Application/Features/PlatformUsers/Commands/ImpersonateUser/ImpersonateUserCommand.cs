@@ -3,7 +3,7 @@ using MediatR;
 
 namespace InvoiceFlow.Identity.Application;
 
-public record ImpersonateUserCommand(
+public sealed record ImpersonateUserCommand(
     Guid ActorUserId,
     Guid TargetUserTenantId,
     string TargetUserEmail,

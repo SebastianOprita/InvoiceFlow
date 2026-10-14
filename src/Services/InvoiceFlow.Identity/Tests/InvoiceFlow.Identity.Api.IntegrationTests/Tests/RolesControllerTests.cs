@@ -32,7 +32,7 @@ public sealed class RolesApiControllerTests : IAsyncLifetime
         return ValueTask.CompletedTask;
     }
 
-    private string GetAccessToken(SystemPermission permission = SystemPermission.ManageRoles)
+    private string GetAccessToken(SystemPermissions permission = SystemPermissions.ManageRoles)
     {
         return TestJwtTokenFactory.CreateAccessToken(_factory.Tenant.Id, permission, _factory.JwtSettings);
     }
@@ -202,8 +202,8 @@ public sealed class RolesApiControllerTests : IAsyncLifetime
     {
         // Arrange
         string name = "role";
-        var createRoleId = await _factory.InsertRoleAsync(_factory.Tenant.Id, name, SystemPermission.InvoiceView);
-        var updateRequest = new UpdatePermissionsRequest(SystemPermission.ManageUsers | SystemPermission.ManageRoles);
+        var createRoleId = await _factory.InsertRoleAsync(_factory.Tenant.Id, name, SystemPermissions.InvoiceRead);
+        var updateRequest = new UpdatePermissionsRequest(SystemPermissions.ManageUsers | SystemPermissions.ManageRoles);
 
         // Act
         var response = await _client.SendAsync(HttpMethod.Post, GetUrl($"{createRoleId}/permissions"), GetAccessToken(), updateRequest, TestContext.Current.CancellationToken);
@@ -214,14 +214,14 @@ public sealed class RolesApiControllerTests : IAsyncLifetime
         updatedRole.Should().NotBeNull();
         updatedRole!.Id.Should().Be(createRoleId);
         updatedRole.TenantId.Should().Be(_factory.Tenant.Id);
-        updatedRole.Permissions.Should().Be((long)(SystemPermission.ManageUsers | SystemPermission.ManageRoles));
+        updatedRole.Permissions.Should().Be((long)(SystemPermissions.ManageUsers | SystemPermissions.ManageRoles));
     }
 
     [Fact]
     public async Task UpdatePermissions_WhenRoleDoesNotExists_Should_ReturnNotFound()
     {
         // Assert
-        var updateRequest = new UpdatePermissionsRequest(SystemPermission.ManageUsers);
+        var updateRequest = new UpdatePermissionsRequest(SystemPermissions.ManageUsers);
 
         // Act
         var response = await _client.SendAsync(HttpMethod.Post, GetUrl($"{Guid.CreateVersion7()}/permissions"), GetAccessToken(), updateRequest, TestContext.Current.CancellationToken);
@@ -235,8 +235,8 @@ public sealed class RolesApiControllerTests : IAsyncLifetime
     {
         // Arrange
         string name = "role10";
-        var createRoleId = await _factory.InsertRoleAsync(_factory.Tenant.Id, name, SystemPermission.InvoiceView);
-        var updateRequest = new UpdatePermissionsRequest(SystemPermission.ManageUsers | SystemPermission.ManageRoles);
+        var createRoleId = await _factory.InsertRoleAsync(_factory.Tenant.Id, name, SystemPermissions.InvoiceRead);
+        var updateRequest = new UpdatePermissionsRequest(SystemPermissions.ManageUsers | SystemPermissions.ManageRoles);
 
         // Act
         var response = await _client.SendAsync(HttpMethod.Post, GetUrl($"{createRoleId}/permissions/grant"), GetAccessToken(), updateRequest, TestContext.Current.CancellationToken);
@@ -247,14 +247,14 @@ public sealed class RolesApiControllerTests : IAsyncLifetime
         updatedRole.Should().NotBeNull();
         updatedRole!.Id.Should().Be(createRoleId);
         updatedRole.TenantId.Should().Be(_factory.Tenant.Id);
-        updatedRole.Permissions.Should().Be((long)(SystemPermission.InvoiceView | SystemPermission.ManageUsers | SystemPermission.ManageRoles));
+        updatedRole.Permissions.Should().Be((long)(SystemPermissions.InvoiceRead | SystemPermissions.ManageUsers | SystemPermissions.ManageRoles));
     }
 
     [Fact]
     public async Task GrantPermissions_WhenRoleDoesNotExists_Should_ReturnNotFound()
     {
         // Assert
-        var updateRequest = new UpdatePermissionsRequest(SystemPermission.ManageUsers);
+        var updateRequest = new UpdatePermissionsRequest(SystemPermissions.ManageUsers);
 
         // Act
         var response = await _client.SendAsync(HttpMethod.Post, GetUrl($"{Guid.CreateVersion7()}/permissions/grant"), GetAccessToken(), updateRequest, TestContext.Current.CancellationToken);
@@ -268,8 +268,8 @@ public sealed class RolesApiControllerTests : IAsyncLifetime
     {
         // Arrange
         string name = "role11";
-        var createRoleId = await _factory.InsertRoleAsync(_factory.Tenant.Id, name, SystemPermission.InvoiceView | SystemPermission.ManageUsers | SystemPermission.ManageRoles);
-        var updateRequest = new UpdatePermissionsRequest(SystemPermission.ManageUsers | SystemPermission.ManageRoles);
+        var createRoleId = await _factory.InsertRoleAsync(_factory.Tenant.Id, name, SystemPermissions.InvoiceRead | SystemPermissions.ManageUsers | SystemPermissions.ManageRoles);
+        var updateRequest = new UpdatePermissionsRequest(SystemPermissions.ManageUsers | SystemPermissions.ManageRoles);
 
         // Act
         var response = await _client.SendAsync(HttpMethod.Post, GetUrl($"{createRoleId}/permissions/revoke"), GetAccessToken(), updateRequest, TestContext.Current.CancellationToken);
@@ -280,14 +280,14 @@ public sealed class RolesApiControllerTests : IAsyncLifetime
         updatedRole.Should().NotBeNull();
         updatedRole!.Id.Should().Be(createRoleId);
         updatedRole.TenantId.Should().Be(_factory.Tenant.Id);
-        updatedRole.Permissions.Should().Be((long)SystemPermission.InvoiceView);
+        updatedRole.Permissions.Should().Be((long)SystemPermissions.InvoiceRead);
     }
 
     [Fact]
     public async Task RevokePermissions_WhenRoleDoesNotExists_Should_ReturnNotFound()
     {
         // Assert
-        var updateRequest = new UpdatePermissionsRequest(SystemPermission.ManageUsers);
+        var updateRequest = new UpdatePermissionsRequest(SystemPermissions.ManageUsers);
 
         // Act
         var response = await _client.SendAsync(HttpMethod.Post, GetUrl($"{Guid.CreateVersion7()}/permissions/revoke"), GetAccessToken(), updateRequest, TestContext.Current.CancellationToken);
@@ -346,7 +346,7 @@ public sealed class RolesApiControllerTests : IAsyncLifetime
         var response = await _client.SendAsync(
             method,
             url,
-            GetAccessToken(SystemPermission.None),
+            GetAccessToken(SystemPermissions.None),
             TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
@@ -354,6 +354,6 @@ public sealed class RolesApiControllerTests : IAsyncLifetime
 
     private static CreateRoleRequest CreateValidRoleRequest(string name)
     {
-        return new CreateRoleRequest(name, "Description for " + name, SystemPermission.ManageRoles);
+        return new CreateRoleRequest(name, "Description for " + name, SystemPermissions.ManageRoles);
     }
 }

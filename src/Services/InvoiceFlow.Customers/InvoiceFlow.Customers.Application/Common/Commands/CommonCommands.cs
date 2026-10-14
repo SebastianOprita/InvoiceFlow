@@ -1,9 +1,9 @@
 ﻿
 namespace InvoiceFlow.Customers.Application;
 
-public record CustomerContact(string? Email, string? Phone);
+public sealed record CustomerContact(string? Email, string? Phone);
 
-public record CustomerAddress(
+public sealed record CustomerAddress(
     string AddressLine1,
     string? AddressLine2,
     string City,
@@ -11,6 +11,6 @@ public record CustomerAddress(
     string Country,
     string PostalCode);
 
-public record CustomerCreditPolicy(decimal CreditLimit, int PaymentTermDays);
+public sealed record CustomerCreditPolicy(decimal CreditLimit, int PaymentTermDays);
 
-public record CustomerTaxDetails(string? TaxNumber, string RegistrationNumber);
+public sealed record CustomerTaxDetails(string? TaxNumber, string RegistrationNumber);

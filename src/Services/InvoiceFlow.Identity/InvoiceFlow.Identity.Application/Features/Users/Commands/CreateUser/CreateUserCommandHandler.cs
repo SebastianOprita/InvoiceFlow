@@ -4,7 +4,7 @@ using MediatR;
 
 namespace InvoiceFlow.Identity.Application.Features;
 
-public class CreateUserCommandHandler(
+internal class CreateUserCommandHandler(
     IUnitOfWork unitOfWork,
     IUsersRepository usersRepository,
     IPasswordHasher passwordHasher,

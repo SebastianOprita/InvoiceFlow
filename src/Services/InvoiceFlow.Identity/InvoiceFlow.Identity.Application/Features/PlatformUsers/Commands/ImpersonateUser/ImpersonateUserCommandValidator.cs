@@ -3,7 +3,7 @@ using InvoiceFlow.Identity.Domain;
 
 namespace InvoiceFlow.Identity.Application;
 
-public class ImpersonateUserCommandValidator : AbstractValidator<ImpersonateUserCommand>
+internal sealed class ImpersonateUserCommandValidator : AbstractValidator<ImpersonateUserCommand>
 {
     public ImpersonateUserCommandValidator()
     {

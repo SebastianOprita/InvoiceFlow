@@ -5,7 +5,8 @@ namespace InvoiceFlow.Identity.Infrastructure;
 
 public static class IdentityDbSeed
 {
-    public static async Task SeedAsync(IdentityDbContext db, ISystemDateTimeProvider dateTimeProvider)
+    public static async Task SeedAsync(IdentityDbContext db, ISystemDateTimeProvider dateTimeProvider,
+        CancellationToken cancellationToken = default)
     {
         var tenant = Tenant.Create(
             Guid.Parse("f305e3f0-e634-470b-b9c1-cc0c7559dc0a"),
@@ -40,6 +41,6 @@ public static class IdentityDbSeed
         await db.Tenants.AddAsync(tenant);
         await db.Users.AddAsync(user);
         await db.Roles.AddAsync(role);
-        await db.SaveChangesAsync();
+        await db.SaveChangesAsync(cancellationToken);
     }
 }

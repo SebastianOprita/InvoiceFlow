@@ -3,7 +3,7 @@ using MediatR;
 
 namespace InvoiceFlow.Identity.Application;
 
-public record LogoutUserCommand(
+public sealed record LogoutUserCommand(
     Guid TenantId,
     string RefreshToken)
     : IRequest<Result>;

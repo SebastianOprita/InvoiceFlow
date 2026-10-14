@@ -4,7 +4,7 @@ using MediatR;
 
 namespace InvoiceFlow.Identity.Application;
 
-public class ChangePlatformUserPasswordCommandHandler(
+internal class ChangePlatformUserPasswordCommandHandler(
     IUnitOfWork unitOfWork,
     IPlatformUsersRepository platformUsersRepository,
     IPasswordHasher passwordHasher,

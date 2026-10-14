@@ -3,7 +3,7 @@ using MediatR;
 
 namespace InvoiceFlow.Identity.Application;
 
-public class AssignUserRoleCommandHandler(
+internal sealed class AssignRoleCommandHandler(
     IUnitOfWork unitOfWork,
     IUsersRepository usersRepository,
     IRolesRepository rolesRepository,

@@ -3,6 +3,6 @@ using MediatR;
 
 namespace InvoiceFlow.Identity.Application;
 
-public record ActivatePlatformUserCommand(
+public sealed record ActivatePlatformUserCommand(
     Guid UserId)
     : IRequest<Result>;

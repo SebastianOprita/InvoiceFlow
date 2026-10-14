@@ -1,7 +1,6 @@
 using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Application;
 using InvoiceFlow.Identity.Domain;
-using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
 

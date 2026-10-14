@@ -3,7 +3,7 @@ using MediatR;
 
 namespace InvoiceFlow.Identity.Application;
 
-public class RevokePermissionCommandHandler(
+internal class RevokePermissionCommandHandler(
     IUnitOfWork unitOfWork,
     IRolesRepository rolesRepository,
     ISystemDateTimeProvider dateTimeProvider)

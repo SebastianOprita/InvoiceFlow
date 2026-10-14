@@ -3,7 +3,7 @@ using MediatR;
 
 namespace InvoiceFlow.Customers.Application;
 
-public class DeactivateCustomerCommandHandler(
+internal class DeactivateCustomerCommandHandler(
     IUnitOfWork unitOfWork,
     ICustomersRepository customersRepository,
     ISystemDateTimeProvider dateTimeProvider)
