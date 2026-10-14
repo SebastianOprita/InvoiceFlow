@@ -13,6 +13,8 @@ namespace InvoiceFlow.BuildingBlocks.Authorization.Tests;
 
 public sealed class AuthenticationExtensionsTests
 {
+    private const string TestJwtSecret = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+
     [Fact]
     public void AddInvoiceFlowAuthentication_WithMissingJwtSettings_ShouldThrow()
     {
@@ -35,30 +37,30 @@ public sealed class AuthenticationExtensionsTests
 
     [Theory]
     [InlineData(
-    null,
-    "InvoiceFlow.Api",
-    "this-is-a-test-secret-with-enough-length-123456",
-    "JwtSettings:Issuer is not configured.")]
+        null,
+        "InvoiceFlow.Api",
+        TestJwtSecret,
+        "JwtSettings:Issuer is not configured.")]
     [InlineData(
-    "InvoiceFlow.Identity",
-    null,
-    "this-is-a-test-secret-with-enough-length-123456",
-    "JwtSettings:Audience is not configured.")]
+        "InvoiceFlow.Identity",
+        null,
+        TestJwtSecret,
+        "JwtSettings:Audience is not configured.")]
     [InlineData(
-    "InvoiceFlow.Identity",
-    "InvoiceFlow.Api",
-    null,
-    "JwtSettings:Secret is not configured.")]
+        "InvoiceFlow.Identity",
+        "InvoiceFlow.Api",
+        null,
+        "JwtSettings:Secret is not configured.")]
     [InlineData(
-    "InvoiceFlow.Identity",
-    "InvoiceFlow.Api",
-    "short-secret",
-    "JwtSettings:Secret must be at least 32 bytes.")]
+        "InvoiceFlow.Identity",
+        "InvoiceFlow.Api",
+        "short-secret",
+        "JwtSettings:Secret must be at least 32 bytes.")]
     public void AddInvoiceFlowAuthentication_WithInvalidJwtSettings_ShouldThrow(
-    string? issuer,
-    string? audience,
-    string? secret,
-    string expectedMessage)
+        string? issuer,
+        string? audience,
+        string? secret,
+        string expectedMessage)
     {
         // Arrange
         var services = new ServiceCollection();
@@ -141,14 +143,13 @@ public sealed class AuthenticationExtensionsTests
         // Arrange
         const string issuer = "InvoiceFlow.Identity";
         const string audience = "InvoiceFlow.Api";
-        const string secret = "this-is-a-test-secret-with-enough-length-123456";
 
         var services = new ServiceCollection();
 
         var configuration = CreateConfiguration(
             issuer,
             audience,
-            secret);
+            TestJwtSecret);
 
         services.AddInvoiceFlowAuthentication(configuration);
 
@@ -184,13 +185,13 @@ public sealed class AuthenticationExtensionsTests
 
         signingKey.Key
             .Should()
-            .Equal(Encoding.UTF8.GetBytes(secret));
+            .Equal(Encoding.UTF8.GetBytes(TestJwtSecret));
     }
 
     private static IConfiguration CreateConfiguration(
         string? issuer = "InvoiceFlow.Identity",
         string? audience = "InvoiceFlow.Api",
-        string? secret = "this-is-a-test-secret-with-enough-length-123456")
+        string? secret = TestJwtSecret)
     {
         var values = new Dictionary<string, string?>
         {
