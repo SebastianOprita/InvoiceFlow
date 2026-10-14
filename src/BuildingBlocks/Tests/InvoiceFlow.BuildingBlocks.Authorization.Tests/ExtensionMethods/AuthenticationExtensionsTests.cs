@@ -30,7 +30,52 @@ public sealed class AuthenticationExtensionsTests
         // Assert
         action.Should()
             .Throw<InvalidOperationException>()
-            .WithMessage("JwtSettings is missing.");
+            .WithMessage("JwtSettings configuration is missing.");
+    }
+
+    [Theory]
+    [InlineData(
+    null,
+    "InvoiceFlow.Api",
+    "this-is-a-test-secret-with-enough-length-123456",
+    "JwtSettings:Issuer is not configured.")]
+    [InlineData(
+    "InvoiceFlow.Identity",
+    null,
+    "this-is-a-test-secret-with-enough-length-123456",
+    "JwtSettings:Audience is not configured.")]
+    [InlineData(
+    "InvoiceFlow.Identity",
+    "InvoiceFlow.Api",
+    null,
+    "JwtSettings:Secret is not configured.")]
+    [InlineData(
+    "InvoiceFlow.Identity",
+    "InvoiceFlow.Api",
+    "short-secret",
+    "JwtSettings:Secret must be at least 32 bytes.")]
+    public void AddInvoiceFlowAuthentication_WithInvalidJwtSettings_ShouldThrow(
+    string? issuer,
+    string? audience,
+    string? secret,
+    string expectedMessage)
+    {
+        // Arrange
+        var services = new ServiceCollection();
+
+        var configuration = CreateConfiguration(
+            issuer,
+            audience,
+            secret);
+
+        // Act
+        var action = () =>
+            services.AddInvoiceFlowAuthentication(configuration);
+
+        // Assert
+        action.Should()
+            .Throw<InvalidOperationException>()
+            .WithMessage(expectedMessage);
     }
 
     [Fact]
@@ -143,9 +188,9 @@ public sealed class AuthenticationExtensionsTests
     }
 
     private static IConfiguration CreateConfiguration(
-        string issuer = "InvoiceFlow.Identity",
-        string audience = "InvoiceFlow.Api",
-        string secret = "this-is-a-test-secret-with-enough-length-123456")
+        string? issuer = "InvoiceFlow.Identity",
+        string? audience = "InvoiceFlow.Api",
+        string? secret = "this-is-a-test-secret-with-enough-length-123456")
     {
         var values = new Dictionary<string, string?>
         {
