@@ -22,7 +22,7 @@ public static class TestJwtTokenFactory
             new(InvoiceFlowClaimTypes.UserId, Guid.CreateVersion7().ToString()),
             new(InvoiceFlowClaimTypes.EmailAddress, "integration-test-user@email.com"),
             new(InvoiceFlowClaimTypes.TenantId, tenantId.ToString()),
-            new(InvoiceFlowClaimTypes.Permissions, ((long)permissions).ToString()),
+            new(InvoiceFlowClaimTypes.Permissions, permissions.ToPermissions().ToString()),
         };
 
         var key = new SymmetricSecurityKey(
@@ -83,7 +83,7 @@ public static class TestJwtTokenFactory
             new("user_id", userId.ToString()),
             new("email_address", "integration-test-user@email.com"),
             new("tenant_id", tenantId.ToString()),
-            new("permissions", ((long)permissions).ToString()),
+            new("permissions", permissions.ToPermissions().ToString()),
 
             // The actor performing the impersonation
             new("actor_principal_type", "platform_user"),
