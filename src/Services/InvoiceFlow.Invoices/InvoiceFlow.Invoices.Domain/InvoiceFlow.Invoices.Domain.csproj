@@ -6,4 +6,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="InvoiceFlow.BuildingBlocks.Domain" />
+	  <PackageReference Include="InvoiceFlow.BuildingBlocks.Currency" />
+  </ItemGroup>
+
 </Project>
