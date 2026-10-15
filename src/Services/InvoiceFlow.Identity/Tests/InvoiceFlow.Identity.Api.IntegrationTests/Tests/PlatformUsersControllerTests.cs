@@ -111,7 +111,7 @@ public sealed class PlatformUsersControllerTests : IAsyncLifetime
     {
         // Arrange
         var platformUser = _factory.PlatformUser;
-        var updateRequest = new UpdatePlatformUserRequest
+        var updateRequest = new UpdateUserRequest
             ("FirstName", "LastName");
 
         // Act
@@ -133,7 +133,7 @@ public sealed class PlatformUsersControllerTests : IAsyncLifetime
     public async Task Update_WhenUserDoesNotExist_Should_ReturnNotFound()
     {
         // Arrange
-        var updateRequest = new UpdatePlatformUserRequest
+        var updateRequest = new UpdateUserRequest
             ("FirstName", "LastName");
 
         // Act
@@ -229,9 +229,9 @@ public sealed class PlatformUsersControllerTests : IAsyncLifetime
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
-    private static CreatePlatformUserRequest CreateValidUserRequest(string email)
+    private static CreateUserRequest CreateValidUserRequest(string email)
     {
-        return new CreatePlatformUserRequest
+        return new CreateUserRequest
         (
             email,
             "Password123!",

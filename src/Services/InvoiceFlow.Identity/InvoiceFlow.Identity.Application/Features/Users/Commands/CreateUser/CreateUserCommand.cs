@@ -1,7 +1,7 @@
 ﻿using InvoiceFlow.BuildingBlocks.Application;
 using MediatR;
 
-namespace InvoiceFlow.Identity.Application.Features;
+namespace InvoiceFlow.Identity.Application;
 
 public sealed record CreateUserCommand(
     Guid TenantId,

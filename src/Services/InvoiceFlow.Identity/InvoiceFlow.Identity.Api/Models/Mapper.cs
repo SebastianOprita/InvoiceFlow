@@ -20,7 +20,7 @@ public static class Mapper
         );
     }
 
-    public static CreatePlatformUserCommand ToCommand(this CreatePlatformUserRequest request)
+    public static CreatePlatformUserCommand ToCommand(this CreateUserRequest request)
     {
         return new CreatePlatformUserCommand(
             request.Email,
@@ -30,12 +30,42 @@ public static class Mapper
         );
     }
 
-    public static UpdatePlatformUserCommand ToCommand(this UpdatePlatformUserRequest request, Guid userId)
+    public static UpdatePlatformUserCommand ToCommand(this UpdateUserRequest request, Guid userId)
     {
         return new UpdatePlatformUserCommand(
             userId,
             request.FirstName,
             request.LastName
+        );
+    }
+
+    public static CreateUserCommand ToCommand(this CreateUserRequest request, Guid tenantId)
+    {
+        return new CreateUserCommand(
+            tenantId,
+            request.Email,
+            request.Password,
+            request.FirstName,
+            request.LastName
+        );
+    }
+
+    public static UpdateUserCommand ToCommand(this UpdateUserRequest request, Guid tenantId, Guid userId)
+    {
+        return new UpdateUserCommand(
+            tenantId,
+            userId,
+            request.FirstName,
+            request.LastName
+        );
+    }
+
+    public static AssignRoleCommand ToCommand(this AssignRoleRequest request, Guid tenantId, Guid userId)
+    {
+        return new AssignRoleCommand(
+            tenantId,
+            userId,
+            request.RoleId
         );
     }
 }

@@ -214,7 +214,7 @@ public sealed class RolesApiControllerTests : IAsyncLifetime
         updatedRole.Should().NotBeNull();
         updatedRole!.Id.Should().Be(createRoleId);
         updatedRole.TenantId.Should().Be(_factory.Tenant.Id);
-        updatedRole.Permissions.Should().Be((long)(SystemPermissions.ManageUsers | SystemPermissions.ManageRoles));
+        updatedRole.Permissions.Should().Be((SystemPermissions.ManageUsers | SystemPermissions.ManageRoles).ToPermissions());
     }
 
     [Fact]
@@ -247,7 +247,7 @@ public sealed class RolesApiControllerTests : IAsyncLifetime
         updatedRole.Should().NotBeNull();
         updatedRole!.Id.Should().Be(createRoleId);
         updatedRole.TenantId.Should().Be(_factory.Tenant.Id);
-        updatedRole.Permissions.Should().Be((long)(SystemPermissions.InvoiceRead | SystemPermissions.ManageUsers | SystemPermissions.ManageRoles));
+        updatedRole.Permissions.Should().Be((SystemPermissions.InvoiceRead | SystemPermissions.ManageUsers | SystemPermissions.ManageRoles).ToPermissions());
     }
 
     [Fact]
@@ -280,7 +280,7 @@ public sealed class RolesApiControllerTests : IAsyncLifetime
         updatedRole.Should().NotBeNull();
         updatedRole!.Id.Should().Be(createRoleId);
         updatedRole.TenantId.Should().Be(_factory.Tenant.Id);
-        updatedRole.Permissions.Should().Be((long)SystemPermissions.InvoiceRead);
+        updatedRole.Permissions.Should().Be(SystemPermissions.InvoiceRead.ToPermissions());
     }
 
     [Fact]

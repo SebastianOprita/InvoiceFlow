@@ -25,7 +25,7 @@ public class PlatformUsersController(IMediator mediator) : ApiController
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreatePlatformUserRequest request, CancellationToken ct)
+    public async Task<IActionResult> Create([FromBody] CreateUserRequest request, CancellationToken ct)
     {
         var result = await mediator.Send(request.ToCommand(), ct);
         return result.IsSuccess
@@ -34,7 +34,7 @@ public class PlatformUsersController(IMediator mediator) : ApiController
     }
 
     [HttpPut("{userId:guid}")]
-    public async Task<IActionResult> Update([FromRoute] Guid userId, [FromBody] UpdatePlatformUserRequest request, CancellationToken ct)
+    public async Task<IActionResult> Update([FromRoute] Guid userId, [FromBody] UpdateUserRequest request, CancellationToken ct)
     {
         var result = await mediator.Send(request.ToCommand(userId), ct);
         return result.ToActionResult();
