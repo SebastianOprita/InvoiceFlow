@@ -7,11 +7,15 @@
 
 	<ItemGroup>
 		<PackageVersion Include="System.Security.Cryptography.Pkcs" Version="10.0.13" />
+		<PackageVersion Include="MessagePack" Version="2.5.303" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<PackageVersion Include="Aspire.Hosting.SqlServer" Version="13.6.1" />
-		
+
+		<PackageVersion Include="Yarp.ReverseProxy" Version="2.3.0" />
+		<PackageVersion Include="Microsoft.Extensions.ServiceDiscovery.Yarp" Version="10.11.0" />
+
 		<PackageVersion Include="FluentValidation" Version="12.1.1" />
 		<PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.23.0" />
 		<PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.12" />

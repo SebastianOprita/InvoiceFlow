@@ -1,6 +1,13 @@
 
+GET https://localhost:5000/api/identity/errors
+
+###
+GET https://localhost:5000/api/identity/permissions
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+###
 # @name login
-POST https://localhost:5001/api/f305e3f0-e634-470b-b9c1-cc0c7559dc0a/auth/login
+POST https://localhost:5000/api/f305e3f0-e634-470b-b9c1-cc0c7559dc0a/auth/login
 Content-Type: application/json
 {
   "email": "admin@email.com",
@@ -9,7 +16,7 @@ Content-Type: application/json
 
 ###
 # @name refresh
-POST https://localhost:5001/api/f305e3f0-e634-470b-b9c1-cc0c7559dc0a/auth/refresh
+POST https://localhost:5000/api/f305e3f0-e634-470b-b9c1-cc0c7559dc0a/auth/refresh
 Authorization: Bearer {{login.response.body.$.accessToken}}
 Content-Type: application/json
 {
@@ -17,7 +24,7 @@ Content-Type: application/json
 }
 
 ###
-POST https://localhost:5001/api/f305e3f0-e634-470b-b9c1-cc0c7559dc0a/auth/logout
+POST https://localhost:5000/api/f305e3f0-e634-470b-b9c1-cc0c7559dc0a/auth/logout
 Authorization: Bearer {{refresh.response.body.$.accessToken}}
 Content-Type: application/json
 {
