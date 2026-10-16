@@ -11,7 +11,8 @@ public static class OpenTelemetryExtensions
 {
     public static WebApplicationBuilder AddInvoiceFlowObservability(
         this WebApplicationBuilder builder,
-        string serviceName)
+        string serviceName,
+        params string[] additionalSources)
     {
         builder.Logging.ClearProviders();
         builder.Logging.AddConsole();
@@ -30,6 +31,8 @@ public static class OpenTelemetryExtensions
                     .AddSqlClientInstrumentation()
                     .AddSource("MassTransit")
                     .AddSource("InvoiceFlow.BuildingBlocks.Application")
+                    .AddSource("Yarp.ReverseProxy")
+                    .AddSource(additionalSources)
                     .AddOtlpExporter();
             })
             .WithLogging(logging =>
