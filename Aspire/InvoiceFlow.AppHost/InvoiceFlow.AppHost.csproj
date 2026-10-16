@@ -1,4 +1,4 @@
-<Project Sdk="Aspire.AppHost.Sdk/13.5.4">
+<Project Sdk="Aspire.AppHost.Sdk/13.6.1">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -10,6 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Gateway\InvoiceFlow.Gateway\InvoiceFlow.Gateway.csproj" />
     <ProjectReference Include="..\..\src\Services\InvoiceFlow.Customers\InvoiceFlow.Customers.Api\InvoiceFlow.Customers.Api.csproj" />
     <ProjectReference Include="..\..\src\Services\InvoiceFlow.Identity\InvoiceFlow.Identity.Api\InvoiceFlow.Identity.Api.csproj" />
     <ProjectReference Include="..\..\src\Services\InvoiceFlow.Invoices\InvoiceFlow.Invoices.Api\InvoiceFlow.Invoices.Api.csproj" />

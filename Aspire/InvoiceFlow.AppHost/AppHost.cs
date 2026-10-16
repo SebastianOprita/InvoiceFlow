@@ -26,24 +26,36 @@ if (string.IsNullOrWhiteSpace(jwtSigningKey))
         RandomNumberGenerator.GetBytes(64));
 }
 
-builder.AddProject<Projects.InvoiceFlow_Identity_Api>("invoiceflow-identity-api")
+var identityService = builder.AddProject<Projects.InvoiceFlow_Identity_Api>("invoiceflow-identity-api")
     .WithReference(identityDb)
     .WithEnvironment("JwtSettings__Secret", jwtSigningKey)
     .WaitFor(identityDb);
 
-builder.AddProject<Projects.InvoiceFlow_Customers_Api>("invoiceflow-customers-api")
+var customersService = builder.AddProject<Projects.InvoiceFlow_Customers_Api>("invoiceflow-customers-api")
     .WithReference(customersDb)
     .WithEnvironment("JwtSettings__Secret", jwtSigningKey)
     .WaitFor(customersDb);
 
-builder.AddProject<Projects.InvoiceFlow_Invoices_Api>("invoiceflow-invoices-api")
+var invoicesService = builder.AddProject<Projects.InvoiceFlow_Invoices_Api>("invoiceflow-invoices-api")
     .WithReference(invoicesDb)
     .WithEnvironment("JwtSettings__Secret", jwtSigningKey)
     .WaitFor(invoicesDb);
 
-builder.AddProject<Projects.InvoiceFlow_Payments_Api>("invoiceflow-payments-api")
+var paymentsService = builder.AddProject<Projects.InvoiceFlow_Payments_Api>("invoiceflow-payments-api")
     .WithReference(paymentsDb)
     .WithEnvironment("JwtSettings__Secret", jwtSigningKey)
     .WaitFor(paymentsDb);
+
+var gateway = builder
+    .AddProject<Projects.InvoiceFlow_Gateway>("gateway")
+    .WithReference(identityService)
+    .WithReference(customersService)
+    .WithReference(invoicesService)
+    .WithReference(paymentsService)
+    .WaitFor(identityService)
+    .WaitFor(customersService)
+    .WaitFor(invoicesService)
+    .WaitFor(paymentsService)
+    .WithExternalHttpEndpoints();
 
 builder.Build().Run();

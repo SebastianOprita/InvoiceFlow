@@ -3,8 +3,8 @@
     <Project Path="../Aspire/InvoiceFlow.AppHost/InvoiceFlow.AppHost.csproj" Id="138a514b-ebce-4d8f-a14a-4b0da02911a1" />
   </Folder>
   <Folder Name="/Docs/">
+    <File Path="../Docs/AuthApi.http" />
     <File Path="../Docs/Customers.http" />
-    <File Path="AuthApi.http" />
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path="../BannedSymbols.txt" />
@@ -28,6 +28,9 @@
     <Project Path="BuildingBlocks/Tests/InvoiceFlow.BuildingBlocks.Authorization.Tests/InvoiceFlow.BuildingBlocks.Authorization.Tests.csproj" Id="84a6937d-2016-4d24-a1a1-6cd4a1cff7e4" />
     <Project Path="BuildingBlocks/Tests/InvoiceFlow.BuildingBlocks.Currency.Tests/InvoiceFlow.BuildingBlocks.Currency.Tests.csproj" Id="1e3c880c-b2ba-4db6-976c-aedd0526b5f9" />
     <Project Path="BuildingBlocks/Tests/InvoiceFlow.BuildingBlocks.Domain.Tests/InvoiceFlow.BuildingBlocks.Domain.Tests.csproj" Id="f0f7bd36-0124-4928-b1e6-15293d91762f" />
+  </Folder>
+  <Folder Name="/src/Gateway/">
+    <Project Path="Gateway/InvoiceFlow.Gateway/InvoiceFlow.Gateway.csproj" Id="67c2327a-316e-4436-9cea-d3aed4463fcc" />
   </Folder>
   <Folder Name="/src/Services/" />
   <Folder Name="/src/Services/InvoiceFlow.Customers/">
