@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="InvoiceFlow.BuildingBlocks.Domain" />
-	  <PackageReference Include="InvoiceFlow.BuildingBlocks.Currency" />
+    <PackageReference Include="InvoiceFlow.BuildingBlocks.Currency" />
   </ItemGroup>
 
 </Project>
