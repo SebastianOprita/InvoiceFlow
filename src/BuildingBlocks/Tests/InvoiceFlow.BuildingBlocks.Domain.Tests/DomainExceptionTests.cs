@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using Xunit;
+using InvoiceFlow.BuildingBlocks.Domain;
 
 namespace InvoiceFlow.BuildingBlocks.Domain.Tests;
 
