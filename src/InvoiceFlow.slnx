@@ -66,6 +66,7 @@
   <Folder Name="/src/Services/InvoiceFlow.Invoices/Tests/">
     <Project Path="Services/InvoiceFlow.Invoices/Tests/InvoiceFlow.Invoices.Api.IntegrationTests/InvoiceFlow.Invoices.Api.IntegrationTests.csproj" Id="da1e5b14-b7b5-4485-9f21-a27fac404c1f" />
     <Project Path="Services/InvoiceFlow.Invoices/Tests/InvoiceFlow.Invoices.Application.UnitTests/InvoiceFlow.Invoices.Application.UnitTests.csproj" Id="8410fdff-4e8b-4873-835c-6bdde57e4bac" />
+    <Project Path="Services/InvoiceFlow.Invoices/Tests/InvoiceFlow.Invoices.ArchitectureTests/InvoiceFlow.Invoices.ArchitectureTests.csproj" Id="4f9bf15b-0eb3-4b4a-8d56-75287ce800c5" />
     <Project Path="Services/InvoiceFlow.Invoices/Tests/InvoiceFlow.Invoices.Domain.UnitTests/InvoiceFlow.Invoices.Domain.UnitTests.csproj" Id="9a810265-69c0-4842-bcdb-e4634465c5fa" />
   </Folder>
   <Folder Name="/src/Services/InvoiceFlow.Notifications/">

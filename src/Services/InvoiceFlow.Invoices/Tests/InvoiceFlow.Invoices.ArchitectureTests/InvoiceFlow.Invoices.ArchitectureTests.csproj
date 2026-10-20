@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	<IsPackable>false</IsPackable>
+	<OutputType>Exe</OutputType>
+	<IsTestProject>true</IsTestProject>
+
+	<RollForward>Major</RollForward>
+  </PropertyGroup>
+
+</Project>
