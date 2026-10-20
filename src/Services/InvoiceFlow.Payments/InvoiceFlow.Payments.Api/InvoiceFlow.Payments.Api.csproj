@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
+    <ProjectReference Include="..\InvoiceFlow.Payments.Infrastructure\InvoiceFlow.Payments.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

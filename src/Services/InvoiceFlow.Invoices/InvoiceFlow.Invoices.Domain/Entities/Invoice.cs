@@ -9,7 +9,7 @@ public sealed class Invoice
 
     public Guid TenantId { get; private set; }
     public Guid Id { get; private set; }
-    public InvoiceNumber Number { get; private set; }
+    public InvoiceNumber? Number { get; private set; }
     public Guid CustomerId { get; private set; }
     public CustomerCode CustomerCode { get; private set; }
     public CustomerName CustomerName { get; private set; }
@@ -59,7 +59,6 @@ public sealed class Invoice
     private Invoice(
         Guid tenantId,
         Guid id,
-        InvoiceNumber number,
         InvoiceCustomerSnapshot customer,
         CurrencyCode currencyCode,
         PaymentTermDays paymentTermDays,
@@ -70,7 +69,7 @@ public sealed class Invoice
     {
         TenantId = tenantId;
         Id = id;
-        Number = number;
+        Number = null;
 
         CopyCustomerSnapshot(customer);
 
@@ -94,7 +93,6 @@ public sealed class Invoice
     public static Invoice Create(
         Guid tenantId,
         Guid id,
-        InvoiceNumber number,
         InvoiceCustomerSnapshot customer,
         CurrencyCode currencyCode,
         PaymentTermDays paymentTermDays,
@@ -122,7 +120,6 @@ public sealed class Invoice
         return new Invoice(
             tenantId,
             id,
-            number,
             customer,
             currencyCode,
             paymentTermDays,
@@ -134,19 +131,6 @@ public sealed class Invoice
 
     // Header
     // -----------------------------------------------------------------
-
-    public void ChangeNumber(
-        InvoiceNumber number,
-        DateTime updatedAtUtc)
-    {
-        EnsureDraft();
-
-        if (Number == number)
-            return;
-
-        Number = number;
-        MarkAsUpdated(updatedAtUtc);
-    }
 
     public void ChangeCustomer(
         InvoiceCustomerSnapshot customer,
@@ -399,7 +383,7 @@ public sealed class Invoice
     // Lifecycle
     // -----------------------------------------------------------------
 
-    public void Issue(DateTime issuedAtUtc)
+    public void Issue(InvoiceNumber number, DateTime issuedAtUtc)
     {
         EnsureDraft();
 
@@ -415,6 +399,7 @@ public sealed class Invoice
         if (GrossAmount.Amount <= 0m)
             throw new DomainException(DomainErrors.GrossAmountZero);
 
+        Number = number;
         Status = InvoiceStatus.Issued;
         IssuedAtUtc = issuedAtUtc;
 
