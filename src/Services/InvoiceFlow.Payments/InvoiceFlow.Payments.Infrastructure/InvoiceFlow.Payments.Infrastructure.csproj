@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\InvoiceFlow.Payments.Application\InvoiceFlow.Payments.Application.csproj" />
+  </ItemGroup>
+
 </Project>
