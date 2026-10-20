@@ -319,7 +319,7 @@ public class RefreshTokenCommandHandlerTests
         Guid tenantId,
         DateTime expiresAt)
     {
-        return new RefreshToken(
+        return RefreshToken.Create(
             tenantId,
             Guid.CreateVersion7(),
             Guid.CreateVersion7(),

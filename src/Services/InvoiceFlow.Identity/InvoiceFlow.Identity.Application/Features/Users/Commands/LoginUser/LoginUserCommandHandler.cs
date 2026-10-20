@@ -42,7 +42,7 @@ internal class LoginUserCommandHandler(
 
         var rawNewRefreshToken = tokenService.GenerateRefreshToken(now);
         var newTokenHash = tokenService.CalculateTokenHash(rawNewRefreshToken.Token);
-        var refershToken = new RefreshToken(
+        var refershToken = RefreshToken.Create(
             cmd.TenantId,
             Guid.CreateVersion7(),
             userWithPermissions.Id,

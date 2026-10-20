@@ -164,7 +164,7 @@ public class LogoutUserCommandHandlerTests
 
     private RefreshToken CreateRefreshToken(Guid tenantId)
     {
-        return new RefreshToken(
+        return RefreshToken.Create(
             tenantId,
             Guid.CreateVersion7(),
             Guid.CreateVersion7(),

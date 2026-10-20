@@ -1,21 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+	
+  <ItemGroup>
+	<PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+	<PackageReference Include="InvoiceFlow.BuildingBlocks.Api" />
+	<PackageReference Include="InvoiceFlow.BuildingBlocks.Authorization" />
+	<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" />
+  </ItemGroup>
 
-	<PropertyGroup>
-		<TargetFramework>net10.0</TargetFramework>
-		<Nullable>enable</Nullable>
-		<ImplicitUsings>enable</ImplicitUsings>
-	</PropertyGroup>
-
-	<ItemGroup>
-		<PackageReference Include="Microsoft.AspNetCore.OpenApi" />
-		<PackageReference Include="InvoiceFlow.BuildingBlocks.Api" />
-		<PackageReference Include="InvoiceFlow.BuildingBlocks.Authorization" />
-		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <ProjectReference Include="..\InvoiceFlow.Customers.Application\InvoiceFlow.Customers.Application.csproj" />
-	  <ProjectReference Include="..\InvoiceFlow.Customers.Infrastructure\InvoiceFlow.Customers.Infrastructure.csproj" />
-	</ItemGroup>
+  <ItemGroup>
+	<ProjectReference Include="..\InvoiceFlow.Customers.Application\InvoiceFlow.Customers.Application.csproj" />
+	<ProjectReference Include="..\InvoiceFlow.Customers.Infrastructure\InvoiceFlow.Customers.Infrastructure.csproj" />
+  </ItemGroup>
 
 </Project>

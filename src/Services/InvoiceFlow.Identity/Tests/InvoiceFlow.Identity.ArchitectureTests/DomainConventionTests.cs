@@ -1,20 +1,41 @@
 ﻿using FluentAssertions;
 using NetArchTest.Rules;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using Xunit;
 
 namespace InvoiceFlow.Identity.ArchitectureTests;
 
 public sealed class DomainConventionTests
 {
-    [Fact]
-    public void DomainClasses_ShouldBeSealed()
+    private static IEnumerable<Type> GetDomainClasses()
     {
-        var violations = ArchitectureAssemblies.Domain
+        return ArchitectureAssemblies.Domain
             .GetTypes()
             .Where(t =>
                 t.IsClass &&
                 !t.IsAbstract &&
-                !t.IsSealed)
+                !t.IsDefined(typeof(CompilerGeneratedAttribute), false));
+    }
+
+    [Fact]
+    public void DomainClasses_ShouldBeSealed()
+    {
+        var violations = GetDomainClasses()
+            .Where(t => !t.IsSealed)
+            .Select(t => t.FullName)
+            .ToArray();
+
+        violations.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void DomainClasses_ShouldNotHavePublicConstructors()
+    {
+        var violations = GetDomainClasses()
+            .Where(t => t.GetConstructors(
+                BindingFlags.Public |
+                BindingFlags.Instance).Length > 0)
             .Select(t => t.FullName)
             .ToArray();
 

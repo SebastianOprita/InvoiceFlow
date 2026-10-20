@@ -1,11 +1,28 @@
 <Project>
+
+  <PropertyGroup>
+    <Authors>Sebastian Oprita</Authors>
+	<Company>SebastianOprita</Company>
+	<Product>InvoiceFlow</Product>
+	<Copyright>Copyright © Sebastian Oprita. All rights reserved.</Copyright>
+	<Version>1.0.0</Version>
+	<AssemblyVersion>1.0.0</AssemblyVersion>
+  </PropertyGroup>
+
+  <PropertyGroup>
+	<TargetFramework>net10.0</TargetFramework>
+	<Nullable>enable</Nullable>
+	<ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>$(MSBuildProjectName)</RootNamespace>
+    <AssemblyName>$(MSBuildProjectName)</AssemblyName>
+  </PropertyGroup>
+	
   <ItemGroup>
-	  
-    <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers">
+	<PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-	  
-    <AdditionalFiles Include="$(MSBuildThisFileDirectory)BannedSymbols.txt" />
+	<AdditionalFiles Include="$(MSBuildThisFileDirectory)BannedSymbols.txt" />
   </ItemGroup>
+	
 </Project>

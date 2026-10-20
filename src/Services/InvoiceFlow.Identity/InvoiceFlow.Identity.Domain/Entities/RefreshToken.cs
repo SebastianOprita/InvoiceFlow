@@ -23,7 +23,27 @@ public sealed class RefreshToken
     private RefreshToken() { } // EF Core
 #pragma warning restore CS8618
 
-    public RefreshToken(
+    private RefreshToken(
+        Guid tenantId,
+        Guid id,
+        Guid userId,
+        RefreshTokenHash tokenHash,
+        DateTime expiresAtUtc,
+        DateTime createdAtUtc,
+        DeviceInfo? deviceInfo = null,
+        IpAddress? ipAddress = null)
+    {
+        TenantId = tenantId;
+        Id = id;
+        UserId = userId;
+        TokenHash = tokenHash;
+        ExpiresAtUtc = expiresAtUtc;
+        DeviceInfo = deviceInfo;
+        IpAddress = ipAddress;
+        CreatedAtUtc = createdAtUtc;
+    }
+
+    public static RefreshToken Create(
         Guid tenantId,
         Guid id,
         Guid userId,
@@ -57,14 +77,15 @@ public sealed class RefreshToken
         if (expiresAtUtc <= createdAtUtc)
             throw new DomainException(DomainErrors.ExpiresAtUtcInvalid);
 
-        TenantId = tenantId;
-        Id = id;
-        UserId = userId;
-        TokenHash = tokenHash;
-        ExpiresAtUtc = expiresAtUtc;
-        DeviceInfo = deviceInfo;
-        IpAddress = ipAddress;
-        CreatedAtUtc = createdAtUtc;
+        return new RefreshToken(
+            tenantId, 
+            id, 
+            userId, 
+            tokenHash, 
+            expiresAtUtc, 
+            createdAtUtc, 
+            deviceInfo, 
+            ipAddress);
     }
 
     public void Revoke(DateTime revokedAtUtc)

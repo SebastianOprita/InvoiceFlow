@@ -21,7 +21,7 @@ public sealed class RefreshTokenTests
         var deviceInfo = DeviceInfo.Create("Chrome");
         var ipAddress = IpAddress.Create("127.0.0.1");
 
-        var token = new RefreshToken(
+        var token = RefreshToken.Create(
             TenantId,
             TokenId,
             UserId,
@@ -47,7 +47,7 @@ public sealed class RefreshTokenTests
     [Fact]
     public void Constructor_WithEmptyTenantId_ShouldThrowDomainException()
     {
-        var act = () => new RefreshToken(
+        var act = () => RefreshToken.Create(
             Guid.Empty,
             TokenId,
             UserId,
@@ -63,7 +63,7 @@ public sealed class RefreshTokenTests
     [Fact]
     public void Constructor_WithEmptyId_ShouldThrowDomainException()
     {
-        var act = () => new RefreshToken(
+        var act = () => RefreshToken.Create(
             TenantId,
             Guid.Empty,
             UserId,
@@ -79,7 +79,7 @@ public sealed class RefreshTokenTests
     [Fact]
     public void Constructor_WithEmptyUserId_ShouldThrowDomainException()
     {
-        var act = () => new RefreshToken(
+        var act = () => RefreshToken.Create(
             TenantId,
             TokenId,
             Guid.Empty,
@@ -95,7 +95,7 @@ public sealed class RefreshTokenTests
     [Fact]
     public void Constructor_WithDefaultCreatedAtUtc_ShouldThrowDomainException()
     {
-        var act = () => new RefreshToken(
+        var act = () => RefreshToken.Create(
             TenantId,
             TokenId,
             UserId,
@@ -113,7 +113,7 @@ public sealed class RefreshTokenTests
     {
         var createdAt = DateTime;
 
-        var act = () => new RefreshToken(
+        var act = () => RefreshToken.Create(
             TenantId,
             TokenId,
             UserId,
@@ -131,7 +131,7 @@ public sealed class RefreshTokenTests
     {
         var createdAt = DateTime;
 
-        var act = () => new RefreshToken(
+        var act = () => RefreshToken.Create(
             TenantId,
             TokenId,
             UserId,
@@ -303,7 +303,7 @@ public sealed class RefreshTokenTests
 
     private static RefreshToken CreateToken(DateTime createdAtUtc, DateTime expiresAtUtc)
     {
-        return new RefreshToken(
+        return RefreshToken.Create(
             TenantId,
             TokenId,
             UserId,

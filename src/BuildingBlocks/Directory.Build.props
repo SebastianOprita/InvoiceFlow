@@ -2,8 +2,10 @@
   <PropertyGroup>
     <IsPackable>true</IsPackable>
 
-    <Authors>InvoiceFlow</Authors>
-    <Company>InvoiceFlow</Company>
+	<Authors>Sebastian Oprita</Authors>
+	<Company>SebastianOprita</Company>
+	<Product>InvoiceFlow</Product>
+	<Copyright>Copyright © Sebastian Oprita. All rights reserved.</Copyright>
 
     <RepositoryUrl>https://github.com/SebastianOprita/InvoiceFlow</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
@@ -14,4 +16,13 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
+
+  <PropertyGroup>
+	<TargetFramework>net10.0</TargetFramework>
+	<Nullable>enable</Nullable>
+	<ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>$(MSBuildProjectName)</RootNamespace>
+    <AssemblyName>$(MSBuildProjectName)</AssemblyName>
+  </PropertyGroup>
+
 </Project>
