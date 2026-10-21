@@ -1,6 +1,6 @@
 ﻿using InvoiceFlow.BuildingBlocks.Domain;
 
-namespace InvoiceFlow.Invoices.Domain;
+namespace InvoiceFlow.Products.Domain;
 
 public sealed class Product
 {

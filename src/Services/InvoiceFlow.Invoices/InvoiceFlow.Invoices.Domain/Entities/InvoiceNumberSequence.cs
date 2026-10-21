@@ -14,7 +14,21 @@ public sealed class InvoiceNumberSequence
     private InvoiceNumberSequence() { }
 #pragma warning restore CS8618
 
-    public InvoiceNumberSequence(
+    private InvoiceNumberSequence(
+        Guid tenantId,
+        Guid id,
+        InvoiceYear year,
+        InvoiceNumberPrefix prefix,
+        SequenceNumber startingNumber)
+    {
+        TenantId = tenantId;
+        Id = id;
+        Year = year;
+        Prefix = prefix;
+        NextNumber = startingNumber;
+    }
+
+    public static InvoiceNumberSequence Create(
         Guid tenantId,
         Guid id,
         InvoiceYear year,
@@ -27,11 +41,12 @@ public sealed class InvoiceNumberSequence
         if (id == Guid.Empty)
             throw new DomainException(DomainErrors.IdRequired);
 
-        TenantId = tenantId;
-        Id = id;
-        Year = year;
-        Prefix = prefix;
-        NextNumber = startingNumber;
+        return new InvoiceNumberSequence(
+            tenantId,
+            id,
+            year,
+            prefix,
+            startingNumber);
     }
 
     public string AllocateNextNumber()

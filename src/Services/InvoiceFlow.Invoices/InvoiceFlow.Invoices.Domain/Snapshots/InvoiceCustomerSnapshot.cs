@@ -4,6 +4,24 @@ namespace InvoiceFlow.Invoices.Domain;
 
 public sealed record InvoiceCustomerSnapshot
 {
+    public Guid CustomerTenantId { get; }
+    public Guid CustomerId { get; }
+    public bool IsActive { get; }
+    public CustomerCode CustomerCode { get; }
+    public CustomerName CustomerName { get; }
+    public CustomerEmail? CustomerEmail { get; }
+    public PhoneNumber? CustomerPhone { get; }
+    public TaxNumber? CustomerTaxNumber { get; }
+    public RegistrationNumber CustomerRegistrationNumber { get; }
+    public AddressLine1 CustomerAddressLine1 { get; }
+    public AddressLine2? CustomerAddressLine2 { get; }
+    public City CustomerCity { get; }
+    public State? CustomerState { get; }
+    public Country CustomerCountry { get; }
+    public PostalCode CustomerPostalCode { get; }
+    public CurrencyCode CurrencyCode { get; }
+    public PaymentTermDays PaymentTermDays { get; }
+
     private InvoiceCustomerSnapshot(
         Guid customerTenantId,
         Guid customerId,
@@ -42,24 +60,6 @@ public sealed record InvoiceCustomerSnapshot
         PaymentTermDays = paymentTermDays;
     }
 
-    public Guid CustomerTenantId { get; }
-    public Guid CustomerId { get; }
-    public bool IsActive { get; }
-    public CustomerCode CustomerCode { get; }
-    public CustomerName CustomerName { get; }
-    public CustomerEmail? CustomerEmail { get; }
-    public PhoneNumber? CustomerPhone { get; }
-    public TaxNumber? CustomerTaxNumber { get; }
-    public RegistrationNumber CustomerRegistrationNumber { get; }
-    public AddressLine1 CustomerAddressLine1 { get; }
-    public AddressLine2? CustomerAddressLine2 { get; }
-    public City CustomerCity { get; }
-    public State? CustomerState { get; }
-    public Country CustomerCountry { get; }
-    public PostalCode CustomerPostalCode { get; }
-    public CurrencyCode CurrencyCode { get; }
-    public PaymentTermDays PaymentTermDays { get; }
-
     public static InvoiceCustomerSnapshot Create(
         Guid customerTenantId,
         Guid customerId,
@@ -79,8 +79,11 @@ public sealed record InvoiceCustomerSnapshot
         CurrencyCode currencyCode,
         PaymentTermDays paymentTermDays)
     {
+        if (customerTenantId == Guid.Empty)
+            throw new DomainException(DomainErrors.TenantIdRequired);
+
         if (customerId == Guid.Empty)
-            throw new DomainException(DomainErrors.CustomerIdRequired);
+            throw new DomainException(DomainErrors.IdRequired);
 
         return new InvoiceCustomerSnapshot(
             customerTenantId,

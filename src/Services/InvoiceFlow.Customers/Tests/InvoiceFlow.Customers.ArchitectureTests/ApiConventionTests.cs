@@ -83,20 +83,22 @@ public sealed class ApiConventionTests
     }
 
     [Theory]
+    [InlineData("InvoiceFlow.Identity.")]
     [InlineData("InvoiceFlow.Invoices.")]
-    [InlineData("InvoiceFlow.Payments.")]
     [InlineData("InvoiceFlow.Notifications.")]
+    [InlineData("InvoiceFlow.Payments.")]
+    [InlineData("InvoiceFlow.Products.")]
+    [InlineData("InvoiceFlow.Reminder.")]
     [InlineData("InvoiceFlow.Reporting.")]
-    public void Customers_ShouldNotReferenceOtherServiceAssemblies(
-    string forbiddenPrefix)
+    public void Customers_ShouldNotReferenceOtherServiceAssemblies(string forbiddenPrefix)
     {
         var assemblies = new[]
         {
-        ArchitectureAssemblies.Domain,
-        ArchitectureAssemblies.Application,
-        ArchitectureAssemblies.Infrastructure,
-        ArchitectureAssemblies.Api
-    };
+            ArchitectureAssemblies.Domain,
+            ArchitectureAssemblies.Application,
+            ArchitectureAssemblies.Infrastructure,
+            ArchitectureAssemblies.Api
+        };
 
         var violations = assemblies
             .SelectMany(assembly =>

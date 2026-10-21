@@ -6,7 +6,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\InvoiceFlow.Customers.Application\InvoiceFlow.Customers.Application.csproj" />
-    <ProjectReference Include="..\InvoiceFlow.Customers.Domain\InvoiceFlow.Customers.Domain.csproj" />
   </ItemGroup>
 
 </Project>

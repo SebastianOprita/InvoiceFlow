@@ -13,12 +13,6 @@ public static partial class DomainErrors
     public static readonly DomainError InvoiceIdRequired = new("invoiceId.required", "Invoice Id is required.");
     public static readonly DomainError CreatedAtUtcRequired = new("createdAtUtc.required", "Created datetime is required.");
     public static readonly DomainError CreatedAtUtcNotUtc = new("createdAtUtc.notUtc", "Created datetime must be UTC.");
-    public static readonly DomainError ProductCodeRequired = new("productCcode.required", "Product code is required.");
-    public static readonly DomainError ProductCodeTooLong = new("productCode.tooLong", $"Product code cannot exceed {ProductCode.MaxLength} characters.");
-    public static readonly DomainError ProductNameRequired = new("productName.required", "Product name is required.");
-    public static readonly DomainError ProductNameTooLong = new("productName.tooLong", $"Product name cannot exceed {ProductName.MaxLength} characters.");
-    public static readonly DomainError ProductDescriptionRequired = new("productDescription.required", "Product description is required.");
-    public static readonly DomainError ProductDescriptionTooLong = new("productDescription.tooLong", $"Product description cannot exceed {ProductDescription.MaxLength} characters.");
     public static readonly DomainError MoneyInvalid = new("money.invalid", "Money amount cannot be negative.");
     public static readonly DomainError MoneyDecimalPlacesInvalid = new("moneyDecimalPlaces.invalid", "Money amount does not match the currency precision for the specified currency.");
     public static readonly DomainError PercentageInvalid = new("percentage.invalid", "Percentage must be between 0 and 100.");

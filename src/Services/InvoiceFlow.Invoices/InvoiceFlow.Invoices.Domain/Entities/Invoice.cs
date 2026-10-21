@@ -235,7 +235,7 @@ public sealed class Invoice
         EnsureUniqueLineId(lineId);
         EnsureCurrencyMatches(unitPrice);
 
-        var line = InvoiceLine.CreateManual(
+        var line = InvoiceLine.Create(
             TenantId,
             lineId,
             Id,
@@ -258,7 +258,7 @@ public sealed class Invoice
 
     public void AddProductLine(
         Guid lineId,
-        Product product,
+        InvoiceProductSnapshot product,
         Quantity quantity,
         Percentage discountRate,
         DateTime updatedAtUtc)
@@ -266,7 +266,7 @@ public sealed class Invoice
         EnsureDraft();
         EnsureUniqueLineId(lineId);
 
-        if (product.TenantId != TenantId)
+        if (product.ProductTenantId != TenantId)
             throw new DomainException(DomainErrors.TenantMismatch);
 
         if (!product.IsActive)
@@ -274,7 +274,7 @@ public sealed class Invoice
 
         EnsureCurrencyMatches(product.UnitPrice);
 
-        var line = InvoiceLine.CreateFromProduct(
+        var line = InvoiceLine.Create(
             TenantId,
             lineId,
             Id,
@@ -321,12 +321,12 @@ public sealed class Invoice
 
     public void ReplaceLineProduct(
         Guid lineId,
-        Product product,
+        InvoiceProductSnapshot product,
         DateTime updatedAtUtc)
     {
         EnsureDraft();
 
-        if (product.TenantId != TenantId)
+        if (product.ProductTenantId != TenantId)
             throw new DomainException(DomainErrors.TenantMismatch);
 
         if (!product.IsActive)

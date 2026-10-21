@@ -4,7 +4,6 @@ namespace InvoiceFlow.Invoices.Domain;
 
 public static partial class DomainErrors
 {
-    public static readonly DomainError CustomerIdRequired = new("customerId.required", "Customer Id is required.");
     public static readonly DomainError CustomerInactive = new($"customer.inactive", "Customer is inactive.");
     public static readonly DomainError CurrencyCodeRequired = new("currencyCode.required", "Currency code is required.");
     public static readonly DomainError CurrencyCodeInvalid = new("currencyCode.invalid", "Currency code is invalid. Expected a valid ISO 4217 currency code.");
