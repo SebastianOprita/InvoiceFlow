@@ -54,4 +54,8 @@ public static partial class DomainErrors
     public static readonly DomainError IssueDateRequired = new("issueDate.required", "Invoice issue date is required.");
     public static readonly DomainError DueDateRequired = new("dueDate.required", "Invoice due date is required.");
     public static readonly DomainError DueDateInvalid = new("dueDate.beforeIssueDate", "Invoice due date cannot be earlier than its issue date.");
+    public static readonly DomainError PrefixRequired = new("sequencePrefix.required", "Invoice number prefix is required.");
+    public static readonly DomainError YearInvalid = new("sequenceYear.invalid", "Invoice number year is invalid, must be between 2000 and 2100.");
+    public static readonly DomainError SequenceNumberInvalid = new("sequenceNumber.invalid", "Invoice sequence number sequence is invalid, must be a positive integer.");
+    public static readonly DomainError SequenceNumberExceededMaxValue = new("sequenceNumber.exceededMaxValue", "Invoice sequence number has exceeded its maximum value.");
 }

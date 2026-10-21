@@ -1,11 +1,9 @@
 ﻿using FluentValidation;
 using InvoiceFlow.BuildingBlocks.Application;
 using Microsoft.Extensions.DependencyInjection;
-using System.Diagnostics.CodeAnalysis;
 
 namespace InvoiceFlow.Customers.Application;
 
-[ExcludeFromCodeCoverage]
 public static class DependencyInjection
 {
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
