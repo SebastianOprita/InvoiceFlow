@@ -26,8 +26,11 @@ public sealed class IssueInvoiceCommandHandler(
                 if (invoice is null)
                     return Result.Failure(ApplicationErrors.InvoiceNotFound);
 
+                if (invoice.Status == InvoiceStatus.Issued)
+                    return Result.Success();
+
                 if (invoice.Status != InvoiceStatus.Draft)
-                    return Result.Failure(ApplicationErrors.InvoiceAlreadyIssued);
+                    return Result.Failure(ApplicationErrors.InvoiceCannotBeIssued);
 
                 var now = dateTimeProvider.Now;
 

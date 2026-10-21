@@ -1,8 +1,5 @@
 ﻿using FluentAssertions;
 using InvoiceFlow.Customers.Api.IntegrationTests.BaseTests;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
 using System.Net;
 using Xunit;
 
