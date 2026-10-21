@@ -4,7 +4,7 @@ using MediatR;
 
 namespace InvoiceFlow.Invoices.Application;
 
-public sealed class IssueInvoiceCommandHandler(
+internal sealed class IssueInvoiceCommandHandler(
     IInvoiceRepository invoiceRepository,
     IInvoiceNumberRepository invoiceNumberRepository,
     IUnitOfWork unitOfWork,

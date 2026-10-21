@@ -5,37 +5,21 @@ namespace InvoiceFlow.Invoices.Domain;
 public sealed class InvoiceLine
 {
     public Guid TenantId { get; private set; }
-
     public Guid Id { get; private set; }
-
     public Guid InvoiceId { get; private set; }
-
     public int Position { get; private set; }
-
     public Guid? ProductId { get; private set; }
-
     public ProductCode? ProductCode { get; private set; }
-
     public InvoiceLineDescription Description { get; private set; }
-
     public Quantity Quantity { get; private set; }
-
     public UnitOfMeasure UnitOfMeasure { get; private set; }
-
     public Money UnitPrice { get; private set; }
-
     public Percentage DiscountRate { get; private set; }
-
     public Money DiscountAmount { get; private set; }
-
     public Percentage TaxRate { get; private set; }
-
     public Money TaxAmount { get; private set; }
-
     public Money NetAmount { get; private set; }
-
     public Money GrossAmount { get; private set; }
-
     public Invoice Invoice { get; private set; } = null!;
 
 #pragma warning disable CS8618
@@ -77,12 +61,12 @@ public sealed class InvoiceLine
         Recalculate();
     }
 
-    public static InvoiceLine CreateFromProduct(
+    public static InvoiceLine Create(
         Guid tenantId,
         Guid id,
         Guid invoiceId,
         int position,
-        Product product,
+        InvoiceProductSnapshot product,
         Quantity quantity,
         Percentage discountRate)
     {
@@ -94,7 +78,7 @@ public sealed class InvoiceLine
         if (product is null)
             throw new DomainException(DomainErrors.ProductRequired);
 
-        if (product.TenantId != tenantId)
+        if (product.ProductTenantId != tenantId)
             throw new DomainException(DomainErrors.TenantMismatch);
 
         if (!product.IsActive)
@@ -108,9 +92,9 @@ public sealed class InvoiceLine
             id,
             invoiceId,
             position,
-            product.Id,
-            product.Code,
-            InvoiceLineDescription.Create(product.Description?.Value ?? product.Name.Value),
+            product.ProductId,
+            product.ProductCode,
+            InvoiceLineDescription.Create(product.ProductDescription?.Value ?? product.ProductName.Value),
             quantity,
             product.UnitOfMeasure,
             product.UnitPrice,
@@ -118,7 +102,7 @@ public sealed class InvoiceLine
             product.TaxRate);
     }
 
-    public static InvoiceLine CreateManual(
+    public static InvoiceLine Create(
         Guid tenantId,
         Guid id,
         Guid invoiceId,
@@ -174,12 +158,12 @@ public sealed class InvoiceLine
         Recalculate();
     }
 
-    public void ReplaceProduct(Product product)
+    public void ReplaceProduct(InvoiceProductSnapshot product)
     {
         if (product is null)
             throw new DomainException(DomainErrors.ProductRequired);
 
-        if (product.TenantId != TenantId)
+        if (product.ProductTenantId != TenantId)
             throw new DomainException(DomainErrors.TenantMismatch);
 
         if (!product.IsActive)
@@ -189,9 +173,9 @@ public sealed class InvoiceLine
         ValidateMoney(product.UnitPrice);
         EnsureCurrencyMatches(product.UnitPrice);
 
-        ProductId = product.Id;
-        ProductCode = product.Code;
-        Description = InvoiceLineDescription.Create(product.Description?.Value ?? product.Name.Value);
+        ProductId = product.ProductId;
+        ProductCode = product.ProductCode;
+        Description = InvoiceLineDescription.Create(product.ProductDescription?.Value ?? product.ProductName.Value);
         UnitOfMeasure = product.UnitOfMeasure;
         UnitPrice = product.UnitPrice;
         TaxRate = product.TaxRate;

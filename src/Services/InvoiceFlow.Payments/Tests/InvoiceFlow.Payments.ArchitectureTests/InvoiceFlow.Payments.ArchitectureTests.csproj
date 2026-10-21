@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<IsPackable>false</IsPackable>
+		<OutputType>Exe</OutputType>
+		<IsTestProject>true</IsTestProject>
+
+		<RollForward>Major</RollForward>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="FluentAssertions" />
+		<PackageReference Include="NetArchTest.Rules" />
+		<PackageReference Include="xunit.v3" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\InvoiceFlow.Payments.Api\InvoiceFlow.Payments.Api.csproj" />
+		<ProjectReference Include="..\..\InvoiceFlow.Payments.Application\InvoiceFlow.Payments.Application.csproj" />
+		<ProjectReference Include="..\..\InvoiceFlow.Payments.Domain\InvoiceFlow.Payments.Domain.csproj" />
+		<ProjectReference Include="..\..\InvoiceFlow.Payments.Infrastructure\InvoiceFlow.Payments.Infrastructure.csproj" />
+	</ItemGroup>
+
+</Project>

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace InvoiceFlow.Invoices.Infrastructure;
 
-public sealed class InvoiceRepository(
+internal sealed class InvoiceRepository(
     InvoicesDbContext context)
     : IInvoiceRepository
 {

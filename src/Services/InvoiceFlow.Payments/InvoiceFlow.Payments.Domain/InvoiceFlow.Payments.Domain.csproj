@@ -1,13 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="InvoiceFlow.BuildingBlocks.Domain" />
+		<PackageReference Include="InvoiceFlow.BuildingBlocks.Currency" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="InvoiceFlow.BuildingBlocks.Domain" />
-    <PackageReference Include="InvoiceFlow.BuildingBlocks.Currency" />
-  </ItemGroup>
 </Project>

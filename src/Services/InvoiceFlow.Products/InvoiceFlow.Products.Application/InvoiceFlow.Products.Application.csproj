@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<ItemGroup>
+		<InternalsVisibleTo Include="InvoiceFlow.Products.Application.UnitTests" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="FluentValidation" />
+		<PackageReference Include="InvoiceFlow.BuildingBlocks.Application" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\InvoiceFlow.Products.Domain\InvoiceFlow.Products.Domain.csproj" />
+	</ItemGroup>
+
+</Project>

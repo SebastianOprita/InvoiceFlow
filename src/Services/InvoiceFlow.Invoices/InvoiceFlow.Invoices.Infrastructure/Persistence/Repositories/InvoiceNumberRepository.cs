@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace InvoiceFlow.Invoices.Infrastructure;
 
-public sealed class InvoiceNumberRepository(
+internal sealed class InvoiceNumberRepository(
     InvoicesDbContext context)
     : IInvoiceNumberRepository
 {
@@ -22,7 +22,7 @@ public sealed class InvoiceNumberRepository(
 
         if (sequence is null)
         {
-            sequence = new InvoiceNumberSequence(
+            sequence =  InvoiceNumberSequence.Create(
                 tenantId: tenantId,
                 id: Guid.CreateVersion7(),
                 year: InvoiceYear.Create(year),
