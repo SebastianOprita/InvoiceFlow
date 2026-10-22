@@ -179,20 +179,17 @@ public sealed class LoggingBehaviorTests
     public async Task Handle_ShouldLogProvidedDateTime()
     {
         // Arrange
-        var now = new DateTime(
-            2026,
-            10,
-            2,
-            12,
-            30,
-            0,
-            DateTimeKind.Utc);
+        var now = new DateTimeOffset(
+            2026, 10, 2,
+            12, 30, 0,
+            TimeSpan.Zero);
 
         _dateTimeProvider
-            .Setup(x => x.Now)
+            .Setup(x => x.GetUtcNow())
             .Returns(now);
 
         var behavior = CreateBehavior();
+
 
         // Act
         await behavior.Handle(
@@ -208,10 +205,7 @@ public sealed class LoggingBehaviorTests
                 It.Is<It.IsAnyType>((state, _) =>
                     state != null &&
                     HasLogProperty(state, "DateTimeUtc", now) &&
-                    HasLogProperty(
-                        state,
-                        "RequestName",
-                        nameof(TestRequest))),
+                    HasLogProperty(state, "RequestName", nameof(TestRequest))),
                 It.IsAny<Exception?>(),
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             Times.Once);
