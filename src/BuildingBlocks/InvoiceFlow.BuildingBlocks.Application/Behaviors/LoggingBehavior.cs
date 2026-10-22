@@ -35,7 +35,7 @@ public class LoggingBehavior<TRequest, TResponse>
             _logger.LogInformation(
                 "Handling {RequestName} at {DateTimeUtc}",
                 requestName,
-                _dateTimeProvider.Now);
+                _dateTimeProvider.GetUtcNow());
 
             var stopwatch = Stopwatch.StartNew();
 

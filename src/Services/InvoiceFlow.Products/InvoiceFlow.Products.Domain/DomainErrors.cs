@@ -7,10 +7,8 @@ public static partial class DomainErrors
     public static readonly DomainError TenantIdRequired = new("tenantId.required", "Tenant Id is required.");
     public static readonly DomainError IdRequired = new("id.required", "Id is required.");
     public static readonly DomainError CreatedAtUtcRequired = new("createdAtUtc.required", "Created datetime is required.");
-    public static readonly DomainError CreatedAtUtcNotUtc = new("createdAtUtc.notUtc", "Created datetime must be UTC.");
     public static readonly DomainError UnitOfMeasureInvalid = new("unitOfMeasure.invalid", "Unit of measure is invalid.");
     public static readonly DomainError UpdatedAtUtcRequired = new("updatedAtUtc.required", "Updated datetime is required.");
-    public static readonly DomainError UpdatedAtUtcNotUtc = new("updatedAtUtc.notUtc", "Updated datetime must be in UTC.");
     public static readonly DomainError UpdatedAtUtcInvalid = new("updatedAtUtc.invalid", "Updated datetime cannot be earlier than Created datetime.");
     public static readonly DomainError ProductCodeRequired = new("productCode.required", "Product code is required.");
     public static readonly DomainError ProductCodeTooLong = new("productCode.tooLong", $"Product code cannot exceed {ProductCode.MaxLength} characters.");
