@@ -2,5 +2,5 @@
 
 public interface ISystemDateTimeProvider
 {
-    DateTime Now { get; }
+    DateTimeOffset GetUtcNow();
 }

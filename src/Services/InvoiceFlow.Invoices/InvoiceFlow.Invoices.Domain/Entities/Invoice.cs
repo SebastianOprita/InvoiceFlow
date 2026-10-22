@@ -25,8 +25,8 @@ public sealed class Invoice
     public PostalCode CustomerPostalCode { get; private set; }
     public CurrencyCode CurrencyCode { get; private set; }
     public PaymentTermDays PaymentTermDays { get; private set; }
-    public DateOnly IssueDate { get; private set; }
-    public DateOnly DueDate { get; private set; }
+    public DateOnly? IssueDate { get; private set; }
+    public DateOnly? DueDate { get; private set; }
     public InvoiceStatus Status { get; private set; }
     public Money DiscountAmount { get; private set; }
     public Money NetAmount { get; private set; }
@@ -45,10 +45,10 @@ public sealed class Invoice
         };
 
     public InvoiceNotes? Notes { get; private set; }
-    public DateTime? IssuedAtUtc { get; private set; }
-    public DateTime? CancelledAtUtc { get; private set; }
-    public DateTime CreatedAtUtc { get; private set; }
-    public DateTime? UpdatedAtUtc { get; private set; }
+    public DateTimeOffset? IssuedAtUtc { get; private set; }
+    public DateTimeOffset? CancelledAtUtc { get; private set; }
+    public DateTimeOffset CreatedAtUtc { get; private set; }
+    public DateTimeOffset? UpdatedAtUtc { get; private set; }
 
     public IReadOnlyCollection<InvoiceLine> Lines => _lines.AsReadOnly();
 
@@ -62,10 +62,8 @@ public sealed class Invoice
         InvoiceCustomerSnapshot customer,
         CurrencyCode currencyCode,
         PaymentTermDays paymentTermDays,
-        DateOnly issueDate,
-        DateOnly dueDate,
         InvoiceNotes? notes,
-        DateTime createdAtUtc)
+        DateTimeOffset createdAtUtc)
     {
         TenantId = tenantId;
         Id = id;
@@ -75,8 +73,6 @@ public sealed class Invoice
 
         CurrencyCode = currencyCode;
         PaymentTermDays = paymentTermDays;
-        IssueDate = issueDate;
-        DueDate = dueDate;
         Notes = notes;
 
         Status = InvoiceStatus.Draft;
@@ -96,20 +92,14 @@ public sealed class Invoice
         InvoiceCustomerSnapshot customer,
         CurrencyCode currencyCode,
         PaymentTermDays paymentTermDays,
-        DateOnly issueDate,
-        DateOnly dueDate,
         InvoiceNotes? notes,
-        DateTime createdAtUtc)
+        DateTimeOffset createdAtUtc)
     {
         ValidateTenantId(tenantId);
         ValidateId(id);
-        ValidateDates(issueDate, dueDate);
 
         if (createdAtUtc == default)
             throw new DomainException(DomainErrors.CreatedAtUtcRequired);
-
-        if (createdAtUtc.Kind != DateTimeKind.Utc)
-            throw new DomainException(DomainErrors.CreatedAtUtcNotUtc);
 
         if (customer.CustomerTenantId != tenantId)
             throw new DomainException(DomainErrors.TenantMismatch);
@@ -123,10 +113,8 @@ public sealed class Invoice
             customer,
             currencyCode,
             paymentTermDays,
-            issueDate,
-            dueDate,
             notes,
-            createdAtUtc);
+            createdAtUtc.ToUniversalTime());
     }
 
     // Header
@@ -134,7 +122,7 @@ public sealed class Invoice
 
     public void ChangeCustomer(
         InvoiceCustomerSnapshot customer,
-        DateTime updatedAtUtc)
+        DateTimeOffset updatedAtUtc)
     {
         EnsureDraft();
 
@@ -149,41 +137,20 @@ public sealed class Invoice
         MarkAsUpdated(updatedAtUtc);
     }
 
-    public void ChangeDates(
-        DateOnly issueDate,
-        DateOnly dueDate,
-        DateTime updatedAtUtc)
-    {
-        EnsureDraft();
-        ValidateDates(issueDate, dueDate);
-
-        if (IssueDate == issueDate && DueDate == dueDate)
-            return;
-
-        IssueDate = issueDate;
-        DueDate = dueDate;
-
-        MarkAsUpdated(updatedAtUtc);
-    }
-
     public void ChangePaymentTerms(
         PaymentTermDays paymentTermDays,
-        DateOnly dueDate,
-        DateTime updatedAtUtc)
+        DateTimeOffset updatedAtUtc)
     {
         EnsureDraft();
 
-        ValidateDates(IssueDate, dueDate);
-
         PaymentTermDays = paymentTermDays;
-        DueDate = dueDate;
 
         MarkAsUpdated(updatedAtUtc);
     }
 
     public void ChangeCurrency(
         CurrencyCode currencyCode,
-        DateTime updatedAtUtc)
+        DateTimeOffset updatedAtUtc)
     {
         EnsureDraft();
 
@@ -206,7 +173,7 @@ public sealed class Invoice
 
     public void ChangeNotes(
         InvoiceNotes? notes,
-        DateTime updatedAtUtc)
+        DateTimeOffset updatedAtUtc)
     {
         EnsureDraft();
 
@@ -229,7 +196,7 @@ public sealed class Invoice
         Money unitPrice,
         Percentage discountRate,
         Percentage taxRate,
-        DateTime updatedAtUtc)
+        DateTimeOffset updatedAtUtc)
     {
         EnsureDraft();
         EnsureUniqueLineId(lineId);
@@ -261,7 +228,7 @@ public sealed class Invoice
         InvoiceProductSnapshot product,
         Quantity quantity,
         Percentage discountRate,
-        DateTime updatedAtUtc)
+        DateTimeOffset updatedAtUtc)
     {
         EnsureDraft();
         EnsureUniqueLineId(lineId);
@@ -300,7 +267,7 @@ public sealed class Invoice
         Money unitPrice,
         Percentage discountRate,
         Percentage taxRate,
-        DateTime updatedAtUtc)
+        DateTimeOffset updatedAtUtc)
     {
         EnsureDraft();
         EnsureCurrencyMatches(unitPrice);
@@ -322,7 +289,7 @@ public sealed class Invoice
     public void ReplaceLineProduct(
         Guid lineId,
         InvoiceProductSnapshot product,
-        DateTime updatedAtUtc)
+        DateTimeOffset updatedAtUtc)
     {
         EnsureDraft();
 
@@ -344,7 +311,7 @@ public sealed class Invoice
 
     public void RemoveLine(
         Guid lineId,
-        DateTime updatedAtUtc)
+        DateTimeOffset updatedAtUtc)
     {
         EnsureDraft();
 
@@ -360,7 +327,7 @@ public sealed class Invoice
     public void MoveLine(
         Guid lineId,
         int newPosition,
-        DateTime updatedAtUtc)
+        DateTimeOffset updatedAtUtc)
     {
         EnsureDraft();
 
@@ -383,15 +350,12 @@ public sealed class Invoice
     // Lifecycle
     // -----------------------------------------------------------------
 
-    public void Issue(InvoiceNumber number, DateTime issuedAtUtc)
+    public void Issue(InvoiceNumber number, DateOnly issueDate, DateTimeOffset issuedAtUtc)
     {
         EnsureDraft();
 
         if (issuedAtUtc == default)
             throw new DomainException(DomainErrors.IssuedAtUtcRequired);
-
-        if (issuedAtUtc.Kind != DateTimeKind.Utc)
-            throw new DomainException(DomainErrors.IssuedAtUtcNotUtc);
 
         if (_lines.Count == 0)
             throw new DomainException(DomainErrors.NoLines);
@@ -399,14 +363,20 @@ public sealed class Invoice
         if (GrossAmount.Amount <= 0m)
             throw new DomainException(DomainErrors.GrossAmountZero);
 
+        var dueDate = issueDate.AddDays(PaymentTermDays.Value);
+        ValidateDates(issueDate, dueDate);
+
         Number = number;
         Status = InvoiceStatus.Issued;
-        IssuedAtUtc = issuedAtUtc;
+        IssuedAtUtc = issuedAtUtc.ToUniversalTime();
+        
+        IssueDate = issueDate;
+        DueDate = dueDate;
 
         MarkAsUpdated(issuedAtUtc);
     }
 
-    public void Cancel(DateTime cancelledAtUtc)
+    public void Cancel(DateTimeOffset cancelledAtUtc)
     {
         if (Status != InvoiceStatus.Issued)
             throw new DomainException(DomainErrors.InvoiceNotIssued);
@@ -414,14 +384,11 @@ public sealed class Invoice
         if (cancelledAtUtc == default)
             throw new DomainException(DomainErrors.CancelledAtUtcRequired);
 
-        if (cancelledAtUtc.Kind != DateTimeKind.Utc)
-            throw new DomainException(DomainErrors.CancelledAtUtcNotUtc);
-
         if (PaidAmount.Amount > 0m)
             throw new DomainException(DomainErrors.InvoicePaidAmountInvalid);
 
         Status = InvoiceStatus.Cancelled;
-        CancelledAtUtc = cancelledAtUtc;
+        CancelledAtUtc = cancelledAtUtc.ToUniversalTime();
 
         MarkAsUpdated(cancelledAtUtc);
     }
@@ -429,7 +396,7 @@ public sealed class Invoice
     // Payments
     // -----------------------------------------------------------------
 
-    internal void ApplyPayment(Money amount, DateTime updatedAtUtc)
+    internal void ApplyPayment(Money amount, DateTimeOffset updatedAtUtc)
     {
         EnsureCanReceivePayment();
         EnsureCurrencyMatches(amount);
@@ -447,7 +414,7 @@ public sealed class Invoice
         MarkAsUpdated(updatedAtUtc);
     }
 
-    internal void ReversePayment(Money amount, DateTime updatedAtUtc)
+    internal void ReversePayment(Money amount, DateTimeOffset updatedAtUtc)
     {
         EnsureCanReceivePayment();
 
@@ -565,13 +532,12 @@ public sealed class Invoice
             throw new DomainException(DomainErrors.InvoiceNotIssued);
     }
 
-    private void MarkAsUpdated(DateTime updatedAtUtc)
+    private void MarkAsUpdated(DateTimeOffset updatedAtUtc)
     {
         if (updatedAtUtc == default)
             throw new DomainException(DomainErrors.UpdatedAtUtcRequired);
 
-        if (updatedAtUtc.Kind != DateTimeKind.Utc)
-            throw new DomainException(DomainErrors.UpdatedAtUtcNotUtc);
+        updatedAtUtc = updatedAtUtc.ToUniversalTime();
 
         if (updatedAtUtc < CreatedAtUtc)
             throw new DomainException(DomainErrors.UpdatedAtUtcInvalid);

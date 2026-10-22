@@ -6,13 +6,11 @@ public static partial class DomainErrors
 {
     public static readonly DomainError UnitOfMeasureInvalid = new("unitOfMeasure.invalid", "Unit of measure is invalid.");
     public static readonly DomainError UpdatedAtUtcRequired = new("updatedAtUtc.required", "Updated datetime is required.");
-    public static readonly DomainError UpdatedAtUtcNotUtc = new("updatedAtUtc.notUtc", "Updated datetime must be in UTC.");
     public static readonly DomainError UpdatedAtUtcInvalid = new("updatedAtUtc.invalid", "Updated datetime cannot be earlier than Created datetime.");
     public static readonly DomainError TenantIdRequired = new("tenantId.required", "Tenant Id is required.");
     public static readonly DomainError IdRequired = new("id.required", "Id is required.");
     public static readonly DomainError InvoiceIdRequired = new("invoiceId.required", "Invoice Id is required.");
     public static readonly DomainError CreatedAtUtcRequired = new("createdAtUtc.required", "Created datetime is required.");
-    public static readonly DomainError CreatedAtUtcNotUtc = new("createdAtUtc.notUtc", "Created datetime must be UTC.");
     public static readonly DomainError MoneyInvalid = new("money.invalid", "Money amount cannot be negative.");
     public static readonly DomainError MoneyDecimalPlacesInvalid = new("moneyDecimalPlaces.invalid", "Money amount does not match the currency precision for the specified currency.");
     public static readonly DomainError PercentageInvalid = new("percentage.invalid", "Percentage must be between 0 and 100.");
@@ -31,13 +29,11 @@ public static partial class DomainErrors
     public static readonly DomainError CurrencyHasLines = new($"currency.hasLines", "Invoice currency cannot be changed after lines have been added.");
     public static readonly DomainError PositionInvalid = new("position.invalid", $"Line position must be between 1 and NumberOfLines.");
     public static readonly DomainError IssuedAtUtcRequired = new($"issuedAtUtc.required", $"Invoice issued datetime is required.");
-    public static readonly DomainError IssuedAtUtcNotUtc = new($"issuedAtUtc.notUtc", $"Invoice issued datetime must be UTC.");
     public static readonly DomainError NoLines = new("invoice.noLines", "An invoice must contain at least one line before it can be issued.");
     public static readonly DomainError GrossAmountZero = new("grossAmount.zeroAmount", "An invoice total must be greater than zero before it can be issued.");
     public static readonly DomainError InvoiceNotIssued = new("invoice.notIssued", "Only issued invoices can receive, reverse payments or can be cancelled.");
     public static readonly DomainError InvoiceNotDraft = new("invoice.notDraft", "Only draft invoices can be modified.");
     public static readonly DomainError CancelledAtUtcRequired = new("cancelledAtUtc.required", "Invoice cancelled datetime is required.");
-    public static readonly DomainError CancelledAtUtcNotUtc = new("cancelledAtUtc.notUtc", $"Invoice cancelled datetime must be UTC.");
     public static readonly DomainError InvoicePaidAmountInvalid = new("invoice.paidAmountInvalid", "An invoice with allocated payments cannot be cancelled. Reverse its payment allocations first.");
     public static readonly DomainError PaymentAmountInvalid = new("invoice.amountInvalid", "Payment amount must be greater than zero.");
     public static readonly DomainError PaymentAmountExceedsOutstanding = new("invoice.amountExceedsOutstanding", "Payment amount cannot exceed the outstanding invoice amount.");

@@ -13,5 +13,4 @@ internal sealed class IssueInvoiceCommandValidator
         RuleFor(x => x.InvoiceId)
             .NotEmpty();
     }
-
 }

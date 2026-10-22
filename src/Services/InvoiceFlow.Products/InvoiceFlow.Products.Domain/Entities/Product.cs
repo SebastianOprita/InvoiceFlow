@@ -13,8 +13,8 @@ public sealed class Product
     public Money UnitPrice { get; private set; } = null!;
     public Percentage TaxRate { get; private set; } = null!;
     public bool IsActive { get; private set; }
-    public DateTime CreatedAtUtc { get; private set; }
-    public DateTime? UpdatedAtUtc { get; private set; }
+    public DateTimeOffset CreatedAtUtc { get; private set; }
+    public DateTimeOffset? UpdatedAtUtc { get; private set; }
 
 #pragma warning disable CS8618
     private Product() { } // EF Core
@@ -29,7 +29,7 @@ public sealed class Product
         UnitOfMeasure unitOfMeasure,
         Money unitPrice,
         Percentage taxRate,
-        DateTime createdAtUtc)
+        DateTimeOffset createdAtUtc)
     {
         TenantId = tenantId;
         Id = id;
@@ -52,7 +52,7 @@ public sealed class Product
         UnitOfMeasure unitOfMeasure,
         Money unitPrice,
         Percentage taxRate,
-        DateTime createdAtUtc)
+        DateTimeOffset createdAtUtc)
     {
         if (tenantId == Guid.Empty)
             throw new DomainException(DomainErrors.TenantIdRequired);
@@ -62,9 +62,6 @@ public sealed class Product
 
         if (createdAtUtc == default)
             throw new DomainException(DomainErrors.CreatedAtUtcRequired);
-
-        if (createdAtUtc.Kind != DateTimeKind.Utc)
-            throw new DomainException(DomainErrors.CreatedAtUtcNotUtc);
 
         ValidateUnitOfMeasure(unitOfMeasure);
 
@@ -83,103 +80,89 @@ public sealed class Product
     public void UpdateDetails(
         ProductName name,
         ProductDescription? description,
-        DateTime updatedAtUtc)
+        DateTimeOffset updatedAtUtc)
     {
-        EnsureValidUpdateTime(updatedAtUtc);
-
         Name = name;
         Description = description;
-        UpdatedAtUtc = updatedAtUtc;
+        UpdatedAtUtc = EnsureValidUpdateTime(updatedAtUtc);
     }
 
     public void ChangeCode(
         ProductCode code,
-        DateTime updatedAtUtc)
+        DateTimeOffset updatedAtUtc)
     {
-        EnsureValidUpdateTime(updatedAtUtc);
-
         if (Code == code)
             return;
 
         Code = code;
-        UpdatedAtUtc = updatedAtUtc;
+        UpdatedAtUtc = EnsureValidUpdateTime(updatedAtUtc);
     }
 
     public void ChangeUnitOfMeasure(
         UnitOfMeasure unitOfMeasure,
-        DateTime updatedAtUtc)
+        DateTimeOffset updatedAtUtc)
     {
         ValidateUnitOfMeasure(unitOfMeasure);
-        EnsureValidUpdateTime(updatedAtUtc);
 
         if (UnitOfMeasure == unitOfMeasure)
             return;
 
         UnitOfMeasure = unitOfMeasure;
-        UpdatedAtUtc = updatedAtUtc;
+        UpdatedAtUtc = EnsureValidUpdateTime(updatedAtUtc);
     }
 
     public void ChangeUnitPrice(
         Money unitPrice,
-        DateTime updatedAtUtc)
+        DateTimeOffset updatedAtUtc)
     {
-        EnsureValidUpdateTime(updatedAtUtc);
-
         if (UnitPrice == unitPrice)
             return;
 
         UnitPrice = unitPrice;
-        UpdatedAtUtc = updatedAtUtc;
+        UpdatedAtUtc = EnsureValidUpdateTime(updatedAtUtc);
     }
 
     public void ChangeTaxRate(
         Percentage taxRate,
-        DateTime updatedAtUtc)
+        DateTimeOffset updatedAtUtc)
     {
-        EnsureValidUpdateTime(updatedAtUtc);
-
         if (TaxRate == taxRate)
             return;
 
         TaxRate = taxRate;
-        UpdatedAtUtc = updatedAtUtc;
+        UpdatedAtUtc = EnsureValidUpdateTime(updatedAtUtc);
     }
 
     public void UpdateSalesInformation(
         UnitOfMeasure unitOfMeasure,
         Money unitPrice,
         Percentage taxRate,
-        DateTime updatedAtUtc)
+        DateTimeOffset updatedAtUtc)
     {
         ValidateUnitOfMeasure(unitOfMeasure);
-        EnsureValidUpdateTime(updatedAtUtc);
 
         UnitOfMeasure = unitOfMeasure;
         UnitPrice = unitPrice;
         TaxRate = taxRate;
-        UpdatedAtUtc = updatedAtUtc;
+        UpdatedAtUtc = EnsureValidUpdateTime(updatedAtUtc);
     }
 
-    public void Activate(DateTime updatedAtUtc)
+    public void Activate(DateTimeOffset updatedAtUtc)
     {
-        EnsureValidUpdateTime(updatedAtUtc);
-
         if (IsActive)
             return;
 
         IsActive = true;
-        UpdatedAtUtc = updatedAtUtc;
+        UpdatedAtUtc = EnsureValidUpdateTime(updatedAtUtc);
     }
 
-    public void Deactivate(DateTime updatedAtUtc)
+    public void Deactivate(DateTimeOffset updatedAtUtc)
     {
-        EnsureValidUpdateTime(updatedAtUtc);
-
         if (!IsActive)
             return;
 
         IsActive = false;
-        UpdatedAtUtc = updatedAtUtc;
+        UpdatedAtUtc = EnsureValidUpdateTime(updatedAtUtc);
     }
 
     private static void ValidateUnitOfMeasure(UnitOfMeasure unitOfMeasure)
@@ -188,15 +171,16 @@ public sealed class Product
             throw new DomainException(DomainErrors.UnitOfMeasureInvalid);
     }
 
-    private void EnsureValidUpdateTime(DateTime updatedAtUtc)
+    private DateTimeOffset EnsureValidUpdateTime(DateTimeOffset updatedAtUtc)
     {
         if (updatedAtUtc == default)
             throw new DomainException(DomainErrors.UpdatedAtUtcRequired);
 
-        if (updatedAtUtc.Kind != DateTimeKind.Utc)
-            throw new DomainException(DomainErrors.UpdatedAtUtcNotUtc);
+        updatedAtUtc = updatedAtUtc.ToUniversalTime();
 
         if (updatedAtUtc < CreatedAtUtc)
             throw new DomainException(DomainErrors.UpdatedAtUtcInvalid);
+
+        return updatedAtUtc;
     }
 }

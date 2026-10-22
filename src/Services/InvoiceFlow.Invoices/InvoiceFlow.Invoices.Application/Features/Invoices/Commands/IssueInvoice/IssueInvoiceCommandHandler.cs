@@ -25,7 +25,7 @@ internal sealed class IssueInvoiceCommandHandler(
 
                 if (invoice is null)
                     return Result.Failure(ApplicationErrors.InvoiceNotFound);
-
+                
                 if (invoice.Status == InvoiceStatus.Issued)
                     return Result.Success();
 
@@ -33,6 +33,8 @@ internal sealed class IssueInvoiceCommandHandler(
                     return Result.Failure(ApplicationErrors.InvoiceCannotBeIssued);
 
                 var now = dateTimeProvider.Now;
+                // var issueDate = DateOnly.FromDateTime(now.UtcDateTime);
+                var issueDate = DateOnly.FromDateTime(now);
 
                 var invoiceNumber =
                     await invoiceNumberRepository.AllocateNextAsync(
@@ -40,7 +42,7 @@ internal sealed class IssueInvoiceCommandHandler(
                         now.Year,
                         ct);
 
-                invoice.Issue(InvoiceNumber.Create(invoiceNumber), now);
+                invoice.Issue(InvoiceNumber.Create(invoiceNumber), issueDate, now);
 
                 return await unitOfWork.SaveChangesAsync(ct);
 
