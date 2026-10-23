@@ -1,4 +1,4 @@
-﻿using InvoiceFlow.Customers.Domain;
+using InvoiceFlow.Customers.Domain;
 
 namespace InvoiceFlow.Customers.Infrastructure;
 
@@ -6,7 +6,7 @@ public static class CustomersDbSeed
 {
     public static async Task SeedAsync(
         CustomersDbContext db,
-        InvoiceFlow.BuildingBlocks.Application.ISystemDateTimeProvider dateTimeProvider,
+        BuildingBlocks.Application.ISystemDateTimeProvider dateTimeProvider,
         CancellationToken cancellationToken = default)
     {
         var tenantId = Guid.Parse("f305e3f0-e634-470b-b9c1-cc0c7559dc0a");

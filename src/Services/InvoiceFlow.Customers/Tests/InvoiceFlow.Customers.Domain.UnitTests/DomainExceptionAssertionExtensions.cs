@@ -1,11 +1,13 @@
+using FluentAssertions;
+using FluentAssertions.Specialized;
 using InvoiceFlow.BuildingBlocks.Domain;
 
-namespace FluentAssertions;
+namespace InvoiceFlow.Customers.Domain.UnitTests;
 
 public static class DomainExceptionAssertionExtensions
 {
     public static void WithDomainError(
-        this Specialized.ExceptionAssertions<DomainException> assertions,
+        this ExceptionAssertions<DomainException> assertions,
         DomainError expectedError)
     {
         var exception = assertions.Which;
