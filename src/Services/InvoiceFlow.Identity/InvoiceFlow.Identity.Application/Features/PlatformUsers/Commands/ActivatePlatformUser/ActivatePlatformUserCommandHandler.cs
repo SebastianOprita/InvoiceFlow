@@ -18,7 +18,7 @@ internal class ActivatePlatformUserCommandHandler(
         if (platformUser.IsActive)
             return Result.Success();
 
-        platformUser.Activate(dateTimeProvider.Now);
+        platformUser.Activate(dateTimeProvider.GetUtcNow());
         var result = await unitOfWork.SaveChangesAsync(cancellationToken);
         return result;
     }

@@ -18,7 +18,7 @@ internal class ActivateUserCommandHandler(
         if (user.IsActive)
             return Result.Success();
 
-        user.Activate(dateTimeProvider.Now);
+        user.Activate(dateTimeProvider.GetUtcNow());
         var result = await unitOfWork.SaveChangesAsync(cancellationToken);
         return result;
     }

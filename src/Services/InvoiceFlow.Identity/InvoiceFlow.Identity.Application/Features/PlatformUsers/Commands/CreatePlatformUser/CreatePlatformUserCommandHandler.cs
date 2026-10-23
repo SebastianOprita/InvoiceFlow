@@ -25,7 +25,7 @@ internal class CreatePlatformUserCommandHandler(
             PasswordHash.Create(passwordHash),
             FirstName.Create(cmd.FirstName),
             LastName.Create(cmd.LastName),
-            dateTimeProvider.Now);
+            dateTimeProvider.GetUtcNow());
         platformUsersRepository.AddUser(platformUser);
 
         var result = await unitOfWork.SaveChangesAsync(cancellationToken);

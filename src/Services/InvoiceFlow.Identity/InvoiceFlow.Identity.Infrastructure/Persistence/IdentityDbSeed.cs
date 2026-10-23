@@ -12,7 +12,7 @@ public static class IdentityDbSeed
             Guid.Parse("f305e3f0-e634-470b-b9c1-cc0c7559dc0a"),
             TenantName.Create("Default Tenant"),
             TenantSlug.Create("default-tenant"),
-            dateTimeProvider.Now);
+            dateTimeProvider.GetUtcNow());
 
         var user = User.Create(
             tenant.Id,
@@ -21,22 +21,22 @@ public static class IdentityDbSeed
             PasswordHash.Create("AQAAAAIAAYagAAAAEBTiBEyF1jroUbr5ZzCizb1/uF2BQWtZXW8Y1kifHlGvJIlI4rhWElB4V49dlY2+Ig=="),
             FirstName.Create("admin"),
             LastName.Create("admin"),
-            dateTimeProvider.Now);
+            dateTimeProvider.GetUtcNow());
 
         var role = Role.Create(
             tenant.Id,
             Guid.CreateVersion7(),
             RoleName.Create("Admin"),
-            dateTimeProvider.Now,
+            dateTimeProvider.GetUtcNow(),
             RoleDescription.CreateOptional("Administration role with full permissions."));
-        role.GrantPermission(1L << 3, dateTimeProvider.Now);
-        role.GrantPermission(1L << 4, dateTimeProvider.Now);
-        role.GrantPermission(1L << 5, dateTimeProvider.Now);
-        role.GrantPermission(1L << 6, dateTimeProvider.Now);
-        role.GrantPermission(1L << 1, dateTimeProvider.Now);
-        role.GrantPermission(1L << 0, dateTimeProvider.Now);
+        role.GrantPermission(1L << 3, dateTimeProvider.GetUtcNow());
+        role.GrantPermission(1L << 4, dateTimeProvider.GetUtcNow());
+        role.GrantPermission(1L << 5, dateTimeProvider.GetUtcNow());
+        role.GrantPermission(1L << 6, dateTimeProvider.GetUtcNow());
+        role.GrantPermission(1L << 1, dateTimeProvider.GetUtcNow());
+        role.GrantPermission(1L << 0, dateTimeProvider.GetUtcNow());
 
-        user.AssignRole(role.Id, dateTimeProvider.Now);
+        user.AssignRole(role.Id, dateTimeProvider.GetUtcNow());
 
         await db.Tenants.AddAsync(tenant);
         await db.Users.AddAsync(user);

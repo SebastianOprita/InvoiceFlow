@@ -12,15 +12,15 @@ internal sealed class IssueInvoiceCommandHandler(
     : IRequestHandler<IssueInvoiceCommand, Result>
 {
     public async Task<Result> Handle(
-        IssueInvoiceCommand request,
+        IssueInvoiceCommand cmd,
         CancellationToken cancellationToken)
     {
         return await unitOfWork.ExecuteInTransactionAsync(
             async ct => 
             {
                 var invoice = await invoiceRepository.GetForIssuingAsync(
-                    request.TenantId,
-                    request.InvoiceId,
+                    cmd.TenantId,
+                    cmd.InvoiceId,
                     ct);
 
                 if (invoice is null)
@@ -32,13 +32,12 @@ internal sealed class IssueInvoiceCommandHandler(
                 if (invoice.Status != InvoiceStatus.Draft)
                     return Result.Failure(ApplicationErrors.InvoiceCannotBeIssued);
 
-                var now = dateTimeProvider.Now;
-                // var issueDate = DateOnly.FromDateTime(now.UtcDateTime);
-                var issueDate = DateOnly.FromDateTime(now);
+                var now = dateTimeProvider.GetUtcNow();
+                var issueDate = DateOnly.FromDateTime(now.UtcDateTime);
 
                 var invoiceNumber =
                     await invoiceNumberRepository.AllocateNextAsync(
-                        request.TenantId,
+                        cmd.TenantId,
                         now.Year,
                         ct);
 

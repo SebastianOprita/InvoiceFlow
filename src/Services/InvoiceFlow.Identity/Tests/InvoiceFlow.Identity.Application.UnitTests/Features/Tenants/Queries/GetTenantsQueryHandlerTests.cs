@@ -15,7 +15,7 @@ public sealed class GetTenantsQueryHandlerTests
     public GetTenantsQueryHandlerTests()
     {
         _mockDateTimeProvider = new();
-        _mockDateTimeProvider.Setup(x => x.Now).Returns(DateTime.UtcNow);
+        _mockDateTimeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero));
         _handler = new GetTenantsQueryHandler(_tenantsRepositoryMock.Object);
     }
 
@@ -29,12 +29,12 @@ public sealed class GetTenantsQueryHandlerTests
                 Guid.CreateVersion7(),
                 TenantName.Create("tenant1"),
                 TenantSlug.Create("tenant1"),
-                _mockDateTimeProvider.Object.Now),
+                _mockDateTimeProvider.Object.GetUtcNow()),
             Tenant.Create(
                 Guid.CreateVersion7(),
                 TenantName.Create("tenant2"),
                 TenantSlug.Create("tenant2"),
-                _mockDateTimeProvider.Object.Now),
+                _mockDateTimeProvider.Object.GetUtcNow()),
         };
 
         var query = new GetTenantsQuery();

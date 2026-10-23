@@ -9,8 +9,8 @@ public sealed class Role
     public RoleName Name { get; private set; }
     public RoleDescription? Description { get; private set; }
     public RolePermissions Permissions { get; private set; }
-    public DateTime CreatedAtUtc { get; private set; }
-    public DateTime? UpdatedAtUtc { get; private set; }
+    public DateTimeOffset CreatedAtUtc { get; private set; }
+    public DateTimeOffset? UpdatedAtUtc { get; private set; }
 
     // Navigation property
     private readonly List<UserRole> _userRoles = [];
@@ -24,7 +24,7 @@ public sealed class Role
         Guid tenantId,
         Guid id,
         RoleName name,
-        DateTime createdAtUtc,
+        DateTimeOffset createdAtUtc,
         RoleDescription? description = null,
         RolePermissions? permissions = null)
     {
@@ -40,7 +40,7 @@ public sealed class Role
         Guid tenantId,
         Guid id,
         RoleName name,
-        DateTime createdAtUtc,
+        DateTimeOffset createdAtUtc,
         RoleDescription? description = null,
         RolePermissions? permissions = null)
     {
@@ -53,57 +53,46 @@ public sealed class Role
         if (createdAtUtc == default)
             throw new DomainException(DomainErrors.CreatedAtUtcRequired);
 
-        if (createdAtUtc.Kind != DateTimeKind.Utc)
-            throw new DomainException(DomainErrors.CreatedAtUtcNotUtc);
-
         return new Role(tenantId, id, name, createdAtUtc, description, permissions);
     }
 
-    public void UpdateDetails(RoleName name, DateTime updatedAtUtc, RoleDescription? description = null)
+    public void UpdateDetails(RoleName name, DateTimeOffset updatedAtUtc, RoleDescription? description = null)
     {
-        EnsureValidUpdateTime(updatedAtUtc);
-
         if (Name == name && Description == description)
             return;
 
         Name = name;
         Description = description;
-        UpdatedAtUtc = updatedAtUtc;
+        MarkAsUpdated(updatedAtUtc);
     }
 
-    public void GrantPermission(long permission, DateTime updatedAtUtc)
+    public void GrantPermission(long permission, DateTimeOffset updatedAtUtc)
     {
-        EnsureValidUpdateTime(updatedAtUtc);
-
         var newPermissions = Permissions.Grant(permission);
         if (newPermissions == Permissions)
             return;
 
         Permissions = newPermissions;
-        UpdatedAtUtc = updatedAtUtc;
+        MarkAsUpdated(updatedAtUtc);
     }
 
-    public void RevokePermission(long permission, DateTime updatedAtUtc)
+    public void RevokePermission(long permission, DateTimeOffset updatedAtUtc)
     {
-        EnsureValidUpdateTime(updatedAtUtc);
-
         var newPermissions = Permissions.Revoke(permission);
         if (Permissions == newPermissions)
             return;
 
         Permissions = newPermissions;
-        UpdatedAtUtc = updatedAtUtc;
+        MarkAsUpdated(updatedAtUtc);
     }
 
-    public void SetPermissions(RolePermissions permissions, DateTime updatedAtUtc)
+    public void SetPermissions(RolePermissions permissions, DateTimeOffset updatedAtUtc)
     {
-        EnsureValidUpdateTime(updatedAtUtc);
-
         if (Permissions == permissions)
             return;
 
         Permissions = permissions;
-        UpdatedAtUtc = updatedAtUtc;
+        MarkAsUpdated(updatedAtUtc);
     }
 
     public bool HasPermission(long permission)
@@ -116,15 +105,16 @@ public sealed class Role
         _userRoles.Clear();
     }
 
-    private void EnsureValidUpdateTime(DateTime updatedAtUtc)
+    private void MarkAsUpdated(DateTimeOffset updatedAtUtc)
     {
         if (updatedAtUtc == default)
             throw new DomainException(DomainErrors.UpdatedAtUtcRequired);
 
-        if (updatedAtUtc.Kind != DateTimeKind.Utc)
-            throw new DomainException(DomainErrors.UpdatedAtUtcNotUtc);
+        updatedAtUtc = updatedAtUtc.ToUniversalTime();
 
         if (updatedAtUtc < CreatedAtUtc)
             throw new DomainException(DomainErrors.UpdatedAtUtcInvalid);
+
+        UpdatedAtUtc = updatedAtUtc;
     }
 }

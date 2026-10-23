@@ -1,3 +1,28 @@
+## Entity Framework Core Migrations
+
+Each microservice manages its own database schema and migrations independently using Entity Framework Core. Migrations are stored in the respective service's Infrastructure project under the `Migrations` folder.
+
+Run the following commands from the solution root directory (`C:\Dev\InvoiceFlow`).
+
+### Customers Service
+
+```cmd
+dotnet ef migrations add InitialMigration --project "src\Services\InvoiceFlow.Customers\InvoiceFlow.Customers.Infrastructure\InvoiceFlow.Customers.Infrastructure.csproj" --startup-project "src\Services\InvoiceFlow.Customers\InvoiceFlow.Customers.Api\InvoiceFlow.Customers.Api.csproj" --context CustomersDbContext --output-dir Migrations
+```
+
+### Identity Service
+
+```cmd
+dotnet ef migrations add InitialMigration --project "src\Services\InvoiceFlow.Identity\InvoiceFlow.Identity.Infrastructure\InvoiceFlow.Identity.Infrastructure.csproj" --startup-project "src\Services\InvoiceFlow.Identity\InvoiceFlow.Identity.Api\InvoiceFlow.Identity.Api.csproj" --context IdentityDbContext --output-dir Migrations
+```
+
+### Notes
+
+- Each service uses `IDesignTimeDbContextFactory<TContext>` to create its DbContext without starting the API.
+- Replace `InitialMigration` with a descriptive name for subsequent schema changes.
+- Generating migrations does not apply them to the database.
+- Use `dotnet ef database update` with the appropriate project, startup project, and DbContext to apply migrations.
+
 CreateInvoice
   -> Invoicing saves Invoice + Outbox
   -> publishes InvoiceIssued

@@ -10,7 +10,7 @@ public sealed class PlatformUserMapperTests
     public void ToDto_ShouldMapPlatformUserToUserDto()
     {
         // Arrange
-        var createdAtUtc = new DateTime(2024, 1, 1, 10, 0, 0, DateTimeKind.Utc);
+        var createdAtUtc = new DateTimeOffset(2024, 1, 1, 10, 0, 0, TimeSpan.Zero);
 
         var platformUser = CreatePlatformUser(createdAtUtc: createdAtUtc);
 
@@ -31,8 +31,8 @@ public sealed class PlatformUserMapperTests
     public void ToDto_ShouldMapUpdatedAtUtc_WhenPlatformUserWasUpdated()
     {
         // Arrange
-        var createdAtUtc = new DateTime(2024, 1, 1, 10, 0, 0, DateTimeKind.Utc);
-        var updatedAtUtc = new DateTime(2024, 1, 2, 10, 0, 0, DateTimeKind.Utc);
+        var createdAtUtc = new DateTimeOffset(2024, 1, 1, 10, 0, 0, TimeSpan.Zero);
+        var updatedAtUtc = new DateTimeOffset(2024, 1, 2, 10, 0, 0, TimeSpan.Zero);
 
         var platformUser = CreatePlatformUser(createdAtUtc: createdAtUtc);
 
@@ -67,7 +67,7 @@ public sealed class PlatformUserMapperTests
         dto.UpdatedAtUtc.Should().Be(updatedAtUtc);
     }
 
-    private static Domain.PlatformUser CreatePlatformUser(DateTime? createdAtUtc = null)
+    private static Domain.PlatformUser CreatePlatformUser(DateTimeOffset? createdAtUtc = null)
     {
         return Domain.PlatformUser.Create(
             id: Guid.CreateVersion7(),
@@ -75,6 +75,6 @@ public sealed class PlatformUserMapperTests
             passwordHash: PasswordHash.Create("hashed-password"),
             firstName: FirstName.Create("John"),
             lastName: LastName.Create("Doe"),
-            createdAtUtc: createdAtUtc ?? new DateTime(2024, 1, 1, 10, 0, 0, DateTimeKind.Utc));
+            createdAtUtc: createdAtUtc ?? new DateTimeOffset(2024, 1, 1, 10, 0, 0, TimeSpan.Zero));
     }
 }

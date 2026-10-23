@@ -26,7 +26,7 @@ internal class CreateUserCommandHandler(
             PasswordHash.Create(passwordHash),
             FirstName.Create(cmd.FirstName),
             LastName.Create(cmd.LastName),
-            dateTimeProvider.Now);
+            dateTimeProvider.GetUtcNow());
         usersRepository.AddUser(user);
 
         var result = await unitOfWork.SaveChangesAsync(cancellationToken);

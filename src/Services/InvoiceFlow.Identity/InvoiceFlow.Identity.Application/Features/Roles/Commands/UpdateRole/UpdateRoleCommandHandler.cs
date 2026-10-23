@@ -24,7 +24,7 @@ internal class UpdateRoleCommandHandler(
                 return Result<RoleDto>.Failure(ApplicationErrors.RoleNameAlreadyExists);
         }
 
-        role.UpdateDetails(RoleName.Create(cmd.Name), dateTimeProvider.Now, RoleDescription.CreateOptional(cmd.Description));
+        role.UpdateDetails(RoleName.Create(cmd.Name), dateTimeProvider.GetUtcNow(), RoleDescription.CreateOptional(cmd.Description));
         var result = await unitOfWork.SaveChangesAsync(cancellationToken);
         if (result.IsFailure)
             return Result<RoleDto>.Failure(result);

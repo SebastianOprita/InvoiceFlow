@@ -16,7 +16,7 @@ internal class UpdateUserCommandHandler(
         if (user is null)
             return Result<UserDto>.Failure(ApplicationErrors.UserNotFound);
 
-        user.UpdateProfile(FirstName.Create(cmd.FirstName), LastName.Create(cmd.LastName), dateTimeProvider.Now);
+        user.UpdateProfile(FirstName.Create(cmd.FirstName), LastName.Create(cmd.LastName), dateTimeProvider.GetUtcNow());
         var result = await unitOfWork.SaveChangesAsync(cancellationToken);
         if (result.IsFailure)
             return Result<UserDto>.Failure(result);

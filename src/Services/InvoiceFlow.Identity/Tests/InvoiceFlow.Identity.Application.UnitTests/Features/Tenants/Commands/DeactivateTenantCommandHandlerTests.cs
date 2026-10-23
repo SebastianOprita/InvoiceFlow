@@ -18,7 +18,7 @@ public class DeactivateTenantCommandHandlerTests
         _unitOfWork = new();
         _tenantsRepository = new();
         _mockDateTimeProvider = new();
-        _mockDateTimeProvider.Setup(x => x.Now).Returns(DateTime.UtcNow);
+        _mockDateTimeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero));
         _sut = new DeactivateTenantCommandHandler(
             _unitOfWork.Object,
             _tenantsRepository.Object,
@@ -55,7 +55,7 @@ public class DeactivateTenantCommandHandlerTests
         // Arrange
         var tenantId = Guid.CreateVersion7();
         var tenant = CreateTenant(tenantId);
-        tenant.Deactivate(_mockDateTimeProvider.Object.Now);
+        tenant.Deactivate(_mockDateTimeProvider.Object.GetUtcNow());
 
         _tenantsRepository
             .Setup(x => x.GetTrackedTenantByIdAsync(tenantId, TestContext.Current.CancellationToken))
@@ -102,6 +102,6 @@ public class DeactivateTenantCommandHandlerTests
 
     private Tenant CreateTenant(Guid tenantId)
     {
-        return Tenant.Create(tenantId, TenantName.Create("Test Tenant"), TenantSlug.Create("test-tenant"), _mockDateTimeProvider.Object.Now);
+        return Tenant.Create(tenantId, TenantName.Create("Test Tenant"), TenantSlug.Create("test-tenant"), _mockDateTimeProvider.Object.GetUtcNow());
     }
 }

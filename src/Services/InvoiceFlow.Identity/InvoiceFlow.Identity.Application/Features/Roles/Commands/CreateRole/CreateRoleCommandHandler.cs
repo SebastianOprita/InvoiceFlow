@@ -21,7 +21,7 @@ internal class CreateRoleCommandHandler(
             cmd.TenantId,
             Guid.CreateVersion7(),
             RoleName.Create(cmd.Name),
-            dateTimeProvider.Now,
+            dateTimeProvider.GetUtcNow(),
             RoleDescription.CreateOptional(cmd.Description),
             RolePermissions.Create(cmd.Permissions));
         rolesRepository.AddRole(role);

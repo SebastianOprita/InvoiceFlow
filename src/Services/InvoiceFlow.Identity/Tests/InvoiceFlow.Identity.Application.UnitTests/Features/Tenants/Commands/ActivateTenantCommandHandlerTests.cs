@@ -18,7 +18,7 @@ public class ActivateTenantCommandHandlerTests
         _unitOfWork = new();
         _tenantsRepository = new();
         _mockDateTimeProvider = new();
-        _mockDateTimeProvider.Setup(x => x.Now).Returns(DateTime.UtcNow);
+        _mockDateTimeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero));
         _sut = new ActivateTenantCommandHandler(_unitOfWork.Object, _tenantsRepository.Object, _mockDateTimeProvider.Object);
     }
 
@@ -53,7 +53,7 @@ public class ActivateTenantCommandHandlerTests
         // Arrange
         var tenantId = Guid.CreateVersion7();
         var tenant = CreateTenant(tenantId);
-        tenant.Activate(_mockDateTimeProvider.Object.Now);
+        tenant.Activate(_mockDateTimeProvider.Object.GetUtcNow());
 
         _tenantsRepository
             .Setup(x => x.GetTrackedTenantByIdAsync(tenantId))
@@ -105,7 +105,7 @@ public class ActivateTenantCommandHandlerTests
         // Arrange
         var tenantId = Guid.CreateVersion7();
         var tenant = CreateTenant(tenantId);
-        tenant.Deactivate(_mockDateTimeProvider.Object.Now);
+        tenant.Deactivate(_mockDateTimeProvider.Object.GetUtcNow());
 
         var expectedResult = Result.Success();
 
@@ -132,6 +132,6 @@ public class ActivateTenantCommandHandlerTests
     private Tenant CreateTenant(Guid tenantId)
     {
         var tenant = Guid.CreateVersion7();
-        return Tenant.Create(tenantId, TenantName.Create("TestTenant" + tenant), TenantSlug.Create("tenant-" + tenant), _mockDateTimeProvider.Object.Now);
+        return Tenant.Create(tenantId, TenantName.Create("TestTenant" + tenant), TenantSlug.Create("tenant-" + tenant), _mockDateTimeProvider.Object.GetUtcNow());
     }
 }

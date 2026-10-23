@@ -29,8 +29,8 @@ public sealed class LoginUserCommandHandlerTests
         _mockDateTimeProvider = new();
 
         _mockDateTimeProvider
-            .Setup(x => x.Now)
-            .Returns(DateTime.UtcNow);
+            .Setup(x => x.GetUtcNow())
+            .Returns(new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero));
 
         _sut = new LoginUserCommandHandler(
             _unitOfWork.Object,
@@ -179,7 +179,7 @@ public sealed class LoginUserCommandHandlerTests
                 It.IsAny<Guid>(),
                 It.IsAny<string>(),
                 It.IsAny<long>(),
-                It.IsAny<DateTime>()),
+                It.IsAny<DateTimeOffset>()),
             Times.Never);
 
         _refreshTokensRepository.Verify(
@@ -200,8 +200,8 @@ public sealed class LoginUserCommandHandlerTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(CreateTenant(tenantId));
 
-        var expiresAt = _mockDateTimeProvider.Object.Now.AddMinutes(15);
-        var refreshExpiresAt = _mockDateTimeProvider.Object.Now.AddDays(30);
+        var expiresAt = _mockDateTimeProvider.Object.GetUtcNow().AddMinutes(15);
+        var refreshExpiresAt = _mockDateTimeProvider.Object.GetUtcNow().AddDays(30);
 
         var user = CreateUserWithPermissions(
             tenantId,
@@ -234,11 +234,11 @@ public sealed class LoginUserCommandHandlerTests
                 tenantId,
                 "test@email.com",
                 1L << 3 | 1L << 4,
-                It.IsAny<DateTime>()))
+                It.IsAny<DateTimeOffset>()))
             .Returns(("access-token", "Bearer", expiresAt));
 
         _tokenService
-            .Setup(x => x.GenerateRefreshToken(It.IsAny<DateTime>()))
+            .Setup(x => x.GenerateRefreshToken(It.IsAny<DateTimeOffset>()))
             .Returns(("refresh-token", refreshExpiresAt));
 
         _tokenService
@@ -310,7 +310,7 @@ public sealed class LoginUserCommandHandlerTests
         _usersRepository.VerifyNoOtherCalls();
 
         _tokenService.Verify(
-            x => x.GenerateRefreshToken(It.IsAny<DateTime>()),
+            x => x.GenerateRefreshToken(It.IsAny<DateTimeOffset>()),
             Times.Never);
 
         _refreshTokensRepository.Verify(
@@ -330,7 +330,7 @@ public sealed class LoginUserCommandHandlerTests
         var tenant = CreateTenant(tenantId);
 
         // Use your Tenant domain method to deactivate it.
-        tenant.Deactivate(_mockDateTimeProvider.Object.Now);
+        tenant.Deactivate(_mockDateTimeProvider.Object.GetUtcNow());
 
         _tenantsRepository
             .Setup(x => x.GetTenantByIdAsync(
@@ -378,7 +378,7 @@ public sealed class LoginUserCommandHandlerTests
             "hashed-password");
 
         // Use your actual User deactivation method.
-        user.Deactivate(_mockDateTimeProvider.Object.Now);
+        user.Deactivate(_mockDateTimeProvider.Object.GetUtcNow());
 
         _tenantsRepository
             .Setup(x => x.GetTenantByIdAsync(
@@ -442,7 +442,7 @@ public sealed class LoginUserCommandHandlerTests
             "test@email.com",
             "hashed-password");
 
-        inactiveUser.Deactivate(_mockDateTimeProvider.Object.Now);
+        inactiveUser.Deactivate(_mockDateTimeProvider.Object.GetUtcNow());
 
         _tenantsRepository
             .Setup(x => x.GetTenantByIdAsync(
@@ -500,7 +500,7 @@ public sealed class LoginUserCommandHandlerTests
                 It.IsAny<Guid>(),
                 It.IsAny<string>(),
                 It.IsAny<long>(),
-                It.IsAny<DateTime>()),
+                It.IsAny<DateTimeOffset>()),
             Times.Never);
 
         _refreshTokensRepository.Verify(
@@ -555,15 +555,15 @@ public sealed class LoginUserCommandHandlerTests
                 tenantId,
                 user.Email.Value,
                 RolePermissions.None.Value,
-                It.IsAny<DateTime>()))
+                It.IsAny<DateTimeOffset>()))
             .Returns((
                 "access-token",
                 "Bearer",
-                _mockDateTimeProvider.Object.Now.AddMinutes(15)));
+                _mockDateTimeProvider.Object.GetUtcNow().AddMinutes(15)));
 
         _tokenService
-            .Setup(x => x.GenerateRefreshToken(It.IsAny<DateTime>()))
-            .Returns(("refresh-token", _mockDateTimeProvider.Object.Now.AddDays(30)));
+            .Setup(x => x.GenerateRefreshToken(It.IsAny<DateTimeOffset>()))
+            .Returns(("refresh-token", _mockDateTimeProvider.Object.GetUtcNow().AddDays(30)));
 
         _tokenService
             .Setup(x => x.CalculateTokenHash("refresh-token"))
@@ -595,7 +595,7 @@ public sealed class LoginUserCommandHandlerTests
                 tenantId,
                 user.Email.Value,
                 RolePermissions.None.Value,
-                It.IsAny<DateTime>()),
+                It.IsAny<DateTimeOffset>()),
             Times.Once);
 
         _refreshTokensRepository.Verify(
@@ -609,7 +609,7 @@ public sealed class LoginUserCommandHandlerTests
             tenantId,
             TenantName.Create("Test Tenant"),
             TenantSlug.Create("test-tenant"),
-            _mockDateTimeProvider.Object.Now);
+            _mockDateTimeProvider.Object.GetUtcNow());
     }
 
     private User CreateUser(
@@ -624,7 +624,7 @@ public sealed class LoginUserCommandHandlerTests
             PasswordHash.Create(passwordHash),
             FirstName.Create("Test"),
             LastName.Create("User"),
-            _mockDateTimeProvider.Object.Now);
+            _mockDateTimeProvider.Object.GetUtcNow());
     }
 
     private User CreateUserWithPermissions(
@@ -639,11 +639,11 @@ public sealed class LoginUserCommandHandlerTests
             tenantId,
             Guid.CreateVersion7(),
             RoleName.Create("Admin"),
-            _mockDateTimeProvider.Object.Now,
+            _mockDateTimeProvider.Object.GetUtcNow(),
             RoleDescription.CreateOptional("Administrator role"),
             RolePermissions.Create(permissions));
 
-        user.AssignRole(role.Id, _mockDateTimeProvider.Object.Now);
+        user.AssignRole(role.Id, _mockDateTimeProvider.Object.GetUtcNow());
 
         // Manually set the Role navigation property on the UserRole to simulate EF Core's eager loading
         var userRole = ((List<UserRole>)user.UserRoles).First();

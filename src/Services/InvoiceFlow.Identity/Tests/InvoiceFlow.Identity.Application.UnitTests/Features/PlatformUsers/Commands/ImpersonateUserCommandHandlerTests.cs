@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Application;
 using InvoiceFlow.Identity.Domain;
 using Moq;
@@ -22,7 +22,7 @@ public class ImpersonateUserCommandHandlerTests
         _usersRepository = new();
         _tokenService = new();
         _mockDateTimeProvider = new();
-        _mockDateTimeProvider.Setup(x => x.Now).Returns(DateTime.UtcNow);
+        _mockDateTimeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero));
         _sut = new ImpersonateUserCommandHandler(
             _tenantsRepository.Object,
             _platformUsersRepository.Object,
@@ -60,7 +60,7 @@ public class ImpersonateUserCommandHandlerTests
                 It.IsAny<long>(),
                 It.IsAny<Guid>(),
                 It.IsAny<string?>(),
-                It.IsAny<DateTime>()),
+                It.IsAny<DateTimeOffset>()),
             Times.Never);
     }
 
@@ -70,7 +70,7 @@ public class ImpersonateUserCommandHandlerTests
         var command = ValidCommand();
 
         var platformUser = CreatePlatformUser(command.ActorUserId);
-        platformUser.Deactivate(_mockDateTimeProvider.Object.Now);
+        platformUser.Deactivate(_mockDateTimeProvider.Object.GetUtcNow());
 
         _platformUsersRepository
             .Setup(x => x.GetUserByIdAsync(command.ActorUserId, CancellationToken.None))
@@ -96,7 +96,7 @@ public class ImpersonateUserCommandHandlerTests
                 It.IsAny<long>(),
                 It.IsAny<Guid>(),
                 It.IsAny<string?>(),
-                It.IsAny<DateTime>()),
+                It.IsAny<DateTimeOffset>()),
             Times.Never);
     }
 
@@ -131,7 +131,7 @@ public class ImpersonateUserCommandHandlerTests
                 It.IsAny<long>(),
                 It.IsAny<Guid>(),
                 It.IsAny<string?>(),
-                It.IsAny<DateTime>()),
+                It.IsAny<DateTimeOffset>()),
             Times.Never);
     }
 
@@ -140,7 +140,7 @@ public class ImpersonateUserCommandHandlerTests
     {
         var command = ValidCommand();
         var tenant = CreateTenant(command.TargetUserTenantId);
-        tenant.Deactivate(_mockDateTimeProvider.Object.Now);
+        tenant.Deactivate(_mockDateTimeProvider.Object.GetUtcNow());
 
         _tenantsRepository
             .Setup(x => x.GetTenantByIdAsync(
@@ -174,7 +174,7 @@ public class ImpersonateUserCommandHandlerTests
                 It.IsAny<long>(),
                 It.IsAny<Guid>(),
                 It.IsAny<string?>(),
-                It.IsAny<DateTime>()),
+                It.IsAny<DateTimeOffset>()),
             Times.Never);
     }
 
@@ -221,7 +221,7 @@ public class ImpersonateUserCommandHandlerTests
                 It.IsAny<long>(),
                 It.IsAny<Guid>(),
                 It.IsAny<string?>(),
-                It.IsAny<DateTime>()),
+                It.IsAny<DateTimeOffset>()),
             Times.Never);
     }
 
@@ -269,7 +269,7 @@ public class ImpersonateUserCommandHandlerTests
                 It.IsAny<long>(),
                 It.IsAny<Guid>(),
                 It.IsAny<string?>(),
-                It.IsAny<DateTime>()),
+                It.IsAny<DateTimeOffset>()),
             Times.Never);
     }
 
@@ -292,7 +292,7 @@ public class ImpersonateUserCommandHandlerTests
             1L << 0 | 1L << 1);
 
         var expectedToken = "impersonation-token";
-        var expectedExpiresAt = _mockDateTimeProvider.Object.Now.AddMinutes(15);
+        var expectedExpiresAt = _mockDateTimeProvider.Object.GetUtcNow().AddMinutes(15);
 
         _platformUsersRepository
             .Setup(x => x.GetUserByIdAsync(command.ActorUserId, CancellationToken.None))
@@ -319,7 +319,7 @@ public class ImpersonateUserCommandHandlerTests
                 1L << 0 | 1L << 1,
                 It.IsAny<Guid>(),
                 command.Reason,
-                It.IsAny<DateTime>()))
+                It.IsAny<DateTimeOffset>()))
             .Returns((expectedToken, "Bearer", expectedExpiresAt));
 
         var result = await _sut.Handle(command, CancellationToken.None);
@@ -372,8 +372,8 @@ public class ImpersonateUserCommandHandlerTests
                 It.IsAny<long>(),
                 It.IsAny<Guid>(),
                 It.IsAny<string?>(),
-                It.IsAny<DateTime>()))
-            .Returns(("token", "Bearer", _mockDateTimeProvider.Object.Now.AddMinutes(15)));
+                It.IsAny<DateTimeOffset>()))
+            .Returns(("token", "Bearer", _mockDateTimeProvider.Object.GetUtcNow().AddMinutes(15)));
 
         await _sut.Handle(command, CancellationToken.None);
 
@@ -386,7 +386,7 @@ public class ImpersonateUserCommandHandlerTests
             1L << 0 | 1L << 1,
             It.IsAny<Guid>(),
             command.Reason,
-            It.IsAny<DateTime>()),
+            It.IsAny<DateTimeOffset>()),
             Times.Once);
     }
 
@@ -405,7 +405,7 @@ public class ImpersonateUserCommandHandlerTests
             tenantId,
             TenantName.Create("Test Tenant"),
             TenantSlug.Create("test-tenant"),
-            _mockDateTimeProvider.Object.Now);
+            _mockDateTimeProvider.Object.GetUtcNow());
     }
 
     private User CreateUser(
@@ -420,7 +420,7 @@ public class ImpersonateUserCommandHandlerTests
             PasswordHash.Create("passwordHash"),
             FirstName.Create("Test"),
             LastName.Create("User"),
-            _mockDateTimeProvider.Object.Now);
+            _mockDateTimeProvider.Object.GetUtcNow());
     }
 
     private User CreateUserWithPermissions(
@@ -434,11 +434,11 @@ public class ImpersonateUserCommandHandlerTests
             tenantId,
             Guid.CreateVersion7(),
             RoleName.Create("Admin"),
-            _mockDateTimeProvider.Object.Now,
+            _mockDateTimeProvider.Object.GetUtcNow(),
             RoleDescription.CreateOptional("Administrator role"),
             RolePermissions.Create(permissions));
 
-        user.AssignRole(role.Id, _mockDateTimeProvider.Object.Now);
+        user.AssignRole(role.Id, _mockDateTimeProvider.Object.GetUtcNow());
 
         // Manually set the Role navigation property on the UserRole to simulate EF Core's eager loading
         var userRole = ((List<UserRole>)user.UserRoles).First();
@@ -456,6 +456,6 @@ public class ImpersonateUserCommandHandlerTests
             PasswordHash.Create("passwordHash"),
             FirstName.Create("Test"),
             LastName.Create("User"),
-            _mockDateTimeProvider.Object.Now);
+            _mockDateTimeProvider.Object.GetUtcNow());
     }
 }

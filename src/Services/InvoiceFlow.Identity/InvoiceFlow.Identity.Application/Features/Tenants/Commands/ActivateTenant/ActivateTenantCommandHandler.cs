@@ -18,7 +18,7 @@ internal class ActivateTenantCommandHandler(
         if (tenant.IsActive)
             return Result.Success();
 
-        tenant.Activate(dateTimeProvider.Now);
+        tenant.Activate(dateTimeProvider.GetUtcNow());
         var result = await unitOfWork.SaveChangesAsync(cancellationToken);
         return result;
     }

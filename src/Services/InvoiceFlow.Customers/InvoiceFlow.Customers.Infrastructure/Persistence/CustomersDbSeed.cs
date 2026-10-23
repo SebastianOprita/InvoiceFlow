@@ -4,7 +4,10 @@ namespace InvoiceFlow.Customers.Infrastructure;
 
 public static class CustomersDbSeed
 {
-    public static async Task SeedAsync(CustomersDbContext db, CancellationToken cancellationToken = default)
+    public static async Task SeedAsync(
+        CustomersDbContext db,
+        InvoiceFlow.BuildingBlocks.Application.ISystemDateTimeProvider dateTimeProvider,
+        CancellationToken cancellationToken = default)
     {
         var tenantId = Guid.Parse("f305e3f0-e634-470b-b9c1-cc0c7559dc0a");
         var customer1 = Customer.Create(
@@ -25,7 +28,7 @@ public static class CustomersDbSeed
             CurrencyCode.Create("USD"),
             CreditLimit.Create(10000m),
             PaymentTermDays.Create(30),
-            DateTime.UtcNow
+            dateTimeProvider.GetUtcNow()
             );
 
         var customer2 = Customer.Create(
@@ -46,7 +49,7 @@ public static class CustomersDbSeed
             CurrencyCode.Create("USD"),
             CreditLimit.Create(10000m),
             PaymentTermDays.Create(30),
-            DateTime.UtcNow
+            dateTimeProvider.GetUtcNow()
             );
 
         await db.Customers.AddRangeAsync(customer1, customer2);

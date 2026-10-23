@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Application;
 using InvoiceFlow.Customers.Domain;
 using Moq;
@@ -18,7 +18,7 @@ public sealed class ActivateCustomerCommandHandlerTests
         _mockRepository = new();
         _mockUnitOfWork = new();
         _mockDateTimeProvider = new();
-        _mockDateTimeProvider.Setup(x => x.Now).Returns(DateTime.UtcNow);
+        _mockDateTimeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero));
         _sut = new(_mockUnitOfWork.Object, _mockRepository.Object, _mockDateTimeProvider.Object);
     }
 
@@ -50,10 +50,10 @@ public sealed class ActivateCustomerCommandHandlerTests
     public async Task Handle_ShouldReturnSuccessWithoutSaving_WhenCustomerIsAlreadyActive()
     {
         // Arrange
-        var customer = TestConstants.Customer(TestConstants.TenantId, Guid.CreateVersion7(), "Existing customer", _mockDateTimeProvider.Object.Now);
+        var customer = TestConstants.Customer(TestConstants.TenantId, Guid.CreateVersion7(), "Existing customer", _mockDateTimeProvider.Object.GetUtcNow());
 
         if (!customer.IsActive)
-            customer.Activate(_mockDateTimeProvider.Object.Now);
+            customer.Activate(_mockDateTimeProvider.Object.GetUtcNow());
 
         var cmd = new ActivateCustomerCommand(
             TenantId: customer.TenantId,
@@ -76,10 +76,10 @@ public sealed class ActivateCustomerCommandHandlerTests
     public async Task Handle_ShouldActivateCustomerAndSave_WhenCustomerIsInactive()
     {
         // Arrange
-        var customer = TestConstants.Customer(TestConstants.TenantId, Guid.CreateVersion7(), "Existing customer", _mockDateTimeProvider.Object.Now);
+        var customer = TestConstants.Customer(TestConstants.TenantId, Guid.CreateVersion7(), "Existing customer", _mockDateTimeProvider.Object.GetUtcNow());
 
         if (customer.IsActive)
-            customer.Deactivate(_mockDateTimeProvider.Object.Now);
+            customer.Deactivate(_mockDateTimeProvider.Object.GetUtcNow());
 
         var cmd = new ActivateCustomerCommand(
             TenantId: customer.TenantId,

@@ -110,7 +110,7 @@ public sealed class CustomersApiFactory
 
         var dateTimeProvider = scope.ServiceProvider.GetRequiredService<ISystemDateTimeProvider>();
 
-        var customer = CreateCustomer(tenantId, customerCode, registrationNumber, taxNumber, dateTimeProvider.Now);
+        var customer = CreateCustomer(tenantId, customerCode, registrationNumber, taxNumber, dateTimeProvider.GetUtcNow());
         db.Customers.Add(customer);
 
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
@@ -118,7 +118,7 @@ public sealed class CustomersApiFactory
         return customer.Id;
     }
 
-    private static Customer CreateCustomer(Guid tenantId, string customerCode, string registrationNumber, string? taxNumber, DateTime dateTime)
+    private static Customer CreateCustomer(Guid tenantId, string customerCode, string registrationNumber, string? taxNumber, DateTimeOffset dateTime)
     {
         var id = Guid.CreateVersion7();
         return Customer.Create

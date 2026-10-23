@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Application;
 using InvoiceFlow.Customers.Domain;
 using Moq;
@@ -16,7 +16,7 @@ public sealed class GetCustomerByIdQueryHandlerTests
     public GetCustomerByIdQueryHandlerTests()
     {
         _mockDateTimeProvider = new();
-        _mockDateTimeProvider.Setup(x => x.Now).Returns(DateTime.UtcNow);
+        _mockDateTimeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero));
         _mockRepository = new();
         _handler = new GetCustomerByIdQueryHandler(_mockRepository.Object);
     }
@@ -27,7 +27,7 @@ public sealed class GetCustomerByIdQueryHandlerTests
         // Arrange
         var customerId = Guid.CreateVersion7();
         var name = "CustomerName";
-        var customer = TestConstants.Customer(TenantId, customerId, name, _mockDateTimeProvider.Object.Now);
+        var customer = TestConstants.Customer(TenantId, customerId, name, _mockDateTimeProvider.Object.GetUtcNow());
 
         _mockRepository.Setup(x => x.GetCustomerByIdAsync(TenantId, customerId, CancellationToken.None))
             .ReturnsAsync(customer);

@@ -9,7 +9,7 @@ public sealed class RefreshTokenTests
     private static readonly Guid TenantId = Guid.CreateVersion7();
     private static readonly Guid TokenId = Guid.CreateVersion7();
     private static readonly Guid UserId = Guid.CreateVersion7();
-    private static readonly DateTime DateTime = DateTime.UtcNow;
+    private static readonly DateTimeOffset DateTime = new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
 
     [Fact]
@@ -301,7 +301,7 @@ public sealed class RefreshTokenTests
             .WithDomainError(DomainErrors.RefreshTokensExpired);
     }
 
-    private static RefreshToken CreateToken(DateTime createdAtUtc, DateTime expiresAtUtc)
+    private static RefreshToken CreateToken(DateTimeOffset createdAtUtc, DateTimeOffset expiresAtUtc)
     {
         return RefreshToken.Create(
             TenantId,

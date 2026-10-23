@@ -10,7 +10,7 @@ public sealed class RoleMapperTests
     public void ToDto_ShouldMapRoleToRoleDto()
     {
         // Arrange
-        var createdAtUtc = new DateTime(2024, 1, 1, 10, 0, 0, DateTimeKind.Utc);
+        var createdAtUtc = new DateTimeOffset(2024, 1, 1, 10, 0, 0, TimeSpan.Zero);
 
         var role = CreateRole(createdAtUtc: createdAtUtc);
 
@@ -44,8 +44,8 @@ public sealed class RoleMapperTests
     public void ToDto_ShouldMapUpdatedAtUtc_WhenRoleWasUpdated()
     {
         // Arrange
-        var createdAtUtc = new DateTime(2024, 1, 1, 10, 0, 0, DateTimeKind.Utc);
-        var updatedAtUtc = new DateTime(2024, 1, 2, 10, 0, 0, DateTimeKind.Utc);
+        var createdAtUtc = new DateTimeOffset(2024, 1, 1, 10, 0, 0, TimeSpan.Zero);
+        var updatedAtUtc = new DateTimeOffset(2024, 1, 2, 10, 0, 0, TimeSpan.Zero);
 
         var role = CreateRole(createdAtUtc: createdAtUtc);
 
@@ -63,7 +63,7 @@ public sealed class RoleMapperTests
     }
 
     private static Role CreateRole(
-        DateTime? createdAtUtc = null,
+        DateTimeOffset? createdAtUtc = null,
         bool withDescription = true)
     {
         return Role.Create(
@@ -74,6 +74,6 @@ public sealed class RoleMapperTests
                 ? RoleDescription.Create("Administrator role")
                 : null,
             permissions: RolePermissions.Create(1L << 3),
-            createdAtUtc: createdAtUtc ?? new DateTime(2024, 1, 1, 10, 0, 0, DateTimeKind.Utc));
+            createdAtUtc: createdAtUtc ?? new DateTimeOffset(2024, 1, 1, 10, 0, 0, TimeSpan.Zero));
     }
 }

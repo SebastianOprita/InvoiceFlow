@@ -13,7 +13,7 @@ internal class ChangePlatformUserPasswordCommandHandler(
 {
     public async Task<Result> Handle(ChangePlatformUserPasswordCommand cmd, CancellationToken cancellationToken)
     {
-        var now = dateTimeProvider.Now;
+        var now = dateTimeProvider.GetUtcNow();
         var platformUser = await platformUsersRepository.GetTrackedUserByIdAsync(cmd.UserId, cancellationToken);
         if (platformUser is null || !platformUser.IsActive)
             return Result.Failure(ApplicationErrors.UserNotFound);

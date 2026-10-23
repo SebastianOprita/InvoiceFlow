@@ -11,13 +11,13 @@ public sealed class RefreshToken
     public DeviceInfo? DeviceInfo { get; private set; }
     public IpAddress? IpAddress { get; private set; }
     public Guid? ReplacedByTokenId { get; private set; }
-    public DateTime ExpiresAtUtc { get; private set; }
-    public DateTime? RevokedAtUtc { get; private set; }
-    public DateTime CreatedAtUtc { get; private set; }
+    public DateTimeOffset ExpiresAtUtc { get; private set; }
+    public DateTimeOffset? RevokedAtUtc { get; private set; }
+    public DateTimeOffset CreatedAtUtc { get; private set; }
 
     public bool IsRevoked => RevokedAtUtc.HasValue;
-    public bool IsExpired(DateTime now) => now >= ExpiresAtUtc;
-    public bool IsActive(DateTime now) => !IsRevoked && !IsExpired(now);
+    public bool IsExpired(DateTimeOffset now) => now.ToUniversalTime() >= ExpiresAtUtc;
+    public bool IsActive(DateTimeOffset now) => !IsRevoked && !IsExpired(now.ToUniversalTime());
 
 #pragma warning disable CS8618
     private RefreshToken() { } // EF Core
@@ -28,8 +28,8 @@ public sealed class RefreshToken
         Guid id,
         Guid userId,
         RefreshTokenHash tokenHash,
-        DateTime expiresAtUtc,
-        DateTime createdAtUtc,
+        DateTimeOffset expiresAtUtc,
+        DateTimeOffset createdAtUtc,
         DeviceInfo? deviceInfo = null,
         IpAddress? ipAddress = null)
     {
@@ -48,8 +48,8 @@ public sealed class RefreshToken
         Guid id,
         Guid userId,
         RefreshTokenHash tokenHash,
-        DateTime expiresAtUtc,
-        DateTime createdAtUtc,
+        DateTimeOffset expiresAtUtc,
+        DateTimeOffset createdAtUtc,
         DeviceInfo? deviceInfo = null,
         IpAddress? ipAddress = null)
     {
@@ -65,14 +65,8 @@ public sealed class RefreshToken
         if (createdAtUtc == default)
             throw new DomainException(DomainErrors.CreatedAtUtcRequired);
 
-        if (createdAtUtc.Kind != DateTimeKind.Utc)
-            throw new DomainException(DomainErrors.CreatedAtUtcNotUtc);
-
         if (expiresAtUtc == default)
             throw new DomainException(DomainErrors.ExpiresAtUtcRequired);
-
-        if (expiresAtUtc.Kind != DateTimeKind.Utc)
-            throw new DomainException(DomainErrors.ExpiresAtUtcNotUtc);
 
         if (expiresAtUtc <= createdAtUtc)
             throw new DomainException(DomainErrors.ExpiresAtUtcInvalid);
@@ -82,13 +76,13 @@ public sealed class RefreshToken
             id, 
             userId, 
             tokenHash, 
-            expiresAtUtc, 
-            createdAtUtc, 
+            expiresAtUtc.ToUniversalTime(), 
+            createdAtUtc.ToUniversalTime(), 
             deviceInfo, 
             ipAddress);
     }
 
-    public void Revoke(DateTime revokedAtUtc)
+    public void Revoke(DateTimeOffset revokedAtUtc)
     {
         if (IsRevoked)
             return;
@@ -96,8 +90,7 @@ public sealed class RefreshToken
         if (revokedAtUtc == default)
             throw new DomainException(DomainErrors.RevokedAtUtcRequired);
 
-        if (revokedAtUtc.Kind != DateTimeKind.Utc)
-            throw new DomainException(DomainErrors.RevokedAtUtcNotUtc);
+        revokedAtUtc = revokedAtUtc.ToUniversalTime();
 
         if (revokedAtUtc < CreatedAtUtc)
             throw new DomainException(DomainErrors.RevokedAtUtcInvalid);
@@ -107,8 +100,8 @@ public sealed class RefreshToken
 
     public RefreshToken Rotate(
         RefreshTokenHash newTokenHash,
-        DateTime newExpiresAtUtc,
-        DateTime createdAtUtc,
+        DateTimeOffset newExpiresAtUtc,
+        DateTimeOffset createdAtUtc,
         DeviceInfo? deviceInfo = null,
         IpAddress? ipAddress = null)
     {
@@ -123,12 +116,12 @@ public sealed class RefreshToken
             Guid.CreateVersion7(),
             UserId,
             newTokenHash,
-            newExpiresAtUtc,
-            createdAtUtc,
+            newExpiresAtUtc.ToUniversalTime(),
+            createdAtUtc.ToUniversalTime(),
             deviceInfo,
             ipAddress);
 
-        RevokedAtUtc = createdAtUtc;
+        RevokedAtUtc = createdAtUtc.ToUniversalTime();
         ReplacedByTokenId = newToken.Id;
 
         return newToken;

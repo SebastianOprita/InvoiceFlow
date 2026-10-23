@@ -16,7 +16,7 @@ internal class UpdatePlatformUserCommandHandler(
         if (platformUser is null)
             return Result<PlatformUserDto>.Failure(ApplicationErrors.UserNotFound);
 
-        platformUser.UpdateProfile(FirstName.Create(cmd.FirstName), LastName.Create(cmd.LastName), dateTimeProvider.Now);
+        platformUser.UpdateProfile(FirstName.Create(cmd.FirstName), LastName.Create(cmd.LastName), dateTimeProvider.GetUtcNow());
         var result = await unitOfWork.SaveChangesAsync(cancellationToken);
         if (result.IsFailure)
             return Result<PlatformUserDto>.Failure(result);

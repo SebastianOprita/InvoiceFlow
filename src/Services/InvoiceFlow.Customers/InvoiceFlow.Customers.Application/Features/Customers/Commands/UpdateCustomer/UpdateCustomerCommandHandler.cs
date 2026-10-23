@@ -16,14 +16,16 @@ internal class UpdateCustomerCommandHandler(
         if (customer is null)
             return Result<CustomerDto>.Failure(ApplicationErrors.CustomerNotFound);
 
+        var now = dateTimeProvider.GetUtcNow();
+
         if (cmd.Name is not null)
-            customer.UpdateName(CustomerName.Create(cmd.Name), dateTimeProvider.Now);
+            customer.UpdateName(CustomerName.Create(cmd.Name), now);
 
         if (cmd.CustomerContact is not null)
             customer.UpdateContact(
                 CustomerEmail.CreateOptional(cmd.CustomerContact.Email), 
                 PhoneNumber.CreateOptional(cmd.CustomerContact.Phone),
-                dateTimeProvider.Now);
+                now);
 
         if (cmd.CustomerAddress is not null)
             customer.UpdateAddress(
@@ -33,13 +35,13 @@ internal class UpdateCustomerCommandHandler(
                 State.CreateOptional(cmd.CustomerAddress.State), 
                 Country.Create(cmd.CustomerAddress.Country), 
                 PostalCode.Create(cmd.CustomerAddress.PostalCode),
-                dateTimeProvider.Now);
+                now);
 
         if (cmd.CustomerCreditPolicy is not null)
             customer.UpdateCreditPolicy(
                 CreditLimit.Create(cmd.CustomerCreditPolicy.CreditLimit), 
                 PaymentTermDays.Create(cmd.CustomerCreditPolicy.PaymentTermDays),
-                dateTimeProvider.Now);
+                now);
 
         var result = await unitOfWork.SaveChangesAsync(cancellationToken);
         if (!result.IsSuccess)

@@ -19,7 +19,7 @@ internal class LogoutUserCommandHandler(
         if (existingToken is null || existingToken.IsRevoked)
             return Result.Success();
 
-        existingToken.Revoke(dateTimeProvider.Now);
+        existingToken.Revoke(dateTimeProvider.GetUtcNow());
         var result = await unitOfWork.SaveChangesAsync(cancellationToken);
 
         if (result.IsFailure)

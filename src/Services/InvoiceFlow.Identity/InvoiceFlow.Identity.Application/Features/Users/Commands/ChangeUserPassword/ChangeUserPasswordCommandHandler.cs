@@ -14,7 +14,7 @@ internal class ChangeUserPasswordCommandHandler(
 {
     public async Task<Result> Handle(ChangeUserPasswordCommand cmd, CancellationToken cancellationToken)
     {
-        var now = dateTimeProvider.Now;
+        var now = dateTimeProvider.GetUtcNow();
         var user = await usersRepository.GetTrackedUserByIdAsync(cmd.TenantId, cmd.UserId, cancellationToken);
         if (user is null || !user.IsActive)
             return Result.Failure(ApplicationErrors.UserNotFound);

@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Application;
 using InvoiceFlow.Identity.Domain;
 using Moq;
@@ -23,7 +23,7 @@ public class ChangeUserPasswordCommandHandlerTests
         _refreshTokensRepository = new();
         _passwordHasher = new();
         _mockDateTimeProvider = new();
-        _mockDateTimeProvider.Setup(x => x.Now).Returns(DateTime.UtcNow);
+        _mockDateTimeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero));
         _sut = new ChangeUserPasswordCommandHandler(
             _unitOfWork.Object,
             _usersRepository.Object,
@@ -63,7 +63,7 @@ public class ChangeUserPasswordCommandHandlerTests
             x => x.RevokeAccessForUserAsync(
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
-                It.IsAny<DateTime>()),
+                It.IsAny<DateTimeOffset>()),
             Times.Never);
 
         _unitOfWork.Verify(x => x.SaveChangesAsync(TestContext.Current.CancellationToken), Times.Never);
@@ -86,9 +86,9 @@ public class ChangeUserPasswordCommandHandlerTests
             PasswordHash.Create("old-password-hash"),
             FirstName.Create("John"),
             LastName.Create("Doe"),
-            _mockDateTimeProvider.Object.Now);
+            _mockDateTimeProvider.Object.GetUtcNow());
 
-        user.Deactivate(_mockDateTimeProvider.Object.Now);
+        user.Deactivate(_mockDateTimeProvider.Object.GetUtcNow());
 
         _usersRepository
             .Setup(x => x.GetTrackedUserByIdAsync(cmd.TenantId, cmd.UserId, TestContext.Current.CancellationToken))
@@ -111,7 +111,7 @@ public class ChangeUserPasswordCommandHandlerTests
             x => x.RevokeAccessForUserAsync(
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
-                It.IsAny<DateTime>(),
+                It.IsAny<DateTimeOffset>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
 
@@ -135,7 +135,7 @@ public class ChangeUserPasswordCommandHandlerTests
             PasswordHash.Create("old-password-hash"),
             FirstName.Create("John"),
             LastName.Create("Doe"),
-            _mockDateTimeProvider.Object.Now);
+            _mockDateTimeProvider.Object.GetUtcNow());
 
         _usersRepository
             .Setup(x => x.GetTrackedUserByIdAsync(cmd.TenantId, cmd.UserId, TestContext.Current.CancellationToken))
@@ -162,7 +162,7 @@ public class ChangeUserPasswordCommandHandlerTests
             x => x.RevokeAccessForUserAsync(
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
-                It.IsAny<DateTime>()),
+                It.IsAny<DateTimeOffset>()),
             Times.Never);
 
         _unitOfWork.Verify(x => x.SaveChangesAsync(TestContext.Current.CancellationToken), Times.Never);
@@ -185,7 +185,7 @@ public class ChangeUserPasswordCommandHandlerTests
             PasswordHash.Create("old-password-hash"),
             FirstName.Create("John"),
             LastName.Create("Doe"),
-            _mockDateTimeProvider.Object.Now);
+            _mockDateTimeProvider.Object.GetUtcNow());
 
         var newPasswordHash = "new-password-hash";
 
@@ -205,7 +205,7 @@ public class ChangeUserPasswordCommandHandlerTests
             .Setup(x => x.RevokeAccessForUserAsync(
                 cmd.TenantId,
                 cmd.UserId,
-                It.IsAny<DateTime>(),
+                It.IsAny<DateTimeOffset>(),
                 TestContext.Current.CancellationToken))
             .Returns(Task.CompletedTask);
 
@@ -224,7 +224,7 @@ public class ChangeUserPasswordCommandHandlerTests
             x => x.RevokeAccessForUserAsync(
                 cmd.TenantId,
                 cmd.UserId,
-                It.IsAny<DateTime>(),
+                It.IsAny<DateTimeOffset>(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
 

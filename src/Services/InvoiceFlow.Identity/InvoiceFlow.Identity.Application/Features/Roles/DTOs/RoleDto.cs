@@ -7,6 +7,6 @@ public record RoleDto
     public required string Name { get; set; }
     public string? Description { get; set; }
     public required long Permissions { get; set; }
-    public required DateTime CreatedAtUtc { get; set; }
-    public DateTime? UpdatedAtUtc { get; set; }
+    public required DateTimeOffset CreatedAtUtc { get; set; }
+    public DateTimeOffset? UpdatedAtUtc { get; set; }
 }

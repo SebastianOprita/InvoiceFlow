@@ -8,8 +8,8 @@ public sealed class Tenant
     public TenantName Name { get; private set; }
     public TenantSlug Slug { get; private set; }
     public bool IsActive { get; private set; }
-    public DateTime CreatedAtUtc { get; private set; }
-    public DateTime? UpdatedAtUtc { get; private set; }
+    public DateTimeOffset CreatedAtUtc { get; private set; }
+    public DateTimeOffset? UpdatedAtUtc { get; private set; }
 
 #pragma warning disable CS8618
     private Tenant() { } // EF Core
@@ -19,7 +19,7 @@ public sealed class Tenant
         Guid id,
         TenantName name,
         TenantSlug slug,
-        DateTime createdAtUtc)
+        DateTimeOffset createdAtUtc)
     {
         Id = id;
         Name = name;
@@ -32,7 +32,7 @@ public sealed class Tenant
         Guid id,
         TenantName name,
         TenantSlug slug,
-        DateTime createdAtUtc)
+        DateTimeOffset createdAtUtc)
     {
         if (id == Guid.Empty)
             throw new DomainException(DomainErrors.IdRequired);
@@ -40,58 +40,50 @@ public sealed class Tenant
         if (createdAtUtc == default)
             throw new DomainException(DomainErrors.CreatedAtUtcRequired);
 
-        if (createdAtUtc.Kind != DateTimeKind.Utc)
-            throw new DomainException(DomainErrors.CreatedAtUtcNotUtc);
-
         return new Tenant(
             id,
             name,
             slug,
-            createdAtUtc);
+            createdAtUtc.ToUniversalTime());
     }
 
-    public void UpdateName(TenantName name, DateTime updatedAtUtc)
+    public void UpdateName(TenantName name, DateTimeOffset updatedAtUtc)
     {
-        EnsureValidUpdateTime(updatedAtUtc);
-
         if (Name == name)
             return;
 
         Name = name;
-        UpdatedAtUtc = updatedAtUtc;
+        MarkAsUpdated(updatedAtUtc);
     }
 
-    public void Deactivate(DateTime updatedAtUtc)
+    public void Deactivate(DateTimeOffset updatedAtUtc)
     {
-        EnsureValidUpdateTime(updatedAtUtc);
-
         if (!IsActive)
             return;
 
         IsActive = false;
-        UpdatedAtUtc = updatedAtUtc;
+        MarkAsUpdated(updatedAtUtc);
     }
 
-    public void Activate(DateTime updatedAtUtc)
+    public void Activate(DateTimeOffset updatedAtUtc)
     {
-        EnsureValidUpdateTime(updatedAtUtc);
-
         if (IsActive)
             return;
 
         IsActive = true;
-        UpdatedAtUtc = updatedAtUtc;
+        MarkAsUpdated(updatedAtUtc);
     }
 
-    private void EnsureValidUpdateTime(DateTime updatedAtUtc)
+    private void MarkAsUpdated(DateTimeOffset updatedAtUtc)
     {
         if (updatedAtUtc == default)
             throw new DomainException(DomainErrors.UpdatedAtUtcRequired);
 
-        if (updatedAtUtc.Kind != DateTimeKind.Utc)
-            throw new DomainException(DomainErrors.UpdatedAtUtcNotUtc);
+        updatedAtUtc = updatedAtUtc.ToUniversalTime();
 
         if (updatedAtUtc < CreatedAtUtc)
             throw new DomainException(DomainErrors.UpdatedAtUtcInvalid);
+
+        UpdatedAtUtc = updatedAtUtc;
     }
 }

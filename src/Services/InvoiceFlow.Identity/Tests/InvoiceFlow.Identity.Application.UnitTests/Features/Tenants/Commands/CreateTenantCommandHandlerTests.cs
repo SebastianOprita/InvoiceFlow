@@ -18,7 +18,7 @@ public class CreateTenantCommandHandlerTests
         _unitOfWork = new Mock<IUnitOfWork>();
         _tenantsRepository = new Mock<ITenantsRepository>();
         _mockDateTimeProvider = new Mock<ISystemDateTimeProvider>();
-        _mockDateTimeProvider.Setup(x => x.Now).Returns(DateTime.UtcNow);
+        _mockDateTimeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero));
         _sut = new CreateTenantCommandHandler(_unitOfWork.Object, _tenantsRepository.Object, _mockDateTimeProvider.Object);
     }
 

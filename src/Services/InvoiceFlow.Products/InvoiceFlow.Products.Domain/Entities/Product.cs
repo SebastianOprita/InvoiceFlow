@@ -74,7 +74,7 @@ public sealed class Product
             unitOfMeasure,
             unitPrice,
             taxRate,
-            createdAtUtc);
+            createdAtUtc.ToUniversalTime());
     }
 
     public void UpdateDetails(
@@ -84,7 +84,7 @@ public sealed class Product
     {
         Name = name;
         Description = description;
-        UpdatedAtUtc = EnsureValidUpdateTime(updatedAtUtc);
+        MarkAsUpdated(updatedAtUtc);
     }
 
     public void ChangeCode(
@@ -95,7 +95,7 @@ public sealed class Product
             return;
 
         Code = code;
-        UpdatedAtUtc = EnsureValidUpdateTime(updatedAtUtc);
+        MarkAsUpdated(updatedAtUtc);
     }
 
     public void ChangeUnitOfMeasure(
@@ -108,7 +108,7 @@ public sealed class Product
             return;
 
         UnitOfMeasure = unitOfMeasure;
-        UpdatedAtUtc = EnsureValidUpdateTime(updatedAtUtc);
+        MarkAsUpdated(updatedAtUtc);
     }
 
     public void ChangeUnitPrice(
@@ -119,7 +119,7 @@ public sealed class Product
             return;
 
         UnitPrice = unitPrice;
-        UpdatedAtUtc = EnsureValidUpdateTime(updatedAtUtc);
+        MarkAsUpdated(updatedAtUtc);
     }
 
     public void ChangeTaxRate(
@@ -130,7 +130,7 @@ public sealed class Product
             return;
 
         TaxRate = taxRate;
-        UpdatedAtUtc = EnsureValidUpdateTime(updatedAtUtc);
+        MarkAsUpdated(updatedAtUtc);
     }
 
     public void UpdateSalesInformation(
@@ -144,7 +144,7 @@ public sealed class Product
         UnitOfMeasure = unitOfMeasure;
         UnitPrice = unitPrice;
         TaxRate = taxRate;
-        UpdatedAtUtc = EnsureValidUpdateTime(updatedAtUtc);
+        MarkAsUpdated(updatedAtUtc);
     }
 
     public void Activate(DateTimeOffset updatedAtUtc)
@@ -153,7 +153,7 @@ public sealed class Product
             return;
 
         IsActive = true;
-        UpdatedAtUtc = EnsureValidUpdateTime(updatedAtUtc);
+        MarkAsUpdated(updatedAtUtc);
     }
 
     public void Deactivate(DateTimeOffset updatedAtUtc)
@@ -162,7 +162,7 @@ public sealed class Product
             return;
 
         IsActive = false;
-        UpdatedAtUtc = EnsureValidUpdateTime(updatedAtUtc);
+        MarkAsUpdated(updatedAtUtc);
     }
 
     private static void ValidateUnitOfMeasure(UnitOfMeasure unitOfMeasure)
@@ -171,7 +171,7 @@ public sealed class Product
             throw new DomainException(DomainErrors.UnitOfMeasureInvalid);
     }
 
-    private DateTimeOffset EnsureValidUpdateTime(DateTimeOffset updatedAtUtc)
+    private void MarkAsUpdated(DateTimeOffset updatedAtUtc)
     {
         if (updatedAtUtc == default)
             throw new DomainException(DomainErrors.UpdatedAtUtcRequired);
@@ -181,6 +181,6 @@ public sealed class Product
         if (updatedAtUtc < CreatedAtUtc)
             throw new DomainException(DomainErrors.UpdatedAtUtcInvalid);
 
-        return updatedAtUtc;
+        UpdatedAtUtc = updatedAtUtc;
     }
 }

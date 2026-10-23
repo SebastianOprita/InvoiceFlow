@@ -15,7 +15,7 @@ internal class RevokePermissionCommandHandler(
         if (role == null)
             return Result<RoleDto>.Failure(ApplicationErrors.RoleNotFound);
 
-        role.RevokePermission(cmd.Permission, dateTimeProvider.Now);
+        role.RevokePermission(cmd.Permission, dateTimeProvider.GetUtcNow());
         var result = await unitOfWork.SaveChangesAsync(cancellationToken);
         if (result.IsFailure)
             return Result<RoleDto>.Failure(result);

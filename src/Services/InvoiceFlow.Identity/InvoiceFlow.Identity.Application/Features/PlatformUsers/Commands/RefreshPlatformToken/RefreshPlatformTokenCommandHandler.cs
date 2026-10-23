@@ -14,7 +14,7 @@ internal class RefreshPlatformTokenCommandHandler(
 {
     public async Task<Result<RefreshPlatformTokenResponse>> Handle(RefreshPlatformTokenCommand cmd, CancellationToken cancellationToken)
     {
-        var now = dateTimeProvider.Now;
+        var now = dateTimeProvider.GetUtcNow();
         var tokenHash = tokenService.CalculateTokenHash(cmd.RefreshToken);
 
         var existingToken = await platformRefreshTokensRepository.GetTrackedPlatformRefreshTokenAsync(RefreshTokenHash.Create(tokenHash), cancellationToken);

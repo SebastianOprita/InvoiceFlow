@@ -18,7 +18,7 @@ internal class ActivateCustomerCommandHandler(
         if (customer.IsActive)
             return Result.Success();
 
-        customer.Activate(dateTimeProvider.Now);
+        customer.Activate(dateTimeProvider.GetUtcNow());
         var result = await unitOfWork.SaveChangesAsync(cancellationToken);
         return result;
     }

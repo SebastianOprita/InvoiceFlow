@@ -20,7 +20,7 @@ internal sealed class AssignRoleCommandHandler(
         if (role is null)
             return Result.Failure(ApplicationErrors.RoleNotFound);
 
-        user.AssignRole(cmd.RoleId, dateTimeProvider.Now);
+        user.AssignRole(cmd.RoleId, dateTimeProvider.GetUtcNow());
         var result = await unitOfWork.SaveChangesAsync(cancellationToken);
         return result;
     }

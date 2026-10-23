@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Application;
 using InvoiceFlow.Customers.Domain;
 using Moq;
@@ -18,7 +18,7 @@ public sealed class CreateCustomerCommandHandlerTests
         _mockRepository = new();
         _mockUnitOfWork = new();
         _mockDateTimeProvider = new();
-        _mockDateTimeProvider.Setup(x => x.Now).Returns(DateTime.UtcNow);
+        _mockDateTimeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero));
         _handler = new (_mockUnitOfWork.Object, _mockRepository.Object, _mockDateTimeProvider.Object);
     }
 

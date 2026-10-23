@@ -16,7 +16,7 @@ internal class UpdatePermissionsCommandHandler(
         if (role == null)
             return Result<RoleDto>.Failure(ApplicationErrors.RoleNotFound);
 
-        role.SetPermissions(RolePermissions.Create(cmd.Permissions), dateTimeProvider.Now);
+        role.SetPermissions(RolePermissions.Create(cmd.Permissions), dateTimeProvider.GetUtcNow());
         var result = await unitOfWork.SaveChangesAsync(cancellationToken);
         if (result.IsFailure)
             return Result<RoleDto>.Failure(result);

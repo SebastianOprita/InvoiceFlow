@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Application;
 using InvoiceFlow.Identity.Domain;
 using Moq;
@@ -25,7 +25,7 @@ public class RefreshTokenCommandHandlerTests
         _tokenService = new();
         _mockDateTimeProvider = new();
         _tenantsRepository = new();
-        _mockDateTimeProvider.Setup(x => x.Now).Returns(DateTime.UtcNow);
+        _mockDateTimeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero));
         _sut = new RefreshTokenCommandHandler(
             _unitOfWork.Object,
             _refreshTokensRepository.Object,
@@ -85,7 +85,7 @@ public class RefreshTokenCommandHandlerTests
 
         var existingToken = CreateRefreshToken(
             tenantId,
-            expiresAt: _mockDateTimeProvider.Object.Now.AddDays(-1));
+            expiresAt: _mockDateTimeProvider.Object.GetUtcNow().AddDays(-1));
 
         var command = new RefreshTokenCommand(
             tenantId,
@@ -127,9 +127,9 @@ public class RefreshTokenCommandHandlerTests
 
         var existingToken = CreateRefreshToken(
             tenantId,
-            expiresAt: _mockDateTimeProvider.Object.Now.AddDays(30));
+            expiresAt: _mockDateTimeProvider.Object.GetUtcNow().AddDays(30));
 
-        existingToken.Revoke(_mockDateTimeProvider.Object.Now);
+        existingToken.Revoke(_mockDateTimeProvider.Object.GetUtcNow());
 
         var command = new RefreshTokenCommand(
             tenantId,
@@ -171,7 +171,7 @@ public class RefreshTokenCommandHandlerTests
 
         var existingToken = CreateRefreshToken(
             tenantId,
-            expiresAt: _mockDateTimeProvider.Object.Now.AddDays(30));
+            expiresAt: _mockDateTimeProvider.Object.GetUtcNow().AddDays(30));
 
         var command = new RefreshTokenCommand(
             tenantId,
@@ -215,12 +215,12 @@ public class RefreshTokenCommandHandlerTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(CreateTenant(tenantId));
 
-        var accessTokenExpiresAt = _mockDateTimeProvider.Object.Now.AddMinutes(15);
-        var refreshTokenExpiresAt = _mockDateTimeProvider.Object.Now.AddDays(30);
+        var accessTokenExpiresAt = _mockDateTimeProvider.Object.GetUtcNow().AddMinutes(15);
+        var refreshTokenExpiresAt = _mockDateTimeProvider.Object.GetUtcNow().AddDays(30);
 
         var existingToken = CreateRefreshToken(
             tenantId,
-            expiresAt: _mockDateTimeProvider.Object.Now.AddDays(30));
+            expiresAt: _mockDateTimeProvider.Object.GetUtcNow().AddDays(30));
 
         var user = CreateUserWithPermissions(
             tenantId,
@@ -279,11 +279,11 @@ public class RefreshTokenCommandHandlerTests
         RefreshToken existingToken,
         User user,
         RefreshTokenCommand command,
-        DateTime? accessTokenExpiresAt = null,
-        DateTime? refreshTokenExpiresAt = null)
+        DateTimeOffset? accessTokenExpiresAt = null,
+        DateTimeOffset? refreshTokenExpiresAt = null)
     {
-        accessTokenExpiresAt ??= _mockDateTimeProvider.Object.Now.AddMinutes(15);
-        refreshTokenExpiresAt ??= _mockDateTimeProvider.Object.Now.AddDays(30);
+        accessTokenExpiresAt ??= _mockDateTimeProvider.Object.GetUtcNow().AddMinutes(15);
+        refreshTokenExpiresAt ??= _mockDateTimeProvider.Object.GetUtcNow().AddDays(30);
 
         _tokenService
             .Setup(x => x.CalculateTokenHash(command.RefreshToken))
@@ -303,11 +303,11 @@ public class RefreshTokenCommandHandlerTests
                 tenantId,
                 user.Email.Value,
                 It.IsAny<long>(),
-                It.IsAny<DateTime>()))
+                It.IsAny<DateTimeOffset>()))
             .Returns(("new-access-token", "Bearer", accessTokenExpiresAt.Value));
 
         _tokenService
-            .Setup(x => x.GenerateRefreshToken(It.IsAny<DateTime>()))
+            .Setup(x => x.GenerateRefreshToken(It.IsAny<DateTimeOffset>()))
             .Returns(("new-refresh-token", refreshTokenExpiresAt.Value));
 
         _tokenService
@@ -317,7 +317,7 @@ public class RefreshTokenCommandHandlerTests
 
     private RefreshToken CreateRefreshToken(
         Guid tenantId,
-        DateTime expiresAt)
+        DateTimeOffset expiresAt)
     {
         return RefreshToken.Create(
             tenantId,
@@ -325,7 +325,7 @@ public class RefreshTokenCommandHandlerTests
             Guid.CreateVersion7(),
             RefreshTokenHash.Create("old-refresh-token-hash"),
             expiresAt,
-            _mockDateTimeProvider.Object.Now.AddDays(-2),
+            _mockDateTimeProvider.Object.GetUtcNow().AddDays(-2),
             DeviceInfo.CreateOptional("Chrome"),
             IpAddress.CreateOptional("127.0.0.1"));
     }
@@ -343,17 +343,17 @@ public class RefreshTokenCommandHandlerTests
             PasswordHash.Create("hashed-password"),
             FirstName.Create("Test"),
             LastName.Create("User"),
-            _mockDateTimeProvider.Object.Now);
+            _mockDateTimeProvider.Object.GetUtcNow());
 
         var role = Role.Create(
             tenantId,
             Guid.CreateVersion7(),
             RoleName.Create("Admin"),
-            _mockDateTimeProvider.Object.Now,
+            _mockDateTimeProvider.Object.GetUtcNow(),
             RoleDescription.CreateOptional("Administrator role"),
             RolePermissions.Create(permissions));
 
-        user.AssignRole(role.Id, _mockDateTimeProvider.Object.Now);
+        user.AssignRole(role.Id, _mockDateTimeProvider.Object.GetUtcNow());
 
         // Manually set the Role navigation property on the UserRole to simulate EF Core's eager loading
         var userRole = ((List<UserRole>)user.UserRoles).First();
@@ -371,7 +371,7 @@ public class RefreshTokenCommandHandlerTests
             tenantId,
             TenantName.Create("Test Tenant"),
             TenantSlug.Create("test-tenant"),
-            _mockDateTimeProvider.Object.Now);
+            _mockDateTimeProvider.Object.GetUtcNow());
     }
 
     [Fact]
@@ -401,7 +401,7 @@ public class RefreshTokenCommandHandlerTests
     {
         var tenantId = Guid.CreateVersion7();
         var tenant = CreateTenant(tenantId);
-        tenant.Deactivate(_mockDateTimeProvider.Object.Now);
+        tenant.Deactivate(_mockDateTimeProvider.Object.GetUtcNow());
         var command = new RefreshTokenCommand(tenantId, "old-refresh-token", null, null);
 
         _tenantsRepository
@@ -424,7 +424,7 @@ public class RefreshTokenCommandHandlerTests
     public async Task Handle_ShouldReturnFailure_WhenUserIsInactive()
     {
         var tenantId = Guid.CreateVersion7();
-        var now = _mockDateTimeProvider.Object.Now;
+        var now = _mockDateTimeProvider.Object.GetUtcNow();
         var existingToken = CreateRefreshToken(tenantId, now.AddDays(30));
         var user = CreateUserWithPermissions(
             tenantId, existingToken.UserId, "test@email.com", 1L << 3);
@@ -457,7 +457,7 @@ public class RefreshTokenCommandHandlerTests
 
     private void VerifyNoTokenRotation()
     {
-        _tokenService.Verify(x => x.GenerateRefreshToken(It.IsAny<DateTime>()), Times.Never);
+        _tokenService.Verify(x => x.GenerateRefreshToken(It.IsAny<DateTimeOffset>()), Times.Never);
         _refreshTokensRepository.Verify(
             x => x.AddRefreshToken(It.IsAny<RefreshToken>()), Times.Never);
         _unitOfWork.Verify(

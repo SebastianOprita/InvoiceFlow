@@ -15,7 +15,7 @@ internal class RefreshTokenCommandHandler(
 {
     public async Task<Result<RefreshTokenResponse>> Handle(RefreshTokenCommand cmd, CancellationToken cancellationToken)
     {
-        var now = dateTimeProvider.Now;
+        var now = dateTimeProvider.GetUtcNow();
 
         var tenant = await tenantsRepository.GetTenantByIdAsync(cmd.TenantId, cancellationToken);
         if (tenant is null || !tenant.IsActive)

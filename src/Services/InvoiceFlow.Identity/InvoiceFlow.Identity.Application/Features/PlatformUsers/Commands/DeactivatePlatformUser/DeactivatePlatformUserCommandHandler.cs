@@ -18,7 +18,7 @@ internal class DeactivatePlatformUserCommandHandler(
         if (!platformUser.IsActive)
             return Result.Success();
 
-        platformUser.Deactivate(dateTimeProvider.Now);
+        platformUser.Deactivate(dateTimeProvider.GetUtcNow());
         var result = await unitOfWork.SaveChangesAsync(cancellationToken);
         return result;
     }

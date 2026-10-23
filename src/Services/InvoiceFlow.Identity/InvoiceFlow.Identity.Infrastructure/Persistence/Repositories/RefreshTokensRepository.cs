@@ -33,7 +33,7 @@ internal class RefreshTokensRepository(IdentityDbContext dbContext) : IRefreshTo
     public async Task RevokeAccessForUserAsync(
         Guid tenantId,
         Guid userId,
-        DateTime revokedAtUtc,
+        DateTimeOffset revokedAtUtc,
         CancellationToken cancellationToken = default)
     {
         var activeTokens = await dbContext.RefreshTokens

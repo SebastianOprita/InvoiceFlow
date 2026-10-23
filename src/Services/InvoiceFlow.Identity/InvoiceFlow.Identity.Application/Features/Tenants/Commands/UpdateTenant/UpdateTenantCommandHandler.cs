@@ -16,7 +16,7 @@ internal class UpdateTenantCommandHandler(
         if (tenant is null)
             return Result<TenantDto>.Failure(ApplicationErrors.TenantNotFound);
 
-        tenant.UpdateName(TenantName.Create(cmd.Name), dateTimeProvider.Now);
+        tenant.UpdateName(TenantName.Create(cmd.Name), dateTimeProvider.GetUtcNow());
         var result = await unitOfWork.SaveChangesAsync(cancellationToken);
         if (result.IsFailure)
             return Result<TenantDto>.Failure(result);

@@ -15,7 +15,7 @@ public sealed class GetPlatformUsersQueryHandlerTests
     public GetPlatformUsersQueryHandlerTests()
     {
         _mockDateTimeProvider = new();
-        _mockDateTimeProvider.Setup(x => x.Now).Returns(DateTime.UtcNow);
+        _mockDateTimeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero));
         _handler = new GetPlatformUsersQueryHandler(_usersRepositoryMock.Object);
     }
 
@@ -31,14 +31,14 @@ public sealed class GetPlatformUsersQueryHandlerTests
                 PasswordHash.Create("hashedpassword"),
                 FirstName.Create("John"),
                 LastName.Create("Doe"),
-                _mockDateTimeProvider.Object.Now),
+                _mockDateTimeProvider.Object.GetUtcNow()),
             Domain.PlatformUser.Create(
                 Guid.CreateVersion7(),
                 UserEmail.Create("jane.doe@test.com"),
                 PasswordHash.Create("hashedpassword"),
                 FirstName.Create("Jane"),
                 LastName.Create("Doe"),
-                _mockDateTimeProvider.Object.Now)
+                _mockDateTimeProvider.Object.GetUtcNow())
         };
 
         var query = new GetPlatformUsersQuery();

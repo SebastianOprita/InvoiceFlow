@@ -15,7 +15,7 @@ public class GetTenantByIdQueryHandlerTests
     public GetTenantByIdQueryHandlerTests()
     {
         _mockDateTimeProvider = new();
-        _mockDateTimeProvider.Setup(x => x.Now).Returns(DateTime.UtcNow);
+        _mockDateTimeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero));
         _handler = new GetTenantByIdQueryHandler(_tenantsRepositoryMock.Object);
     }
 
@@ -30,7 +30,7 @@ public class GetTenantByIdQueryHandlerTests
             tenantId,
             TenantName.Create("tenant1"),
             TenantSlug.Create("tenant1"),
-            _mockDateTimeProvider.Object.Now);
+            _mockDateTimeProvider.Object.GetUtcNow());
 
         var query = new GetTenantByIdQuery(tenantId);
 

@@ -15,7 +15,7 @@ internal class GrantPermissionCommandHandler(
         if (role == null)
             return Result<RoleDto>.Failure(ApplicationErrors.RoleNotFound);
 
-        role.GrantPermission(cmd.Permission, dateTimeProvider.Now);
+        role.GrantPermission(cmd.Permission, dateTimeProvider.GetUtcNow());
         var result = await unitOfWork.SaveChangesAsync(cancellationToken);
         if (result.IsFailure)
             return Result<RoleDto>.Failure(result);

@@ -120,12 +120,12 @@ public sealed class IdentityApiFactory
             Guid.CreateVersion7(),
             TenantName.Create("TestTenant"),
             TenantSlug.Create("test-tenant"),
-            dateTimeProvider.Now
+            dateTimeProvider.GetUtcNow()
         );
         db.Tenants.Add(tenant);
-        var user = CreateUser(tenant.Id, "user@email.com", dateTimeProvider.Now, TestConstants.PasswordHash);
+        var user = CreateUser(tenant.Id, "user@email.com", dateTimeProvider.GetUtcNow(), TestConstants.PasswordHash);
         db.Users.Add(user);
-        var platformUser = CreatePlatformUser("platformuser@email.com", dateTimeProvider.Now, TestConstants.PasswordHash);
+        var platformUser = CreatePlatformUser("platformuser@email.com", dateTimeProvider.GetUtcNow(), TestConstants.PasswordHash);
         db.PlatformUsers.Add(platformUser);
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
 
@@ -134,7 +134,7 @@ public sealed class IdentityApiFactory
         PlatformUser = platformUser;
     }
 
-    private static User CreateUser(Guid tenantId, string email, DateTime dateTime, string password = "Password", Guid? userId = null)
+    private static User CreateUser(Guid tenantId, string email, DateTimeOffset dateTime, string password = "Password", Guid? userId = null)
     {
         var id = userId ?? Guid.CreateVersion7();
         return User.Create
@@ -149,7 +149,7 @@ public sealed class IdentityApiFactory
         );
     }
 
-    private static PlatformUser CreatePlatformUser(string email, DateTime dateTime, string password = "Password", Guid? userId = null)
+    private static PlatformUser CreatePlatformUser(string email, DateTimeOffset dateTime, string password = "Password", Guid? userId = null)
     {
         var id = userId ?? Guid.CreateVersion7();
         return PlatformUser.Create
@@ -163,7 +163,7 @@ public sealed class IdentityApiFactory
         );
     }
 
-    private static Role CreateRole(Guid tenantId, string name, DateTime dateTime, SystemPermissions systemPermission = SystemPermissions.None)
+    private static Role CreateRole(Guid tenantId, string name, DateTimeOffset dateTime, SystemPermissions systemPermission = SystemPermissions.None)
     {
         var id = Guid.CreateVersion7();
         return Role.Create
@@ -183,10 +183,10 @@ public sealed class IdentityApiFactory
         var db = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
         var dateTimeProvider = scope.ServiceProvider.GetRequiredService<ISystemDateTimeProvider>();
 
-        var user = CreateUser(tenantId, email, dateTimeProvider.Now, password, userId);
+        var user = CreateUser(tenantId, email, dateTimeProvider.GetUtcNow(), password, userId);
         if (isActive.HasValue && !isActive.Value)
         {
-            user.Deactivate(dateTimeProvider.Now);
+            user.Deactivate(dateTimeProvider.GetUtcNow());
         }
         db.Users.Add(user);
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
@@ -205,11 +205,11 @@ public sealed class IdentityApiFactory
             Guid.CreateVersion7(),
             TenantName.Create(name),
             TenantSlug.Create(slug),
-            dateTimeProvider.Now
+            dateTimeProvider.GetUtcNow()
         );
         if (isActive.HasValue && !isActive.Value)
         {
-            tenant.Deactivate(dateTimeProvider.Now);
+            tenant.Deactivate(dateTimeProvider.GetUtcNow());
         }
         db.Tenants.Add(tenant);
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
@@ -222,10 +222,10 @@ public sealed class IdentityApiFactory
         var db = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
         var dateTimeProvider = scope.ServiceProvider.GetRequiredService<ISystemDateTimeProvider>();
 
-        var user = CreatePlatformUser(email, dateTimeProvider.Now, password, userId);
+        var user = CreatePlatformUser(email, dateTimeProvider.GetUtcNow(), password, userId);
         if (isActive.HasValue && !isActive.Value)
         {
-            user.Deactivate(dateTimeProvider.Now);
+            user.Deactivate(dateTimeProvider.GetUtcNow());
         }
         db.PlatformUsers.Add(user);
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
@@ -239,7 +239,7 @@ public sealed class IdentityApiFactory
         var db = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
         var dateTimeProvider = scope.ServiceProvider.GetRequiredService<ISystemDateTimeProvider>();
 
-        var role = CreateRole(tenantId, name, dateTimeProvider.Now, systemPermission);
+        var role = CreateRole(tenantId, name, dateTimeProvider.GetUtcNow(), systemPermission);
         db.Roles.Add(role);
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
 

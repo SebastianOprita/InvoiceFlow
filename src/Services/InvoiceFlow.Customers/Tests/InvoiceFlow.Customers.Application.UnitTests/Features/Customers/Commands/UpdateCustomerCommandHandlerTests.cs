@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Application;
 using InvoiceFlow.Customers.Domain;
 using Moq;
@@ -20,7 +20,7 @@ public sealed class UpdateCustomerCommandHandlerTests
         _mockRepository = new Mock<ICustomersRepository>();
         _mockUnitOfWork = new Mock<IUnitOfWork>();
         _mockDateTimeProvider = new Mock<ISystemDateTimeProvider>();
-        _mockDateTimeProvider.Setup(x => x.Now).Returns(DateTime.UtcNow);
+        _mockDateTimeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero));
         _handler = new (_mockUnitOfWork.Object, _mockRepository.Object, _mockDateTimeProvider.Object);
     }
 
@@ -50,7 +50,7 @@ public sealed class UpdateCustomerCommandHandlerTests
     public async Task Handle_ShouldUpdateCustomerAndReturnDto_WhenCommandIsValid()
     {
         // Arrange
-        var customer = TestConstants.Customer(TestConstants.TenantId, CustomerId, "Existing customer", _mockDateTimeProvider.Object.Now);
+        var customer = TestConstants.Customer(TestConstants.TenantId, CustomerId, "Existing customer", _mockDateTimeProvider.Object.GetUtcNow());
         var command = TestConstants.UpdateCustomerCommand(TestConstants.TenantId, CustomerId, "Updated customer");
 
         _mockRepository
@@ -78,7 +78,7 @@ public sealed class UpdateCustomerCommandHandlerTests
     public async Task Handle_ShouldOnlyUpdateProvidedFields_WhenCommandIsPartial()
     {
         // Arrange
-        var customer = TestConstants.Customer(TestConstants.TenantId, CustomerId, "Existing customer", _mockDateTimeProvider.Object.Now);
+        var customer = TestConstants.Customer(TestConstants.TenantId, CustomerId, "Existing customer", _mockDateTimeProvider.Object.GetUtcNow());
         var originalDto = customer.ToDto();
 
         var command = TestConstants.UpdateCustomerCommand(TestConstants.TenantId, CustomerId, "Only name updated") with

@@ -9,8 +9,8 @@ public class UserTests
     private static readonly Guid TenantId = Guid.CreateVersion7();
     private static readonly Guid UserId = Guid.CreateVersion7();
     private static readonly Guid RoleId = Guid.CreateVersion7();
-    private static readonly DateTime CreatedAtUtc = new(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-    private static readonly DateTime UpdatedAtUtc = CreatedAtUtc.AddHours(1);
+    private static readonly DateTimeOffset CreatedAtUtc = new(2025, 1, 1, 0, 0, 0, TimeSpan.Zero);
+    private static readonly DateTimeOffset UpdatedAtUtc = CreatedAtUtc.AddHours(1);
 
     [Fact]
     public void Constructor_Should_CreateUser_WithValidValues()
@@ -328,7 +328,7 @@ public class UserTests
         user => user.ChangeEmail(UserEmail.Create("jane.smith@test.com"), default),
         user => user.ChangePasswordHash(PasswordHash.Create("new-hashed-password"), default),
         user => user.Deactivate(default),
-        user => user.Activate(default)
+        user => { user.Deactivate(UpdatedAtUtc); user.Activate(default); }
     };
 
     public static TheoryData<Action<User>> UpdateActionsWithInvalidDate => new()
@@ -337,7 +337,7 @@ public class UserTests
         user => user.ChangeEmail(UserEmail.Create("jane.smith@test.com"), CreatedAtUtc.AddTicks(-1)),
         user => user.ChangePasswordHash(PasswordHash.Create("new-hashed-password"), CreatedAtUtc.AddTicks(-1)),
         user => user.Deactivate(CreatedAtUtc.AddTicks(-1)),
-        user => user.Activate(CreatedAtUtc.AddTicks(-1))
+        user => { user.Deactivate(UpdatedAtUtc); user.Activate(CreatedAtUtc.AddTicks(-1)); }
     };
 
     private static User CreateUser(

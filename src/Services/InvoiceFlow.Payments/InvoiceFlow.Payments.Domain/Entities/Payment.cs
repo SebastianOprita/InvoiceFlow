@@ -18,10 +18,10 @@ public sealed class Payment
     public DateOnly PaymentDate { get; private set; }
     public PaymentLifecycleStatus Status { get; private set; }
     public PaymentNotes? Notes { get; private set; }
-    public DateTime? PostedAtUtc { get; private set; }
-    public DateTime? CancelledAtUtc { get; private set; }
-    public DateTime CreatedAtUtc { get; private set; }
-    public DateTime? UpdatedAtUtc { get; private set; }
+    public DateTimeOffset? PostedAtUtc { get; private set; }
+    public DateTimeOffset? CancelledAtUtc { get; private set; }
+    public DateTimeOffset CreatedAtUtc { get; private set; }
+    public DateTimeOffset? UpdatedAtUtc { get; private set; }
     public IReadOnlyCollection<PaymentAllocation> Allocations => _allocations.AsReadOnly();
 
 #pragma warning disable CS8618
@@ -39,7 +39,7 @@ public sealed class Payment
         PaymentReference? reference,
         DateOnly paymentDate,
         PaymentNotes? notes,
-        DateTime createdAtUtc)
+        DateTimeOffset createdAtUtc)
     {
         TenantId = tenantId;
         Id = id;
@@ -67,7 +67,7 @@ public sealed class Payment
         PaymentReference? reference,
         DateOnly paymentDate,
         PaymentNotes? notes,
-        DateTime createdAtUtc)
+        DateTimeOffset createdAtUtc)
     {
         ValidateTenantId(tenantId);
         ValidateId(id);
@@ -81,9 +81,6 @@ public sealed class Payment
         if (createdAtUtc == default)
             throw new DomainException(DomainErrors.CreatedAtUtcInvalid);
 
-        if (createdAtUtc.Kind != DateTimeKind.Utc)
-            throw new DomainException(DomainErrors.CreatedAtUtcNotUtc);
-
         return new Payment(
             tenantId,
             id,
@@ -95,12 +92,12 @@ public sealed class Payment
             reference,
             paymentDate,
             notes,
-            createdAtUtc);
+            createdAtUtc.ToUniversalTime());
     }
 
     public void ChangeNumber(
         PaymentNumber number,
-        DateTime updatedAtUtc)
+        DateTimeOffset updatedAtUtc)
     {
         EnsureDraft();
 
@@ -114,7 +111,7 @@ public sealed class Payment
 
     public void ChangeAmount(
         Money amount,
-        DateTime updatedAtUtc)
+        DateTimeOffset updatedAtUtc)
     {
         EnsureDraft();
 
@@ -137,7 +134,7 @@ public sealed class Payment
         PaymentReference? reference,
         DateOnly paymentDate,
         PaymentNotes? notes,
-        DateTime updatedAtUtc)
+        DateTimeOffset updatedAtUtc)
     {
         EnsureDraft();
         ValidateMethod(method);
@@ -153,7 +150,7 @@ public sealed class Payment
 
     public void ChangeMethod(
         PaymentMethod method,
-        DateTime updatedAtUtc)
+        DateTimeOffset updatedAtUtc)
     {
         EnsureDraft();
         ValidateMethod(method);
@@ -168,7 +165,7 @@ public sealed class Payment
 
     public void ChangeReference(
         PaymentReference? reference,
-        DateTime updatedAtUtc)
+        DateTimeOffset updatedAtUtc)
     {
         EnsureDraft();
 
@@ -182,7 +179,7 @@ public sealed class Payment
 
     public void ChangePaymentDate(
         DateOnly paymentDate,
-        DateTime updatedAtUtc)
+        DateTimeOffset updatedAtUtc)
     {
         EnsureDraft();
         ValidatePaymentDate(paymentDate);
@@ -197,7 +194,7 @@ public sealed class Payment
 
     public void ChangeNotes(
         PaymentNotes? notes,
-        DateTime updatedAtUtc)
+        DateTimeOffset updatedAtUtc)
     {
         EnsureDraft();
 
@@ -214,7 +211,7 @@ public sealed class Payment
         Guid invoiceId,
         InvoiceNumber invoiceNumber,
         Money amount,
-        DateTime createdAtUtc)
+        DateTimeOffset createdAtUtc)
     {
         EnsureDraft();
 
@@ -248,7 +245,7 @@ public sealed class Payment
 
     public void RemoveAllocation(
         Guid allocationId,
-        DateTime updatedAtUtc)
+        DateTimeOffset updatedAtUtc)
     {
         EnsureDraft();
 
@@ -263,7 +260,7 @@ public sealed class Payment
         Guid allocationId,
         Guid newAllocationId,
         Money amount,
-        DateTime updatedAtUtc)
+        DateTimeOffset updatedAtUtc)
     {
         EnsureDraft();
 
@@ -299,15 +296,14 @@ public sealed class Payment
         MarkAsUpdated(updatedAtUtc);
     }
 
-    public void Post(DateTime postedAtUtc)
+    public void Post(DateTimeOffset postedAtUtc)
     {
         EnsureDraft();
 
         if (postedAtUtc == default)
             throw new DomainException(DomainErrors.PostedAtUtcRequired);
 
-        if (postedAtUtc.Kind != DateTimeKind.Utc)
-            throw new DomainException(DomainErrors.PostedAtUtcNotUtc);
+        postedAtUtc = postedAtUtc.ToUniversalTime();
 
         if (_allocations.Count == 0)
             throw new DomainException(DomainErrors.NoAllocations);
@@ -324,7 +320,7 @@ public sealed class Payment
         MarkAsUpdated(postedAtUtc);
     }
 
-    public void Cancel(DateTime cancelledAtUtc)
+    public void Cancel(DateTimeOffset cancelledAtUtc)
     {
         if (Status != PaymentLifecycleStatus.Posted)
             throw new DomainException(DomainErrors.CanNotBeCancelled);
@@ -332,8 +328,7 @@ public sealed class Payment
         if (cancelledAtUtc == default)
             throw new DomainException(DomainErrors.CancelledAtUtcRequired);
 
-        if (cancelledAtUtc.Kind != DateTimeKind.Utc)
-            throw new DomainException(DomainErrors.CancelledAtUtcNotUtc);
+        cancelledAtUtc = cancelledAtUtc.ToUniversalTime();
 
         Status = PaymentLifecycleStatus.Cancelled;
         CancelledAtUtc = cancelledAtUtc;
@@ -370,13 +365,12 @@ public sealed class Payment
         ValidateCurrencyMatches(CurrencyCode, money);
     }
 
-    private void MarkAsUpdated(DateTime updatedAtUtc)
+    private void MarkAsUpdated(DateTimeOffset updatedAtUtc)
     {
         if (updatedAtUtc == default)
             throw new DomainException(DomainErrors.UpdatedAtUtcInvalid);
 
-        if (updatedAtUtc.Kind != DateTimeKind.Utc)
-            throw new DomainException(DomainErrors.UpdatedAtUtcNotUtc);
+        updatedAtUtc = updatedAtUtc.ToUniversalTime();
 
         if (updatedAtUtc < CreatedAtUtc)
             throw new DomainException(DomainErrors.UpdatedAtUtcInvalid);

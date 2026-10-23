@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Application;
 using InvoiceFlow.Identity.Domain;
 using Moq;
@@ -19,7 +19,7 @@ public class UpdateUserCommandHandlerTests
         _unitOfWork = new();
         _usersRepository = new();
         _mockDateTimeProvider = new();
-        _mockDateTimeProvider.Setup(x => x.Now).Returns(DateTime.UtcNow);
+        _mockDateTimeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero));
         _sut = new UpdateUserCommandHandler(
             _unitOfWork.Object,
             _usersRepository.Object,
@@ -71,7 +71,7 @@ public class UpdateUserCommandHandlerTests
             PasswordHash.Create("password-hash"),
             FirstName.Create("Old"),
             LastName.Create("Name"),
-            _mockDateTimeProvider.Object.Now);
+            _mockDateTimeProvider.Object.GetUtcNow());
 
         _usersRepository
             .Setup(x => x.GetTrackedUserByIdAsync(cmd.TenantId, cmd.UserId, TestContext.Current.CancellationToken))
