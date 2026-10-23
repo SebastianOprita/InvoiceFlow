@@ -10,7 +10,7 @@ public sealed class TenantMapperTests
     public void ToDto_ShouldMapTenantToTenantDto()
     {
         // Arrange
-        var createdAtUtc = new DateTime(2024, 1, 1, 10, 0, 0, DateTimeKind.Utc);
+        var createdAtUtc = new DateTimeOffset(2024, 1, 1, 10, 0, 0, TimeSpan.Zero);
 
         var tenant = CreateTenant(createdAtUtc: createdAtUtc);
 
@@ -30,8 +30,8 @@ public sealed class TenantMapperTests
     public void ToDto_ShouldMapUpdatedAtUtc_WhenTenantWasUpdated()
     {
         // Arrange
-        var createdAtUtc = new DateTime(2024, 1, 1, 10, 0, 0, DateTimeKind.Utc);
-        var updatedAtUtc = new DateTime(2024, 1, 2, 10, 0, 0, DateTimeKind.Utc);
+        var createdAtUtc = new DateTimeOffset(2024, 1, 1, 10, 0, 0, TimeSpan.Zero);
+        var updatedAtUtc = new DateTimeOffset(2024, 1, 2, 10, 0, 0, TimeSpan.Zero);
 
         var tenant = CreateTenant(createdAtUtc: createdAtUtc);
 
@@ -64,12 +64,12 @@ public sealed class TenantMapperTests
         dto.UpdatedAtUtc.Should().Be(updatedAtUtc);
     }
 
-    private static Tenant CreateTenant(DateTime? createdAtUtc = null)
+    private static Tenant CreateTenant(DateTimeOffset? createdAtUtc = null)
     {
         return Tenant.Create(
             id: Guid.CreateVersion7(),
             name: TenantName.Create("Test Tenant"),
             slug: TenantSlug.Create("test-tenant"),
-            createdAtUtc: createdAtUtc ?? new DateTime(2024, 1, 1, 10, 0, 0, DateTimeKind.Utc));
+            createdAtUtc: createdAtUtc ?? new DateTimeOffset(2024, 1, 1, 10, 0, 0, TimeSpan.Zero));
     }
 }

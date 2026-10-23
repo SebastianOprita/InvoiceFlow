@@ -18,7 +18,7 @@ public class UpdateTenantCommandHandlerTests
         _unitOfWork = new();
         _tenantsRepository = new();
         _mockDateTimeProvider = new();
-        _mockDateTimeProvider.Setup(x => x.Now).Returns(DateTime.UtcNow);
+        _mockDateTimeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero));
         _sut = new UpdateTenantCommandHandler(
             _unitOfWork.Object,
             _tenantsRepository.Object,
@@ -96,6 +96,6 @@ public class UpdateTenantCommandHandlerTests
 
     private Tenant CreateTenant(Guid tenantId, TenantName name)
     {
-        return Tenant.Create(tenantId, name, TenantSlug.Create("new-slug"), _mockDateTimeProvider.Object.Now);
+        return Tenant.Create(tenantId, name, TenantSlug.Create("new-slug"), _mockDateTimeProvider.Object.GetUtcNow());
     }
 }

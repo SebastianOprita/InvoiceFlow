@@ -54,6 +54,8 @@ public static class DependencyInjection
 
         await db.Database.MigrateAsync(cancellationToken);
 
-        await CustomersDbSeed.SeedAsync(db, cancellationToken);
+        var dateTimeProvider = scope.ServiceProvider
+            .GetRequiredService<InvoiceFlow.BuildingBlocks.Application.ISystemDateTimeProvider>();
+        await CustomersDbSeed.SeedAsync(db, dateTimeProvider, cancellationToken);
     }
 }

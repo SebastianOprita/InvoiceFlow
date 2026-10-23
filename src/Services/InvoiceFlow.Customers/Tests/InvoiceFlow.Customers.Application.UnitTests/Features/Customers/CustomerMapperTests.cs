@@ -10,7 +10,7 @@ public sealed class CustomerMapperTests
     public void ToDto_ShouldMapCustomerToCustomerDto()
     {
         // Arrange
-        var createdAtUtc = new DateTime(2024, 1, 1, 10, 0, 0, DateTimeKind.Utc);
+        var createdAtUtc = new DateTimeOffset(2024, 1, 1, 10, 0, 0, TimeSpan.Zero);
 
         var customer = CreateCustomer(createdAtUtc: createdAtUtc);
 
@@ -82,8 +82,8 @@ public sealed class CustomerMapperTests
     public void ToDto_ShouldMapUpdatedAtUtc_WhenCustomerWasUpdated()
     {
         // Arrange
-        var createdAtUtc = new DateTime(2024, 1, 1, 10, 0, 0, DateTimeKind.Utc);
-        var updatedAtUtc = new DateTime(2024, 1, 2, 10, 0, 0, DateTimeKind.Utc);
+        var createdAtUtc = new DateTimeOffset(2024, 1, 1, 10, 0, 0, TimeSpan.Zero);
+        var updatedAtUtc = new DateTimeOffset(2024, 1, 2, 10, 0, 0, TimeSpan.Zero);
 
         var customer = CreateCustomer(createdAtUtc: createdAtUtc);
 
@@ -115,7 +115,7 @@ public sealed class CustomerMapperTests
     }
 
     private static Customer CreateCustomer(
-        DateTime? createdAtUtc = null,
+        DateTimeOffset? createdAtUtc = null,
         bool withEmail = true,
         bool withPhone = true,
         bool withTaxNumber = true,
@@ -140,6 +140,6 @@ public sealed class CustomerMapperTests
             currencyCode: CurrencyCode.Create("RON"),
             creditLimit: CreditLimit.Create(10000),
             paymentTermDays: PaymentTermDays.Create(30),
-            createdAtUtc: createdAtUtc ?? new DateTime(2024, 1, 1, 10, 0, 0, DateTimeKind.Utc));
+            createdAtUtc: createdAtUtc ?? new DateTimeOffset(2024, 1, 1, 10, 0, 0, TimeSpan.Zero));
     }
 }

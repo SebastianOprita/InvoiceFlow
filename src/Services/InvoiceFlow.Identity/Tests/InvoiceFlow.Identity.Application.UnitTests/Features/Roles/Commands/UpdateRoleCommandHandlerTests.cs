@@ -19,7 +19,7 @@ public class UpdateRoleCommandHandlerTests
         _unitOfWork = new();
         _rolesRepository = new();
         _mockDateTimeProvider = new();
-        _mockDateTimeProvider.Setup(x => x.Now).Returns(DateTime.UtcNow);
+        _mockDateTimeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero));
         _sut = new UpdateRoleCommandHandler(
             _unitOfWork.Object,
             _rolesRepository.Object,
@@ -67,7 +67,7 @@ public class UpdateRoleCommandHandlerTests
             tenantId,
             roleId,
             RoleName.Create("Admin"),
-            _mockDateTimeProvider.Object.Now,
+            _mockDateTimeProvider.Object.GetUtcNow(),
             RoleDescription.CreateOptional("Administrator role"),
             RolePermissions.Create(RolePermissions.None.Value));
 
@@ -108,7 +108,7 @@ public class UpdateRoleCommandHandlerTests
             tenantId,
             roleId,
             RoleName.Create("Admin"),
-            _mockDateTimeProvider.Object.Now,
+            _mockDateTimeProvider.Object.GetUtcNow(),
             RoleDescription.CreateOptional("Old description"),
             RolePermissions.Create(RolePermissions.None.Value));
 
@@ -151,7 +151,7 @@ public class UpdateRoleCommandHandlerTests
             tenantId,
             roleId,
             RoleName.Create("Admin"),
-            _mockDateTimeProvider.Object.Now,
+            _mockDateTimeProvider.Object.GetUtcNow(),
             RoleDescription.CreateOptional("Old description"),
             RolePermissions.Create(RolePermissions.None.Value));
 

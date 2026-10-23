@@ -9,18 +9,18 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace InvoiceFlow.Customers.Infrastructure.Persistence.Migrations
+namespace InvoiceFlow.Customers.Infrastructure.Migrations
 {
     [DbContext(typeof(CustomersDbContext))]
-    [Migration("20260508204355_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20261022224814_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.7")
+                .HasAnnotation("ProductVersion", "10.0.13")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -56,8 +56,8 @@ namespace InvoiceFlow.Customers.Infrastructure.Persistence.Migrations
                         .HasColumnType("nvarchar(56)")
                         .HasColumnName("Country");
 
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<decimal>("CreditLimit")
                         .HasColumnType("decimal(18,2)")
@@ -125,8 +125,8 @@ namespace InvoiceFlow.Customers.Infrastructure.Persistence.Migrations
                         .HasColumnType("nvarchar(64)")
                         .HasColumnName("TaxNumber");
 
-                    b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("datetimeoffset");
 
                     b.HasKey("TenantId", "Id");
 

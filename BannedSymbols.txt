@@ -1,1 +1,6 @@
-P:System.DateTime.Now; Use DateTime.UtcNow or SystemDateTime.Now instead of DateTime.Now to ensure all dates are stored in UTC format.
+// Use the injected ISystemDateTimeProvider.GetUtcNow() for the current instant.
+P:System.DateTime.Now;Use ISystemDateTimeProvider.GetUtcNow() instead of reading local system time.
+P:System.DateTime.Today;Use ISystemDateTimeProvider.GetUtcNow() and derive the required date explicitly.
+P:System.DateTime.UtcNow;Use ISystemDateTimeProvider.GetUtcNow() so time-dependent code is testable.
+P:System.DateTimeOffset.Now;Use ISystemDateTimeProvider.GetUtcNow() instead of reading local system time.
+P:System.DateTimeOffset.UtcNow;Use ISystemDateTimeProvider.GetUtcNow() so time-dependent code is testable.

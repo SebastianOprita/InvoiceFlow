@@ -20,7 +20,7 @@ public class CreatePlatformUserCommandHandlerTests
         _usersRepository = new();
         _passwordHasher = new();
         _mockDateTimeProvider = new();
-        _mockDateTimeProvider.Setup(x => x.Now).Returns(DateTime.UtcNow);
+        _mockDateTimeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero));
         _sut = new CreatePlatformUserCommandHandler(
             _unitOfWork.Object,
             _usersRepository.Object,

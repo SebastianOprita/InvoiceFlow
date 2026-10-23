@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Application;
 using InvoiceFlow.Identity.Domain;
 using Moq;
@@ -21,7 +21,7 @@ public class LogoutUserCommandHandlerTests
         _refreshTokensRepository = new();
         _tokenService = new();
         _mockDateTimeProvider = new();
-        _mockDateTimeProvider.Setup(x => x.Now).Returns(DateTime.UtcNow);
+        _mockDateTimeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero));
         _sut = new LogoutUserCommandHandler(
             _unitOfWork.Object,
             _refreshTokensRepository.Object,
@@ -66,7 +66,7 @@ public class LogoutUserCommandHandlerTests
         var tenantId = Guid.CreateVersion7();
 
         var existingToken = CreateRefreshToken(tenantId);
-        existingToken.Revoke(_mockDateTimeProvider.Object.Now);
+        existingToken.Revoke(_mockDateTimeProvider.Object.GetUtcNow());
 
         var command = new LogoutUserCommand(
             tenantId,
@@ -169,8 +169,8 @@ public class LogoutUserCommandHandlerTests
             Guid.CreateVersion7(),
             Guid.CreateVersion7(),
             RefreshTokenHash.Create("refresh-token-hash"),
-            _mockDateTimeProvider.Object.Now.AddDays(30),
-            _mockDateTimeProvider.Object.Now,
+            _mockDateTimeProvider.Object.GetUtcNow().AddDays(30),
+            _mockDateTimeProvider.Object.GetUtcNow(),
             DeviceInfo.CreateOptional("Chrome"),
             IpAddress.CreateOptional("127.0.0.1"));
     }

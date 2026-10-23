@@ -10,7 +10,7 @@ public sealed class PaymentAllocation
     public Guid InvoiceId { get; private set; }
     public InvoiceNumber InvoiceNumber { get; private set; }
     public Money Amount { get; private set; }
-    public DateTime CreatedAtUtc { get; private set; }
+    public DateTimeOffset CreatedAtUtc { get; private set; }
 
 #pragma warning disable CS8618
     private PaymentAllocation() { } // EF Core
@@ -23,7 +23,7 @@ public sealed class PaymentAllocation
         Guid invoiceId,
         InvoiceNumber invoiceNumber,
         Money amount,
-        DateTime createdAtUtc)
+        DateTimeOffset createdAtUtc)
     {
         TenantId = tenantId;
         Id = id;
@@ -41,7 +41,7 @@ public sealed class PaymentAllocation
         Guid invoiceId,
         InvoiceNumber invoiceNumber,
         Money amount,
-        DateTime createdAtUtc)
+        DateTimeOffset createdAtUtc)
     {
         ValidateTenantId(tenantId);
         ValidateId(id);
@@ -57,7 +57,7 @@ public sealed class PaymentAllocation
             invoiceId,
             invoiceNumber,
             amount,
-            createdAtUtc);
+            createdAtUtc.ToUniversalTime());
     }
 
     private static void ValidateTenantId(Guid tenantId)
@@ -90,12 +90,9 @@ public sealed class PaymentAllocation
             throw new DomainException(DomainErrors.AllocationAmountInvalid);
     }
 
-    private static void ValidateUtcTimestamp(DateTime createdAtUtc)
+    private static void ValidateUtcTimestamp(DateTimeOffset createdAtUtc)
     {
         if (createdAtUtc == default)
             throw new DomainException(DomainErrors.CreatedAtUtcInvalid);
-
-        if (createdAtUtc.Kind != DateTimeKind.Utc)
-            throw new DomainException(DomainErrors.CreatedAtUtcNotUtc);
     }
 }

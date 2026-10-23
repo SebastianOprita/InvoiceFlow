@@ -15,7 +15,7 @@ public sealed class GetRolesQueryHandlerTests
     public GetRolesQueryHandlerTests()
     {
         _mockDateTimeProvider = new();
-        _mockDateTimeProvider.Setup(x => x.Now).Returns(DateTime.UtcNow);
+        _mockDateTimeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero));
         _rolesRepositoryMock = new();
         _sut = new GetRolesQueryHandler(_rolesRepositoryMock.Object);
     }
@@ -32,12 +32,12 @@ public sealed class GetRolesQueryHandlerTests
                 tenantId,
                 Guid.CreateVersion7(),
                 RoleName.Create("Admin"),
-                _mockDateTimeProvider.Object.Now),
+                _mockDateTimeProvider.Object.GetUtcNow()),
             Role.Create(
                 tenantId,
                 Guid.CreateVersion7(),
                 RoleName.Create("User"),
-                _mockDateTimeProvider.Object.Now)
+                _mockDateTimeProvider.Object.GetUtcNow())
         };
 
         var query = new GetRolesQuery(tenantId);

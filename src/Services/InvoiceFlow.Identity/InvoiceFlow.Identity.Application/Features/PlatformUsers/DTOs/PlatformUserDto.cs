@@ -7,6 +7,6 @@ public record PlatformUserDto
     public required string FirstName { get; set; }
     public required string LastName { get; set; }
     public required bool IsActive { get; set; }
-    public required DateTime CreatedAtUtc { get; set; }
-    public DateTime? UpdatedAtUtc { get; set; }
+    public required DateTimeOffset CreatedAtUtc { get; set; }
+    public DateTimeOffset? UpdatedAtUtc { get; set; }
 }

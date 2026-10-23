@@ -12,7 +12,7 @@ namespace InvoiceFlow.Identity.Infrastructure;
 
 internal class TokenService(IOptions<JwtSettings> jwtSettings) : ITokenService
 {
-    public (string Token, DateTime ExpiresAt) GenerateRefreshToken(DateTime dateTime)
+    public (string Token, DateTimeOffset ExpiresAt) GenerateRefreshToken(DateTimeOffset dateTime)
     {
         var bytes = RandomNumberGenerator.GetBytes(32);
         var refreshToken =  WebEncoders.Base64UrlEncode(bytes);
@@ -26,12 +26,12 @@ internal class TokenService(IOptions<JwtSettings> jwtSettings) : ITokenService
         return WebEncoders.Base64UrlEncode(bytes);
     }
 
-    public (string Token, string TokenType, DateTime ExpiresAt) GenerateUserAccessToken(
+    public (string Token, string TokenType, DateTimeOffset ExpiresAt) GenerateUserAccessToken(
         Guid userId,
         Guid tenantId,
         string email,
         long permissions,
-        DateTime dateTime)
+        DateTimeOffset dateTime)
     {
         var expiresAt = dateTime.AddMinutes(jwtSettings.Value.AccessTokenMinutes);
 
@@ -48,10 +48,10 @@ internal class TokenService(IOptions<JwtSettings> jwtSettings) : ITokenService
         return (GenerateToken(claims, dateTime, expiresAt), "Bearer", expiresAt);
     }
 
-    public (string Token, string TokenType, DateTime ExpiresAt) GeneratePlatformUserAccessToken(
+    public (string Token, string TokenType, DateTimeOffset ExpiresAt) GeneratePlatformUserAccessToken(
         Guid platformUserId,
         string platformEmail,
-        DateTime dateTime)
+        DateTimeOffset dateTime)
     {
         var expiresAt = dateTime.AddMinutes(jwtSettings.Value.AccessTokenMinutes);
 
@@ -66,7 +66,7 @@ internal class TokenService(IOptions<JwtSettings> jwtSettings) : ITokenService
         return (GenerateToken(claims, dateTime, expiresAt), "Bearer", expiresAt);
     }
 
-    public (string Token, string TokenType, DateTime ExpiresAt) GenerateImpersonationToken(
+    public (string Token, string TokenType, DateTimeOffset ExpiresAt) GenerateImpersonationToken(
         Guid platformUserId,
         string platformEmail,
         Guid targetUserId,
@@ -75,7 +75,7 @@ internal class TokenService(IOptions<JwtSettings> jwtSettings) : ITokenService
         long targetPermissions,
         Guid sessionId,
         string? reason,
-        DateTime dateTime)
+        DateTimeOffset dateTime)
     {
         var expiresAt = dateTime.AddMinutes(jwtSettings.Value.ImpersonationTokenMinutes);
 
@@ -102,7 +102,7 @@ internal class TokenService(IOptions<JwtSettings> jwtSettings) : ITokenService
         return (GenerateToken(claims, dateTime, expiresAt), "Bearer", expiresAt);
     }
 
-    private string GenerateToken(IEnumerable<Claim> claims, DateTime startingAt, DateTime expiresAt)
+    private string GenerateToken(IEnumerable<Claim> claims, DateTimeOffset startingAt, DateTimeOffset expiresAt)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Value.Secret));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -110,8 +110,8 @@ internal class TokenService(IOptions<JwtSettings> jwtSettings) : ITokenService
             issuer: jwtSettings.Value.Issuer,
             audience: jwtSettings.Value.Audience,
             claims: claims,
-            notBefore: startingAt,
-            expires: expiresAt,
+            notBefore: startingAt.UtcDateTime,
+            expires: expiresAt.UtcDateTime,
             signingCredentials: credentials);
         return new JwtSecurityTokenHandler().WriteToken(token);
     }

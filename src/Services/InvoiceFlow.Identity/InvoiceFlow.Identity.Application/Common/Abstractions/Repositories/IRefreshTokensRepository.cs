@@ -10,6 +10,6 @@ public interface IRefreshTokensRepository
     public Task RevokeAccessForUserAsync(
         Guid tenantId,
         Guid userId,
-        DateTime revokedAtUtc,
+        DateTimeOffset revokedAtUtc,
         CancellationToken cancellationToken = default);
 }

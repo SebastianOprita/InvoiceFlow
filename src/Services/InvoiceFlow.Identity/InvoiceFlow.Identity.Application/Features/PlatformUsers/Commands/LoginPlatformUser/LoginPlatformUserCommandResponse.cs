@@ -2,7 +2,7 @@
 
 public sealed record LoginPlatformUserCommandResponse(
     string AccessToken,
-    DateTime AccessTokenExpiresAt,
+    DateTimeOffset AccessTokenExpiresAt,
     string RefreshToken,
     Guid UserId,
     string Email);

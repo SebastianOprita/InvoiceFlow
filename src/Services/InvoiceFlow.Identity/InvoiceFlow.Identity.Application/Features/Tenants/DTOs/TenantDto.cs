@@ -6,6 +6,6 @@ public class TenantDto
     public required string Name { get; set; }
     public required string Slug { get; set; }
     public required bool IsActive { get; set; }
-    public required DateTime CreatedAtUtc { get; set; }
-    public required DateTime? UpdatedAtUtc { get; set; }
+    public required DateTimeOffset CreatedAtUtc { get; set; }
+    public required DateTimeOffset? UpdatedAtUtc { get; set; }
 }

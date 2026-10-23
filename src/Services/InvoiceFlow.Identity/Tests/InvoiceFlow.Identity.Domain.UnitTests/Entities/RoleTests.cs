@@ -8,8 +8,8 @@ public class RoleTests
 {
     private static readonly Guid TenantId = Guid.CreateVersion7();
     private static readonly Guid RoleId = Guid.CreateVersion7();
-    private static readonly DateTime CreatedAtUtc = new(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-    private static readonly DateTime UpdatedAtUtc = CreatedAtUtc.AddHours(1);
+    private static readonly DateTimeOffset CreatedAtUtc = new(2025, 1, 1, 0, 0, 0, TimeSpan.Zero);
+    private static readonly DateTimeOffset UpdatedAtUtc = CreatedAtUtc.AddHours(1);
     private static readonly long Permission = 1L << 3;
 
     [Fact]
@@ -195,7 +195,7 @@ public class RoleTests
     {
         role => role.UpdateDetails(RoleName.Create("New name"), default),
         role => role.GrantPermission(Permission, default),
-        role => role.RevokePermission(Permission, default),
+        role => { role.GrantPermission(Permission, UpdatedAtUtc); role.RevokePermission(Permission, default); },
         role => role.SetPermissions(RolePermissions.None.Grant(Permission), default)
     };
 
@@ -203,7 +203,7 @@ public class RoleTests
     {
         role => role.UpdateDetails(RoleName.Create("New name"), CreatedAtUtc.AddTicks(-1)),
         role => role.GrantPermission(Permission, CreatedAtUtc.AddTicks(-1)),
-        role => role.RevokePermission(Permission, CreatedAtUtc.AddTicks(-1)),
+        role => { role.GrantPermission(Permission, UpdatedAtUtc); role.RevokePermission(Permission, CreatedAtUtc.AddTicks(-1)); },
         role => role.SetPermissions(RolePermissions.None.Grant(Permission), CreatedAtUtc.AddTicks(-1))
     };
 

@@ -8,7 +8,7 @@ public sealed class PlatformRefreshTokenTests
 {
     private static readonly Guid TokenId = Guid.CreateVersion7();
     private static readonly Guid UserId = Guid.CreateVersion7();
-    private static readonly DateTime DateTime = DateTime.UtcNow;
+    private static readonly DateTimeOffset DateTime = new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
     [Fact]
     public void Constructor_WithValidValues_ShouldCreateRefreshToken()
@@ -275,7 +275,7 @@ public sealed class PlatformRefreshTokenTests
             .WithDomainError(DomainErrors.RefreshTokensExpired);
     }
 
-    private static PlatformRefreshToken CreateToken(DateTime createdAtUtc, DateTime expiresAtUtc)
+    private static PlatformRefreshToken CreateToken(DateTimeOffset createdAtUtc, DateTimeOffset expiresAtUtc)
     {
         return PlatformRefreshToken.Create(
             TokenId,

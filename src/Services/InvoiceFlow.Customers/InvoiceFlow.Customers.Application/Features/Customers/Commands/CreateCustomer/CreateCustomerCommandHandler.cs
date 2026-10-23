@@ -40,7 +40,7 @@ internal class CreateCustomerCommandHandler(
             CurrencyCode.Create(cmd.CurrencyCode),
             CreditLimit.Create(cmd.CustomerCreditPolicy.CreditLimit),
             PaymentTermDays.Create(cmd.CustomerCreditPolicy.PaymentTermDays),
-            dateTimeProvider.Now);
+            dateTimeProvider.GetUtcNow());
 
         customersRepository.AddCustomer(customer);
         var result = await unitOfWork.SaveChangesAsync(cancellationToken);

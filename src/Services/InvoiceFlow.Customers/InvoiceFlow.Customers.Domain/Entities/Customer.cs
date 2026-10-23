@@ -22,8 +22,8 @@ public sealed class Customer
     public CreditLimit CreditLimit { get; private set; }
     public PaymentTermDays PaymentTermDays { get; private set; }
     public bool IsActive { get; private set; }
-    public DateTime CreatedAtUtc { get; private set; }
-    public DateTime? UpdatedAtUtc { get; private set; }
+    public DateTimeOffset CreatedAtUtc { get; private set; }
+    public DateTimeOffset? UpdatedAtUtc { get; private set; }
 
 #pragma warning disable CS8618
     private Customer() { } // EF Core
@@ -47,7 +47,7 @@ public sealed class Customer
         CurrencyCode currencyCode,
         CreditLimit creditLimit,
         PaymentTermDays paymentTermDays,
-        DateTime createdAtUtc)
+        DateTimeOffset createdAtUtc)
     {
         Id = id;
         TenantId = tenantId;
@@ -88,7 +88,7 @@ public sealed class Customer
         CurrencyCode currencyCode,
         CreditLimit creditLimit,
         PaymentTermDays paymentTermDays,
-        DateTime createdAtUtc)
+        DateTimeOffset createdAtUtc)
     {
         if (tenantId == Guid.Empty)
             throw new DomainException(DomainErrors.TenantIdRequired);
@@ -98,9 +98,6 @@ public sealed class Customer
 
         if (createdAtUtc == default)
             throw new DomainException(DomainErrors.CreatedAtUtcRequired);
-
-        if (createdAtUtc.Kind != DateTimeKind.Utc)
-            throw new DomainException(DomainErrors.CreatedAtUtcNotUtc);
 
         return new Customer(
             id,
@@ -120,10 +117,10 @@ public sealed class Customer
             currencyCode,
             creditLimit,
             paymentTermDays,
-            createdAtUtc);
+            createdAtUtc.ToUniversalTime());
     }
 
-    public void UpdateName(CustomerName name, DateTime updatedAtUtc)
+    public void UpdateName(CustomerName name, DateTimeOffset updatedAtUtc)
     {
         if (Name == name)
             return;
@@ -135,7 +132,8 @@ public sealed class Customer
 
     public void UpdateContact(
         CustomerEmail? email,
-        PhoneNumber? phone, DateTime updatedAtUtc)
+        PhoneNumber? phone,
+        DateTimeOffset updatedAtUtc)
     {
         if (Email == email && Phone == phone)
             return;
@@ -152,7 +150,8 @@ public sealed class Customer
         City city,
         State? state,
         Country country,
-        PostalCode postalCode, DateTime updatedAtUtc)
+        PostalCode postalCode,
+        DateTimeOffset updatedAtUtc)
     {
         if (AddressLine1 == addressLine1 &&
             AddressLine2 == addressLine2 &&
@@ -174,7 +173,8 @@ public sealed class Customer
 
     public void UpdateCreditPolicy(
         CreditLimit creditLimit,
-        PaymentTermDays paymentTermDays, DateTime updatedAtUtc)
+        PaymentTermDays paymentTermDays,
+        DateTimeOffset updatedAtUtc)
     {
         if (CreditLimit == creditLimit && PaymentTermDays == paymentTermDays)
             return;
@@ -187,7 +187,8 @@ public sealed class Customer
 
     public void UpdateTaxDetails(
         TaxNumber? taxNumber,
-        RegistrationNumber registrationNumber, DateTime updatedAtUtc)
+        RegistrationNumber registrationNumber,
+        DateTimeOffset updatedAtUtc)
     {
         if (TaxNumber == taxNumber && RegistrationNumber == registrationNumber)
             return;
@@ -198,7 +199,8 @@ public sealed class Customer
         MarkAsUpdated(updatedAtUtc);
     }
 
-    public void ChangeCurrency(CurrencyCode currencyCode, DateTime updatedAtUtc)
+    public void ChangeCurrency(CurrencyCode currencyCode,
+        DateTimeOffset updatedAtUtc)
     {
         if (CurrencyCode == currencyCode)
             return;
@@ -208,7 +210,7 @@ public sealed class Customer
         MarkAsUpdated(updatedAtUtc);
     }
 
-    public void Deactivate(DateTime updatedAtUtc)
+    public void Deactivate(DateTimeOffset updatedAtUtc)
     {
         if (!IsActive)
             return;
@@ -218,7 +220,7 @@ public sealed class Customer
         MarkAsUpdated(updatedAtUtc);
     }
 
-    public void Activate(DateTime updatedAtUtc)
+    public void Activate(DateTimeOffset updatedAtUtc)
     {
         if (IsActive)
             return;
@@ -228,13 +230,12 @@ public sealed class Customer
         MarkAsUpdated(updatedAtUtc);
     }
 
-    private void MarkAsUpdated(DateTime updatedAtUtc)
+    private void MarkAsUpdated(DateTimeOffset updatedAtUtc)
     {
         if (updatedAtUtc == default)
             throw new DomainException(DomainErrors.UpdatedAtUtcRequired);
 
-        if (updatedAtUtc.Kind != DateTimeKind.Utc)
-            throw new DomainException(DomainErrors.UpdatedAtUtcNotUtc);
+        updatedAtUtc = updatedAtUtc.ToUniversalTime();
 
         if (updatedAtUtc < CreatedAtUtc)
             throw new DomainException(DomainErrors.UpdatedAtUtcInvalid);

@@ -18,7 +18,7 @@ internal class DeactivateTenantCommandHandler(
         if (!tenant.IsActive)
             return Result.Success();
 
-        tenant.Deactivate(dateTimeProvider.Now);
+        tenant.Deactivate(dateTimeProvider.GetUtcNow());
         var result = await unitOfWork.SaveChangesAsync(cancellationToken);
         return result;
     }

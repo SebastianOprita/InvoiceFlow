@@ -21,7 +21,7 @@ internal class CreateTenantCommandHandler(
             Guid.CreateVersion7(),
             TenantName.Create(cmd.Name),
             TenantSlug.Create(cmd.Slug),
-            dateTimeProvider.Now);
+            dateTimeProvider.GetUtcNow());
 
         tenantsRepository.AddTenant(tenant);
 

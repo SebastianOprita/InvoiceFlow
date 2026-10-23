@@ -7,7 +7,7 @@ public sealed class UserRole
     public Guid TenantId { get; private set; }
     public Guid UserId { get; private set; }
     public Guid RoleId { get; private set; }
-    public DateTime AssignedAtUtc { get; private set; }
+    public DateTimeOffset AssignedAtUtc { get; private set; }
 
     // Navigation property
     public User User { get; private set; } = null!;
@@ -17,7 +17,7 @@ public sealed class UserRole
     private UserRole() { } // EF Core
 #pragma warning restore CS8618
 
-    private UserRole(Guid tenantId, Guid userId, Guid roleId, DateTime assignedAtUtc)
+    private UserRole(Guid tenantId, Guid userId, Guid roleId, DateTimeOffset assignedAtUtc)
     {
         TenantId = tenantId;
         UserId = userId;
@@ -25,7 +25,7 @@ public sealed class UserRole
         AssignedAtUtc = assignedAtUtc;
     }
 
-    public static UserRole Create(Guid tenantId, Guid userId, Guid roleId, DateTime assignedAtUtc)
+    public static UserRole Create(Guid tenantId, Guid userId, Guid roleId, DateTimeOffset assignedAtUtc)
     {
         if (tenantId == Guid.Empty)
             throw new DomainException(DomainErrors.TenantIdRequired);
@@ -39,12 +39,9 @@ public sealed class UserRole
         if (assignedAtUtc == default)
             throw new DomainException(DomainErrors.AssignedAtUtcRequired);
 
-        if (assignedAtUtc.Kind != DateTimeKind.Utc)
-            throw new DomainException(DomainErrors.AssignedAtUtcNotUtc);
-
         return new UserRole(tenantId,
             userId,
             roleId,
-            assignedAtUtc);
+            assignedAtUtc.ToUniversalTime());
     }
 }

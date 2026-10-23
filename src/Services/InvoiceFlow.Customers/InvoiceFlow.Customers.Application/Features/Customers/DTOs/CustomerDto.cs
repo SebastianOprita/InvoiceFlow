@@ -12,8 +12,8 @@ public record CustomerDto
     public required string CurrencyCode { get; set; }
     public required CustomerCreditPolicyDto CustomerCreditPolicy { get; set; }
     public required bool IsActive { get; set; }
-    public required DateTime CreatedAtUtc { get; set; }
-    public DateTime? UpdatedAtUtc { get; set; }
+    public required DateTimeOffset CreatedAtUtc { get; set; }
+    public DateTimeOffset? UpdatedAtUtc { get; set; }
 }
 
 public record CustomerContactDto

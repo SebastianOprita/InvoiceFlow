@@ -16,7 +16,7 @@ internal class LoginUserCommandHandler(
 {
     public async Task<Result<LoginUserCommandResponse>> Handle(LoginUserCommand cmd, CancellationToken cancellationToken)
     {
-        var now = dateTimeProvider.Now;
+        var now = dateTimeProvider.GetUtcNow();
 
         var tenant = await tenantsRepository.GetTenantByIdAsync(cmd.TenantId, cancellationToken);
         if (tenant is null || !tenant.IsActive)

@@ -14,7 +14,7 @@ internal class ImpersonateUserCommandHandler(
 {
     public async Task<Result<ImpersonateUserCommandResponse>> Handle(ImpersonateUserCommand cmd, CancellationToken cancellationToken)
     {
-        var now = dateTimeProvider.Now;
+        var now = dateTimeProvider.GetUtcNow();
 
         var platformUser = await platformUsersRepository.GetUserByIdAsync(cmd.ActorUserId, cancellationToken);
         if (platformUser is null || !platformUser.IsActive)

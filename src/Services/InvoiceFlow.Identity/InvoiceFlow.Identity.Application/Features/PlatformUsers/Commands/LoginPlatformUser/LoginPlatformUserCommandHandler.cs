@@ -15,7 +15,7 @@ internal class LoginPlatformUserCommandHandler(
 {
     public async Task<Result<LoginPlatformUserCommandResponse>> Handle(LoginPlatformUserCommand cmd, CancellationToken cancellationToken)
     {
-        var now = dateTimeProvider.Now;
+        var now = dateTimeProvider.GetUtcNow();
 
         var existingPlatfromUser = await platformUsersRepository.GetUserByEmailAsync(UserEmail.Create(cmd.Email), cancellationToken);
         if (existingPlatfromUser is null || !existingPlatfromUser.IsActive || !passwordHasher.VerifyPassword(cmd.Password, existingPlatfromUser.PasswordHash.Value))

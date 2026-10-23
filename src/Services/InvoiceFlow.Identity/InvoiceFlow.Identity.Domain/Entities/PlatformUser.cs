@@ -10,8 +10,8 @@ public sealed class PlatformUser
     public FirstName FirstName { get; private set; }
     public LastName LastName { get; private set; }
     public bool IsActive { get; private set; }
-    public DateTime CreatedAtUtc { get; private set; }
-    public DateTime? UpdatedAtUtc { get; private set; }
+    public DateTimeOffset CreatedAtUtc { get; private set; }
+    public DateTimeOffset? UpdatedAtUtc { get; private set; }
 
 #pragma warning disable CS8618
     private PlatformUser() { } // EF Core
@@ -23,7 +23,7 @@ public sealed class PlatformUser
         PasswordHash passwordHash,
         FirstName firstName,
         LastName lastName,
-        DateTime createdAtUtc)
+        DateTimeOffset createdAtUtc)
     {
         Id = id;
         Email = email;
@@ -40,7 +40,7 @@ public sealed class PlatformUser
         PasswordHash passwordHash,
         FirstName firstName,
         LastName lastName,
-        DateTime createdAtUtc)
+        DateTimeOffset createdAtUtc)
     {
         if (id == Guid.Empty)
             throw new DomainException(DomainErrors.IdRequired);
@@ -48,83 +48,71 @@ public sealed class PlatformUser
         if (createdAtUtc == default)
             throw new DomainException(DomainErrors.CreatedAtUtcRequired);
 
-        if (createdAtUtc.Kind != DateTimeKind.Utc)
-            throw new DomainException(DomainErrors.CreatedAtUtcNotUtc);
-
         return new PlatformUser(
             id,
             email,
             passwordHash,
             firstName,
             lastName,
-            createdAtUtc);
+            createdAtUtc.ToUniversalTime());
     }
 
-    public void UpdateProfile(FirstName firstName, LastName lastName, DateTime updatedAtUtc)
+    public void UpdateProfile(FirstName firstName, LastName lastName, DateTimeOffset updatedAtUtc)
     {
-        EnsureValidUpdateTime(updatedAtUtc);
-
         if (FirstName == firstName && LastName == lastName)
             return;
 
         FirstName = firstName;
         LastName = lastName;
-        UpdatedAtUtc = updatedAtUtc;
+        MarkAsUpdated(updatedAtUtc);
     }
 
-    public void ChangeEmail(UserEmail email, DateTime updatedAtUtc)
+    public void ChangeEmail(UserEmail email, DateTimeOffset updatedAtUtc)
     {
-        EnsureValidUpdateTime(updatedAtUtc);
-
         if (Email == email)
             return;
 
         Email = email;
-        UpdatedAtUtc = updatedAtUtc;
+        MarkAsUpdated(updatedAtUtc);
     }
 
-    public void ChangePasswordHash(PasswordHash passwordHash, DateTime updatedAtUtc)
+    public void ChangePasswordHash(PasswordHash passwordHash, DateTimeOffset updatedAtUtc)
     {
-        EnsureValidUpdateTime(updatedAtUtc);
-
         if (PasswordHash == passwordHash)
             return;
 
         PasswordHash = passwordHash;
-        UpdatedAtUtc = updatedAtUtc;
+        MarkAsUpdated(updatedAtUtc);
     }
 
-    public void Deactivate(DateTime updatedAtUtc)
+    public void Deactivate(DateTimeOffset updatedAtUtc)
     {
-        EnsureValidUpdateTime(updatedAtUtc);
-
         if (!IsActive)
             return;
 
         IsActive = false;
-        UpdatedAtUtc = updatedAtUtc;
+        MarkAsUpdated(updatedAtUtc);
     }
 
-    public void Activate(DateTime updatedAtUtc)
+    public void Activate(DateTimeOffset updatedAtUtc)
     {
-        EnsureValidUpdateTime(updatedAtUtc);
-
         if (IsActive)
             return;
 
         IsActive = true;
-        UpdatedAtUtc = updatedAtUtc;
+        MarkAsUpdated(updatedAtUtc);
     }
 
-    private void EnsureValidUpdateTime(DateTime updatedAtUtc)
+    private void MarkAsUpdated(DateTimeOffset updatedAtUtc)
     {
         if (updatedAtUtc == default)
             throw new DomainException(DomainErrors.UpdatedAtUtcRequired);
 
-        if (updatedAtUtc.Kind != DateTimeKind.Utc)
-            throw new DomainException(DomainErrors.UpdatedAtUtcNotUtc);
+        updatedAtUtc = updatedAtUtc.ToUniversalTime();
 
         if (updatedAtUtc < CreatedAtUtc)
             throw new DomainException(DomainErrors.UpdatedAtUtcInvalid);
+
+        UpdatedAtUtc = updatedAtUtc;
     }
 }

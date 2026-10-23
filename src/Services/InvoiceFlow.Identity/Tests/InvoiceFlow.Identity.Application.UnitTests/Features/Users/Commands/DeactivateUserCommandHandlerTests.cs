@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Application;
 using InvoiceFlow.Identity.Domain;
 using Moq;
@@ -18,7 +18,7 @@ public class DeactivateUserCommandHandlerTests
         _unitOfWork = new();
         _usersRepository = new();
         _mockDateTimeProvider = new();
-        _mockDateTimeProvider.Setup(x => x.Now).Returns(DateTime.UtcNow);
+        _mockDateTimeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero));
         _sut = new DeactivateUserCommandHandler(
             _unitOfWork.Object,
             _usersRepository.Object,
@@ -62,9 +62,9 @@ public class DeactivateUserCommandHandlerTests
             PasswordHash.Create("hashedpassword"),
             FirstName.Create("John"),
             LastName.Create("Doe"),
-            _mockDateTimeProvider.Object.Now);
+            _mockDateTimeProvider.Object.GetUtcNow());
 
-        user.Deactivate(_mockDateTimeProvider.Object.Now);
+        user.Deactivate(_mockDateTimeProvider.Object.GetUtcNow());
 
         _usersRepository
             .Setup(x => x.GetTrackedUserByIdAsync(cmd.TenantId, cmd.UserId, TestContext.Current.CancellationToken))
@@ -94,7 +94,7 @@ public class DeactivateUserCommandHandlerTests
             PasswordHash.Create("hashedpassword"),
             FirstName.Create("John"),
             LastName.Create("Doe"),
-            _mockDateTimeProvider.Object.Now);
+            _mockDateTimeProvider.Object.GetUtcNow());
 
         _usersRepository
             .Setup(x => x.GetTrackedUserByIdAsync(cmd.TenantId, cmd.UserId, TestContext.Current.CancellationToken))

@@ -5,7 +5,7 @@ namespace InvoiceFlow.Customers.Application.UnitTests;
 internal static class TestConstants
 {
     internal static readonly Guid TenantId = Guid.Parse("f305e3f0-e634-470b-b9c1-cc0c7559dc0a");
-    internal static Customer Customer(Guid tenantId, Guid customerId, string name, DateTime dateTime) => Domain.Customer.Create
+    internal static Customer Customer(Guid tenantId, Guid customerId, string name, DateTimeOffset dateTime) => Domain.Customer.Create
     (
         customerId,
         tenantId,

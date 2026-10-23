@@ -1,4 +1,4 @@
-﻿using InvoiceFlow.BuildingBlocks.Domain;
+using InvoiceFlow.BuildingBlocks.Domain;
 using FluentAssertions;
 using Xunit;
 
@@ -6,9 +6,9 @@ namespace InvoiceFlow.Customers.Domain.UnitTests.Entities;
 
 public sealed class CustomerTests
 {
-    private readonly DateTime _now = DateTime.UtcNow;
+    private readonly DateTimeOffset _now = new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero);
     private static Customer CreateValidCustomer(
-        DateTime dateTime,
+        DateTimeOffset dateTime,
         Guid? id = null,
         Guid? tenantId = null)
     {

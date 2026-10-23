@@ -2,4 +2,4 @@
 
 public sealed record ImpersonateUserCommandResponse(
     string ImpersonationToken,
-    DateTime ImpersonationTokenExpiresAt);
+    DateTimeOffset ImpersonationTokenExpiresAt);

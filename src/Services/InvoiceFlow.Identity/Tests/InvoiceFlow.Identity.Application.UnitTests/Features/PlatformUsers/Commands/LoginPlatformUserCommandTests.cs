@@ -25,7 +25,7 @@ public class LoginPlatformUserCommandTests
         _tokenService = new();
         _passwordHasher = new();
         _mockDateTimeProvider = new();
-        _mockDateTimeProvider.Setup(x => x.Now).Returns(DateTime.UtcNow);
+        _mockDateTimeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero));
 
         _sut = new LoginPlatformUserCommandHandler(
             _unitOfWork.Object,
@@ -76,7 +76,7 @@ public class LoginPlatformUserCommandTests
         // Arrange
         var user = CreateUser("test@email.com", "hashed-password");
 
-        user.Deactivate(_mockDateTimeProvider.Object.Now);
+        user.Deactivate(_mockDateTimeProvider.Object.GetUtcNow());
 
         _usersRepository
             .Setup(x => x.GetUserByEmailAsync(It.IsAny<UserEmail>(), CancellationToken.None))
@@ -176,12 +176,12 @@ public class LoginPlatformUserCommandTests
             .Setup(x => x.GeneratePlatformUserAccessToken(
                 user.Id,
                 "test@email.com",
-                It.IsAny<DateTime>()))
-            .Returns(("access-token", "Bearer", _mockDateTimeProvider.Object.Now.AddMinutes(15)));
+                It.IsAny<DateTimeOffset>()))
+            .Returns(("access-token", "Bearer", _mockDateTimeProvider.Object.GetUtcNow().AddMinutes(15)));
 
         _tokenService
-            .Setup(x => x.GenerateRefreshToken(It.IsAny<DateTime>()))
-            .Returns(("refresh-token", _mockDateTimeProvider.Object.Now.AddDays(30)));
+            .Setup(x => x.GenerateRefreshToken(It.IsAny<DateTimeOffset>()))
+            .Returns(("refresh-token", _mockDateTimeProvider.Object.GetUtcNow().AddDays(30)));
 
         _tokenService
             .Setup(x => x.CalculateTokenHash("refresh-token"))
@@ -213,7 +213,7 @@ public class LoginPlatformUserCommandTests
     {
         // Arrange
         var tenantId = Guid.CreateVersion7();
-        var expiresAt = _mockDateTimeProvider.Object.Now.AddMinutes(15);
+        var expiresAt = _mockDateTimeProvider.Object.GetUtcNow().AddMinutes(15);
 
         var user = CreateUser(
             "test@email.com",
@@ -237,12 +237,12 @@ public class LoginPlatformUserCommandTests
             .Setup(x => x.GeneratePlatformUserAccessToken(
                 user.Id,
                 "test@email.com",
-                It.IsAny<DateTime>()))
+                It.IsAny<DateTimeOffset>()))
             .Returns(("access-token", "Bearer", expiresAt));
 
         _tokenService
-            .Setup(x => x.GenerateRefreshToken(It.IsAny<DateTime>()))
-            .Returns(("refresh-token", _mockDateTimeProvider.Object.Now.AddDays(30)));
+            .Setup(x => x.GenerateRefreshToken(It.IsAny<DateTimeOffset>()))
+            .Returns(("refresh-token", _mockDateTimeProvider.Object.GetUtcNow().AddDays(30)));
 
         _tokenService
             .Setup(x => x.CalculateTokenHash("refresh-token"))
@@ -290,6 +290,6 @@ public class LoginPlatformUserCommandTests
             PasswordHash.Create(passwordHash),
             FirstName.Create("Test"),
             LastName.Create("User"),
-            _mockDateTimeProvider.Object.Now);
+            _mockDateTimeProvider.Object.GetUtcNow());
     }
 }

@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Application;
 using InvoiceFlow.Identity.Application.Features;
 using InvoiceFlow.Identity.Domain;
@@ -22,7 +22,7 @@ public class CreateUserCommandHandlerTests
         _usersRepository = new();
         _passwordHasher = new();
         _mockDateTimeProvider = new();
-        _mockDateTimeProvider.Setup(x => x.Now).Returns(DateTime.UtcNow);
+        _mockDateTimeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero));
         _sut = new CreateUserCommandHandler(
             _unitOfWork.Object,
             _usersRepository.Object,

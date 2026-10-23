@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Application;
 using InvoiceFlow.Identity.Domain;
 using Moq;
@@ -18,7 +18,7 @@ public class RevokeUserRoleCommandHandlerTests
     public RevokeUserRoleCommandHandlerTests()
     {
         _mockDateTimeProvider = new();
-        _mockDateTimeProvider.Setup(x => x.Now).Returns(DateTime.UtcNow);
+        _mockDateTimeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero));
         _unitOfWork = new();
         _usersRepository = new();
         _rolesRepository = new();
@@ -72,7 +72,7 @@ public class RevokeUserRoleCommandHandlerTests
             PasswordHash.Create("hashedpassword"),
             FirstName.Create("John"),
             LastName.Create("Doe"),
-            _mockDateTimeProvider.Object.Now);
+            _mockDateTimeProvider.Object.GetUtcNow());
 
         _usersRepository
             .Setup(x => x.GetTrackedUserByIdAsync(cmd.TenantId, cmd.UserId, TestContext.Current.CancellationToken))
@@ -112,13 +112,13 @@ public class RevokeUserRoleCommandHandlerTests
             PasswordHash.Create("hashedpassword"),
             FirstName.Create("John"),
             LastName.Create("Doe"),
-            _mockDateTimeProvider.Object.Now);
+            _mockDateTimeProvider.Object.GetUtcNow());
 
         var role = Role.Create(
             cmd.TenantId,
             cmd.RoleId,
             RoleName.Create("Admin"),
-            _mockDateTimeProvider.Object.Now,
+            _mockDateTimeProvider.Object.GetUtcNow(),
             RoleDescription.CreateOptional("Administrator role"),
             RolePermissions.Create(RolePermissions.None.Value));
 

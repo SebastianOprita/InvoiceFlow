@@ -7,8 +7,8 @@ namespace InvoiceFlow.Identity.Domain.UnitTests.Entities;
 public class TenantTests
 {
     private static readonly Guid TenantId = Guid.CreateVersion7();
-    private static readonly DateTime CreatedAtUtc = new(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-    private static readonly DateTime UpdatedAtUtc = CreatedAtUtc.AddHours(1);
+    private static readonly DateTimeOffset CreatedAtUtc = new(2025, 1, 1, 0, 0, 0, TimeSpan.Zero);
+    private static readonly DateTimeOffset UpdatedAtUtc = CreatedAtUtc.AddHours(1);
 
     [Fact]
     public void Constructor_Should_CreateTenant_WithValidValues()
@@ -156,14 +156,14 @@ public class TenantTests
     {
         tenant => tenant.UpdateName(TenantName.Create("Updated"), default),
         tenant => tenant.Deactivate(default),
-        tenant => tenant.Activate(default)
+        tenant => { tenant.Deactivate(UpdatedAtUtc); tenant.Activate(default); }
     };
 
     public static TheoryData<Action<Tenant>> UpdateActionsWithInvalidDate => new()
     {
         tenant => tenant.UpdateName(TenantName.Create("Updated"), CreatedAtUtc.AddTicks(-1)),
         tenant => tenant.Deactivate(CreatedAtUtc.AddTicks(-1)),
-        tenant => tenant.Activate(CreatedAtUtc.AddTicks(-1))
+        tenant => { tenant.Deactivate(UpdatedAtUtc); tenant.Activate(CreatedAtUtc.AddTicks(-1)); }
     };
 
     private static Tenant CreateTenant(TenantName? name = null)

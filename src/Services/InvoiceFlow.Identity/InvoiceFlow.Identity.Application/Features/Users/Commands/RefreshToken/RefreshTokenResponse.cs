@@ -3,7 +3,7 @@
 public sealed record RefreshTokenResponse(
     string AccessToken,
     string TokenType,
-    DateTime AccessTokenExpiresAt,
+    DateTimeOffset AccessTokenExpiresAt,
     string RefreshToken,
     Guid UserId,
     string Email);

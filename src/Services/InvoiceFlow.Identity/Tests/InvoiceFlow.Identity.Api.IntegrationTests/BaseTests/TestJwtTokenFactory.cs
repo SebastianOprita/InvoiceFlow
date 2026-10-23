@@ -1,4 +1,4 @@
-﻿using InvoiceFlow.BuildingBlocks.Authorization;
+using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.BuildingBlocks.Authorization.Claims;
 using InvoiceFlow.Identity.Infrastructure;
 using Microsoft.IdentityModel.Tokens;
@@ -12,8 +12,8 @@ public static class TestJwtTokenFactory
 {
     public static string CreateAccessToken(Guid tenantId, SystemPermissions permissions, JwtSettings jwtSettings)
     {
-        var dateTime = DateTime.UtcNow;
-        var expiresAt = dateTime.AddMinutes(jwtSettings.AccessTokenMinutes);
+        var dateTime = new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero);
+        var expiresAt = new DateTimeOffset(2099, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
         var claims = new List<Claim>
         {
@@ -36,8 +36,8 @@ public static class TestJwtTokenFactory
             issuer: jwtSettings.Issuer,
             audience: jwtSettings.Audience,
             claims: claims,
-            notBefore: dateTime,
-            expires: expiresAt,
+            notBefore: dateTime.UtcDateTime,
+            expires: expiresAt.UtcDateTime,
             signingCredentials: credentials);
 
         return new JwtSecurityTokenHandler().WriteToken(token);
@@ -45,7 +45,7 @@ public static class TestJwtTokenFactory
 
     public static string CreatePlatformUserAccessToken(Guid userId, JwtSettings jwtSettings)
     {
-        var dateTime = DateTime.UtcNow;
+        var dateTime = new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero);
         var claims = new List<Claim>
         {
             new("principal_type", "platform_user"),
@@ -57,9 +57,9 @@ public static class TestJwtTokenFactory
         return GenerateToken(claims, dateTime, jwtSettings);
     }
 
-    private static string GenerateToken(IEnumerable<Claim> claims, DateTime dateTime, JwtSettings jwtSettings)
+    private static string GenerateToken(IEnumerable<Claim> claims, DateTimeOffset dateTime, JwtSettings jwtSettings)
     {
-        var expiresAt = dateTime.AddMinutes(jwtSettings.AccessTokenMinutes);
+        var expiresAt = new DateTimeOffset(2099, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Secret));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -67,15 +67,15 @@ public static class TestJwtTokenFactory
             issuer: jwtSettings.Issuer,
             audience: jwtSettings.Audience,
             claims: claims,
-            notBefore: dateTime,
-            expires: expiresAt,
+            notBefore: dateTime.UtcDateTime,
+            expires: expiresAt.UtcDateTime,
             signingCredentials: credentials);
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
     public static string CreateImpersonationToken(Guid tenantId, Guid userId, SystemPermissions permissions, JwtSettings jwtSettings)
     {
-        var dateTime = DateTime.UtcNow;
+        var dateTime = new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero);
         var claims = new List<Claim>
         {
             new("principal_type", "tenant_user"),

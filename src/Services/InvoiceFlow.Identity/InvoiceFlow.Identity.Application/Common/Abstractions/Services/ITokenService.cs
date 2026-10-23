@@ -2,22 +2,22 @@
 
 public interface ITokenService
 {
-    public (string Token, DateTime ExpiresAt) GenerateRefreshToken(DateTime dateTime);
+    public (string Token, DateTimeOffset ExpiresAt) GenerateRefreshToken(DateTimeOffset dateTime);
     public string CalculateTokenHash(string token);
 
-    public (string Token, string TokenType, DateTime ExpiresAt) GenerateUserAccessToken(
+    public (string Token, string TokenType, DateTimeOffset ExpiresAt) GenerateUserAccessToken(
         Guid userId,
         Guid tenantId,
         string email,
         long permissions,
-        DateTime dateTime);
+        DateTimeOffset dateTime);
 
-    public (string Token, string TokenType, DateTime ExpiresAt) GeneratePlatformUserAccessToken(
+    public (string Token, string TokenType, DateTimeOffset ExpiresAt) GeneratePlatformUserAccessToken(
         Guid platformUserId,
         string platformEmail,
-        DateTime dateTime);
+        DateTimeOffset dateTime);
 
-    public (string Token, string TokenType, DateTime ExpiresAt) GenerateImpersonationToken(
+    public (string Token, string TokenType, DateTimeOffset ExpiresAt) GenerateImpersonationToken(
         Guid platformUserId,
         string platformEmail,
         Guid targetUserId,
@@ -26,5 +26,5 @@ public interface ITokenService
         long targetPermissions,
         Guid sessionId,
         string? reason,
-        DateTime dateTime);
+        DateTimeOffset dateTime);
 }

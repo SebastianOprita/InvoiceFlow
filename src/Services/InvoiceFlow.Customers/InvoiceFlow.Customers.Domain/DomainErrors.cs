@@ -8,8 +8,6 @@ public static class DomainErrors
     public static readonly DomainError IdRequired = new("id.required", "Id is required.");
     public static readonly DomainError CreatedAtUtcRequired = new("createdAtUtc.required", "Created datetime is required.");
     public static readonly DomainError UpdatedAtUtcRequired = new("updatedAtUtc.required", "Updated datetime is required.");
-    public static readonly DomainError CreatedAtUtcNotUtc = new("createdAtUtc.notUtc", "Created datetime must be UTC.");
-    public static readonly DomainError UpdatedAtUtcNotUtc = new("updatedAtUtc.notUtc", "Updated datetime must be UTC.");
     public static readonly DomainError UpdatedAtUtcInvalid = new("updatedAtUtc.invalid", "Updated datetime cannot be earlier than Created datetime.");
     public static readonly DomainError AddressLine1Required = new("addressLine1.required", "Address Line 1 is required.");
     public static readonly DomainError AddressLine1TooLong = new("addressLine1.tooLong", $"Address Line 1 is too long. Maximum length is {AddressLine1.MaxLength} characters.");

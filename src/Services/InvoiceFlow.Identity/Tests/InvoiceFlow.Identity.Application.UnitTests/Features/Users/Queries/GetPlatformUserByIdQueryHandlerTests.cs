@@ -15,7 +15,7 @@ public sealed class GetPlatformUserByIdQueryHandlerTests
     public GetPlatformUserByIdQueryHandlerTests()
     {
         _mockDateTimeProvider = new();
-        _mockDateTimeProvider.Setup(x => x.Now).Returns(DateTime.UtcNow);
+        _mockDateTimeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero));
         _usersRepositoryMock = new();
         _sut = new GetUserByIdQueryHandler(_usersRepositoryMock.Object);
     }
@@ -35,7 +35,7 @@ public sealed class GetPlatformUserByIdQueryHandlerTests
             PasswordHash.Create("hashedpassword"),
             FirstName.Create("John"),
             LastName.Create("Doe"),
-            _mockDateTimeProvider.Object.Now);
+            _mockDateTimeProvider.Object.GetUtcNow());
 
         var query = new GetUserByIdQuery(tenantId, userId);
 

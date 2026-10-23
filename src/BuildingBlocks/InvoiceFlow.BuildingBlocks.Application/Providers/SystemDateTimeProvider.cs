@@ -2,5 +2,7 @@
 
 public class SystemDateTimeProvider : ISystemDateTimeProvider
 {
-    public DateTimeOffset GetUtcNow() => DateTimeOffset.UtcNow;
+#pragma warning disable RS0030 // This adapter is the approved system clock access point.
+    public DateTimeOffset GetUtcNow() => TimeProvider.System.GetUtcNow();
+#pragma warning restore RS0030
 }
