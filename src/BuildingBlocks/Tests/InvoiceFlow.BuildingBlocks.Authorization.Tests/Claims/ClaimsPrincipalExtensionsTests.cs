@@ -105,7 +105,7 @@ public sealed class ClaimsPrincipalExtensionsTests
                 ((long)SystemPermissions.CustomerRead).ToString()));
 
         principal
-            .HasPermission(SystemPermissions.CustomerDelete)
+            .HasPermission(SystemPermissions.CustomerStatusManage)
             .Should()
             .BeFalse();
     }
