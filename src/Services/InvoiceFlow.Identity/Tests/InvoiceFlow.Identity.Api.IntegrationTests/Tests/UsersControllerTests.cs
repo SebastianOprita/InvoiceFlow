@@ -33,9 +33,24 @@ public sealed class UsersControllerTests : IAsyncLifetime
         return ValueTask.CompletedTask;
     }
 
-    private string GetAccessToken(SystemPermissions permission = SystemPermissions.RoleRead)
+    private string GetAccessToken()
     {
-        return TestJwtTokenFactory.CreateAccessToken(_factory.Tenant.Id, permission, _factory.JwtSettings);
+        return TestJwtTokenFactory.CreateAccessToken(
+            _factory.Tenant.Id,
+            SystemPermissions.UserRead |
+            SystemPermissions.UserCreate |
+            SystemPermissions.UserUpdate |
+            SystemPermissions.UserStatusManage |
+            SystemPermissions.UserRoleManage,
+            _factory.JwtSettings);
+    }
+
+    private string GetAccessToken(SystemPermissions systemPermissions)
+    {
+        return TestJwtTokenFactory.CreateAccessToken(
+            _factory.Tenant.Id,
+            systemPermissions,
+            _factory.JwtSettings);
     }
 
     private string GetUrl(string endpoint)

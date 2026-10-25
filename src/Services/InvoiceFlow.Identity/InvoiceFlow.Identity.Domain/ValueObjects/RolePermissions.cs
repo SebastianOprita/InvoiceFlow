@@ -1,10 +1,10 @@
-﻿using InvoiceFlow.BuildingBlocks.Domain;
+using InvoiceFlow.BuildingBlocks.Domain;
 
 namespace InvoiceFlow.Identity.Domain;
 
 public sealed record RolePermissions
 {
-    private const long ValidPermissionsMask = (1L << 13) - 1;
+    private const long ValidPermissionsMask = (1L << 31) - 1;
     public static readonly RolePermissions None = new(0);
 
     public long Value { get; }

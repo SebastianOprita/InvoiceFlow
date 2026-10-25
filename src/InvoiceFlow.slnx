@@ -3,7 +3,7 @@
     <Project Path="../Aspire/InvoiceFlow.AppHost/InvoiceFlow.AppHost.csproj" Id="138a514b-ebce-4d8f-a14a-4b0da02911a1" />
   </Folder>
   <Folder Name="/Docs/">
-    <File Path="../Docs/AuthApi.http" />
+    <File Path="../Docs/Auth.http" />
     <File Path="../Docs/Customers.http" />
   </Folder>
   <Folder Name="/Solution Items/">
