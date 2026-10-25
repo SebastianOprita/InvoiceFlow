@@ -1,4 +1,4 @@
-﻿using InvoiceFlow.BuildingBlocks.Authorization;
+using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.BuildingBlocks.Authorization.Policies;
 using InvoiceFlow.Identity.Application;
 using MediatR;
@@ -25,7 +25,7 @@ public class RolesController(IMediator mediator) : ApiController
         return result.ToActionResult();
     }
 
-    [HasPermission(SystemPermissions.ManageRoles)]
+    [HasPermission(SystemPermissions.RoleCreate)]
     [HttpPost]
     public async Task<IActionResult> Create([FromRoute] Guid tenantId, [FromBody] CreateRoleRequest request, CancellationToken ct)
     {
@@ -35,7 +35,7 @@ public class RolesController(IMediator mediator) : ApiController
             : result.ToActionResult();
     }
 
-    [HasPermission(SystemPermissions.ManageRoles)]
+    [HasPermission(SystemPermissions.RoleUpdate)]
     [HttpPut("{roleId:guid}")]
     public async Task<IActionResult> Update([FromRoute] Guid tenantId, [FromRoute] Guid roleId, [FromBody] UpdateRoleRequest request, CancellationToken ct)
     {
@@ -43,7 +43,7 @@ public class RolesController(IMediator mediator) : ApiController
         return result.ToActionResult();
     }
 
-    [HasPermission(SystemPermissions.ManageRoles)]
+    [HasPermission(SystemPermissions.RoleStatusManage)]
     [HttpDelete("{roleId:guid}")]
     public async Task<IActionResult> Delete([FromRoute] Guid tenantId, [FromRoute] Guid roleId, CancellationToken ct)
     {
@@ -51,7 +51,7 @@ public class RolesController(IMediator mediator) : ApiController
         return result.ToActionResult();
     }
 
-    [HasPermission(SystemPermissions.ManageRoles)]
+    [HasPermission(SystemPermissions.RolePermissionsUpdate)]
     [HttpPost("{roleId:guid}/permissions")]
     public async Task<IActionResult> UpdatePermissions([FromRoute] Guid tenantId, [FromRoute] Guid roleId, [FromBody] UpdatePermissionsRequest request, CancellationToken ct)
     {
@@ -59,7 +59,7 @@ public class RolesController(IMediator mediator) : ApiController
         return result.ToActionResult();
     }
 
-    [HasPermission(SystemPermissions.ManageRoles)]
+    [HasPermission(SystemPermissions.RolePermissionsUpdate)]
     [HttpPost("{roleId:guid}/permissions/grant")]
     public async Task<IActionResult> GrantPermission([FromRoute] Guid tenantId, [FromRoute] Guid roleId, [FromBody] UpdatePermissionsRequest request, CancellationToken ct)
     {
@@ -67,7 +67,7 @@ public class RolesController(IMediator mediator) : ApiController
         return result.ToActionResult();
     }
 
-    [HasPermission(SystemPermissions.ManageRoles)]
+    [HasPermission(SystemPermissions.RolePermissionsUpdate)]
     [HttpPost("{roleId:guid}/permissions/revoke")]
     public async Task<IActionResult> RevokePermission([FromRoute] Guid tenantId, [FromRoute] Guid roleId, [FromBody] UpdatePermissionsRequest request, CancellationToken ct)
     {

@@ -1,4 +1,4 @@
-﻿using InvoiceFlow.BuildingBlocks.Authorization;
+using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.BuildingBlocks.Authorization.Policies;
 using InvoiceFlow.Identity.Application;
 using MediatR;
@@ -12,7 +12,7 @@ namespace InvoiceFlow.Identity.Api;
 public class UsersController(IMediator mediator) : ApiController
 {
     [TenantUserLogin]
-    [HasPermission(SystemPermissions.ManageUsers)]
+    [HasPermission(SystemPermissions.UserRead)]
     [HttpGet("{userId:guid}")]
     public async Task<IActionResult> GetById([FromRoute] Guid tenantId, [FromRoute] Guid userId, CancellationToken ct)
     {
@@ -21,7 +21,7 @@ public class UsersController(IMediator mediator) : ApiController
     }
 
     [TenantUserLogin]
-    [HasPermission(SystemPermissions.ManageUsers)]
+    [HasPermission(SystemPermissions.UserRead)]
     [HttpGet]
     public async Task<IActionResult> GetAll([FromRoute] Guid tenantId, CancellationToken ct)
     {
@@ -30,7 +30,7 @@ public class UsersController(IMediator mediator) : ApiController
     }
 
     [TenantUserLogin]
-    [HasPermission(SystemPermissions.ManageUsers)]
+    [HasPermission(SystemPermissions.UserCreate)]
     [HttpPost]
     public async Task<IActionResult> Create([FromRoute] Guid tenantId, [FromBody] CreateUserRequest request, CancellationToken ct)
     {
@@ -41,7 +41,7 @@ public class UsersController(IMediator mediator) : ApiController
     }
 
     [TenantUserLogin]
-    [HasPermission(SystemPermissions.ManageUsers)]
+    [HasPermission(SystemPermissions.UserUpdate)]
     [HttpPut("{userId:guid}")]
     public async Task<IActionResult> Update([FromRoute] Guid tenantId, [FromRoute] Guid userId, [FromBody] UpdateUserRequest request, CancellationToken ct)
     {
@@ -50,7 +50,7 @@ public class UsersController(IMediator mediator) : ApiController
     }
 
     [TenantUserLogin]
-    [HasPermission(SystemPermissions.ManageUsers)]
+    [HasPermission(SystemPermissions.UserStatusManage)]
     [HttpPost("activate/{userId:guid}")]
     public async Task<IActionResult> Activate([FromRoute] Guid tenantId, [FromRoute] Guid userId, CancellationToken ct)
     {
@@ -59,7 +59,7 @@ public class UsersController(IMediator mediator) : ApiController
     }
 
     [TenantUserLogin]
-    [HasPermission(SystemPermissions.ManageUsers)]
+    [HasPermission(SystemPermissions.UserStatusManage)]
     [HttpDelete("deactivate/{userId:guid}")]
     public async Task<IActionResult> Deactivate([FromRoute] Guid tenantId, [FromRoute] Guid userId, CancellationToken ct)
     {
@@ -68,7 +68,7 @@ public class UsersController(IMediator mediator) : ApiController
     }
 
     [TenantUserLogin]
-    [HasPermission(SystemPermissions.ManageUsers)]
+    [HasPermission(SystemPermissions.UserRoleManage)]
     [HttpPost("{userId:guid}/roles")]
     public async Task<IActionResult> AssignRole([FromRoute] Guid tenantId, [FromRoute] Guid userId, [FromBody] AssignRoleRequest request, CancellationToken ct)
     {
@@ -77,7 +77,7 @@ public class UsersController(IMediator mediator) : ApiController
     }
 
     [TenantUserLogin]
-    [HasPermission(SystemPermissions.ManageUsers)]
+    [HasPermission(SystemPermissions.UserRoleManage)]
     [HttpDelete("{userId:guid}/roles/{roleId:guid}")]
     public async Task<IActionResult> RevokeRole([FromRoute] Guid tenantId, [FromRoute] Guid userId, [FromRoute] Guid roleId, CancellationToken ct)
     {

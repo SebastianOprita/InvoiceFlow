@@ -21,7 +21,7 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
                 code => code.Value,
                 value => ProductCode.Create(value))
             .HasMaxLength(ProductCode.MaxLength)
-            .HasColumnName("ProductCode")
+            .HasColumnName("Code")
             .IsRequired();
 
         builder.Property(x => x.Name)

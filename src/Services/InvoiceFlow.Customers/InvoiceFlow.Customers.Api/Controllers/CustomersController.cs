@@ -1,4 +1,4 @@
-﻿using InvoiceFlow.BuildingBlocks.Authorization.Policies;
+using InvoiceFlow.BuildingBlocks.Authorization.Policies;
 using InvoiceFlow.Customers.Application;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -47,7 +47,7 @@ public class CustomersController(IMediator mediator) : ControllerBase
     }
 
     [HttpPost("activate/{customerId:guid}")]
-    [HasPermission(SystemPermissions.CustomerDelete)]
+    [HasPermission(SystemPermissions.CustomerStatusManage)]
     public async Task<IActionResult> Activate([FromRoute] Guid tenantId, [FromRoute] Guid customerId, CancellationToken ct)
     {
         var result = await mediator.Send(new ActivateCustomerCommand(tenantId, customerId), ct);
@@ -55,7 +55,7 @@ public class CustomersController(IMediator mediator) : ControllerBase
     }
 
     [HttpDelete("deactivate/{customerId:guid}")]
-    [HasPermission(SystemPermissions.CustomerDelete)]
+    [HasPermission(SystemPermissions.CustomerStatusManage)]
     public async Task<IActionResult> Deactivate([FromRoute] Guid tenantId, [FromRoute] Guid customerId, CancellationToken ct)
     {
         var result = await mediator.Send(new DeactivateCustomerCommand(tenantId, customerId), ct);

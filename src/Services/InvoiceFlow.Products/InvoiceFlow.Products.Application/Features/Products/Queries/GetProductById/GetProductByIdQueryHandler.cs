@@ -1,5 +1,4 @@
-﻿using InvoiceFlow.BuildingBlocks.Application;
-using InvoiceFlow.Products.Application.Features;
+using InvoiceFlow.BuildingBlocks.Application;
 using MediatR;
 
 namespace InvoiceFlow.Products.Application;

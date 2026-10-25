@@ -25,10 +25,7 @@ public sealed class ProductsApiTests : IAsyncLifetime
         _baseUrl = $"/api/{_tenantId}/products/";
         _productAccessToken = TestJwtTokenFactory.CreateAccessToken(
             _tenantId,
-            SystemPermissions.CustomerRead |
-            SystemPermissions.CustomerCreate |
-            SystemPermissions.CustomerUpdate |
-            SystemPermissions.CustomerDelete,
+            SystemPermissions.ProductRead,
             _factory.JwtSettings);
     }
 
@@ -51,7 +48,7 @@ public sealed class ProductsApiTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task GetById_WhenProductCExists_Should_ReturnOk()
+    public async Task GetById_WhenProductExists_Should_ReturnOk()
     {
         // Arrange
         string productCode = "TestProduct";

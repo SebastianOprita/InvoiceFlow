@@ -13,7 +13,7 @@ namespace InvoiceFlow.Products.Api.Controllers;
 public class ProductsController(IMediator mediator) : ControllerBase
 {
     [HttpGet]
-    [HasPermission(SystemPermissions.CustomerRead)]
+    [HasPermission(SystemPermissions.ProductRead)]
     public async Task<IActionResult> GetAll([FromRoute] Guid tenantId, CancellationToken cancellationToken)
     {
         var result = await mediator.Send(new GetProductsQuery(tenantId), cancellationToken);
@@ -21,10 +21,10 @@ public class ProductsController(IMediator mediator) : ControllerBase
     }
 
     [HttpGet("{productId:guid}")]
-    [HasPermission(SystemPermissions.CustomerRead)]
-    public async Task<IActionResult> GetById([FromRoute] Guid tenantId, [FromRoute] Guid customerId, CancellationToken cancellationToken)
+    [HasPermission(SystemPermissions.ProductRead)]
+    public async Task<IActionResult> GetById([FromRoute] Guid tenantId, [FromRoute] Guid productId, CancellationToken cancellationToken)
     {
-        var result = await mediator.Send(new GetProductByIdQuery(tenantId, customerId), cancellationToken);
+        var result = await mediator.Send(new GetProductByIdQuery(tenantId, productId), cancellationToken);
         return result.ToActionResult();
     }
 }

@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.Identity.Api.IntegrationTests.BaseTests;
 using InvoiceFlow.Identity.Application;
@@ -33,7 +33,7 @@ public sealed class UsersControllerTests : IAsyncLifetime
         return ValueTask.CompletedTask;
     }
 
-    private string GetAccessToken(SystemPermissions permission = SystemPermissions.ManageUsers)
+    private string GetAccessToken(SystemPermissions permission = SystemPermissions.RoleRead)
     {
         return TestJwtTokenFactory.CreateAccessToken(_factory.Tenant.Id, permission, _factory.JwtSettings);
     }
