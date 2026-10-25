@@ -11,8 +11,9 @@ on:
       - 'Directory.Packages.props'
       - 'Directory.Build.props'
       - 'NuGet.config'
-      - '.github/workflows/customers-ci.yml'
-      - '.github/workflows/service-ci-template.yml'
+      - 'global.json'
+      - '.github/workflows/ci-customers.yml'
+      - '.github/workflows/ci-service-template.yml'
 
   workflow_dispatch:
 
@@ -40,6 +41,8 @@ jobs:
       application_tests: src/Services/InvoiceFlow.Customers/Tests/InvoiceFlow.Customers.Application.UnitTests/InvoiceFlow.Customers.Application.UnitTests.csproj
 
       integration_tests: src/Services/InvoiceFlow.Customers/Tests/InvoiceFlow.Customers.Api.IntegrationTests/InvoiceFlow.Customers.Api.IntegrationTests.csproj
+
+      architecture_tests: src/Services/InvoiceFlow.Customers/Tests/InvoiceFlow.Customers.Application.UnitTests/InvoiceFlow.Customers.ArchitectureTests.csproj
 
       sonar_project_key: ${{ vars.CUSTOMERSSONARPROJECTKEY }}
 

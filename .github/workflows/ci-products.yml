@@ -1,0 +1,50 @@
+name: Products CI
+
+on:
+  workflow_call:
+
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/Services/InvoiceFlow.Products/**'
+      - 'Directory.Packages.props'
+      - 'Directory.Build.props'
+      - 'NuGet.config'
+      - 'global.json'
+      - '.github/workflows/ci-products.yml'
+      - '.github/workflows/ci-service-template.yml'
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: read
+  packages: read
+      
+jobs:
+  customers:
+    uses: ./.github/workflows/ci-service-template.yml
+
+    with:
+      service_name: Products
+
+      service_slug: Products
+
+      service_path: src/Services/InvoiceFlow.Products
+
+      api_project: src/Services/InvoiceFlow.Products/InvoiceFlow.Products.Api/InvoiceFlow.Products.Api.csproj
+
+      domain_tests: src/Services/InvoiceFlow.Products/Tests/InvoiceFlow.Products.Domain.UnitTests/InvoiceFlow.Products.Domain.UnitTests.csproj
+
+      application_tests: src/Services/InvoiceFlow.Products/Tests/InvoiceFlow.Products.Application.UnitTests/InvoiceFlow.Products.Application.UnitTests.csproj
+
+      integration_tests: src/Services/InvoiceFlow.Products/Tests/InvoiceFlow.Products.Api.IntegrationTests/InvoiceFlow.Products.Api.IntegrationTests.csproj
+
+      architecture_tests: src/Services/InvoiceFlow.Products/Tests/InvoiceFlow.Products.Application.UnitTests/InvoiceFlow.Products.ArchitectureTests.csproj
+
+      sonar_project_key: ${{ vars.PRODUCTSSONARPROJECTKEY }}
+
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

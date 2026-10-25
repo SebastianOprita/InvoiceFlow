@@ -50,6 +50,7 @@ jobs:
       identity: ${{ steps.filter.outputs.identity }}
       invoices: ${{ steps.filter.outputs.invoices }}
       payments: ${{ steps.filter.outputs.payments }}
+      products: ${{ steps.filter.outputs.products }}
       buildingblocks: ${{ steps.filter.outputs.buildingblocks }}
       common: ${{ steps.filter.outputs.common }}
 
@@ -74,6 +75,9 @@ jobs:
             payments:
               - 'src/Services/InvoiceFlow.Payments/**'
 
+            products:
+              - 'src/Services/InvoiceFlow.Products/**'
+
             buildingblocks:
               - 'src/BuildingBlocks/**'
 
@@ -84,8 +88,8 @@ jobs:
               - 'Directory.Build.props'
               - 'NuGet.config'
               - 'global.json'
-              - '.github/workflows/service-ci-template.yml'
-              - '.github/workflows/pr-ci.yml'
+              - '.github/workflows/ci-service-template.yml'
+              - '.github/workflows/ci-pr.yml'
   
   # ------------------------------------------------------------
   # BuildingBlocks
@@ -95,7 +99,8 @@ jobs:
     needs: changes
 
     if: >
-      needs.changes.outputs.buildingblocks == 'true'
+      needs.changes.outputs.buildingblocks == 'true' ||
+      needs.changes.outputs.common == 'true'
 
     uses: ./.github/workflows/ci-buildingblocks.yml
     secrets: inherit
@@ -157,6 +162,20 @@ jobs:
     secrets: inherit
 
   # ------------------------------------------------------------
+  # Products
+  # ------------------------------------------------------------
+  products:
+    name: Products CI
+    needs: changes
+
+    if: >
+      needs.changes.outputs.products == 'true' ||
+      needs.changes.outputs.common == 'true'
+
+    uses: ./.github/workflows/ci-products.yml
+    secrets: inherit
+
+  # ------------------------------------------------------------
   # Final required gate
   # ------------------------------------------------------------
   ci-gate:
@@ -170,6 +189,7 @@ jobs:
       - identity
       - payments
       - invoices
+      - products
 
     if: always()
 
@@ -186,6 +206,7 @@ jobs:
           echo "Identity:  ${{ needs.identity.result }}"
           echo "Invoices:  ${{ needs.invoices.result }}"
           echo "Payments:  ${{ needs.payments.result }}"
+          echo "Products:  ${{ needs.products.result }}"
           
           if [ "${{ needs.secret-scan.result }}" != "success" ]; then
             echo "Secret scan failed."
@@ -212,5 +233,6 @@ jobs:
           validate_result "Identity"  "${{ needs.identity.result }}"
           validate_result "Invoices"  "${{ needs.invoices.result }}"
           validate_result "Payments"  "${{ needs.payments.result }}"
+          validate_result "Products"  "${{ needs.products.result }}"
 
           echo "InvoiceFlow CI passed."
