@@ -24,7 +24,7 @@ permissions:
   packages: read
       
 jobs:
-  customers:
+  products:
     uses: ./.github/workflows/ci-service-template.yml
 
     with:
