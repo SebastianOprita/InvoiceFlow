@@ -5,6 +5,7 @@
   <Folder Name="/Docs/">
     <File Path="../Docs/Auth.http" />
     <File Path="../Docs/Customers.http" />
+    <File Path="../Docs/Products.http" />
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path="../.editorconfig" />

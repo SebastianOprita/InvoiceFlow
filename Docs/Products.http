@@ -1,0 +1,20 @@
+@rootUrl=https://localhost:5000/api/f305e3f0-e634-470b-b9c1-cc0c7559dc0a/products
+
+GET https://localhost:5000/api/products/errors
+
+###
+# @name login
+POST https://localhost:5000/api/f305e3f0-e634-470b-b9c1-cc0c7559dc0a/auth/login
+Content-Type: application/json
+{
+  "email": "admin@email.com",
+  "password": "admin"
+}
+
+###
+GET {{rootUrl}}
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+###
+GET {{rootUrl}}/01a1733b-f88c-7485-8b3b-4a15052b96d5
+Authorization: Bearer {{login.response.body.$.accessToken}}

@@ -1,6 +1,8 @@
 ﻿using FluentAssertions;
+using InvoiceFlow.BuildingBlocks.Api;
 using InvoiceFlow.Customers.Api.IntegrationTests.BaseTests;
 using System.Net;
+using System.Net.Http.Json;
 using Xunit;
 
 namespace InvoiceFlow.Customers.Api.IntegrationTests;
@@ -25,6 +27,11 @@ public sealed class CustomersApiInfrastructureTests
             cancellationToken: TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var catalogue = await response.Content.ReadFromJsonAsync<ErrorCatalogueResponse>(TestContext.Current.CancellationToken);
+        catalogue.Should().NotBeNull();
+        catalogue!.DomainErrors.Should().NotBeEmpty();
+        catalogue.ApplicationErrors.Should().NotBeEmpty();
     }
 
     [Fact]

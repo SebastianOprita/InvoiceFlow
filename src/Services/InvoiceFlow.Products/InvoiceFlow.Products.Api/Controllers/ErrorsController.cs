@@ -27,11 +27,11 @@ public sealed class ErrorsController : ControllerBase
 
     private static ErrorDefinitionResponse[] GetDomainErrors()
     {
-        return GetStaticProperties(typeof(DomainErrors))
-            .Where(property => property.PropertyType == typeof(DomainError))
-            .Select(property =>
+        return GetStaticFields(typeof(DomainErrors))
+            .Where(field => field.FieldType == typeof(DomainError))
+            .Select(field =>
             {
-                var error = (DomainError)property.GetValue(null)!;
+                var error = (DomainError)field.GetValue(null)!;
 
                 return new ErrorDefinitionResponse(
                     Code: error.ErrorCode,
@@ -45,11 +45,11 @@ public sealed class ErrorsController : ControllerBase
 
     private static ErrorDefinitionResponse[] GetApplicationErrors()
     {
-        return GetStaticProperties(typeof(ApplicationErrors))
-            .Where(property => property.PropertyType == typeof(ApplicationError))
-            .Select(property =>
+        return GetStaticFields(typeof(ApplicationErrors))
+            .Where(field => field.FieldType == typeof(ApplicationError))
+            .Select(field =>
             {
-                var error = (ApplicationError)property.GetValue(null)!;
+                var error = (ApplicationError)field.GetValue(null)!;
 
                 return new ErrorDefinitionResponse(
                     Code: error.Code,
@@ -61,9 +61,9 @@ public sealed class ErrorsController : ControllerBase
             .ToArray();
     }
 
-    private static PropertyInfo[] GetStaticProperties(Type type)
+    private static FieldInfo[] GetStaticFields(Type type)
     {
-        return type.GetProperties(
+        return type.GetFields(
             BindingFlags.Public |
             BindingFlags.Static);
     }

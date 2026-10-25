@@ -1,4 +1,5 @@
-﻿using InvoiceFlow.BuildingBlocks.Application;
+using InvoiceFlow.BuildingBlocks.Application;
+using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.Identity.Domain;
 
 namespace InvoiceFlow.Identity.Infrastructure;
@@ -29,13 +30,24 @@ public static class IdentityDbSeed
             RoleName.Create("Admin"),
             dateTimeProvider.GetUtcNow(),
             RoleDescription.CreateOptional("Administration role with full permissions."));
-        role.GrantPermission(1L << 3, dateTimeProvider.GetUtcNow());
-        role.GrantPermission(1L << 4, dateTimeProvider.GetUtcNow());
-        role.GrantPermission(1L << 5, dateTimeProvider.GetUtcNow());
-        role.GrantPermission(1L << 6, dateTimeProvider.GetUtcNow());
-        role.GrantPermission(1L << 1, dateTimeProvider.GetUtcNow());
-        role.GrantPermission(1L << 0, dateTimeProvider.GetUtcNow());
+        role.GrantPermission((long)SystemPermissions.CustomerRead, dateTimeProvider.GetUtcNow());
+        role.GrantPermission((long)SystemPermissions.CustomerCreate, dateTimeProvider.GetUtcNow());
+        role.GrantPermission((long)SystemPermissions.CustomerUpdate, dateTimeProvider.GetUtcNow());
+        role.GrantPermission((long)SystemPermissions.UserRead, dateTimeProvider.GetUtcNow());
+        role.GrantPermission((long)SystemPermissions.UserCreate, dateTimeProvider.GetUtcNow());
+        role.GrantPermission((long)SystemPermissions.UserUpdate, dateTimeProvider.GetUtcNow());
+        role.GrantPermission((long)SystemPermissions.UserStatusManage, dateTimeProvider.GetUtcNow());
+        role.GrantPermission((long)SystemPermissions.UserRoleManage, dateTimeProvider.GetUtcNow());
+        role.GrantPermission((long)SystemPermissions.RoleRead, dateTimeProvider.GetUtcNow());
+        role.GrantPermission((long)SystemPermissions.RoleCreate, dateTimeProvider.GetUtcNow());
+        role.GrantPermission((long)SystemPermissions.RoleUpdate, dateTimeProvider.GetUtcNow());
+        role.GrantPermission((long)SystemPermissions.RoleStatusManage, dateTimeProvider.GetUtcNow());
+        role.GrantPermission((long)SystemPermissions.RolePermissionsUpdate, dateTimeProvider.GetUtcNow());
 
+        role.GrantPermission((long)SystemPermissions.ProductRead, dateTimeProvider.GetUtcNow());
+        role.GrantPermission((long)SystemPermissions.ProductCreate, dateTimeProvider.GetUtcNow());
+        role.GrantPermission((long)SystemPermissions.ProductUpdate, dateTimeProvider.GetUtcNow());
+        role.GrantPermission((long)SystemPermissions.ProductStatusManage, dateTimeProvider.GetUtcNow());
         user.AssignRole(role.Id, dateTimeProvider.GetUtcNow());
 
         await db.Tenants.AddAsync(tenant);
