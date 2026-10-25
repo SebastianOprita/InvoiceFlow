@@ -1,0 +1,110 @@
+using InvoiceFlow.BuildingBlocks.Application;
+using InvoiceFlow.Invoices.Domain;
+using MediatR;
+
+namespace InvoiceFlow.Invoices.Application;
+
+internal sealed class CreateInvoiceCommandHandler(
+    IInvoiceRepository invoiceRepository,
+    IIdempotencyRepository idempotencyRepository,
+    ICustomerService customerService,
+    IRequestHasher requestHasher,
+    IUnitOfWork unitOfWork,
+    ISystemDateTimeProvider dateTimeProvider)
+    : IRequestHandler<CreateInvoiceCommand, Result<InvoiceDto>>
+{
+    public async Task<Result<InvoiceDto>> Handle(
+        CreateInvoiceCommand cmd,
+        CancellationToken cancellationToken)
+    {
+        var key = IdempotencyKey.Create(cmd.IdempotencyKey);
+
+        var hashResult = requestHasher.Hash(
+            new {
+                cmd.TenantId,
+                cmd.CustomerCode,
+                cmd.Notes
+            });
+
+        if (hashResult.IsFailure || hashResult.Value is null)
+            return Result<InvoiceDto>.Failure(hashResult);
+
+        var requestHash = hashResult.Value;
+
+        var existing = await idempotencyRepository.GetIdempotencyRecordAsync(
+            cmd.TenantId,
+            IdempotencyOperation.CreateInvoice,
+            key,
+            cancellationToken);
+
+        if (existing is not null)
+            return await ReplayAsync(existing, requestHash, cancellationToken);
+
+        var customerResult = await customerService.GetCustomerAsync(
+            cmd.TenantId,
+            cmd.CustomerCode,
+            cancellationToken);
+
+        if (customerResult.IsFailure || customerResult.Value is null)
+            return Result<InvoiceDto>.Failure(customerResult);
+
+        var now = dateTimeProvider.GetUtcNow();
+
+        return await unitOfWork.ExecuteInTransactionAsync(
+        async ct =>
+        {
+            var transactionExisting = await idempotencyRepository.GetIdempotencyRecordAsync(
+                tenantId: cmd.TenantId,
+                operation: IdempotencyOperation.CreateInvoice,
+                key: key,
+                cancellationToken: ct);
+
+            if (transactionExisting is not null)
+                return await ReplayAsync(transactionExisting, requestHash, ct);
+
+            var invoice = Invoice.Create(
+                tenantId: cmd.TenantId,
+                id: Guid.CreateVersion7(),
+                customer: customerResult.Value,
+                notes: InvoiceNotes.CreateOptional(cmd.Notes),
+                createdAtUtc: now);
+
+            invoiceRepository.AddInvoice(invoice);
+
+            idempotencyRepository.Add(
+                IdempotencyRecord.Create(
+                    cmd.TenantId,
+                    IdempotencyOperation.CreateInvoice,
+                    key,
+                    requestHash,
+                    invoice.Id,
+                    now));
+
+            var result = await unitOfWork.SaveChangesAsync(ct);
+            if (result.IsFailure)
+                return Result<InvoiceDto>.Failure(result);
+
+            return Result<InvoiceDto>.Success(invoice.ToDto());
+        },
+        cancellationToken);
+    }
+
+    private async Task<Result<InvoiceDto>> ReplayAsync(
+        IdempotencyRecord record,
+        RequestHash requestHash,
+        CancellationToken cancellationToken)
+    {
+        if (!record.MatchesRequest(requestHash))
+            return Result<InvoiceDto>.Failure(ApplicationErrors.IdempotencyKeyReused);
+
+        var invoice = await invoiceRepository.GetInvoiceByIdAsync(
+            record.TenantId,
+            record.ResourceId,
+            cancellationToken);
+
+        if (invoice is null)
+            return Result<InvoiceDto>.Failure(ApplicationErrors.IdempotencyResourceNotFound);
+
+        return Result<InvoiceDto>.Success(invoice.ToDto());
+    }
+}

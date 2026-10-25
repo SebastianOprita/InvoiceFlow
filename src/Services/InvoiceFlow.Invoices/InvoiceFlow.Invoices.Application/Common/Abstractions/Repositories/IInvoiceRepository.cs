@@ -1,12 +1,14 @@
-﻿using InvoiceFlow.Invoices.Domain;
+using InvoiceFlow.Invoices.Domain;
 
 namespace InvoiceFlow.Invoices.Application;
 
 public interface IInvoiceRepository
 {
+    Task<Invoice?> GetInvoiceByIdAsync(Guid tenantId, Guid invoiceId, CancellationToken cancellationToken = default);
     Task<Invoice?> GetForIssuingAsync(
         Guid tenantId,
-        Guid invoiceId,
+        Guid Id,
         CancellationToken cancellationToken = default);
 
+    void AddInvoice(Invoice invoice);
 }

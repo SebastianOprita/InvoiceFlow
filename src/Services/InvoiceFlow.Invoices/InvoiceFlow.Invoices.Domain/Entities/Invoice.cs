@@ -1,4 +1,4 @@
-﻿using InvoiceFlow.BuildingBlocks.Domain;
+using InvoiceFlow.BuildingBlocks.Domain;
 using System.Diagnostics.CodeAnalysis;
 
 namespace InvoiceFlow.Invoices.Domain;
@@ -60,8 +60,6 @@ public sealed class Invoice
         Guid tenantId,
         Guid id,
         InvoiceCustomerSnapshot customer,
-        CurrencyCode currencyCode,
-        PaymentTermDays paymentTermDays,
         InvoiceNotes? notes,
         DateTimeOffset createdAtUtc)
     {
@@ -71,17 +69,17 @@ public sealed class Invoice
 
         CopyCustomerSnapshot(customer);
 
-        CurrencyCode = currencyCode;
-        PaymentTermDays = paymentTermDays;
+        CurrencyCode = customer.CurrencyCode;
+        PaymentTermDays = customer.PaymentTermDays;
         Notes = notes;
 
         Status = InvoiceStatus.Draft;
 
-        DiscountAmount = Money.Zero(currencyCode);
-        NetAmount = Money.Zero(currencyCode);
-        TaxAmount = Money.Zero(currencyCode);
-        GrossAmount = Money.Zero(currencyCode);
-        PaidAmount = Money.Zero(currencyCode);
+        DiscountAmount = Money.Zero(customer.CurrencyCode);
+        NetAmount = Money.Zero(customer.CurrencyCode);
+        TaxAmount = Money.Zero(customer.CurrencyCode);
+        GrossAmount = Money.Zero(customer.CurrencyCode);
+        PaidAmount = Money.Zero(customer.CurrencyCode);
 
         CreatedAtUtc = createdAtUtc;
     }
@@ -90,8 +88,6 @@ public sealed class Invoice
         Guid tenantId,
         Guid id,
         InvoiceCustomerSnapshot customer,
-        CurrencyCode currencyCode,
-        PaymentTermDays paymentTermDays,
         InvoiceNotes? notes,
         DateTimeOffset createdAtUtc)
     {
@@ -111,8 +107,6 @@ public sealed class Invoice
             tenantId,
             id,
             customer,
-            currencyCode,
-            paymentTermDays,
             notes,
             createdAtUtc.ToUniversalTime());
     }
