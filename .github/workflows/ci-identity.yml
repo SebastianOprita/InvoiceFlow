@@ -11,8 +11,9 @@ on:
       - 'Directory.Packages.props'
       - 'Directory.Build.props'
       - 'NuGet.config'
-      - '.github/workflows/identity-ci.yml'
-      - '.github/workflows/service-ci-template.yml'
+      - 'global.json'
+      - '.github/workflows/ci-identity.yml'
+      - '.github/workflows/ci-service-template.yml'
   
   workflow_dispatch:
 
@@ -40,6 +41,8 @@ jobs:
       application_tests: src/Services/InvoiceFlow.Identity/Tests/InvoiceFlow.Identity.Application.UnitTests/InvoiceFlow.Identity.Application.UnitTests.csproj
 
       integration_tests: src/Services/InvoiceFlow.Identity/Tests/InvoiceFlow.Identity.Api.IntegrationTests/InvoiceFlow.Identity.Api.IntegrationTests.csproj
+
+      architecture_tests: src/Services/InvoiceFlow.Identity/Tests/InvoiceFlow.Identity.ArchitectureTests/InvoiceFlow.Identity.ArchitectureTests.csproj
 
       sonar_project_key: ${{ vars.IDENTITYSONARPROJECTKEY }}
 

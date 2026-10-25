@@ -8,7 +8,7 @@ public sealed class RolePermissionsTests
 {
     private const long PermissionA = 1L << 3; // CustomerRead
     private const long PermissionB = 1L << 4; // CustomerCreate
-    private const long InvalidPermission = 1L << 13;
+    private const long InvalidPermission = 1L << 31;
 
 
     [Fact]

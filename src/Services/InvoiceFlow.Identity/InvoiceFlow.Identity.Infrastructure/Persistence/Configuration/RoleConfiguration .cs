@@ -38,6 +38,8 @@ public sealed class RoleConfiguration : IEntityTypeConfiguration<Role>
             .HasColumnName("Permissions")
             .IsRequired();
 
+        builder.Property(x => x.IsActive).IsRequired();
+
         builder.Property(x => x.CreatedAtUtc).IsRequired();
 
         builder.Property(x => x.UpdatedAtUtc);

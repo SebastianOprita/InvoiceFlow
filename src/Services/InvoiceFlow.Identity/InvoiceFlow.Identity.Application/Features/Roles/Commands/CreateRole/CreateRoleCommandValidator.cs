@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 using InvoiceFlow.Identity.Domain;
 
 namespace InvoiceFlow.Identity.Application;
@@ -18,7 +18,7 @@ internal sealed class CreateRoleCommandValidator : AbstractValidator<CreateRoleC
             .When(x => !string.IsNullOrWhiteSpace(x.Description));
 
         RuleFor(x => x.Permissions)
-            .Must(p => RolePermissions.IsValid(p))
-            .WithMessage("Permissions contain invalid flags.");
+            .Must(p => RolePermissions.IsSinglePermission(p))
+            .WithMessage("Exactly one valid permission is required.");
     }
 }

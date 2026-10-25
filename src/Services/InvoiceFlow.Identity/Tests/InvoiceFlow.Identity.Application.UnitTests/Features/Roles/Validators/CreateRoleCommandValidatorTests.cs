@@ -65,7 +65,7 @@ public class CreateRoleCommandValidatorTests
     public void Should_Have_Error_When_Permissions_Are_Invalid()
     {
         // Arrange
-        var invalidPermissions = (long)999999;
+        var invalidPermissions = 1L << 31;
 
         var command = new CreateRoleCommand(
             Guid.CreateVersion7(),
@@ -78,7 +78,27 @@ public class CreateRoleCommandValidatorTests
 
         // Assert
         result.ShouldHaveValidationErrorFor(x => x.Permissions)
-            .WithErrorMessage("Permissions contain invalid flags.");
+            .WithErrorMessage("Exactly one valid permission is required.");
+    }
+
+    [Fact]
+    public void Should_Have_Error_When_Multiple_Permissions()
+    {
+        // Arrange
+        var multiplePermissions = 1L << 3 | 1L << 4;
+
+        var command = new CreateRoleCommand(
+            Guid.CreateVersion7(),
+            "Admin",
+            null,
+            multiplePermissions);
+
+        // Act
+        var result = _validator.TestValidate(command);
+
+        // Assert
+        result.ShouldHaveValidationErrorFor(x => x.Permissions)
+            .WithErrorMessage("Exactly one valid permission is required.");
     }
 
     [Fact]
@@ -89,7 +109,7 @@ public class CreateRoleCommandValidatorTests
             Guid.CreateVersion7(),
             "Admin",
             "Administrator role",
-            1L << 3 | 1L << 4);
+            1L << 3);
 
         // Act
         var result = _validator.TestValidate(command);

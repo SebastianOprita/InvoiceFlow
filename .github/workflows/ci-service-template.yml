@@ -31,6 +31,10 @@ on:
         required: true
         type: string
 
+      architecture_tests:
+        required: true
+        type: string
+
       sonar_project_key:
         required: true
         type: string
@@ -68,7 +72,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: '10.0.x'
+          global-json-file: global.json
           source-url: https://nuget.pkg.github.com/SebastianOprita/index.json
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -146,6 +150,21 @@ jobs:
           --
           --report-trx
           --report-trx-filename application-tests.trx
+          --coverlet
+          --coverlet-output-format cobertura
+          --coverlet-output-format opencover
+          --coverlet-include "[InvoiceFlow.${{ inputs.service_name }}.*]*"
+          --coverlet-exclude-by-file "**/Migrations/*.cs"
+
+      - name: Run Architecture tests
+        run: >
+          dotnet test
+          "${{ inputs.architecture_tests }}"
+          --configuration Release
+          --results-directory TestResults/Architecture
+          --
+          --report-trx
+          --report-trx-filename architecture-tests.trx
           --coverlet
           --coverlet-output-format cobertura
           --coverlet-output-format opencover

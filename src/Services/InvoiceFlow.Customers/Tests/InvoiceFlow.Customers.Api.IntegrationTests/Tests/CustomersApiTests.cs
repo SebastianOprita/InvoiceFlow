@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.Customers.Api.IntegrationTests.BaseTests;
 using InvoiceFlow.Customers.Application;
@@ -28,7 +28,7 @@ public sealed class CustomersApiTests : IAsyncLifetime
             SystemPermissions.CustomerRead |
             SystemPermissions.CustomerCreate |
             SystemPermissions.CustomerUpdate |
-            SystemPermissions.CustomerDelete,
+            SystemPermissions.CustomerStatusManage,
             _factory.JwtSettings);
     }
 

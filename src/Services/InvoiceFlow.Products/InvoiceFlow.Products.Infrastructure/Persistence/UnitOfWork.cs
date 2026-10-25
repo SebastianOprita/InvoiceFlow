@@ -1,0 +1,53 @@
+using InvoiceFlow.BuildingBlocks.Application;
+using InvoiceFlow.Products.Application;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+
+namespace InvoiceFlow.Products.Infrastructure;
+
+public sealed class UnitOfWork : IUnitOfWork
+{
+    private readonly ProductsDbContext _dbContext;
+    private readonly ILogger<UnitOfWork> _logger;
+
+    public UnitOfWork(
+        ProductsDbContext dbContext,
+        ILogger<UnitOfWork> logger)
+    {
+        _dbContext = dbContext;
+        _logger = logger;
+    }
+
+    public async Task<Result> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            await _dbContext.SaveChangesAsync(cancellationToken);
+            return Result.Success();
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            _logger.LogWarning(ex, "Concurrency conflict while saving changes.");
+
+            return Result.Failure(ApplicationErrors.ConcurrencyConflict);
+        }
+        catch (OperationCanceledException)
+        when (cancellationToken.IsCancellationRequested)
+        {
+            _logger.LogDebug("SaveChanges was cancelled.");
+            throw;
+        }
+    }
+
+    public void Dispose()
+    {
+        _dbContext.Dispose();
+        GC.SuppressFinalize(this);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await _dbContext.DisposeAsync();
+        GC.SuppressFinalize(this);
+    }
+}

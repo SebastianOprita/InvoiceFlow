@@ -1,23 +1,71 @@
-var builder = WebApplication.CreateBuilder(args);
+using InvoiceFlow.BuildingBlocks.Api;
+using InvoiceFlow.BuildingBlocks.Authorization.ExtensionMethods;
+using InvoiceFlow.Products.Application;
+using InvoiceFlow.Products.Infrastructure;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
-// Add services to the container.
-
-builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+try
 {
-    app.MapOpenApi();
+    var builder = WebApplication.CreateBuilder(args);
+
+    builder.Services.AddControllers();
+    builder.Services.AddOpenApi();
+    builder.Services.AddHttpContextAccessor();
+
+    builder.Services.AddInvoiceFlowExceptionHandling();
+    builder.AddInvoiceFlowObservability(builder.Environment.ApplicationName);
+
+    builder.Services.AddInvoiceFlowAuthentication(builder.Configuration);
+    builder.Services.AddInvoiceFlowAuthorization();
+
+    builder.Services.AddApplicationServices();
+    builder.Services.AddInfrastructureServices(builder.Configuration);
+
+    builder.Services.AddHttpContextAccessor();
+
+    builder.Services
+        .AddHealthChecks()
+        .AddCheck("self", () => HealthCheckResult.Healthy(), tags: ["live"])
+        .AddDbContextCheck<ProductsDbContext>(name: "products-database", tags: ["ready"]);
+
+    var app = builder.Build();
+
+    if (app.Environment.IsDevelopment())
+    {
+        app.MapOpenApi();
+    }
+
+    app.UseExceptionHandler();
+
+    app.UseHttpsRedirection();
+
+    app.UseAuthentication();
+    app.UseAuthorization();
+
+    app.MapControllers();
+
+    app.MapHealthChecks("/health/live", new HealthCheckOptions
+    {
+        Predicate = (check) => check.Tags.Contains("live")
+    });
+
+    app.MapHealthChecks("/health/ready", new HealthCheckOptions
+    {
+        Predicate = (check) => check.Tags.Contains("ready")
+    });
+
+    if (app.Environment.IsDevelopment())
+    {
+        await app.Services.ConfigureInfrastructureServicesAsync();
+    }
+
+    await app.RunAsync();
+
 }
+catch (Exception ex)
+{
+    await Console.Error.WriteLineAsync($"Application terminated unexpectedly: {ex}");
 
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();
+    throw;
+}

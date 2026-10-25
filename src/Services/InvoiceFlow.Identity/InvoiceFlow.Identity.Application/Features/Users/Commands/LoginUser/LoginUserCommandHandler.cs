@@ -30,7 +30,7 @@ internal class LoginUserCommandHandler(
         if (userWithPermissions is null || !userWithPermissions.IsActive)
             return Result<LoginUserCommandResponse>.Failure(ApplicationErrors.UserUnauthorized);
 
-        var aggregatedPermissions = userWithPermissions.UserRoles.Select(ur => ur.Role.Permissions)
+        var aggregatedPermissions = userWithPermissions.UserRoles.Where(ur => ur.Role.IsActive).Select(ur => ur.Role.Permissions)
             .Aggregate(RolePermissions.None.Value, (current, rolePermissions) => current | rolePermissions.Value);
 
         var accessToken = tokenService.GenerateUserAccessToken(

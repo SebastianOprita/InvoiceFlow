@@ -1,10 +1,10 @@
-﻿using InvoiceFlow.BuildingBlocks.Domain;
+using InvoiceFlow.BuildingBlocks.Domain;
 
 namespace InvoiceFlow.Identity.Domain;
 
 public sealed record RolePermissions
 {
-    private const long ValidPermissionsMask = (1L << 13) - 1;
+    private const long ValidPermissionsMask = (1L << 31) - 1;
     public static readonly RolePermissions None = new(0);
 
     public long Value { get; }
@@ -47,12 +47,17 @@ public sealed record RolePermissions
         if (permission == None.Value)
             throw new DomainException(DomainErrors.PermissionRequired);
 
-        if (!IsValid(permission))
+        if (!IsValid(permission) || (permission & (permission - 1)) != 0)
             throw new DomainException(DomainErrors.PermissionInvalid);
     }
 
     public static bool IsValid(long value)
         => value >= 0 && (value & ~ValidPermissionsMask) == 0;
+
+    public  static bool IsSinglePermission(long permission)
+        => permission > 0 &&
+           IsValid(permission) &&
+           (permission & (permission - 1)) == 0;
 
     public override string ToString() => Value.ToString();
 }
