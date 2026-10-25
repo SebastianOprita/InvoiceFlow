@@ -9,5 +9,4 @@ public interface IRolesRepository
     public Task<Role?> GetTrackedRoleByIdAsync(Guid tenantId, Guid roleId, CancellationToken cancellationToken = default);
     public Task<bool> ExistsByNameAsync(Guid tenantId, RoleName name, CancellationToken cancellationToken = default);
     public void AddRole(Role role);
-    public void RemoveRole(Role role);
 }

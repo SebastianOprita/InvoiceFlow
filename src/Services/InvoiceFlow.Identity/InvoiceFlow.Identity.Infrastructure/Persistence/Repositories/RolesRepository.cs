@@ -29,8 +29,4 @@ internal class RolesRepository(IdentityDbContext dbContext) : IRolesRepository
     {
         dbContext.Roles.Add(role);
     }
-    public void RemoveRole(Role role) 
-    {
-        dbContext.Roles.Remove(role);
-    }
 }

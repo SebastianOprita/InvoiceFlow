@@ -25,14 +25,14 @@ internal class ImpersonateUserCommandHandler(
             return Result<ImpersonateUserCommandResponse>.Failure(ApplicationErrors.UserUnauthorized);
 
         var existingUser = await usersRepository.GetUserByEmailAsync(cmd.TargetUserTenantId, UserEmail.Create(cmd.TargetUserEmail), cancellationToken);
-        if (existingUser is null)
+        if (existingUser is null || !existingUser.IsActive)
             return Result<ImpersonateUserCommandResponse>.Failure(ApplicationErrors.UserUnauthorized);
 
         var userWithPermissions = await usersRepository.GetUserByIdWithPermissionsAsync(existingUser.TenantId, existingUser.Id, cancellationToken);
         if (userWithPermissions is null)
             return Result<ImpersonateUserCommandResponse>.Failure(ApplicationErrors.UserUnauthorized);
 
-        var aggregatedPermissions = userWithPermissions.UserRoles.Select(ur => ur.Role.Permissions)
+        var aggregatedPermissions = userWithPermissions.UserRoles.Where(ur => ur.Role.IsActive).Select(ur => ur.Role.Permissions)
             .Aggregate(RolePermissions.None.Value, (current, rolePermissions) => current | rolePermissions.Value);
 
         var impersonationToken = tokenService.GenerateImpersonationToken(

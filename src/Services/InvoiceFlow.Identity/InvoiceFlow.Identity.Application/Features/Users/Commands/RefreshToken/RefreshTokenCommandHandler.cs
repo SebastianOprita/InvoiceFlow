@@ -33,7 +33,7 @@ internal class RefreshTokenCommandHandler(
         if (userWithPermissions is null || !userWithPermissions.IsActive)
             return Result<RefreshTokenResponse>.Failure(ApplicationErrors.UserNotFound);
 
-        var aggregatedPermissions = userWithPermissions.UserRoles.Select(ur => ur.Role.Permissions)
+        var aggregatedPermissions = userWithPermissions.UserRoles.Where(ur => ur.Role.IsActive).Select(ur => ur.Role.Permissions)
             .Aggregate(RolePermissions.None.Value, (current, rolePermissions) => current | rolePermissions.Value);
 
         var accessToken = tokenService.GenerateUserAccessToken(

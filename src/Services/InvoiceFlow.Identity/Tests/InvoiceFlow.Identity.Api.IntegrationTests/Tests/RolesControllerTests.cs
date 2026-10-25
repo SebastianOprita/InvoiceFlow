@@ -189,26 +189,54 @@ public sealed class RolesApiControllerTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task Delete_WhenRoleExists_Should_ReturnNoContent()
+    public async Task Deactivate_WhenRoleExists_Should_ReturnNoContent()
     {
         // Arrange
         string name = "role";
         var createRoleId = await _factory.InsertRoleAsync(_factory.Tenant.Id, name);
 
         // Act
-        var response = await _client.SendAsync(HttpMethod.Delete, GetUrl(createRoleId.ToString()), GetAccessToken(), TestContext.Current.CancellationToken);
+        var response = await _client.SendAsync(HttpMethod.Delete, GetUrl($"deactivate/{createRoleId}"), GetAccessToken(), TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+        var roleResponse = await _client.SendAsync(HttpMethod.Get, GetUrl(createRoleId.ToString()), GetAccessToken(), TestContext.Current.CancellationToken);
+        var role = await roleResponse.Content.ReadFromJsonAsync<RoleDto>(TestContext.Current.CancellationToken);
+        role.Should().NotBeNull();
+        role!.IsActive.Should().BeFalse();
     }
 
     [Fact]
-    public async Task Delete_WhenRoleDoesNotExists_Should_ReturnNotFound()
+    public async Task Deactivate_WhenRoleDoesNotExists_Should_ReturnNotFound()
     {
         // Act
-        var response = await _client.SendAsync(HttpMethod.Delete, GetUrl(Guid.CreateVersion7().ToString()), GetAccessToken(), TestContext.Current.CancellationToken);
+        var response = await _client.SendAsync(HttpMethod.Delete, GetUrl($"deactivate/{Guid.CreateVersion7()}"), GetAccessToken(), TestContext.Current.CancellationToken);
 
         // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task Activate_WhenRoleExists_Should_ReturnNoContentAndMarkRoleActive()
+    {
+        var roleId = await _factory.InsertRoleAsync(_factory.Tenant.Id, "inactive-role");
+        await _client.SendAsync(HttpMethod.Delete, GetUrl($"deactivate/{roleId}"), GetAccessToken(), TestContext.Current.CancellationToken);
+
+        var response = await _client.SendAsync(HttpMethod.Post, GetUrl($"activate/{roleId}"), GetAccessToken(), TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+        var roleResponse = await _client.SendAsync(HttpMethod.Get, GetUrl(roleId.ToString()), GetAccessToken(), TestContext.Current.CancellationToken);
+        var role = await roleResponse.Content.ReadFromJsonAsync<RoleDto>(TestContext.Current.CancellationToken);
+        role.Should().NotBeNull();
+        role!.IsActive.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task Activate_WhenRoleDoesNotExist_Should_ReturnNotFound()
+    {
+        var response = await _client.SendAsync(HttpMethod.Post, GetUrl($"activate/{Guid.CreateVersion7()}"), GetAccessToken(), TestContext.Current.CancellationToken);
+
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
@@ -284,7 +312,8 @@ public sealed class RolesApiControllerTests : IAsyncLifetime
         [HttpMethod.Get,    "/api/{tenantId}/roles/{roleId}"],
         [HttpMethod.Post,   "/api/{tenantId}/roles"],
         [HttpMethod.Put,    "/api/{tenantId}/roles/{roleId}"],
-        [HttpMethod.Delete, "/api/{tenantId}/roles/{roleId}"],
+        [HttpMethod.Post,   "/api/{tenantId}/roles/activate/{roleId}"],
+        [HttpMethod.Delete, "/api/{tenantId}/roles/deactivate/{roleId}"],
         [HttpMethod.Post,   "/api/{tenantId}/roles/{roleId}/permissions/grant"],
         [HttpMethod.Post,   "/api/{tenantId}/roles/{roleId}/permissions/revoke"]
     ];
@@ -293,7 +322,8 @@ public sealed class RolesApiControllerTests : IAsyncLifetime
     [
         [HttpMethod.Post,   "/api/{tenantId}/roles"],
         [HttpMethod.Put,    "/api/{tenantId}/roles/{roleId}"],
-        [HttpMethod.Delete, "/api/{tenantId}/roles/{roleId}"],
+        [HttpMethod.Post,   "/api/{tenantId}/roles/activate/{roleId}"],
+        [HttpMethod.Delete, "/api/{tenantId}/roles/deactivate/{roleId}"],
         [HttpMethod.Post,   "/api/{tenantId}/roles/{roleId}/permissions/grant"],
         [HttpMethod.Post,   "/api/{tenantId}/roles/{roleId}/permissions/revoke"]
     ];

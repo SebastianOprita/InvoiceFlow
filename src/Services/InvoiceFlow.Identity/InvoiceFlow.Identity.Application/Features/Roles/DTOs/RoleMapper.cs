@@ -13,6 +13,7 @@ public static class RoleMapper
             Name = role.Name.Value,
             Description = role.Description?.Value,
             Permissions = role.Permissions.Value,
+            IsActive = role.IsActive,
             CreatedAtUtc = role.CreatedAtUtc,
             UpdatedAtUtc = role.UpdatedAtUtc
         };

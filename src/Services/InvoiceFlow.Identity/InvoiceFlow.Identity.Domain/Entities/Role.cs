@@ -9,6 +9,7 @@ public sealed class Role
     public RoleName Name { get; private set; }
     public RoleDescription? Description { get; private set; }
     public RolePermissions Permissions { get; private set; }
+    public bool IsActive { get; private set; }
     public DateTimeOffset CreatedAtUtc { get; private set; }
     public DateTimeOffset? UpdatedAtUtc { get; private set; }
 
@@ -33,6 +34,7 @@ public sealed class Role
         Name = name;
         Description = description;
         Permissions = permissions ?? RolePermissions.None;
+        IsActive = true;
         CreatedAtUtc = createdAtUtc;
     }
 
@@ -91,9 +93,22 @@ public sealed class Role
         return Permissions.Has(permission);
     }
 
-    public void RemoveFromAllUsers()
+    public void Deactivate(DateTimeOffset updatedAtUtc)
     {
-        _userRoles.Clear();
+        if (!IsActive)
+            return;
+
+        IsActive = false;
+        MarkAsUpdated(updatedAtUtc);
+    }
+
+    public void Activate(DateTimeOffset updatedAtUtc)
+    {
+        if (IsActive)
+            return;
+
+        IsActive = true;
+        MarkAsUpdated(updatedAtUtc);
     }
 
     private void MarkAsUpdated(DateTimeOffset updatedAtUtc)

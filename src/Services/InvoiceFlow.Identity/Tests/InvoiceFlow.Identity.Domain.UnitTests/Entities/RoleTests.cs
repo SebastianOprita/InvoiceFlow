@@ -24,6 +24,7 @@ public class RoleTests
         role.Name.Should().Be(name);
         role.Description.Should().BeNull();
         role.Permissions.Should().Be(RolePermissions.None);
+        role.IsActive.Should().BeTrue();
         role.CreatedAtUtc.Should().Be(CreatedAtUtc);
         role.UpdatedAtUtc.Should().BeNull();
         role.UserRoles.Should().BeEmpty();
@@ -143,6 +144,53 @@ public class RoleTests
         role.UpdatedAtUtc.Should().BeNull();
     }
 
+    [Fact]
+    public void Deactivate_Should_MarkRoleInactiveAndSetUpdatedAtUtc()
+    {
+        var role = CreateRole();
+
+        role.Deactivate(UpdatedAtUtc);
+
+        role.IsActive.Should().BeFalse();
+        role.UpdatedAtUtc.Should().Be(UpdatedAtUtc);
+    }
+
+    [Fact]
+    public void Activate_Should_MarkRoleActiveAndSetUpdatedAtUtc()
+    {
+        var role = CreateRole();
+        role.Deactivate(UpdatedAtUtc);
+        var activatedAtUtc = UpdatedAtUtc.AddHours(1);
+
+        role.Activate(activatedAtUtc);
+
+        role.IsActive.Should().BeTrue();
+        role.UpdatedAtUtc.Should().Be(activatedAtUtc);
+    }
+
+    [Fact]
+    public void Deactivate_Should_NotUpdateTimestamp_WhenRoleIsAlreadyInactive()
+    {
+        var role = CreateRole();
+        role.Deactivate(UpdatedAtUtc);
+
+        role.Deactivate(UpdatedAtUtc.AddHours(1));
+
+        role.IsActive.Should().BeFalse();
+        role.UpdatedAtUtc.Should().Be(UpdatedAtUtc);
+    }
+
+    [Fact]
+    public void Activate_Should_NotUpdateTimestamp_WhenRoleIsAlreadyActive()
+    {
+        var role = CreateRole();
+
+        role.Activate(UpdatedAtUtc);
+
+        role.IsActive.Should().BeTrue();
+        role.UpdatedAtUtc.Should().BeNull();
+    }
+
     [Theory]
     [MemberData(nameof(UpdateActions))]
     public void UpdateMethods_Should_Throw_WhenUpdatedAtUtcIsDefault(Action<Role> updateAction)
@@ -174,6 +222,8 @@ public class RoleTests
         role => role.UpdateDetails(RoleName.Create("New name"), default),
         role => role.GrantPermission(Permission, default),
         role => { role.GrantPermission(Permission, UpdatedAtUtc); role.RevokePermission(Permission, default); },
+        role => role.Deactivate(default),
+        role => { role.Deactivate(UpdatedAtUtc); role.Activate(default); },
     };
 
     public static TheoryData<Action<Role>> UpdateActionsBeforeCreatedAt => new()
@@ -181,6 +231,8 @@ public class RoleTests
         role => role.UpdateDetails(RoleName.Create("New name"), CreatedAtUtc.AddTicks(-1)),
         role => role.GrantPermission(Permission, CreatedAtUtc.AddTicks(-1)),
         role => { role.GrantPermission(Permission, UpdatedAtUtc); role.RevokePermission(Permission, CreatedAtUtc.AddTicks(-1)); },
+        role => role.Deactivate(CreatedAtUtc.AddTicks(-1)),
+        role => { role.Deactivate(UpdatedAtUtc); role.Activate(CreatedAtUtc.AddTicks(-1)); },
     };
 
     private static Role CreateRole(

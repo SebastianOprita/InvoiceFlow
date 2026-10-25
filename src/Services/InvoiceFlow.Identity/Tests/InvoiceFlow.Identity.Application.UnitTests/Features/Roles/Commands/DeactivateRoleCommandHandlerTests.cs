@@ -6,28 +6,28 @@ using Xunit;
 
 namespace InvoiceFlow.Identity.Application.UnitTests.Features.Roles;
 
-public class DeleteRoleCommandHandlerTests
+public class DeactivateRoleCommandHandlerTests
 {
     private readonly Mock<ISystemDateTimeProvider> _mockDateTimeProvider;
     private readonly Mock<IUnitOfWork> _unitOfWork;
     private readonly Mock<IRolesRepository> _rolesRepository;
 
-    private DeleteRoleCommandHandler _sut;
+    private DeactivateRoleCommandHandler _sut;
 
-    public DeleteRoleCommandHandlerTests()
+    public DeactivateRoleCommandHandlerTests()
     {
         _mockDateTimeProvider = new();
         _mockDateTimeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero));
         _unitOfWork = new();
         _rolesRepository = new();
-        _sut = new DeleteRoleCommandHandler(_unitOfWork.Object, _rolesRepository.Object);
+        _sut = new DeactivateRoleCommandHandler(_unitOfWork.Object, _rolesRepository.Object, _mockDateTimeProvider.Object);
     }
 
     [Fact]
     public async Task Handle_WhenRoleDoesNotExist_ReturnsNotFoundFailure()
     {
         // Arrange
-        var cmd = new DeleteRoleCommand(Guid.CreateVersion7(), Guid.CreateVersion7());
+        var cmd = new DeactivateRoleCommand(Guid.CreateVersion7(), Guid.CreateVersion7());
 
         _rolesRepository
             .Setup(x => x.GetTrackedRoleByIdAsync(cmd.TenantId, cmd.RoleId))
@@ -42,15 +42,14 @@ public class DeleteRoleCommandHandlerTests
         result.Error.Type.Should().Be(ApplicationErrorType.NotFound);
         result.Error.Code.Should().Be(ApplicationErrors.RoleNotFound.Code);
 
-        _rolesRepository.Verify(x => x.RemoveRole(It.IsAny<Role>()), Times.Never);
         _unitOfWork.Verify(x => x.SaveChangesAsync(), Times.Never);
     }
 
     [Fact]
-    public async Task Handle_WhenRoleExists_RemovesRoleAndSavesChanges()
+    public async Task Handle_WhenRoleExists_DeactivatesRoleAndSavesChanges()
     {
         // Arrange
-        var cmd = new DeleteRoleCommand(Guid.CreateVersion7(), Guid.CreateVersion7());
+        var cmd = new DeactivateRoleCommand(Guid.CreateVersion7(), Guid.CreateVersion7());
 
         var role = Role.Create(
             cmd.TenantId,
@@ -73,16 +72,37 @@ public class DeleteRoleCommandHandlerTests
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-
-        _rolesRepository.Verify(x => x.RemoveRole(role), Times.Once);
+        role.IsActive.Should().BeFalse();
         _unitOfWork.Verify(x => x.SaveChangesAsync(), Times.Once);
+    }
+
+    [Fact]
+    public async Task Handle_WhenRoleIsAlreadyInactive_ReturnsSuccessWithoutSaving()
+    {
+        var cmd = new DeactivateRoleCommand(Guid.CreateVersion7(), Guid.CreateVersion7());
+        var role = Role.Create(
+            cmd.TenantId,
+            cmd.RoleId,
+            RoleName.Create("Admin"),
+            _mockDateTimeProvider.Object.GetUtcNow());
+        role.Deactivate(_mockDateTimeProvider.Object.GetUtcNow());
+
+        _rolesRepository
+            .Setup(x => x.GetTrackedRoleByIdAsync(cmd.TenantId, cmd.RoleId))
+            .ReturnsAsync(role);
+
+        var result = await _sut.Handle(cmd, CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+        role.IsActive.Should().BeFalse();
+        _unitOfWork.Verify(x => x.SaveChangesAsync(), Times.Never);
     }
 
     [Fact]
     public async Task Handle_WhenSaveChangesFails_ReturnsFailure()
     {
         // Arrange
-        var cmd = new DeleteRoleCommand(Guid.CreateVersion7(), Guid.CreateVersion7());
+        var cmd = new DeactivateRoleCommand(Guid.CreateVersion7(), Guid.CreateVersion7());
 
         var role = Role.Create(
             cmd.TenantId,
@@ -112,7 +132,7 @@ public class DeleteRoleCommandHandlerTests
         result.IsFailure.Should().BeTrue();
         result.Error.Should().Be(saveError);
 
-        _rolesRepository.Verify(x => x.RemoveRole(role), Times.Once);
+        role.IsActive.Should().BeFalse();
         _unitOfWork.Verify(x => x.SaveChangesAsync(), Times.Once);
     }
 }

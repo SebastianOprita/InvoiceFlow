@@ -204,6 +204,9 @@ namespace InvoiceFlow.Identity.Infrastructure.Migrations
                         .HasColumnType("nvarchar(128)")
                         .HasColumnName("Description");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(32)

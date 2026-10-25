@@ -44,10 +44,18 @@ public class RolesController(IMediator mediator) : ApiController
     }
 
     [HasPermission(SystemPermissions.RoleStatusManage)]
-    [HttpDelete("{roleId:guid}")]
-    public async Task<IActionResult> Delete([FromRoute] Guid tenantId, [FromRoute] Guid roleId, CancellationToken ct)
+    [HttpPost("activate/{roleId:guid}")]
+    public async Task<IActionResult> Activate([FromRoute] Guid tenantId, [FromRoute] Guid roleId, CancellationToken ct)
     {
-        var result = await mediator.Send(new DeleteRoleCommand(tenantId, roleId), ct);
+        var result = await mediator.Send(new ActivateRoleCommand(tenantId, roleId), ct);
+        return result.ToActionResult();
+    }
+
+    [HasPermission(SystemPermissions.RoleStatusManage)]
+    [HttpDelete("deactivate/{roleId:guid}")]
+    public async Task<IActionResult> Deactivate([FromRoute] Guid tenantId, [FromRoute] Guid roleId, CancellationToken ct)
+    {
+        var result = await mediator.Send(new DeactivateRoleCommand(tenantId, roleId), ct);
         return result.ToActionResult();
     }
 
