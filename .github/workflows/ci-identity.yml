@@ -42,7 +42,7 @@ jobs:
 
       integration_tests: src/Services/InvoiceFlow.Identity/Tests/InvoiceFlow.Identity.Api.IntegrationTests/InvoiceFlow.Identity.Api.IntegrationTests.csproj
 
-      architecture_tests: src/Services/InvoiceFlow.Identity/Tests/InvoiceFlow.Identity.Application.UnitTests/InvoiceFlow.Identity.ArchitectureTests.csproj
+      architecture_tests: src/Services/InvoiceFlow.Identity/Tests/InvoiceFlow.Identity.ArchitectureTests/InvoiceFlow.Identity.ArchitectureTests.csproj
 
       sonar_project_key: ${{ vars.IDENTITYSONARPROJECTKEY }}
 

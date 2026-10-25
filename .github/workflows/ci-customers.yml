@@ -42,7 +42,7 @@ jobs:
 
       integration_tests: src/Services/InvoiceFlow.Customers/Tests/InvoiceFlow.Customers.Api.IntegrationTests/InvoiceFlow.Customers.Api.IntegrationTests.csproj
 
-      architecture_tests: src/Services/InvoiceFlow.Customers/Tests/InvoiceFlow.Customers.Application.UnitTests/InvoiceFlow.Customers.ArchitectureTests.csproj
+      architecture_tests: src/Services/InvoiceFlow.Customers/Tests/InvoiceFlow.Customers.ArchitectureTests/InvoiceFlow.Customers.ArchitectureTests.csproj
 
       sonar_project_key: ${{ vars.CUSTOMERSSONARPROJECTKEY }}
 
