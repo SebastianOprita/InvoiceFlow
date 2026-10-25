@@ -143,28 +143,6 @@ public class RoleTests
         role.UpdatedAtUtc.Should().BeNull();
     }
 
-    [Fact]
-    public void SetPermissions_Should_UpdatePermissionsAndUpdatedAtUtc()
-    {
-        var role = CreateRole();
-        var permissions = RolePermissions.None.Grant(Permission);
-
-        role.SetPermissions(permissions, UpdatedAtUtc);
-
-        role.Permissions.Should().Be(permissions);
-        role.UpdatedAtUtc.Should().Be(UpdatedAtUtc);
-    }
-
-    [Fact]
-    public void SetPermissions_Should_NotUpdateUpdatedAtUtc_WhenPermissionsAreUnchanged()
-    {
-        var role = CreateRole();
-
-        role.SetPermissions(RolePermissions.None, UpdatedAtUtc);
-
-        role.UpdatedAtUtc.Should().BeNull();
-    }
-
     [Theory]
     [MemberData(nameof(UpdateActions))]
     public void UpdateMethods_Should_Throw_WhenUpdatedAtUtcIsDefault(Action<Role> updateAction)
@@ -196,7 +174,6 @@ public class RoleTests
         role => role.UpdateDetails(RoleName.Create("New name"), default),
         role => role.GrantPermission(Permission, default),
         role => { role.GrantPermission(Permission, UpdatedAtUtc); role.RevokePermission(Permission, default); },
-        role => role.SetPermissions(RolePermissions.None.Grant(Permission), default)
     };
 
     public static TheoryData<Action<Role>> UpdateActionsBeforeCreatedAt => new()
@@ -204,7 +181,6 @@ public class RoleTests
         role => role.UpdateDetails(RoleName.Create("New name"), CreatedAtUtc.AddTicks(-1)),
         role => role.GrantPermission(Permission, CreatedAtUtc.AddTicks(-1)),
         role => { role.GrantPermission(Permission, UpdatedAtUtc); role.RevokePermission(Permission, CreatedAtUtc.AddTicks(-1)); },
-        role => role.SetPermissions(RolePermissions.None.Grant(Permission), CreatedAtUtc.AddTicks(-1))
     };
 
     private static Role CreateRole(

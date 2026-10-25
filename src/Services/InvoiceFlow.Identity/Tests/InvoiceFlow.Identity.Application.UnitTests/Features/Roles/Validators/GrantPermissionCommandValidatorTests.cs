@@ -43,7 +43,7 @@ public class GrantPermissionCommandValidatorTests
     public void Should_Have_Error_When_Permission_Is_Invalid()
     {
         // Arrange
-        var invalidPermission = (long)999999;
+        var invalidPermission = 1L << 31;
 
         var command = new GrantPermissionCommand(
             Guid.CreateVersion7(),
@@ -55,7 +55,26 @@ public class GrantPermissionCommandValidatorTests
 
         // Assert
         result.ShouldHaveValidationErrorFor(x => x.Permission)
-            .WithErrorMessage("Permission contain invalid flags.");
+            .WithErrorMessage("Exactly one valid permission is required.");
+    }
+
+    [Fact]
+    public void Should_Have_Error_When_Multiple_Permissions()
+    {
+        // Arrange
+        var multiplePermissions = 1L << 3 | 1L << 4;
+
+        var command = new GrantPermissionCommand(
+            Guid.CreateVersion7(),
+            Guid.CreateVersion7(),
+            multiplePermissions);
+
+        // Act
+        var result = _validator.TestValidate(command);
+
+        // Assert
+        result.ShouldHaveValidationErrorFor(x => x.Permission)
+            .WithErrorMessage("Exactly one valid permission is required.");
     }
 
     [Fact]

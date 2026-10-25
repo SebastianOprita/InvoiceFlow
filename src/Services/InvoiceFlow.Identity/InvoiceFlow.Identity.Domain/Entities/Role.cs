@@ -1,4 +1,4 @@
-﻿using InvoiceFlow.BuildingBlocks.Domain;
+using InvoiceFlow.BuildingBlocks.Domain;
 
 namespace InvoiceFlow.Identity.Domain;
 
@@ -83,15 +83,6 @@ public sealed class Role
             return;
 
         Permissions = newPermissions;
-        MarkAsUpdated(updatedAtUtc);
-    }
-
-    public void SetPermissions(RolePermissions permissions, DateTimeOffset updatedAtUtc)
-    {
-        if (Permissions == permissions)
-            return;
-
-        Permissions = permissions;
         MarkAsUpdated(updatedAtUtc);
     }
 

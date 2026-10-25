@@ -52,14 +52,6 @@ public class RolesController(IMediator mediator) : ApiController
     }
 
     [HasPermission(SystemPermissions.RolePermissionsUpdate)]
-    [HttpPost("{roleId:guid}/permissions")]
-    public async Task<IActionResult> UpdatePermissions([FromRoute] Guid tenantId, [FromRoute] Guid roleId, [FromBody] UpdatePermissionsRequest request, CancellationToken ct)
-    {
-        var result = await mediator.Send(new UpdatePermissionsCommand(tenantId, roleId, (long)request.Permissions), ct);
-        return result.ToActionResult();
-    }
-
-    [HasPermission(SystemPermissions.RolePermissionsUpdate)]
     [HttpPost("{roleId:guid}/permissions/grant")]
     public async Task<IActionResult> GrantPermission([FromRoute] Guid tenantId, [FromRoute] Guid roleId, [FromBody] UpdatePermissionsRequest request, CancellationToken ct)
     {
