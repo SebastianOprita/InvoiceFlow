@@ -53,7 +53,7 @@ public sealed class PermissionAuthorizationHandlerTests
     public async Task HandleAsync_WhenUserDoesNotHaveRequiredPermission_ShouldNotSucceed()
     {
         var requirement =
-            new PermissionRequirement(SystemPermissions.CustomerDelete);
+            new PermissionRequirement(SystemPermissions.CustomerStatusManage);
 
         var principal = CreateAuthenticatedPrincipal(
             SystemPermissions.CustomerRead);
