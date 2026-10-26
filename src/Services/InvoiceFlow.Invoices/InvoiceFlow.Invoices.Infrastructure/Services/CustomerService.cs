@@ -28,6 +28,7 @@ internal sealed class CustomerService : ICustomerService
             customerCountry: Country.Create("Countryland"),
             customerPostalCode: PostalCode.Create("12345"),
             currencyCode: CurrencyCode.Create("USD"),
+            creditLimit: CreditLimit.Create(10000m),
             paymentTermDays: PaymentTermDays.Create(30));
 
         return Result<InvoiceCustomerSnapshot>.Success(customer);

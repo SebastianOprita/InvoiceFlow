@@ -12,7 +12,7 @@ internal static class InvoiceTestData
         TaxNumber.Create("RO123456"), RegistrationNumber.Create("J40/123/2024"),
         AddressLine1.Create("Main Street 1"), AddressLine2.Create("Building A"),
         City.Create("Bucharest"), State.Create("Bucharest"), Country.Create("Romania"),
-        PostalCode.Create("010101"), CurrencyCode.Create("RON"), PaymentTermDays.Create(30));
+        PostalCode.Create("010101"), CurrencyCode.Create("RON"), CreditLimit.Create(1000m), PaymentTermDays.Create(30));
 
     internal static Invoice DraftInvoice()
     {

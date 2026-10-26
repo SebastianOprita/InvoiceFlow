@@ -54,7 +54,7 @@ public sealed class InvoiceMapperTests
             CustomerCode.Create("CUST-002"), CustomerName.Create("No Contact Ltd"),
             null, null, null, RegistrationNumber.Create("REG-2"), AddressLine1.Create("Road 2"),
             null, City.Create("Iasi"), null, Country.Create("Romania"), PostalCode.Create("700000"),
-            CurrencyCode.Create("RON"), PaymentTermDays.Create(0));
+            CurrencyCode.Create("RON"), CreditLimit.Create(1000m), PaymentTermDays.Create(0));
         var invoice = Invoice.Create(InvoiceTestData.TenantId, Guid.CreateVersion7(), customer, null,
             new DateTimeOffset(2025, 1, 1, 10, 0, 0, TimeSpan.Zero));
 

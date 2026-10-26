@@ -28,6 +28,7 @@ public static class InvoicesDbSeed
             customerCountry: Country.Create("Countryland"),
             customerPostalCode: PostalCode.Create("12345"),
             currencyCode: CurrencyCode.Create("USD"),
+            creditLimit: CreditLimit.Create(1000m),
             paymentTermDays: PaymentTermDays.Create(30));
 
         var invoice = Invoice.Create(
