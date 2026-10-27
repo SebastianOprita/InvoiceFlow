@@ -30,7 +30,8 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
-        services.AddScoped<ICustomerService, CustomerService>();
+        services.AddScoped<ICustomersService, CustomersService>();
+        services.AddScoped<IProductsService, ProductsService>();
         services.AddSingleton<IRequestHasher, RequestHasher>();
 
         services.RegisterRepositories();

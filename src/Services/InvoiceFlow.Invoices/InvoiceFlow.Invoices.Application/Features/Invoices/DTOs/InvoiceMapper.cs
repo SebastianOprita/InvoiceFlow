@@ -43,7 +43,7 @@ public static class InvoiceMapper
             Lines: invoice.Lines.Select(line => line.ToDto()).ToArray());
     }
 
-    private static InvoiceLineDto ToDto(this InvoiceLine line)
+    public static InvoiceLineDto ToDto(this InvoiceLine line)
     {
         return new InvoiceLineDto(
             Id: line.Id,

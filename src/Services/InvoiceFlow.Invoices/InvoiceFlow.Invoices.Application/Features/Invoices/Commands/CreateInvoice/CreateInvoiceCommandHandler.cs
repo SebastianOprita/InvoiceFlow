@@ -7,7 +7,7 @@ namespace InvoiceFlow.Invoices.Application;
 internal sealed class CreateInvoiceCommandHandler(
     IInvoiceRepository invoiceRepository,
     IIdempotencyRepository idempotencyRepository,
-    ICustomerService customerService,
+    ICustomersService customersService,
     IRequestHasher requestHasher,
     IUnitOfWork unitOfWork,
     ISystemDateTimeProvider dateTimeProvider)
@@ -40,7 +40,7 @@ internal sealed class CreateInvoiceCommandHandler(
         if (existing is not null)
             return await ReplayAsync(existing, requestHash, cancellationToken);
 
-        var customerResult = await customerService.GetCustomerAsync(
+        var customerResult = await customersService.GetCustomerAsync(
             cmd.TenantId,
             cmd.CustomerCode,
             cancellationToken);

@@ -14,6 +14,25 @@ internal sealed class InvoiceRepository(
             .FirstOrDefaultAsync(c => c.TenantId == tenantId && c.Id == invoiceId,
             cancellationToken);
     }
+
+    public async Task<Invoice?> GetTrackedInvoiceByIdAsync(Guid tenantId, Guid invoiceId, CancellationToken cancellationToken = default)
+    {
+        return await context.Invoices
+            .FirstOrDefaultAsync(c => c.TenantId == tenantId && c.Id == invoiceId,
+            cancellationToken);
+    }
+
+    public async Task<InvoiceLine?> GetInvoiceLineByIdAsync(Guid tenantId, Guid invoiceId, Guid invoiceLineId, CancellationToken cancellationToken = default)
+    {
+        return await context.Invoices
+            .AsNoTracking()
+            .Where(i => i.TenantId == tenantId && i.Id == invoiceId)
+            .SelectMany(i => i.Lines)
+            .FirstOrDefaultAsync(
+                line => line.Id == invoiceLineId,
+                cancellationToken);
+    }
+
     public async Task<Invoice?> GetForIssuingAsync(
         Guid tenantId,
         Guid Id,

@@ -1,4 +1,4 @@
-﻿using InvoiceFlow.BuildingBlocks.Application;
+using InvoiceFlow.BuildingBlocks.Application;
 using InvoiceFlow.Invoices.Domain;
 using MediatR;
 
@@ -38,7 +38,7 @@ internal sealed class IssueInvoiceCommandHandler(
                 var invoiceNumber =
                     await invoiceNumberRepository.AllocateNextAsync(
                         cmd.TenantId,
-                        now.Year,
+                        now.UtcDateTime.Year,
                         ct);
 
                 invoice.Issue(InvoiceNumber.Create(invoiceNumber), issueDate, now);

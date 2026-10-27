@@ -1,3 +1,4 @@
+using System.Data;
 using InvoiceFlow.BuildingBlocks.Application;
 using InvoiceFlow.Invoices.Application;
 using Microsoft.Data.SqlClient;
@@ -21,7 +22,7 @@ public sealed class UnitOfWork : IUnitOfWork
         _logger = logger;
     }
 
-    public async Task<Result> SaveChangesAsync(CancellationToken cancellationToken = default)
+    public async Task<Result> SaveChangesAsync(CancellationToken cancellationToken)
     {
         try
         {
@@ -43,7 +44,6 @@ public sealed class UnitOfWork : IUnitOfWork
 
             return Result.Failure(
                 ApplicationErrors.IdempotencyKeyConflict);
-
         }
         catch (OperationCanceledException)
             when (cancellationToken.IsCancellationRequested)
@@ -55,10 +55,11 @@ public sealed class UnitOfWork : IUnitOfWork
 
     public async Task<Result> ExecuteInTransactionAsync(
         Func<CancellationToken, Task<Result>> operation,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken,
+        IsolationLevel isolationLevel = IsolationLevel.ReadCommitted)
     {
         await using var transaction =
-            await _dbContext.Database.BeginTransactionAsync(cancellationToken);
+            await _dbContext.Database.BeginTransactionAsync(isolationLevel, cancellationToken);
 
         var result = await operation(cancellationToken);
 
@@ -76,10 +77,11 @@ public sealed class UnitOfWork : IUnitOfWork
 
     public async Task<Result<T>> ExecuteInTransactionAsync<T>(
         Func<CancellationToken, Task<Result<T>>> operation,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken,
+        IsolationLevel isolationLevel = IsolationLevel.ReadCommitted)
     {
         await using var transaction =
-            await _dbContext.Database.BeginTransactionAsync(cancellationToken);
+            await _dbContext.Database.BeginTransactionAsync(isolationLevel, cancellationToken);
 
         var result = await operation(cancellationToken);
 
@@ -95,10 +97,17 @@ public sealed class UnitOfWork : IUnitOfWork
         return result;
     }
 
+    public void ClearTrackedChanges()
+    {
+        _dbContext.ChangeTracker.Clear();
+    }
+
     private static bool IsIdempotencyKeyConflict(
         DbUpdateException exception)
     {
-        return exception.GetBaseException() is SqlException sqlException
+        var sqlException = exception.InnerException as SqlException;
+
+        return sqlException is not null
             && sqlException.Number is 2601 or 2627
             && sqlException.Message.Contains(
                 IdempotencyIndexName,

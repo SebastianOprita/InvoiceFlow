@@ -4,7 +4,7 @@ using InvoiceFlow.Invoices.Domain;
 
 namespace InvoiceFlow.Invoices.Infrastructure;
 
-internal sealed class CustomerService : ICustomerService
+internal sealed class CustomersService : ICustomersService
 {
     public async Task<Result<InvoiceCustomerSnapshot>> GetCustomerAsync(Guid tenantId, string customerCode, CancellationToken cancellationToken)
     {

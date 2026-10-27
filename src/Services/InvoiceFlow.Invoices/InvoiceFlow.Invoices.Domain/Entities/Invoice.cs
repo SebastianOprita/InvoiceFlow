@@ -182,7 +182,7 @@ public sealed class Invoice
     // Manual invoice lines
     // -----------------------------------------------------------------
 
-    public void AddManualLine(
+    public InvoiceLine AddManualLine(
         Guid lineId,
         InvoiceLineDescription description,
         Quantity quantity,
@@ -212,12 +212,14 @@ public sealed class Invoice
 
         RecalculateTotals();
         MarkAsUpdated(updatedAtUtc);
+
+        return line;
     }
 
     // Product-backed invoice lines
     // -----------------------------------------------------------------
 
-    public void AddProductLine(
+    public InvoiceLine AddProductLine(
         Guid lineId,
         InvoiceProductSnapshot product,
         Quantity quantity,
@@ -248,6 +250,8 @@ public sealed class Invoice
 
         RecalculateTotals();
         MarkAsUpdated(updatedAtUtc);
+
+        return line;
     }
 
     // Line updates
