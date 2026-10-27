@@ -1,4 +1,4 @@
-﻿using InvoiceFlow.BuildingBlocks.Domain;
+using InvoiceFlow.BuildingBlocks.Domain;
 
 namespace InvoiceFlow.Invoices.Domain;
 
@@ -22,6 +22,13 @@ public sealed record InvoiceNumber
     public string Value { get; }
 
     public static InvoiceNumber Create(string value) => new(value);
+
+    public static InvoiceNumber? CreateOptional(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value)
+            ? null
+            : new InvoiceNumber(value);
+    }
 
     public override string ToString() => Value;
 }

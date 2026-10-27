@@ -15,6 +15,14 @@ internal sealed class InvoiceRepository(
             cancellationToken);
     }
 
+    public async Task<Invoice?> GetInvoiceByIdWithLineAsync(Guid tenantId, Guid invoiceId, CancellationToken cancellationToken = default)
+    {
+        return await context.Invoices.AsNoTracking()
+            .Include(i => i.Lines)
+            .FirstOrDefaultAsync(c => c.TenantId == tenantId && c.Id == invoiceId,
+            cancellationToken);
+    }
+
     public async Task<Invoice?> GetTrackedInvoiceByIdAsync(Guid tenantId, Guid invoiceId, CancellationToken cancellationToken = default)
     {
         return await context.Invoices
@@ -31,6 +39,14 @@ internal sealed class InvoiceRepository(
             .FirstOrDefaultAsync(
                 line => line.Id == invoiceLineId,
                 cancellationToken);
+    }
+
+    public async Task<List<Invoice>> GetAllInvoicesWithLinesAsync(Guid tenantId, CancellationToken cancellationToken = default)
+    {
+        return await context.Invoices.AsNoTracking()
+            .Where(c => c.TenantId == tenantId)
+            .Include(i => i.Lines)
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<Invoice?> GetForIssuingAsync(

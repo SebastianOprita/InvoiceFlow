@@ -1,4 +1,4 @@
-﻿using InvoiceFlow.Customers.Domain;
+using InvoiceFlow.Customers.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -14,8 +14,11 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
         builder.HasKey(x => new { x.TenantId, x.Id });
 
         // Basic Properties
-        builder.Property(x => x.TenantId).IsRequired();
-        builder.Property(x => x.Id).IsRequired();
+        builder.Property(x => x.TenantId)
+            .IsRequired();
+        builder.Property(x => x.Id)
+            .IsRequired();
+
         builder.Property(x => x.CustomerCode)
             .HasConversion(
                 customerCode => customerCode.Value,
@@ -130,10 +133,16 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
             .HasColumnName("PaymentTermDays")
             .IsRequired();
 
-        builder.Property(x => x.IsActive).IsRequired();
-        builder.Property(x => x.CreatedAtUtc).IsRequired();
+        builder.Property(x => x.IsActive)
+            .IsRequired();
+
+        builder.Property(x => x.CreatedAtUtc)
+            .IsRequired();
+
         builder.Property(x => x.UpdatedAtUtc);
-        builder.Property<byte[]>("RowVersion").IsRowVersion();
+
+        builder.Property<byte[]>("RowVersion")
+            .IsRowVersion();
 
         builder.HasIndex("TenantId", "CustomerCode")
             .HasDatabaseName("UX_Customers_Tenant_CustomerCode")

@@ -6,10 +6,12 @@ namespace InvoiceFlow.Invoices.Infrastructure;
 
 internal sealed class CustomersService : ICustomersService
 {
-    public async Task<Result<InvoiceCustomerSnapshot>> GetCustomerAsync(Guid tenantId, string customerCode, CancellationToken cancellationToken)
+    public Task<Result<InvoiceCustomerSnapshot>> GetCustomerAsync(Guid tenantId, string customerCode, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(customerCode))
-            return Result<InvoiceCustomerSnapshot>.Failure(ApplicationErrors.CustomerNotFound);
+            return Task.FromResult(
+                Result<InvoiceCustomerSnapshot>.Failure(
+                    ApplicationErrors.CustomerNotFound));
 
         var customer = InvoiceCustomerSnapshot.Create(
             customerTenantId: tenantId,
@@ -31,6 +33,8 @@ internal sealed class CustomersService : ICustomersService
             creditLimit: CreditLimit.Create(10000m),
             paymentTermDays: PaymentTermDays.Create(30));
 
-        return Result<InvoiceCustomerSnapshot>.Success(customer);
+        return Task.FromResult(
+            Result<InvoiceCustomerSnapshot>.Success(customer));
+
     }
 }

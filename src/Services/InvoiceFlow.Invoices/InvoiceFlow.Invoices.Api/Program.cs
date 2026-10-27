@@ -13,17 +13,19 @@ try
     builder.Services.AddOpenApi();
     builder.Services.AddHttpContextAccessor();
 
+    // Exception Handling & Observability
     builder.Services.AddInvoiceFlowExceptionHandling();
     builder.AddInvoiceFlowObservability(builder.Environment.ApplicationName);
 
+    // Authentication & Authorization
     builder.Services.AddInvoiceFlowAuthentication(builder.Configuration);
     builder.Services.AddInvoiceFlowAuthorization();
 
+    // Application & Infrastructure
     builder.Services.AddApplicationServices();
     builder.Services.AddInfrastructureServices(builder.Configuration);
 
-    builder.Services.AddHttpContextAccessor();
-
+    // Health Checks
     builder.Services
         .AddHealthChecks()
         .AddCheck("self", () => HealthCheckResult.Healthy(), tags: ["live"])
@@ -37,7 +39,6 @@ try
     }
 
     app.UseExceptionHandler();
-
     app.UseHttpsRedirection();
 
     app.UseAuthentication();

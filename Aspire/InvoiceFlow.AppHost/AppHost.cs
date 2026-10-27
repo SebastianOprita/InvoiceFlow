@@ -37,6 +37,11 @@ var customersService = builder.AddProject<Projects.InvoiceFlow_Customers_Api>("i
     .WithEnvironment("JwtSettings__Secret", jwtSigningKey)
     .WaitFor(customersDb);
 
+var productsService = builder.AddProject<Projects.InvoiceFlow_Products_Api>("invoiceflow-products-api")
+    .WithReference(productsDb)
+    .WithEnvironment("JwtSettings__Secret", jwtSigningKey)
+    .WaitFor(productsDb);
+
 var invoicesService = builder.AddProject<Projects.InvoiceFlow_Invoices_Api>("invoiceflow-invoices-api")
     .WithReference(invoicesDb)
     .WithEnvironment("JwtSettings__Secret", jwtSigningKey)
@@ -46,11 +51,6 @@ var paymentsService = builder.AddProject<Projects.InvoiceFlow_Payments_Api>("inv
     .WithReference(paymentsDb)
     .WithEnvironment("JwtSettings__Secret", jwtSigningKey)
     .WaitFor(paymentsDb);
-
-var productsService = builder.AddProject<Projects.InvoiceFlow_Products_Api>("invoiceflow-products-api")
-    .WithReference(productsDb)
-    .WithEnvironment("JwtSettings__Secret", jwtSigningKey)
-    .WaitFor(productsDb);
 
 var gateway = builder
     .AddProject<Projects.InvoiceFlow_Gateway>("gateway")

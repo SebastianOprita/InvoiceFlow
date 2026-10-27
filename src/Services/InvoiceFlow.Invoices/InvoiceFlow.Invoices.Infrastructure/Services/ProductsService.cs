@@ -6,10 +6,12 @@ namespace InvoiceFlow.Invoices.Infrastructure;
 
 internal sealed class ProductsService : IProductsService
 {
-    public async Task<Result<InvoiceProductSnapshot>> GetProductAsync(Guid tenantId, string productCode, CancellationToken cancellationToken)
+    public Task<Result<InvoiceProductSnapshot>> GetProductAsync(Guid tenantId, string productCode, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(productCode))
-            return Result<InvoiceProductSnapshot>.Failure(ApplicationErrors.CustomerNotFound);
+            return Task.FromResult(
+                Result<InvoiceProductSnapshot>.Failure(
+                    ApplicationErrors.ProductNotFound));
 
         var product = InvoiceProductSnapshot.Create(
             productTenantId: tenantId,
@@ -22,6 +24,7 @@ internal sealed class ProductsService : IProductsService
             unitPrice: Money.Create(12m, CurrencyCode.Create("RON")),
             taxRate: Percentage.Create(9m));
 
-        return Result<InvoiceProductSnapshot>.Success(product);
+        return Task.FromResult(
+            Result<InvoiceProductSnapshot>.Success(product));
     }
 }

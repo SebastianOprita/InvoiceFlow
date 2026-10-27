@@ -13,6 +13,16 @@ namespace InvoiceFlow.Invoices.Api;
 [Route("api/{tenantId:guid}/invoices")]
 public class InvoicesController(IMediator mediator) : ControllerBase
 {
+    [HttpGet]
+    [HasPermission(SystemPermissions.InvoiceRead)]
+    public async Task<IActionResult> GetAll(
+        [FromRoute][Required] Guid tenantId,
+        CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(new GetInvoicesQuery(tenantId), cancellationToken);
+        return result.ToActionResult();
+    }
+
     [HttpGet("{invoiceId:guid}")]
     [HasPermission(SystemPermissions.InvoiceRead)]
     public async Task<IActionResult> GetById(
@@ -20,7 +30,8 @@ public class InvoicesController(IMediator mediator) : ControllerBase
         [FromRoute][Required] Guid invoiceId,
         CancellationToken cancellationToken)
     {
-        return Ok();
+        var result = await mediator.Send(new GetInvoiceByIdQuery(tenantId, invoiceId), cancellationToken);
+        return result.ToActionResult();
     }
 
     [HttpPost]

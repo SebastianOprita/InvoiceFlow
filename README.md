@@ -16,11 +16,17 @@ dotnet ef migrations add InitialMigration --project "src\Services\InvoiceFlow.Cu
 dotnet ef migrations add InitialMigration --project "src\Services\InvoiceFlow.Identity\InvoiceFlow.Identity.Infrastructure\InvoiceFlow.Identity.Infrastructure.csproj" --startup-project "src\Services\InvoiceFlow.Identity\InvoiceFlow.Identity.Api\InvoiceFlow.Identity.Api.csproj" --context IdentityDbContext --output-dir Migrations
 ```
 
-### Product Service
+### Products Service
 
 ```cmd
 dotnet ef migrations add InitialMigration --project "src\Services\InvoiceFlow.Products\InvoiceFlow.Products.Infrastructure\InvoiceFlow.Products.Infrastructure.csproj" --startup-project "src\Services\InvoiceFlow.Products\InvoiceFlow.Products.Api\InvoiceFlow.Products.Api.csproj" --context ProductsDbContext --output-dir Migrations
 ```
+
+### Invoices Service
+```cmd
+dotnet ef migrations add InitialMigration --project "src\Services\InvoiceFlow.Invoices\InvoiceFlow.Invoices.Infrastructure\InvoiceFlow.Invoices.Infrastructure.csproj" --startup-project "src\Services\InvoiceFlow.Invoices\InvoiceFlow.Invoices.Api\InvoiceFlow.Invoices.Api.csproj" --context InvoicesDbContext --output-dir Migrations
+```
+
 
 ### Notes
 

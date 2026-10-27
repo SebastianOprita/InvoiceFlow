@@ -12,7 +12,7 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString("CustomersDb");
+        var connectionString = configuration.GetConnectionString("InvoicesDb");
 
         services.AddDbContext<InvoicesDbContext>(options =>
         {
@@ -30,11 +30,10 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
-        services.AddScoped<ICustomersService, CustomersService>();
-        services.AddScoped<IProductsService, ProductsService>();
         services.AddSingleton<IRequestHasher, RequestHasher>();
 
         services.RegisterRepositories();
+        services.RegisterHttpClients(configuration);
 
         return services;
     }
@@ -45,6 +44,16 @@ public static class DependencyInjection
         services.AddScoped<IInvoiceRepository, InvoiceRepository>();
         services.AddScoped<IInvoiceNumberRepository, InvoiceNumberRepository>();
         services.AddScoped<IIdempotencyRepository, IdempotencyRepository>();
+
+        return services;
+    }
+
+    private static IServiceCollection RegisterHttpClients(
+        this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        services.AddScoped<ICustomersService, CustomersService>();
+        services.AddScoped<IProductsService, ProductsService>();
 
         return services;
     }
@@ -61,6 +70,7 @@ public static class DependencyInjection
 
         var dateTimeProvider = scope.ServiceProvider
             .GetRequiredService<BuildingBlocks.Application.ISystemDateTimeProvider>();
+
         await InvoicesDbSeed.SeedAsync(db, dateTimeProvider, cancellationToken);
     }
 }
