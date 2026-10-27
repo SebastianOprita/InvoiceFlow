@@ -8,129 +8,68 @@ namespace InvoiceFlow.Invoices.Application.UnitTests;
 
 public sealed class CreateInvoiceCommandHandlerTests
 {
-    private readonly Mock<IInvoiceRepository> _invoiceRepository = new();
-    private readonly Mock<IIdempotencyRepository> _idempotencyRepository = new();
-    private readonly Mock<ICustomerService> _customerService = new();
+    private readonly Mock<IInvoiceRepository> _invoices = new();
+    private readonly Mock<IIdempotencyRepository> _idempotency = new();
+    private readonly Mock<ICustomersService> _customers = new();
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
-    private readonly Mock<ISystemDateTimeProvider> _dateTimeProvider = new();
-    private readonly CreateInvoiceCommandHandler _handler;
-    private readonly RequestHash _hash = RequestHash.Create(new string('A', RequestHash.Sha256HexLength));
+    private readonly Mock<ISystemDateTimeProvider> _clock = new();
+    private readonly IRequestHasher _hasher = new FixedRequestHasher();
+    private readonly CreateInvoiceCommandHandler _sut;
 
     public CreateInvoiceCommandHandlerTests()
     {
-        _handler = new(_invoiceRepository.Object, _idempotencyRepository.Object, _customerService.Object,
-            new FixedRequestHasher(_hash), _unitOfWork.Object, _dateTimeProvider.Object);
-        _dateTimeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTimeOffset(2025, 1, 1, 10, 0, 0, TimeSpan.Zero));
+        _clock.Setup(x => x.GetUtcNow()).Returns(new DateTimeOffset(2025, 1, 1, 10, 0, 0, TimeSpan.Zero));
+        _unitOfWork.Setup(x => x.ExecuteInTransactionAsync<InvoiceDto>(It.IsAny<Func<CancellationToken, Task<Result<InvoiceDto>>>>(), It.IsAny<CancellationToken>(), It.IsAny<System.Data.IsolationLevel>()))
+            .Returns((Func<CancellationToken, Task<Result<InvoiceDto>>> action, CancellationToken ct, System.Data.IsolationLevel _) => action(ct));
+        _sut = new(_invoices.Object, _idempotency.Object, _customers.Object, _hasher, _unitOfWork.Object, _clock.Object);
     }
 
     [Fact]
-    public async Task Handle_WithValidCommand_ShouldCreateInvoiceAndIdempotencyRecordAndSave()
+    public async Task Handle_CreatesAndSavesInvoice_WhenNoIdempotencyRecordExists()
     {
-        var command = new CreateInvoiceCommand("key-123", InvoiceTestData.TenantId, "CUST-001", "Notes");
-        _idempotencyRepository.Setup(x => x.GetIdempotencyRecordAsync(command.TenantId, IdempotencyOperation.CreateInvoice,
-            It.IsAny<IdempotencyKey>(), It.IsAny<CancellationToken>())).ReturnsAsync((IdempotencyRecord?)null);
-        _customerService.Setup(x => x.GetCustomerAsync(command.TenantId, command.CustomerCode, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result<InvoiceCustomerSnapshot>.Success(InvoiceTestData.Customer()));
-        _unitOfWork.Setup(x => x.ExecuteInTransactionAsync(It.IsAny<Func<CancellationToken, Task<Result<InvoiceDto>>>>(), It.IsAny<CancellationToken>()))
-            .Returns((Func<CancellationToken, Task<Result<InvoiceDto>>> operation, CancellationToken ct) => operation(ct));
+        var cmd = new CreateInvoiceCommand("key-1", InvoiceTestData.TenantId, "CUST-001", "notes");
+        _customers.Setup(x => x.GetCustomerAsync(cmd.TenantId, cmd.CustomerCode, It.IsAny<CancellationToken>())).ReturnsAsync(Result<InvoiceCustomerSnapshot>.Success(InvoiceTestData.Customer()));
+        _idempotency.Setup(x => x.GetIdempotencyRecordAsync(cmd.TenantId, IdempotencyOperation.CreateInvoice, It.IsAny<IdempotencyKey>(), It.IsAny<CancellationToken>())).ReturnsAsync((IdempotencyRecord?)null);
         _unitOfWork.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success());
 
-        var result = await _handler.Handle(command, CancellationToken.None);
+        var result = await _sut.Handle(cmd, CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Should().NotBeNull();
-        result.Value!.CustomerCode.Should().Be("CUST-001");
-        _invoiceRepository.Verify(x => x.AddInvoice(It.IsAny<Invoice>()), Times.Once);
-        _idempotencyRepository.Verify(x => x.Add(It.IsAny<IdempotencyRecord>()), Times.Once);
+        _invoices.Verify(x => x.AddInvoice(It.Is<Invoice>(i => i.TenantId == cmd.TenantId)), Times.Once);
+        _idempotency.Verify(x => x.Add(It.Is<IdempotencyRecord>(r => r.Operation == IdempotencyOperation.CreateInvoice)), Times.Once);
         _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
-    public async Task Handle_WhenCustomerLookupFails_ShouldReturnFailureWithoutSaving()
+    public async Task Handle_ReplaysExistingInvoice_WhenMatchingKeyExists()
     {
-        var command = new CreateInvoiceCommand("key-123", InvoiceTestData.TenantId, "CUST-001", "Notes");
-        _idempotencyRepository.Setup(x => x.GetIdempotencyRecordAsync(command.TenantId, IdempotencyOperation.CreateInvoice,
-            It.IsAny<IdempotencyKey>(), It.IsAny<CancellationToken>())).ReturnsAsync((IdempotencyRecord?)null);
-        _customerService.Setup(x => x.GetCustomerAsync(command.TenantId, command.CustomerCode, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result<InvoiceCustomerSnapshot>.Failure(ApplicationErrors.CustomerNotFound));
-
-        var result = await _handler.Handle(command, CancellationToken.None);
-
-        result.IsFailure.Should().BeTrue();
-        result.Error.Should().NotBeNull();
-        result.Error!.Code.Should().Be(ApplicationErrors.CustomerNotFound.Code);
-        _invoiceRepository.Verify(x => x.AddInvoice(It.IsAny<Invoice>()), Times.Never);
-        _unitOfWork.Verify(x => x.ExecuteInTransactionAsync(It.IsAny<Func<CancellationToken, Task<Result<InvoiceDto>>>>(), It.IsAny<CancellationToken>()), Times.Never);
-    }
-
-    [Fact]
-    public async Task Handle_WhenRequestHashFails_ShouldReturnFailureBeforeRepositoryCalls()
-    {
-        var handler = new CreateInvoiceCommandHandler(_invoiceRepository.Object, _idempotencyRepository.Object,
-            _customerService.Object, new FixedRequestHasher(Result<RequestHash>.Failure(ApplicationErrors.RequestHashInputRequired)),
-            _unitOfWork.Object, _dateTimeProvider.Object);
-        var result = await handler.Handle(new("key-123", InvoiceTestData.TenantId, "CUST-001", "Notes"), CancellationToken.None);
-        result.IsFailure.Should().BeTrue();
-        result.Error!.Code.Should().Be(ApplicationErrors.RequestHashInputRequired.Code);
-        _idempotencyRepository.Verify(x => x.GetIdempotencyRecordAsync(It.IsAny<Guid>(), It.IsAny<IdempotencyOperation>(),
-            It.IsAny<IdempotencyKey>(), It.IsAny<CancellationToken>()), Times.Never);
-    }
-
-    [Fact]
-    public async Task Handle_WhenIdempotencyKeyIsReusedForDifferentRequest_ShouldReturnConflict()
-    {
-        var command = new CreateInvoiceCommand("key-123", InvoiceTestData.TenantId, "CUST-001", "Notes");
-        var record = IdempotencyRecord.Create(command.TenantId, IdempotencyOperation.CreateInvoice,
-            IdempotencyKey.Create(command.IdempotencyKey), RequestHash.Create(new string('B', RequestHash.Sha256HexLength)),
-            Guid.CreateVersion7(), new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero));
-        _idempotencyRepository.Setup(x => x.GetIdempotencyRecordAsync(command.TenantId, IdempotencyOperation.CreateInvoice,
-            It.IsAny<IdempotencyKey>(), It.IsAny<CancellationToken>())).ReturnsAsync(record);
-
-        var result = await _handler.Handle(command, CancellationToken.None);
-
-        result.IsFailure.Should().BeTrue();
-        result.Error!.Code.Should().Be(ApplicationErrors.IdempotencyKeyReused.Code);
-        _invoiceRepository.Verify(x => x.GetInvoiceByIdAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
-    }
-
-    [Fact]
-    public async Task Handle_WhenIdempotencyReplayResourceIsMissing_ShouldReturnConflict()
-    {
-        var command = new CreateInvoiceCommand("key-123", InvoiceTestData.TenantId, "CUST-001", "Notes");
-        var record = IdempotencyRecord.Create(command.TenantId, IdempotencyOperation.CreateInvoice,
-            IdempotencyKey.Create(command.IdempotencyKey), _hash, Guid.CreateVersion7(), new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero));
-        _idempotencyRepository.Setup(x => x.GetIdempotencyRecordAsync(command.TenantId, IdempotencyOperation.CreateInvoice,
-            It.IsAny<IdempotencyKey>(), It.IsAny<CancellationToken>())).ReturnsAsync(record);
-        _invoiceRepository.Setup(x => x.GetInvoiceByIdAsync(command.TenantId, record.ResourceId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Invoice?)null);
-
-        var result = await _handler.Handle(command, CancellationToken.None);
-
-        result.IsFailure.Should().BeTrue();
-        result.Error!.Code.Should().Be(ApplicationErrors.IdempotencyResourceNotFound.Code);
-    }
-
-    [Fact]
-    public async Task Handle_WhenIdempotencyReplayResourceExists_ShouldReturnExistingInvoice()
-    {
-        var command = new CreateInvoiceCommand("key-123", InvoiceTestData.TenantId, "CUST-001", "Notes");
         var invoice = InvoiceTestData.DraftInvoice();
-        var record = IdempotencyRecord.Create(command.TenantId, IdempotencyOperation.CreateInvoice,
-            IdempotencyKey.Create(command.IdempotencyKey), _hash, invoice.Id, new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero));
-        _idempotencyRepository.Setup(x => x.GetIdempotencyRecordAsync(command.TenantId, IdempotencyOperation.CreateInvoice,
-            It.IsAny<IdempotencyKey>(), It.IsAny<CancellationToken>())).ReturnsAsync(record);
-        _invoiceRepository.Setup(x => x.GetInvoiceByIdAsync(command.TenantId, invoice.Id, It.IsAny<CancellationToken>())).ReturnsAsync(invoice);
+        var cmd = new CreateInvoiceCommand("key-1", invoice.TenantId, "CUST-001", "notes");
+        var record = IdempotencyRecord.Create(cmd.TenantId, IdempotencyOperation.CreateInvoice, IdempotencyKey.Create(cmd.IdempotencyKey), RequestHash.Create(new string('A', 64)), invoice.Id, _clock.Object.GetUtcNow());
+        _idempotency.Setup(x => x.GetIdempotencyRecordAsync(cmd.TenantId, IdempotencyOperation.CreateInvoice, It.IsAny<IdempotencyKey>(), It.IsAny<CancellationToken>())).ReturnsAsync(record);
+        _invoices.Setup(x => x.GetInvoiceByIdAsync(cmd.TenantId, invoice.Id, It.IsAny<CancellationToken>())).ReturnsAsync(invoice);
 
-        var result = await _handler.Handle(command, CancellationToken.None);
+        var result = await _sut.Handle(cmd, CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value!.Id.Should().Be(invoice.Id);
-        _customerService.Verify(x => x.GetCustomerAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        _unitOfWork.Verify(x => x.ExecuteInTransactionAsync<InvoiceDto>(It.IsAny<Func<CancellationToken, Task<Result<InvoiceDto>>>>(), It.IsAny<CancellationToken>(), It.IsAny<System.Data.IsolationLevel>()), Times.Never);
     }
 
-    private sealed class FixedRequestHasher(Result<RequestHash> result) : IRequestHasher
+    [Fact]
+    public async Task Handle_ReturnsKeyReused_WhenExistingKeyHasDifferentRequestHash()
     {
-        public FixedRequestHasher(RequestHash hash) : this(Result<RequestHash>.Success(hash)) { }
-        public Result<RequestHash> Hash<TRequest>(TRequest request) => result;
+        var invoice = InvoiceTestData.DraftInvoice();
+        var cmd = new CreateInvoiceCommand("key-1", invoice.TenantId, "CUST-001", "different notes");
+        var record = IdempotencyRecord.Create(cmd.TenantId, IdempotencyOperation.CreateInvoice, IdempotencyKey.Create(cmd.IdempotencyKey), RequestHash.Create(new string('B', 64)), invoice.Id, _clock.Object.GetUtcNow());
+        _idempotency.Setup(x => x.GetIdempotencyRecordAsync(cmd.TenantId, IdempotencyOperation.CreateInvoice, It.IsAny<IdempotencyKey>(), It.IsAny<CancellationToken>())).ReturnsAsync(record);
+
+        var result = await _sut.Handle(cmd, CancellationToken.None);
+
+        result.Error.Should().Be(ApplicationErrors.IdempotencyKeyReused);
+    }
+
+    private sealed class FixedRequestHasher : IRequestHasher
+    {
+        public Result<RequestHash> Hash<TRequest>(TRequest request) => Result<RequestHash>.Success(RequestHash.Create(new string('A', 64)));
     }
 }

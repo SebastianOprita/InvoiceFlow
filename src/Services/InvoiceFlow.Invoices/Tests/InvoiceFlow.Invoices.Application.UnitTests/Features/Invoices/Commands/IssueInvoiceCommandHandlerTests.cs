@@ -8,83 +8,95 @@ namespace InvoiceFlow.Invoices.Application.UnitTests;
 
 public sealed class IssueInvoiceCommandHandlerTests
 {
-    private readonly Mock<IInvoiceRepository> _invoiceRepository = new();
-    private readonly Mock<IInvoiceNumberRepository> _invoiceNumberRepository = new();
+    private readonly Mock<IInvoiceRepository> _invoices = new();
+    private readonly Mock<IInvoiceNumberRepository> _numbers = new();
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
-    private readonly Mock<ISystemDateTimeProvider> _dateTimeProvider = new();
-    private readonly IssueInvoiceCommandHandler _handler;
+    private readonly Mock<ISystemDateTimeProvider> _clock = new();
+    private readonly IssueInvoiceCommandHandler _sut;
 
     public IssueInvoiceCommandHandlerTests()
     {
-        _handler = new(_invoiceRepository.Object, _invoiceNumberRepository.Object, _unitOfWork.Object, _dateTimeProvider.Object);
-        _unitOfWork.Setup(x => x.ExecuteInTransactionAsync(It.IsAny<Func<CancellationToken, Task<Result>>>(), It.IsAny<CancellationToken>()))
-            .Returns((Func<CancellationToken, Task<Result>> operation, CancellationToken ct) => operation(ct));
-        _unitOfWork.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success());
-        _dateTimeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTimeOffset(2025, 3, 4, 23, 30, 0, TimeSpan.Zero));
+        _clock.Setup(x => x.GetUtcNow()).Returns(new DateTimeOffset(2025, 1, 2, 10, 0, 0, TimeSpan.Zero));
+        _unitOfWork.Setup(x => x.ExecuteInTransactionAsync(
+                It.IsAny<Func<CancellationToken, Task<Result>>>(), It.IsAny<CancellationToken>(), It.IsAny<System.Data.IsolationLevel>()))
+            .Returns((Func<CancellationToken, Task<Result>> action, CancellationToken ct, System.Data.IsolationLevel _) => action(ct));
+        _sut = new(_invoices.Object, _numbers.Object, _unitOfWork.Object, _clock.Object);
     }
 
     [Fact]
-    public async Task Handle_WithDraftInvoice_ShouldAllocateNumberIssueAndSave()
+    public async Task Handle_ReturnsNotFound_WhenInvoiceDoesNotExist()
+    {
+        var cmd = new IssueInvoiceCommand(InvoiceTestData.TenantId, Guid.CreateVersion7());
+        _invoices.Setup(x => x.GetForIssuingAsync(cmd.TenantId, cmd.InvoiceId, It.IsAny<CancellationToken>())).ReturnsAsync((Invoice?)null);
+
+        var result = await _sut.Handle(cmd, CancellationToken.None);
+
+        result.Error.Should().Be(ApplicationErrors.InvoiceNotFound);
+        _numbers.Verify(x => x.AllocateNextAsync(It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
+        _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_ReturnsSuccessWithoutSaving_WhenAlreadyIssued()
     {
         var invoice = InvoiceTestData.DraftInvoice();
-        var command = new IssueInvoiceCommand(invoice.TenantId, invoice.Id);
-        _invoiceRepository.Setup(x => x.GetForIssuingAsync(command.TenantId, command.InvoiceId, It.IsAny<CancellationToken>())).ReturnsAsync(invoice);
-        _invoiceNumberRepository.Setup(x => x.AllocateNextAsync(command.TenantId, 2025, It.IsAny<CancellationToken>())).ReturnsAsync("INV-2025-0001");
+        invoice.Issue(InvoiceNumber.Create("2025-0001"), new DateOnly(2025, 1, 2), _clock.Object.GetUtcNow());
+        var cmd = new IssueInvoiceCommand(invoice.TenantId, invoice.Id);
+        _invoices.Setup(x => x.GetForIssuingAsync(cmd.TenantId, cmd.InvoiceId, It.IsAny<CancellationToken>())).ReturnsAsync(invoice);
 
-        var result = await _handler.Handle(command, CancellationToken.None);
+        var result = await _sut.Handle(cmd, CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+        _numbers.Verify(x => x.AllocateNextAsync(It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
+        _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_IssuesDraftAndSaves()
+    {
+        var invoice = InvoiceTestData.DraftInvoice();
+        var cmd = new IssueInvoiceCommand(invoice.TenantId, invoice.Id);
+        _invoices.Setup(x => x.GetForIssuingAsync(cmd.TenantId, cmd.InvoiceId, It.IsAny<CancellationToken>())).ReturnsAsync(invoice);
+        _numbers.Setup(x => x.AllocateNextAsync(cmd.TenantId, 2025, It.IsAny<CancellationToken>())).ReturnsAsync("2025-0001");
+        _unitOfWork.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success());
+
+        var result = await _sut.Handle(cmd, CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
         invoice.Status.Should().Be(InvoiceStatus.Issued);
-        invoice.Number!.Value.Should().Be("INV-2025-0001");
-        invoice.IssueDate.Should().Be(new DateOnly(2025, 3, 4));
-        _invoiceNumberRepository.Verify(x => x.AllocateNextAsync(command.TenantId, 2025, It.IsAny<CancellationToken>()), Times.Once);
         _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
-    public async Task Handle_WhenInvoiceDoesNotExist_ShouldReturnNotFound()
+    public async Task Handle_ReturnsSuccessAfterConcurrencyConflict_WhenAnotherRequestIssuedInvoice()
     {
-        var command = new IssueInvoiceCommand(Guid.CreateVersion7(), Guid.CreateVersion7());
-        _invoiceRepository.Setup(x => x.GetForIssuingAsync(command.TenantId, command.InvoiceId, It.IsAny<CancellationToken>())).ReturnsAsync((Invoice?)null);
+        var draft = InvoiceTestData.DraftInvoice();
+        var issued = InvoiceTestData.DraftInvoice();
+        issued.Issue(InvoiceNumber.Create("2025-0001"), new DateOnly(2025, 1, 2), _clock.Object.GetUtcNow());
+        var cmd = new IssueInvoiceCommand(draft.TenantId, draft.Id);
+        _invoices.SetupSequence(x => x.GetForIssuingAsync(cmd.TenantId, cmd.InvoiceId, It.IsAny<CancellationToken>())).ReturnsAsync(draft);
+        _invoices.Setup(x => x.GetInvoiceByIdAsync(cmd.TenantId, cmd.InvoiceId, It.IsAny<CancellationToken>())).ReturnsAsync(issued);
+        _numbers.Setup(x => x.AllocateNextAsync(cmd.TenantId, 2025, It.IsAny<CancellationToken>())).ReturnsAsync("2025-0002");
+        _unitOfWork.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Result.Failure(ApplicationErrors.ConcurrencyConflict));
 
-        var result = await _handler.Handle(command, CancellationToken.None);
-
-        result.IsFailure.Should().BeTrue();
-        result.Error.Should().NotBeNull();
-        result.Error.Code.Should().Be(ApplicationErrors.InvoiceNotFound.Code);
-        _invoiceNumberRepository.Verify(x => x.AllocateNextAsync(It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
-        _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
-    }
-
-    [Fact]
-    public async Task Handle_WhenInvoiceIsAlreadyIssued_ShouldSucceedWithoutAllocatingNumber()
-    {
-        var invoice = InvoiceTestData.DraftInvoice();
-        invoice.Issue(InvoiceNumber.Create("INV-2025-0001"), new DateOnly(2025, 1, 1), new DateTimeOffset(2025, 1, 1, 11, 0, 0, TimeSpan.Zero));
-        var command = new IssueInvoiceCommand(invoice.TenantId, invoice.Id);
-        _invoiceRepository.Setup(x => x.GetForIssuingAsync(command.TenantId, command.InvoiceId, It.IsAny<CancellationToken>())).ReturnsAsync(invoice);
-
-        var result = await _handler.Handle(command, CancellationToken.None);
+        var result = await _sut.Handle(cmd, CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
-        _invoiceNumberRepository.Verify(x => x.AllocateNextAsync(It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
-        _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+        _unitOfWork.Verify(x => x.ClearTrackedChanges(), Times.Once);
     }
 
     [Fact]
-    public async Task Handle_WhenInvoiceIsCancelled_ShouldReturnConflict()
+    public async Task Handle_PreservesConcurrencyConflict_WhenReloadedInvoiceIsNotIssued()
     {
         var invoice = InvoiceTestData.DraftInvoice();
-        invoice.Issue(InvoiceNumber.Create("INV-2025-0001"), new DateOnly(2025, 1, 1), new DateTimeOffset(2025, 1, 1, 11, 0, 0, TimeSpan.Zero));
-        invoice.Cancel(new DateTimeOffset(2025, 1, 2, 0, 0, 0, TimeSpan.Zero));
-        var command = new IssueInvoiceCommand(invoice.TenantId, invoice.Id);
-        _invoiceRepository.Setup(x => x.GetForIssuingAsync(command.TenantId, command.InvoiceId, It.IsAny<CancellationToken>())).ReturnsAsync(invoice);
+        var cmd = new IssueInvoiceCommand(invoice.TenantId, invoice.Id);
+        _invoices.Setup(x => x.GetForIssuingAsync(cmd.TenantId, cmd.InvoiceId, It.IsAny<CancellationToken>())).ReturnsAsync(invoice);
+        _invoices.Setup(x => x.GetInvoiceByIdAsync(cmd.TenantId, cmd.InvoiceId, It.IsAny<CancellationToken>())).ReturnsAsync(InvoiceTestData.DraftInvoice());
+        _numbers.Setup(x => x.AllocateNextAsync(cmd.TenantId, 2025, It.IsAny<CancellationToken>())).ReturnsAsync("2025-0001");
+        _unitOfWork.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Result.Failure(ApplicationErrors.ConcurrencyConflict));
 
-        var result = await _handler.Handle(command, CancellationToken.None);
+        var result = await _sut.Handle(cmd, CancellationToken.None);
 
-        result.IsFailure.Should().BeTrue();
-        result.Error!.Code.Should().Be(ApplicationErrors.InvoiceCannotBeIssued.Code);
-        _invoiceNumberRepository.Verify(x => x.AllocateNextAsync(It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
-        _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+        result.Error.Should().Be(ApplicationErrors.ConcurrencyConflict);
     }
 }

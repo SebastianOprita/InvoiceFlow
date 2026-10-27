@@ -37,6 +37,21 @@ public class InvoicesController(IMediator mediator) : ControllerBase
             : result.ToActionResult();
     }
 
+    [HttpPost("{invoiceId:guid}/line")]
+    [HasPermission(SystemPermissions.InvoiceCreate)]
+    public async Task<IActionResult> AddLine(
+        [FromRoute][Required] Guid tenantId,
+        [FromRoute][Required] Guid invoiceId,
+        [FromBody][Required] AddInvoiceLineRequest request,
+        [FromHeader(Name = "Idempotency-Key")][Required] string idempotencyKey,
+        CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(request.ToCommand(idempotencyKey, tenantId, invoiceId), cancellationToken);
+        return result.IsSuccess
+            ? CreatedAtAction(nameof(GetById), new { tenantId, invoiceId = result.Value!.Id }, result.Value)
+            : result.ToActionResult();
+    }
+
     [HttpPost("{invoiceId:guid}/Issue")]
     [HasPermission(SystemPermissions.CustomerStatusManage)]
     public async Task<IActionResult> Issue(

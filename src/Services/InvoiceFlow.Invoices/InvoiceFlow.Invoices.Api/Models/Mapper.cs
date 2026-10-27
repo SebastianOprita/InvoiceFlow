@@ -12,4 +12,15 @@ public static class Mapper
             request.CustomerCode,
             request.InvoiceNotes);
     }
+
+    public static AddInvoiceLineCommand ToCommand(this AddInvoiceLineRequest request, string IdempotencyKey, Guid tenantId, Guid invoiceId)
+    {
+        return new AddInvoiceLineCommand(
+            IdempotencyKey,
+            tenantId,
+            invoiceId,
+            request.ProductCode,
+            request.Quantity,
+            request.DiscountRate);
+    }
 }

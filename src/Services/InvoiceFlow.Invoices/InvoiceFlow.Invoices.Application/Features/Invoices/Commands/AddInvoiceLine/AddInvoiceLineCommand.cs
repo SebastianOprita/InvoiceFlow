@@ -10,4 +10,4 @@ public sealed record AddInvoiceLineCommand(
     string ProductCode,
     decimal Quantity,
     decimal? DiscountRate)
-    : IRequest<Result<InvoiceLineDto>>;
+    : IRequest<Result<InvoiceDto>>;

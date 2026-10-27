@@ -17,5 +17,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\InvoiceFlow.Invoices.Application\InvoiceFlow.Invoices.Application.csproj" />
+    <ProjectReference Include="..\..\InvoiceFlow.Invoices.Api\InvoiceFlow.Invoices.Api.csproj" />
   </ItemGroup>
 </Project>

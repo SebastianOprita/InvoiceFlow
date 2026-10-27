@@ -11,9 +11,9 @@ internal sealed class AddInvoiceLineCommandHandler(
     IRequestHasher requestHasher,
     IUnitOfWork unitOfWork,
     ISystemDateTimeProvider dateTimeProvider)
-    : IRequestHandler<AddInvoiceLineCommand, Result<InvoiceLineDto>>
+    : IRequestHandler<AddInvoiceLineCommand, Result<InvoiceDto>>
 {
-    public async Task<Result<InvoiceLineDto>> Handle(
+    public async Task<Result<InvoiceDto>> Handle(
         AddInvoiceLineCommand cmd,
         CancellationToken cancellationToken)
     {
@@ -30,21 +30,21 @@ internal sealed class AddInvoiceLineCommandHandler(
             });
 
         if (hashResult.IsFailure || hashResult.Value is null)
-            return Result<InvoiceLineDto>.Failure(hashResult);
+            return Result<InvoiceDto>.Failure(hashResult);
 
         var requestHash = hashResult.Value;
 
-        var existing =
+        var existingIdempotencyRecord =
             await idempotencyRepository.GetIdempotencyRecordAsync(
                 cmd.TenantId,
                 IdempotencyOperation.AddInvoiceLine,
                 key,
                 cancellationToken);
 
-        if (existing is not null)
+        if (existingIdempotencyRecord is not null)
             return await ReplayAddInvoiceLineAsync(
                 cmd.InvoiceId,
-                existing,
+                existingIdempotencyRecord,
                 requestHash,
                 cancellationToken);
 
@@ -55,7 +55,7 @@ internal sealed class AddInvoiceLineCommandHandler(
                 cancellationToken);
 
         if (productResult.IsFailure || productResult.Value is null)
-            return Result<InvoiceLineDto>.Failure(productResult);
+            return Result<InvoiceDto>.Failure(productResult);
 
         var now = dateTimeProvider.GetUtcNow();
         var quantity = Quantity.Create(cmd.Quantity);
@@ -64,17 +64,17 @@ internal sealed class AddInvoiceLineCommandHandler(
         var result = await unitOfWork.ExecuteInTransactionAsync(
         async ct =>
         {
-            var transactionExisting =
+            var transactionIdempotencyRecord =
                 await idempotencyRepository.GetIdempotencyRecordAsync(
                     cmd.TenantId,
                     IdempotencyOperation.AddInvoiceLine,
                     key,
                     ct);
 
-            if (transactionExisting is not null)
+            if (transactionIdempotencyRecord is not null)
                 return await ReplayAddInvoiceLineAsync(
                     cmd.InvoiceId,
-                    transactionExisting,
+                    transactionIdempotencyRecord,
                     requestHash,
                     ct);
 
@@ -85,7 +85,7 @@ internal sealed class AddInvoiceLineCommandHandler(
                     ct);
 
             if (invoice is null)
-                return Result<InvoiceLineDto>.Failure(ApplicationErrors.InvoiceNotFound);
+                return Result<InvoiceDto>.Failure(ApplicationErrors.InvoiceNotFound);
 
             var invoiceLine =
                 invoice.AddProductLine(
@@ -106,9 +106,9 @@ internal sealed class AddInvoiceLineCommandHandler(
 
             var saveResult = await unitOfWork.SaveChangesAsync(ct);
             if (saveResult.IsFailure)
-                return Result<InvoiceLineDto>.Failure(saveResult);
+                return Result<InvoiceDto>.Failure(saveResult);
 
-            return Result<InvoiceLineDto>.Success(invoiceLine.ToDto());
+            return Result<InvoiceDto>.Success(invoice.ToDto());
         },
         cancellationToken);
 
@@ -118,18 +118,18 @@ internal sealed class AddInvoiceLineCommandHandler(
         {
             unitOfWork.ClearTrackedChanges();
 
-            var committedRecord =
+            var committedIdempotencyRecord =
                 await idempotencyRepository.GetIdempotencyRecordAsync(
                     cmd.TenantId,
                     IdempotencyOperation.AddInvoiceLine,
                     key,
                     cancellationToken);
 
-            if (committedRecord is not null)
+            if (committedIdempotencyRecord is not null)
             {
                 return await ReplayAddInvoiceLineAsync(
                     cmd.InvoiceId,
-                    committedRecord,
+                    committedIdempotencyRecord,
                     requestHash,
                     cancellationToken);
             }
@@ -138,24 +138,23 @@ internal sealed class AddInvoiceLineCommandHandler(
         return result;
     }
 
-    private async Task<Result<InvoiceLineDto>> ReplayAddInvoiceLineAsync(
+    private async Task<Result<InvoiceDto>> ReplayAddInvoiceLineAsync(
         Guid invoiceId,
         IdempotencyRecord record,
         RequestHash requestHash,
         CancellationToken cancellationToken)
     {
         if (!record.MatchesRequest(requestHash))
-            return Result<InvoiceLineDto>.Failure(ApplicationErrors.IdempotencyKeyReused);
+            return Result<InvoiceDto>.Failure(ApplicationErrors.IdempotencyKeyReused);
 
-        var invoiceLine = await invoiceRepository.GetInvoiceLineByIdAsync(
+        var invoice = await invoiceRepository.GetInvoiceByIdAsync(
             record.TenantId,
             invoiceId,
-            record.ResourceId,
             cancellationToken);
 
-        if (invoiceLine is null)
-            return Result<InvoiceLineDto>.Failure(ApplicationErrors.IdempotencyResourceNotFound);
+        if (invoice is null)
+            return Result<InvoiceDto>.Failure(ApplicationErrors.IdempotencyResourceNotFound);
 
-        return Result<InvoiceLineDto>.Success(invoiceLine.ToDto());
+        return Result<InvoiceDto>.Success(invoice.ToDto());
     }
 }

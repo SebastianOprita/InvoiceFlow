@@ -15,37 +15,52 @@ internal sealed class IssueInvoiceCommandHandler(
         IssueInvoiceCommand cmd,
         CancellationToken cancellationToken)
     {
-        return await unitOfWork.ExecuteInTransactionAsync(
-            async ct => 
-            {
-                var invoice = await invoiceRepository.GetForIssuingAsync(
+        var result = await unitOfWork.ExecuteInTransactionAsync(
+        async ct => 
+        {
+            var invoice = await invoiceRepository.GetForIssuingAsync(
+                cmd.TenantId,
+                cmd.InvoiceId,
+                ct);
+
+            if (invoice is null)
+                return Result.Failure(ApplicationErrors.InvoiceNotFound);
+                
+            if (invoice.Status == InvoiceStatus.Issued)
+                return Result.Success();
+
+            if (invoice.Status != InvoiceStatus.Draft)
+                return Result.Failure(ApplicationErrors.InvoiceCannotBeIssued);
+
+            var now = dateTimeProvider.GetUtcNow();
+            var issueDate = DateOnly.FromDateTime(now.UtcDateTime);
+
+            var invoiceNumber =
+                await invoiceNumberRepository.AllocateNextAsync(
                     cmd.TenantId,
-                    cmd.InvoiceId,
+                    now.UtcDateTime.Year,
                     ct);
 
-                if (invoice is null)
-                    return Result.Failure(ApplicationErrors.InvoiceNotFound);
-                
-                if (invoice.Status == InvoiceStatus.Issued)
-                    return Result.Success();
+            invoice.Issue(InvoiceNumber.Create(invoiceNumber), issueDate, now);
 
-                if (invoice.Status != InvoiceStatus.Draft)
-                    return Result.Failure(ApplicationErrors.InvoiceCannotBeIssued);
+            return await unitOfWork.SaveChangesAsync(ct);
 
-                var now = dateTimeProvider.GetUtcNow();
-                var issueDate = DateOnly.FromDateTime(now.UtcDateTime);
+        },
+        cancellationToken);
 
-                var invoiceNumber =
-                    await invoiceNumberRepository.AllocateNextAsync(
-                        cmd.TenantId,
-                        now.UtcDateTime.Year,
-                        ct);
+        if (result.IsFailure && result.Error == ApplicationErrors.ConcurrencyConflict)
+        {
+            unitOfWork.ClearTrackedChanges();
 
-                invoice.Issue(InvoiceNumber.Create(invoiceNumber), issueDate, now);
+            var currentInvoice = await invoiceRepository.GetInvoiceByIdAsync(
+                cmd.TenantId,
+                cmd.InvoiceId,
+                cancellationToken);
 
-                return await unitOfWork.SaveChangesAsync(ct);
+            if (currentInvoice?.Status == InvoiceStatus.Issued)
+                return Result.Success();
+        }
 
-            },
-            cancellationToken);
+        return result;
     }
 }
