@@ -1,4 +1,4 @@
-﻿namespace InvoiceFlow.BuildingBlocks.Application;
+namespace InvoiceFlow.BuildingBlocks.Application;
 
 public enum ApplicationErrorType
 {
@@ -7,5 +7,8 @@ public enum ApplicationErrorType
     Conflict,
     Unauthorized,
     Forbidden,
-    Internal
+    Internal,
+    ServiceUnavailable,
+    Timeout,
+    TooManyRequests
 }
