@@ -6,7 +6,7 @@ namespace InvoiceFlow.Invoices.Infrastructure;
 
 internal sealed class ProductsService : IProductsService
 {
-    private static readonly IReadOnlyDictionary<string, ProductData> Products =
+    private static readonly Dictionary<string, ProductData> Products =
         new Dictionary<string, ProductData>(StringComparer.Ordinal)
         {
             ["product001"] = new(

@@ -36,7 +36,7 @@ public static class DependencyInjection
         services.AddSingleton<IRequestHasher, RequestHasher>();
 
         services.RegisterRepositories();
-        services.RegisterHttpClients(configuration);
+        services.RegisterHttpClients();
 
         return services;
     }
@@ -52,8 +52,7 @@ public static class DependencyInjection
     }
 
     private static IServiceCollection RegisterHttpClients(
-        this IServiceCollection services,
-        IConfiguration configuration)
+        this IServiceCollection services)
     {
         services.AddScoped<ICustomersService, CustomersService>();
         services.AddScoped<IProductsService, ProductsService>();

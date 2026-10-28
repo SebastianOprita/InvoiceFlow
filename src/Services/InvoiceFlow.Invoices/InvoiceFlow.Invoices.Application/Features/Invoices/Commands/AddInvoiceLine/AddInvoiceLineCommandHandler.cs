@@ -105,23 +105,37 @@ internal sealed class AddInvoiceLineCommandHandler(
         },
         cancellationToken);
 
-        if (result.IsFailure &&
-            (result.Error == ApplicationErrors.IdempotencyKeyConflict ||
-             result.Error == ApplicationErrors.ConcurrencyConflict))
-        {
-            unitOfWork.ClearTrackedChanges();
+        return await RecoverFromConflictAsync(
+            result,
+            cmd.TenantId,
+            cmd.InvoiceId,
+            key,
+            requestHash,
+            cancellationToken);
+    }
 
-            var committedResult = await TryReplayIdempotentRequestAsync(
-                cmd.TenantId,
-                cmd.InvoiceId,
-                key,
-                requestHash,
-                cancellationToken);
-            if (committedResult is not null)
-                return committedResult;
+    private async Task<Result<InvoiceDto>> RecoverFromConflictAsync(
+        Result<InvoiceDto> result,
+        Guid tenantId,
+        Guid invoiceId,
+        IdempotencyKey key,
+        RequestHash requestHash,
+        CancellationToken cancellationToken)
+    {
+        if (result.Error != ApplicationErrors.IdempotencyKeyConflict &&
+            result.Error != ApplicationErrors.ConcurrencyConflict)
+        {
+            return result;
         }
 
-        return result;
+        unitOfWork.ClearTrackedChanges();
+
+        return await TryReplayIdempotentRequestAsync(
+            tenantId,
+            invoiceId,
+            key,
+            requestHash,
+            cancellationToken) ?? result;
     }
 
     private async Task<Result<InvoiceDto>?> TryReplayIdempotentRequestAsync(
