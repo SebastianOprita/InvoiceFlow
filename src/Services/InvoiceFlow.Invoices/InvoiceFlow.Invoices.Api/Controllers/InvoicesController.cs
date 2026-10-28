@@ -64,7 +64,7 @@ public class InvoicesController(IMediator mediator) : ControllerBase
     }
 
     [HttpPost("{invoiceId:guid}/Issue")]
-    [HasPermission(SystemPermissions.CustomerStatusManage)]
+    [HasPermission(SystemPermissions.InvoiceIssue)]
     public async Task<IActionResult> Issue(
         [FromRoute][Required] Guid tenantId,
         [FromRoute][Required] Guid invoiceId,

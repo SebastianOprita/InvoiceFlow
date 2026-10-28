@@ -18,7 +18,10 @@ public static class DependencyInjection
         {
             options.UseSqlServer(connectionString, sql =>
             {
-                sql.EnableRetryOnFailure();
+                sql.EnableRetryOnFailure(
+                    maxRetryCount: 3,
+                    maxRetryDelay: TimeSpan.FromSeconds(2),
+                    errorNumbersToAdd: [1205, 1222]);
                 sql.MigrationsAssembly(
                     typeof(InvoicesDbContext).Assembly.FullName);
             });

@@ -13,7 +13,7 @@ public static class InvoicesDbSeed
 
         var customer = InvoiceCustomerSnapshot.Create(
             customerTenantId: tenantId,
-            customerId: Guid.Parse("01a0cae9-2e61-7b82-924b-5beaf5b08d4a"),
+            customerId: Guid.Parse("722fa11b-19d1-4184-898d-9fe814b32f28"),
             isActive: true,
             customerCode: CustomerCode.Create("CUST001"),
             customerName: CustomerName.Create("Customer One"),
@@ -27,15 +27,33 @@ public static class InvoicesDbSeed
             customerState: State.CreateOptional("Stateville"),
             customerCountry: Country.Create("Countryland"),
             customerPostalCode: PostalCode.Create("12345"),
-            currencyCode: CurrencyCode.Create("USD"),
-            creditLimit: CreditLimit.Create(1000m),
+            currencyCode: CurrencyCode.Create("RON"),
+            creditLimit: CreditLimit.Create(10000m),
             paymentTermDays: PaymentTermDays.Create(30));
+
+        var product = InvoiceProductSnapshot.Create(
+            productTenantId: tenantId,
+            productId: Guid.Parse("cda14eb7-598c-4c66-ad4d-d0db7f11bad7"),
+            isActive: true,
+            productCode: ProductCode.Create("product001"),
+            productName: ProductName.Create("product name"),
+            productDescription: ProductDescription.Create("product description"),
+            unitOfMeasure: UnitOfMeasure.Piece,
+            unitPrice: Money.Create(12m, CurrencyCode.Create("RON")),
+            taxRate: Percentage.Create(9m));
 
         var invoice = Invoice.Create(
             tenantId: tenantId,
             Guid.CreateVersion7(),
             customer,
             InvoiceNotes.CreateOptional("Invoice notes."),
+            dateTimeProvider.GetUtcNow());
+
+        invoice.AddProductLine(
+            Guid.CreateVersion7(),
+            product,
+            Quantity.Create(100),
+            Percentage.Create(10),
             dateTimeProvider.GetUtcNow());
 
         db.Invoices.Add(invoice);

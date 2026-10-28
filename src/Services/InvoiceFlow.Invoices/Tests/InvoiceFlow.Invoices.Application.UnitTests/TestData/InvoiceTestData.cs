@@ -5,8 +5,8 @@ namespace InvoiceFlow.Invoices.Application.UnitTests;
 internal static class InvoiceTestData
 {
     internal static readonly Guid TenantId = Guid.CreateVersion7();
-    internal static InvoiceCustomerSnapshot Customer(Guid? tenantId = null) => InvoiceCustomerSnapshot.Create(
-        tenantId ?? TenantId, Guid.CreateVersion7(), true,
+    internal static InvoiceCustomerSnapshot Customer(Guid? tenantId = null, bool isActive = true) => InvoiceCustomerSnapshot.Create(
+        tenantId ?? TenantId, Guid.CreateVersion7(), isActive,
         CustomerCode.Create("CUST-001"), CustomerName.Create("Acme Ltd"),
         CustomerEmail.Create("contact@acme.test"), PhoneNumber.Create("+40700111222"),
         TaxNumber.Create("RO123456"), RegistrationNumber.Create("J40/123/2024"),

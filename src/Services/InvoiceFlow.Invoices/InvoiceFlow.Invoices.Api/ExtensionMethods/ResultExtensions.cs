@@ -33,6 +33,9 @@ public static class ResultExtensions
             ApplicationErrorType.Unauthorized => StatusCodes.Status401Unauthorized,
             ApplicationErrorType.Forbidden => StatusCodes.Status403Forbidden,
             ApplicationErrorType.Internal => StatusCodes.Status500InternalServerError,
+            ApplicationErrorType.ServiceUnavailable => StatusCodes.Status503ServiceUnavailable,
+            ApplicationErrorType.Timeout => StatusCodes.Status504GatewayTimeout,
+            ApplicationErrorType.TooManyRequests => StatusCodes.Status429TooManyRequests,
             _ => StatusCodes.Status500InternalServerError
         };
 

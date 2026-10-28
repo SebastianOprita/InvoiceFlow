@@ -1,4 +1,4 @@
-﻿using InvoiceFlow.Invoices.Application;
+using InvoiceFlow.Invoices.Application;
 using InvoiceFlow.Invoices.Domain;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,7 +8,7 @@ internal sealed class InvoiceNumberRepository(
     InvoicesDbContext context)
     : IInvoiceNumberRepository
 {
-    public async Task<string> AllocateNextAsync(Guid tenantId, int year, CancellationToken cancellationToken = default)
+    public async Task<string> AllocateNextWithLockAsync(Guid tenantId, int year, CancellationToken cancellationToken = default)
     {
         var sequence = await context.InvoiceNumberSequences
             .FromSqlInterpolated($"""

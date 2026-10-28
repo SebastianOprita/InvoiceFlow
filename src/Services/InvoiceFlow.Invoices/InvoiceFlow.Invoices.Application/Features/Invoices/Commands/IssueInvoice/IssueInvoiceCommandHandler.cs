@@ -18,7 +18,7 @@ internal sealed class IssueInvoiceCommandHandler(
         var result = await unitOfWork.ExecuteInTransactionAsync(
         async ct => 
         {
-            var invoice = await invoiceRepository.GetForIssuingAsync(
+            var invoice = await invoiceRepository.GetInvoiceWithLockAsync(
                 cmd.TenantId,
                 cmd.InvoiceId,
                 ct);
@@ -36,7 +36,7 @@ internal sealed class IssueInvoiceCommandHandler(
             var issueDate = DateOnly.FromDateTime(now.UtcDateTime);
 
             var invoiceNumber =
-                await invoiceNumberRepository.AllocateNextAsync(
+                await invoiceNumberRepository.AllocateNextWithLockAsync(
                     cmd.TenantId,
                     now.UtcDateTime.Year,
                     ct);

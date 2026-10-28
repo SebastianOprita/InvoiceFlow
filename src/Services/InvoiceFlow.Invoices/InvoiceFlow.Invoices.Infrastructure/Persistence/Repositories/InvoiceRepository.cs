@@ -49,7 +49,7 @@ internal sealed class InvoiceRepository(
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<Invoice?> GetForIssuingAsync(
+    public async Task<Invoice?> GetInvoiceWithLockAsync(
         Guid tenantId,
         Guid Id,
         CancellationToken cancellationToken = default)

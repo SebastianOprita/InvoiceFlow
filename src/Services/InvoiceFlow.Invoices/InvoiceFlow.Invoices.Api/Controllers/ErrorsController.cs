@@ -77,6 +77,9 @@ public sealed class ErrorsController : ControllerBase
             ApplicationErrorType.NotFound => StatusCodes.Status404NotFound,
             ApplicationErrorType.Conflict => StatusCodes.Status409Conflict,
             ApplicationErrorType.Internal => StatusCodes.Status500InternalServerError,
+            ApplicationErrorType.ServiceUnavailable => StatusCodes.Status503ServiceUnavailable,
+            ApplicationErrorType.Timeout => StatusCodes.Status504GatewayTimeout,
+            ApplicationErrorType.TooManyRequests => StatusCodes.Status429TooManyRequests,
             _ => StatusCodes.Status500InternalServerError
         };
 }
