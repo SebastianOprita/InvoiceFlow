@@ -3,11 +3,48 @@ name: Invoices CI
 on:
   workflow_call:
 
-jobs:
-  placeholder:
-    name: Invoices Placeholder
-    runs-on: ubuntu-latest
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/Services/InvoiceFlow.Invoices/**'
+      - 'Directory.Packages.props'
+      - 'Directory.Build.props'
+      - 'NuGet.config'
+      - 'global.json'
+      - '.github/workflows/ci-invoices.yml'
+      - '.github/workflows/ci-service-template.yml'
 
-    steps:
-      - name: Placeholder
-        run: echo "Invoices CI not implemented yet."
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: read
+  packages: read
+
+jobs:
+  invoices:
+    uses: ./.github/workflows/ci-service-template.yml
+
+    with:
+      service_name: Invoices
+
+      service_slug: invoices
+
+      service_path: src/Services/InvoiceFlow.Invoices
+
+      api_project: src/Services/InvoiceFlow.Invoices/InvoiceFlow.Invoices.Api/InvoiceFlow.Invoices.Api.csproj
+
+      domain_tests: src/Services/InvoiceFlow.Invoices/Tests/InvoiceFlow.Invoices.Domain.UnitTests/InvoiceFlow.Invoices.Domain.UnitTests.csproj
+
+      application_tests: src/Services/InvoiceFlow.Invoices/Tests/InvoiceFlow.Invoices.Application.UnitTests/InvoiceFlow.Invoices.Application.UnitTests.csproj
+
+      integration_tests: src/Services/InvoiceFlow.Invoices/Tests/InvoiceFlow.Invoices.Api.IntegrationTests/InvoiceFlow.Invoices.Api.IntegrationTests.csproj
+
+      architecture_tests: src/Services/InvoiceFlow.Invoices/Tests/InvoiceFlow.Invoices.ArchitectureTests/InvoiceFlow.Invoices.ArchitectureTests.csproj
+
+      sonar_project_key: ${{ vars.INVOICESSONARPROJECTKEY }}
+
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
