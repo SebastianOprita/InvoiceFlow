@@ -1,4 +1,4 @@
-﻿using InvoiceFlow.BuildingBlocks.Domain;
+using InvoiceFlow.BuildingBlocks.Domain;
 
 namespace InvoiceFlow.Invoices.Domain;
 
@@ -20,6 +20,7 @@ public sealed record InvoiceCustomerSnapshot
     public Country CustomerCountry { get; }
     public PostalCode CustomerPostalCode { get; }
     public CurrencyCode CurrencyCode { get; }
+    public CreditLimit CreditLimit { get; }
     public PaymentTermDays PaymentTermDays { get; }
 
     private InvoiceCustomerSnapshot(
@@ -39,6 +40,7 @@ public sealed record InvoiceCustomerSnapshot
         Country customerCountry,
         PostalCode customerPostalCode,
         CurrencyCode currencyCode,
+        CreditLimit creditLimit,
         PaymentTermDays paymentTermDays)
     {
         CustomerTenantId = customerTenantId;
@@ -57,6 +59,7 @@ public sealed record InvoiceCustomerSnapshot
         CustomerCountry = customerCountry;
         CustomerPostalCode = customerPostalCode;
         CurrencyCode = currencyCode;
+        CreditLimit = creditLimit;
         PaymentTermDays = paymentTermDays;
     }
 
@@ -77,6 +80,7 @@ public sealed record InvoiceCustomerSnapshot
         Country customerCountry,
         PostalCode customerPostalCode,
         CurrencyCode currencyCode,
+        CreditLimit creditLimit,
         PaymentTermDays paymentTermDays)
     {
         if (customerTenantId == Guid.Empty)
@@ -102,6 +106,7 @@ public sealed record InvoiceCustomerSnapshot
             customerCountry,
             customerPostalCode,
             currencyCode,
+            creditLimit,
             paymentTermDays);
     }
 }

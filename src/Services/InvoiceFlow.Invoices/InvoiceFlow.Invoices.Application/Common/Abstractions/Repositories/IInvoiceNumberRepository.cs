@@ -1,8 +1,8 @@
-﻿namespace InvoiceFlow.Invoices.Application;
+namespace InvoiceFlow.Invoices.Application;
 
 public interface IInvoiceNumberRepository
 {
-    Task<string> AllocateNextAsync(
+    Task<string> AllocateNextWithLockAsync(
         Guid tenantId,
         int year,
         CancellationToken cancellationToken = default);

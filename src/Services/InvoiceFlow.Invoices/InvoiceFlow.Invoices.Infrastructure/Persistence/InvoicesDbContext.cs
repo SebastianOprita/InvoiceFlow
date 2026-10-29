@@ -1,4 +1,4 @@
-﻿using InvoiceFlow.Invoices.Domain;
+using InvoiceFlow.Invoices.Domain;
 using Microsoft.EntityFrameworkCore;
 
 namespace InvoiceFlow.Invoices.Infrastructure;
@@ -7,6 +7,7 @@ public sealed class InvoicesDbContext : DbContext
 {
     public DbSet<Invoice> Invoices => Set<Invoice>();
     public DbSet<InvoiceNumberSequence> InvoiceNumberSequences => Set<InvoiceNumberSequence>();
+    public DbSet<IdempotencyRecord> IdempotencyRecords => Set<IdempotencyRecord>();
 
     public InvoicesDbContext(DbContextOptions<InvoicesDbContext> options)
         : base(options)

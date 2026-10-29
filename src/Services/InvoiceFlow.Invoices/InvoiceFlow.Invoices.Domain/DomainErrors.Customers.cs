@@ -1,4 +1,4 @@
-﻿using InvoiceFlow.BuildingBlocks.Domain;
+using InvoiceFlow.BuildingBlocks.Domain;
 
 namespace InvoiceFlow.Invoices.Domain;
 
@@ -33,4 +33,5 @@ public static partial class DomainErrors
     public static readonly DomainError CustomerPaymentTermDaysInvalid = new("paymentTermDays.invalid", "Payment term days cannot be negative.");
     public static readonly DomainError CustomerPostalCodeRequired = new("customerPostalCode.required", "Postal code is required.");
     public static readonly DomainError CustomerPostalCodeTooLong = new("customerPostalCode.tooLong", $"Postal code is too long. Maximum length is {PostalCode.MaxLength} characters.");
+    public static readonly DomainError CreditLimitInvalid = new("creditLimit.invalid", "Credit Limit cannot be negative.");
 }

@@ -1,4 +1,4 @@
-﻿using InvoiceFlow.Customers.Application;
+using InvoiceFlow.Customers.Application;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -55,7 +55,7 @@ public static class DependencyInjection
         await db.Database.MigrateAsync(cancellationToken);
 
         var dateTimeProvider = scope.ServiceProvider
-            .GetRequiredService<InvoiceFlow.BuildingBlocks.Application.ISystemDateTimeProvider>();
+            .GetRequiredService<BuildingBlocks.Application.ISystemDateTimeProvider>();
         await CustomersDbSeed.SeedAsync(db, dateTimeProvider, cancellationToken);
     }
 }
