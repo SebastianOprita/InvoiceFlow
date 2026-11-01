@@ -22,6 +22,43 @@ namespace InvoiceFlow.Identity.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("InvoiceFlow.Identity.Domain.Organization", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)")
+                        .HasColumnName("Name");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Type")
+                        .HasDatabaseName("IX_Organizations_Type");
+
+                    b.ToTable("Organizations", (string)null);
+                });
+
             modelBuilder.Entity("InvoiceFlow.Identity.Domain.PlatformRefreshToken", b =>
                 {
                     b.Property<Guid>("Id")
@@ -234,6 +271,131 @@ namespace InvoiceFlow.Identity.Infrastructure.Migrations
                     b.ToTable("Roles", (string)null);
                 });
 
+            modelBuilder.Entity("InvoiceFlow.Identity.Domain.ServiceClient", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("CanAccessAllTenants")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ClientId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("ClientId");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)")
+                        .HasColumnName("Name");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<long>("Permissions")
+                        .HasColumnType("bigint")
+                        .HasColumnName("Permissions");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClientId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_ServiceClients_ClientId");
+
+                    b.HasIndex("OrganizationId")
+                        .HasDatabaseName("IX_ServiceClients_OrganizationId");
+
+                    b.ToTable("ServiceClients", (string)null);
+                });
+
+            modelBuilder.Entity("InvoiceFlow.Identity.Domain.ServiceClientSecret", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("Description");
+
+                    b.Property<DateTimeOffset>("ExpiresAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("Name");
+
+                    b.Property<DateTimeOffset?>("RevokedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<string>("SecretHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)")
+                        .HasColumnName("SecretHash");
+
+                    b.Property<Guid>("ServiceClientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SecretHash")
+                        .IsUnique()
+                        .HasDatabaseName("UX_ServiceClientSecrets_SecretHash");
+
+                    b.HasIndex("ServiceClientId")
+                        .HasDatabaseName("IX_ServiceClientSecrets_ServiceClientId");
+
+                    b.ToTable("ServiceClientSecrets", (string)null);
+                });
+
+            modelBuilder.Entity("InvoiceFlow.Identity.Domain.ServiceClientTenant", b =>
+                {
+                    b.Property<Guid>("ServiceClientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("ServiceClientId", "TenantId");
+
+                    b.HasIndex("TenantId")
+                        .HasDatabaseName("IX_ServiceClientTenants_TenantId");
+
+                    b.ToTable("ServiceClientTenants", (string)null);
+                });
+
             modelBuilder.Entity("InvoiceFlow.Identity.Domain.Tenant", b =>
                 {
                     b.Property<Guid>("Id")
@@ -366,6 +528,33 @@ namespace InvoiceFlow.Identity.Infrastructure.Migrations
                     b.ToTable("UserRoles", (string)null);
                 });
 
+            modelBuilder.Entity("InvoiceFlow.Identity.Domain.ServiceClient", b =>
+                {
+                    b.HasOne("InvoiceFlow.Identity.Domain.Organization", null)
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("InvoiceFlow.Identity.Domain.ServiceClientSecret", b =>
+                {
+                    b.HasOne("InvoiceFlow.Identity.Domain.ServiceClient", null)
+                        .WithMany("Secrets")
+                        .HasForeignKey("ServiceClientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("InvoiceFlow.Identity.Domain.ServiceClientTenant", b =>
+                {
+                    b.HasOne("InvoiceFlow.Identity.Domain.ServiceClient", null)
+                        .WithMany("Tenants")
+                        .HasForeignKey("ServiceClientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("InvoiceFlow.Identity.Domain.UserRole", b =>
                 {
                     b.HasOne("InvoiceFlow.Identity.Domain.Role", "Role")
@@ -388,6 +577,13 @@ namespace InvoiceFlow.Identity.Infrastructure.Migrations
             modelBuilder.Entity("InvoiceFlow.Identity.Domain.Role", b =>
                 {
                     b.Navigation("UserRoles");
+                });
+
+            modelBuilder.Entity("InvoiceFlow.Identity.Domain.ServiceClient", b =>
+                {
+                    b.Navigation("Secrets");
+
+                    b.Navigation("Tenants");
                 });
 
             modelBuilder.Entity("InvoiceFlow.Identity.Domain.User", b =>

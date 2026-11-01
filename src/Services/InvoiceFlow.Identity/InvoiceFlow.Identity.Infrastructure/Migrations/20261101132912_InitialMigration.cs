@@ -12,6 +12,23 @@ namespace InvoiceFlow.Identity.Infrastructure.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "Organizations",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Type = table.Column<int>(type: "int", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedAtUtc = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Organizations", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "PlatformRefreshTokens",
                 columns: table => new
                 {
@@ -80,6 +97,7 @@ namespace InvoiceFlow.Identity.Infrastructure.Migrations
                     Name = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: true),
                     Permissions = table.Column<long>(type: "bigint", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
                     CreatedAtUtc = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     UpdatedAtUtc = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true)
@@ -127,6 +145,32 @@ namespace InvoiceFlow.Identity.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ServiceClients",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    OrganizationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ClientId = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    CanAccessAllTenants = table.Column<bool>(type: "bit", nullable: false),
+                    Permissions = table.Column<long>(type: "bigint", nullable: false),
+                    CreatedAtUtc = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ServiceClients", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ServiceClients_Organizations_OrganizationId",
+                        column: x => x.OrganizationId,
+                        principalTable: "Organizations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "UserRoles",
                 columns: table => new
                 {
@@ -152,6 +196,55 @@ namespace InvoiceFlow.Identity.Infrastructure.Migrations
                         principalColumns: new[] { "TenantId", "Id" },
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateTable(
+                name: "ServiceClientSecrets",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ServiceClientId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    SecretHash = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    CreatedAtUtc = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    ExpiresAtUtc = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    RevokedAtUtc = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ServiceClientSecrets", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ServiceClientSecrets_ServiceClients_ServiceClientId",
+                        column: x => x.ServiceClientId,
+                        principalTable: "ServiceClients",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ServiceClientTenants",
+                columns: table => new
+                {
+                    ServiceClientId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedAtUtc = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ServiceClientTenants", x => new { x.ServiceClientId, x.TenantId });
+                    table.ForeignKey(
+                        name: "FK_ServiceClientTenants_ServiceClients_ServiceClientId",
+                        column: x => x.ServiceClientId,
+                        principalTable: "ServiceClients",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Organizations_Type",
+                table: "Organizations",
+                column: "Type");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PlatformRefreshTokens_UserId",
@@ -191,6 +284,33 @@ namespace InvoiceFlow.Identity.Infrastructure.Migrations
                 table: "Roles",
                 columns: new[] { "TenantId", "Name" },
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ServiceClients_OrganizationId",
+                table: "ServiceClients",
+                column: "OrganizationId");
+
+            migrationBuilder.CreateIndex(
+                name: "UX_ServiceClients_ClientId",
+                table: "ServiceClients",
+                column: "ClientId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ServiceClientSecrets_ServiceClientId",
+                table: "ServiceClientSecrets",
+                column: "ServiceClientId");
+
+            migrationBuilder.CreateIndex(
+                name: "UX_ServiceClientSecrets_SecretHash",
+                table: "ServiceClientSecrets",
+                column: "SecretHash",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ServiceClientTenants_TenantId",
+                table: "ServiceClientTenants",
+                column: "TenantId");
 
             migrationBuilder.CreateIndex(
                 name: "UX_Tenants_Name",
@@ -238,16 +358,28 @@ namespace InvoiceFlow.Identity.Infrastructure.Migrations
                 name: "RefreshTokens");
 
             migrationBuilder.DropTable(
+                name: "ServiceClientSecrets");
+
+            migrationBuilder.DropTable(
+                name: "ServiceClientTenants");
+
+            migrationBuilder.DropTable(
                 name: "Tenants");
 
             migrationBuilder.DropTable(
                 name: "UserRoles");
 
             migrationBuilder.DropTable(
+                name: "ServiceClients");
+
+            migrationBuilder.DropTable(
                 name: "Roles");
 
             migrationBuilder.DropTable(
                 name: "Users");
+
+            migrationBuilder.DropTable(
+                name: "Organizations");
         }
     }
 }
