@@ -13,7 +13,7 @@ public class RevokeUserRoleCommandHandlerTests
     private readonly Mock<IUsersRepository> _usersRepository;
     private readonly Mock<IRolesRepository> _rolesRepository;
 
-    private RevokeUserRoleCommandHandler _sut;
+    private readonly RevokeUserRoleCommandHandler _sut;
 
     public RevokeUserRoleCommandHandlerTests()
     {
@@ -120,7 +120,7 @@ public class RevokeUserRoleCommandHandlerTests
             RoleName.Create("Admin"),
             _mockDateTimeProvider.Object.GetUtcNow(),
             RoleDescription.CreateOptional("Administrator role"),
-            RolePermissions.Create(RolePermissions.None.Value));
+            Permissions.Create(Permissions.None.Value));
 
         _usersRepository
             .Setup(x => x.GetTrackedUserByIdAsync(cmd.TenantId, cmd.UserId, TestContext.Current.CancellationToken))

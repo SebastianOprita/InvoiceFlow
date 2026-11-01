@@ -40,6 +40,13 @@ public sealed class ServiceClientConfiguration : IEntityTypeConfiguration<Servic
         builder.Property(x => x.CanAccessAllTenants)
             .IsRequired();
 
+        builder.Property(x => x.Permissions)
+            .HasConversion(
+                permissions => permissions.Value,
+                value => Permissions.Create(value))
+            .HasColumnName("Permissions")
+            .IsRequired();
+
         builder.Property(x => x.CreatedAtUtc)
             .IsRequired();
 
@@ -47,6 +54,14 @@ public sealed class ServiceClientConfiguration : IEntityTypeConfiguration<Servic
 
         builder.Property<byte[]>("RowVersion")
             .IsRowVersion();
+
+        builder.HasMany(x => x.Secrets)
+            .WithOne()
+            .HasForeignKey(x => x.ServiceClientId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Navigation(x => x.Secrets)
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.HasOne<Organization>()
             .WithMany()
@@ -59,5 +74,13 @@ public sealed class ServiceClientConfiguration : IEntityTypeConfiguration<Servic
 
         builder.HasIndex(x => x.OrganizationId)
             .HasDatabaseName("IX_ServiceClients_OrganizationId");
+
+        builder.HasMany(x => x.Tenants)
+            .WithOne()
+            .HasForeignKey(x => x.ServiceClientId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Navigation(x => x.Tenants)
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

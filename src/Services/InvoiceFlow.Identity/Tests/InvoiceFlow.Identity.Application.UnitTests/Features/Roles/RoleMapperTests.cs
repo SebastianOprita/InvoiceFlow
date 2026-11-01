@@ -73,7 +73,7 @@ public sealed class RoleMapperTests
             description: withDescription
                 ? RoleDescription.Create("Administrator role")
                 : null,
-            permissions: RolePermissions.Create(1L << 3),
+            permissions: Permissions.Create(1L << 3),
             createdAtUtc: createdAtUtc ?? new DateTimeOffset(2024, 1, 1, 10, 0, 0, TimeSpan.Zero));
     }
 }

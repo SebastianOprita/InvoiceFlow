@@ -23,7 +23,7 @@ public class RoleTests
         role.Id.Should().Be(RoleId);
         role.Name.Should().Be(name);
         role.Description.Should().BeNull();
-        role.Permissions.Should().Be(RolePermissions.None);
+        role.Permissions.Should().Be(Permissions.None);
         role.IsActive.Should().BeTrue();
         role.CreatedAtUtc.Should().Be(CreatedAtUtc);
         role.UpdatedAtUtc.Should().BeNull();
@@ -35,7 +35,7 @@ public class RoleTests
     {
         var name = RoleName.Create("Manager");
         var description = RoleDescription.Create("Can manage invoices");
-        var permissions = RolePermissions.None.Grant(Permission);
+        var permissions = Permissions.None.Grant(Permission);
 
         var role = Role.Create(TenantId, RoleId, name, CreatedAtUtc, description, permissions);
 
@@ -238,7 +238,7 @@ public class RoleTests
     private static Role CreateRole(
         RoleName? name = null,
         RoleDescription? description = null,
-        RolePermissions? permissions = null)
+        Permissions? permissions = null)
     {
         return Role.Create(
             TenantId,

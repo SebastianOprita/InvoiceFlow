@@ -69,7 +69,7 @@ public class UpdateRoleCommandHandlerTests
             RoleName.Create("Admin"),
             _mockDateTimeProvider.Object.GetUtcNow(),
             RoleDescription.CreateOptional("Administrator role"),
-            RolePermissions.Create(RolePermissions.None.Value));
+            Permissions.Create(Permissions.None.Value));
 
         var cmd = new UpdateRoleCommand(
             tenantId,
@@ -110,7 +110,7 @@ public class UpdateRoleCommandHandlerTests
             RoleName.Create("Admin"),
             _mockDateTimeProvider.Object.GetUtcNow(),
             RoleDescription.CreateOptional("Old description"),
-            RolePermissions.Create(RolePermissions.None.Value));
+            Permissions.Create(Permissions.None.Value));
 
         var cmd = new UpdateRoleCommand(
             tenantId,
@@ -153,7 +153,7 @@ public class UpdateRoleCommandHandlerTests
             RoleName.Create("Admin"),
             _mockDateTimeProvider.Object.GetUtcNow(),
             RoleDescription.CreateOptional("Old description"),
-            RolePermissions.Create(RolePermissions.None.Value));
+            Permissions.Create(Permissions.None.Value));
 
         var cmd = new UpdateRoleCommand(
             tenantId,

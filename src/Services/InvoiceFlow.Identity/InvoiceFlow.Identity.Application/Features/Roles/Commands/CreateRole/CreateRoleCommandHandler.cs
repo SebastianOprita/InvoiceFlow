@@ -1,4 +1,4 @@
-﻿using InvoiceFlow.BuildingBlocks.Application;
+using InvoiceFlow.BuildingBlocks.Application;
 using InvoiceFlow.Identity.Domain;
 using MediatR;
 
@@ -23,7 +23,7 @@ internal class CreateRoleCommandHandler(
             RoleName.Create(cmd.Name),
             dateTimeProvider.GetUtcNow(),
             RoleDescription.CreateOptional(cmd.Description),
-            RolePermissions.Create(cmd.Permissions));
+            Permissions.Create(cmd.Permissions));
         rolesRepository.AddRole(role);
 
         var result = await unitOfWork.SaveChangesAsync(cancellationToken);

@@ -1,4 +1,4 @@
-﻿using InvoiceFlow.Identity.Domain;
+using InvoiceFlow.Identity.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -34,7 +34,7 @@ public sealed class RoleConfiguration : IEntityTypeConfiguration<Role>
         builder.Property(x => x.Permissions)
             .HasConversion(
                 permissions => permissions.Value,
-                value => RolePermissions.Create(value))
+                value => Permissions.Create(value))
             .HasColumnName("Permissions")
             .IsRequired();
 

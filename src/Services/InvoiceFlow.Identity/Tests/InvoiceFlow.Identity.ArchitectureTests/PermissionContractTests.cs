@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.BuildingBlocks.Domain;
 using InvoiceFlow.Identity.Domain;
@@ -18,7 +18,7 @@ public sealed class PermissionContractTests
                 (current, permission) =>
                     current | (long)permission);
 
-        var permissions = RolePermissions.Create(allPermissions);
+        var permissions = Permissions.Create(allPermissions);
 
         permissions.Value.Should().Be(allPermissions);
     }
@@ -40,7 +40,7 @@ public sealed class PermissionContractTests
             if ((allPermissions & permission) != 0)
                 continue;
 
-            var act = () => RolePermissions.Create(permission);
+            var act = () => Permissions.Create(permission);
 
             act.Should().Throw<DomainException>();
         }

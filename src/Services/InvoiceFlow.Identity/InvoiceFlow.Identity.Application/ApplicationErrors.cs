@@ -1,8 +1,8 @@
-﻿using InvoiceFlow.BuildingBlocks.Application;
+using InvoiceFlow.BuildingBlocks.Application;
 
 namespace InvoiceFlow.Identity.Application;
 
-public static class ApplicationErrors
+public static partial class ApplicationErrors
 {
     public static readonly ApplicationError ConcurrencyConflict = new(ApplicationErrorType.Conflict, "persistence.concurrency_conflict", "The data was modified by another process.");
     public static readonly ApplicationError TenantNotFound = new(ApplicationErrorType.NotFound, "tenant.notFound", "Tenant not found.");
@@ -16,4 +16,5 @@ public static class ApplicationErrors
     public static readonly ApplicationError RefreshTokenNotFound = new(ApplicationErrorType.Unauthorized, "refreshToken.notFound", "Refresh token not found.");
     public static readonly ApplicationError RefreshTokenInvalid = new(ApplicationErrorType.Unauthorized, "refreshToken.invalid", "Invalid or expired refresh token.");
     public static readonly ApplicationError TenantSlugAlreadyExists = new(ApplicationErrorType.Conflict, "tenantSlug.alreadyExists", "Tenant with same slug already exists.");
+
 }

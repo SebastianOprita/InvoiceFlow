@@ -124,7 +124,7 @@ public class AssignRoleCommandHandlerTests
             RoleName.Create("Admin"),
             _mockDateTimeProvider.Object.GetUtcNow(),
             RoleDescription.CreateOptional("Administrator role"),
-            RolePermissions.Create(RolePermissions.None.Value));
+            Permissions.Create(Permissions.None.Value));
 
         _usersRepository
             .Setup(x => x.GetTrackedUserByIdAsync(cmd.TenantId, cmd.UserId, TestContext.Current.CancellationToken))

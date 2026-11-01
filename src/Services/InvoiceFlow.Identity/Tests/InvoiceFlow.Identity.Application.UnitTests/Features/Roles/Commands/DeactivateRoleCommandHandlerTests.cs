@@ -57,7 +57,7 @@ public class DeactivateRoleCommandHandlerTests
             RoleName.Create("Admin"),
             _mockDateTimeProvider.Object.GetUtcNow(),
             RoleDescription.CreateOptional("Administrator role"),
-            RolePermissions.Create(RolePermissions.None.Value));
+            Permissions.Create(Permissions.None.Value));
 
         _rolesRepository
             .Setup(x => x.GetTrackedRoleByIdAsync(cmd.TenantId, cmd.RoleId))
@@ -110,7 +110,7 @@ public class DeactivateRoleCommandHandlerTests
             RoleName.Create("Admin"),
             _mockDateTimeProvider.Object.GetUtcNow(),
             RoleDescription.CreateOptional("Administrator role"),
-            RolePermissions.Create(RolePermissions.None.Value));
+            Permissions.Create(Permissions.None.Value));
 
         var saveError = new ApplicationError(
             ApplicationErrorType.Validation,

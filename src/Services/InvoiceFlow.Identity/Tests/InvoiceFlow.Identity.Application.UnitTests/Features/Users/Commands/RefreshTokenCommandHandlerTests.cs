@@ -15,7 +15,7 @@ public class RefreshTokenCommandHandlerTests
     private readonly Mock<ISystemDateTimeProvider> _mockDateTimeProvider;
     private readonly Mock<ITenantsRepository> _tenantsRepository;
 
-    private RefreshTokenCommandHandler _sut;
+    private readonly RefreshTokenCommandHandler _sut;
 
     public RefreshTokenCommandHandlerTests()
     {
@@ -351,7 +351,7 @@ public class RefreshTokenCommandHandlerTests
             RoleName.Create("Admin"),
             _mockDateTimeProvider.Object.GetUtcNow(),
             RoleDescription.CreateOptional("Administrator role"),
-            RolePermissions.Create(permissions));
+            Permissions.Create(permissions));
 
         user.AssignRole(role.Id, _mockDateTimeProvider.Object.GetUtcNow());
 

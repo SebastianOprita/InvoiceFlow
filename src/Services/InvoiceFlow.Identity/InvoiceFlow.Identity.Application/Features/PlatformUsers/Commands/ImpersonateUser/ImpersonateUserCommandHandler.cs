@@ -1,4 +1,4 @@
-﻿using InvoiceFlow.BuildingBlocks.Application;
+using InvoiceFlow.BuildingBlocks.Application;
 using InvoiceFlow.Identity.Domain;
 using MediatR;
 
@@ -33,7 +33,7 @@ internal class ImpersonateUserCommandHandler(
             return Result<ImpersonateUserCommandResponse>.Failure(ApplicationErrors.UserUnauthorized);
 
         var aggregatedPermissions = userWithPermissions.UserRoles.Where(ur => ur.Role.IsActive).Select(ur => ur.Role.Permissions)
-            .Aggregate(RolePermissions.None.Value, (current, rolePermissions) => current | rolePermissions.Value);
+            .Aggregate(Permissions.None.Value, (current, rolePermissions) => current | rolePermissions.Value);
 
         var impersonationToken = tokenService.GenerateImpersonationToken(
             platformUserId: platformUser.Id,
