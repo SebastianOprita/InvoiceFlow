@@ -1,4 +1,4 @@
-﻿namespace InvoiceFlow.BuildingBlocks.Authorization.Claims;
+namespace InvoiceFlow.BuildingBlocks.Authorization.Claims;
 
 public static class InvoiceFlowClaimTypes
 {
@@ -8,6 +8,7 @@ public static class InvoiceFlowClaimTypes
     public const string UserId = "user_id";
     public const string EmailAddress = "email_address";
     public const string TenantId = "tenant_id";
+    public const string ClientId = "client_id";
     public const string Permissions = "permissions";
 
     public const string ActorPrincipalType = "actor_principal_type";

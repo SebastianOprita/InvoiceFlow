@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Authorization.Policies;
 using Microsoft.AspNetCore.Authorization;
 using Xunit;
@@ -19,7 +19,7 @@ public sealed class AuthorizationOptionsExtensionsTests
         // Assert
         result.Should().BeSameAs(options);
 
-        options.GetPolicy(TenantUserLoginPolicy.TenantUserLogin)
+        options.GetPolicy(TenantUserLoginPolicy.PolicyName)
             .Should()
             .NotBeNull();
     }

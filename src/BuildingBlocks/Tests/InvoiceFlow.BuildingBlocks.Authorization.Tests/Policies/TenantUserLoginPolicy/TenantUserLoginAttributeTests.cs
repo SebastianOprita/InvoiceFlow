@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Authorization.Policies;
 using Xunit;
 
@@ -13,6 +13,6 @@ public sealed class TenantUserLoginAttributeTests
 
         attribute.Policy
             .Should()
-            .Be(TenantUserLoginPolicy.TenantUserLogin);
+            .Be(TenantUserLoginPolicy.PolicyName);
     }
 }

@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Authorization.Policies;
 using Xunit;
 
@@ -13,6 +13,6 @@ public sealed class PlatformUserLoginAttributeTests
 
         attribute.Policy
             .Should()
-            .Be(PlatformUserLoginPolicy.PlatformUserLogin);
+            .Be(PlatformUserLoginPolicy.PolicyName);
     }
 }
