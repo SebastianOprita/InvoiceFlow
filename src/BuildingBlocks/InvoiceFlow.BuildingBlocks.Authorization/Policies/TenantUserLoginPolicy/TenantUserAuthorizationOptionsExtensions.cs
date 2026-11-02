@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 
 namespace InvoiceFlow.BuildingBlocks.Authorization.Policies;
 
@@ -8,7 +8,7 @@ public static class AuthorizationOptionsExtensions
         this AuthorizationOptions options)
     {
         options.AddPolicy(
-            TenantUserLoginPolicy.TenantUserLogin,
+            TenantUserLoginPolicy.PolicyName,
             TenantUserLoginPolicy.Build());
 
         return options;
