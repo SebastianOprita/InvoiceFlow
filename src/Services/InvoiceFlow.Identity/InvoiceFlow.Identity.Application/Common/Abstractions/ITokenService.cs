@@ -1,4 +1,6 @@
-﻿namespace InvoiceFlow.Identity.Application;
+using InvoiceFlow.Identity.Domain;
+
+namespace InvoiceFlow.Identity.Application;
 
 public interface ITokenService
 {
@@ -26,5 +28,10 @@ public interface ITokenService
         long targetPermissions,
         Guid sessionId,
         string? reason,
+        DateTimeOffset dateTime);
+
+    public (string Token, string TokenType, DateTimeOffset ExpiresAt) GenerateServiceClientToken(
+        ServiceClient client,
+        Guid tenantId,
         DateTimeOffset dateTime);
 }

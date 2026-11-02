@@ -1,4 +1,5 @@
-﻿using InvoiceFlow.BuildingBlocks.Authorization;
+using InvoiceFlow.BuildingBlocks.Authorization;
+using InvoiceFlow.BuildingBlocks.Authorization.Claims;
 using InvoiceFlow.BuildingBlocks.Authorization.Policies;
 using InvoiceFlow.Identity.Application;
 using MediatR;
@@ -43,10 +44,6 @@ public class AuthController(IMediator mediator) : ApiController
     [HttpPost("logout")]
     public async Task<IActionResult> Logout([FromRoute] Guid tenantId, [FromBody] RefreshTokenRequest request, CancellationToken ct)
     {
-        var userIdClaim = User.FindFirst("user_id")?.Value;
-        if (!Guid.TryParse(userIdClaim, out _))
-            return Unauthorized();
-
         var result = await mediator.Send(new LogoutUserCommand(
             tenantId,
             request.RefreshToken), ct);
@@ -58,7 +55,7 @@ public class AuthController(IMediator mediator) : ApiController
     [HttpPost("change-password")]
     public async Task<IActionResult> ChangePassword([FromRoute] Guid tenantId, [FromBody] ChangePasswordRequest request, CancellationToken ct)
     {
-        var userIdClaim = User.FindFirst("user_id")?.Value;
+        var userIdClaim = User.FindFirst(InvoiceFlowClaimTypes.UserId)?.Value;
         if (!Guid.TryParse(userIdClaim, out var currentUserId))
             return Unauthorized();
 
