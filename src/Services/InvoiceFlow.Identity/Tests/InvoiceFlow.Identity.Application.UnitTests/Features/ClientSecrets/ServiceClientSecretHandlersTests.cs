@@ -102,6 +102,23 @@ public sealed class ServiceClientSecretHandlersTests
     }
 
     [Fact]
+    public async Task RevokeSecret_ReturnsUnitOfWorkFailure()
+    {
+        var (client, _) = CreateClient();
+        var secret = client.AddSecret(Guid.NewGuid(), ServiceClientSecretHash.Create(new string('B', 64)), ServiceClientSecretName.Create("key"), null, Now.AddDays(1), Now);
+        var clients = new Mock<IServiceClientsRepository>();
+        clients.Setup(x => x.GetTrackedServiceClientByIdAsync(client.Id, It.IsAny<CancellationToken>())).ReturnsAsync(client);
+        var unit = new Mock<IUnitOfWork>();
+        unit.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Result.Failure(ApplicationErrors.ConcurrencyConflict));
+        var sut = new RevokeServiceClientSecretCommandHandler(clients.Object, unit.Object, Clock());
+
+        var result = await sut.Handle(new(client.Id, secret.Id), TestContext.Current.CancellationToken);
+
+        result.Error.Should().Be(ApplicationErrors.ConcurrencyConflict);
+        secret.RevokedAtUtc.Should().Be(Now);
+    }
+
+    [Fact]
     public async Task GrantAndRevokePermissions_UpdateClientAndSave()
     {
         var (client, _) = CreateClient();
@@ -119,6 +136,21 @@ public sealed class ServiceClientSecretHandlersTests
         (await revoke.Handle(new(client.Id, permission), TestContext.Current.CancellationToken)).IsSuccess.Should().BeTrue();
         client.HasPermission(permission).Should().BeFalse();
         unit.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Exactly(2));
+    }
+
+    [Fact]
+    public async Task PermissionHandlers_ReturnNotFoundWhenClientIsMissing()
+    {
+        var clients = new Mock<IServiceClientsRepository>();
+        clients.Setup(x => x.GetTrackedServiceClientByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((ServiceClient?)null);
+        var unit = new Mock<IUnitOfWork>();
+        var grant = new GrantServiceClientPermissionsCommandHandler(clients.Object, unit.Object, Clock());
+        var revoke = new RevokeServiceClientPermissionsCommandHandler(clients.Object, unit.Object, Clock());
+        var id = Guid.NewGuid();
+
+        (await grant.Handle(new(id, 1L), TestContext.Current.CancellationToken)).Error.Should().Be(ApplicationErrors.ServiceClientNotFound);
+        (await revoke.Handle(new(id, 1L), TestContext.Current.CancellationToken)).Error.Should().Be(ApplicationErrors.ServiceClientNotFound);
+        unit.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -143,6 +175,83 @@ public sealed class ServiceClientSecretHandlersTests
         client.CanAccessTenant(tenantId).Should().BeFalse();
         tenants.Setup(x => x.GetTenantByIdAsync(tenantId, It.IsAny<CancellationToken>())).ReturnsAsync((Tenant?)null);
         (await grant.Handle(new(client.Id, tenantId), TestContext.Current.CancellationToken)).Error.Should().Be(ApplicationErrors.TenantNotFound);
+    }
+
+    [Fact]
+    public async Task TenantHandlers_ReturnNotFoundWhenClientIsMissing()
+    {
+        var clients = new Mock<IServiceClientsRepository>();
+        clients.Setup(x => x.GetTrackedServiceClientByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((ServiceClient?)null);
+        var tenants = new Mock<ITenantsRepository>();
+        var unit = new Mock<IUnitOfWork>();
+        var grant = new GrantServiceClientTenantCommandHandler(clients.Object, tenants.Object, unit.Object, Clock());
+        var revoke = new RevokeServiceClientTenantCommandHandler(clients.Object, unit.Object, Clock());
+        var id = Guid.NewGuid();
+        var tenantId = Guid.NewGuid();
+
+        (await grant.Handle(new(id, tenantId), TestContext.Current.CancellationToken)).Error.Should().Be(ApplicationErrors.ServiceClientNotFound);
+        (await revoke.Handle(new(id, tenantId), TestContext.Current.CancellationToken)).Error.Should().Be(ApplicationErrors.ServiceClientNotFound);
+        tenants.Verify(x => x.GetTenantByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+        unit.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task GenerateServiceClientToken_ReturnsTokenForValidClientSecretAndTenant()
+    {
+        var (client, organization) = CreateClient();
+        var tenantId = Guid.NewGuid();
+        client.GrantTenant(tenantId, Now);
+        var hash = ServiceClientSecretHash.Create(new string('D', 64));
+        client.AddSecret(Guid.NewGuid(), hash, ServiceClientSecretName.Create("token"), null, Now.AddDays(1), Now);
+        var clients = new Mock<IServiceClientsRepository>();
+        clients.Setup(x => x.GetServiceClientByClientIdAsync(client.ClientId, It.IsAny<CancellationToken>())).ReturnsAsync(client);
+        var organizations = new Mock<IOrganizationsRepository>();
+        organizations.Setup(x => x.GetOrganizationByIdAsync(organization.Id, It.IsAny<CancellationToken>())).ReturnsAsync(organization);
+        var tenants = new Mock<ITenantsRepository>();
+        var tenant = Tenant.Create(tenantId, TenantName.Create("Tenant"), TenantSlug.Create("tenant"), Now);
+        tenants.Setup(x => x.GetTenantByIdAsync(tenantId, It.IsAny<CancellationToken>())).ReturnsAsync(tenant);
+        var secrets = new Mock<IServiceClientSecretService>();
+        secrets.Setup(x => x.Verify("clear-secret", hash)).Returns(true);
+        var tokens = new Mock<ITokenService>();
+        var expiresAt = Now.AddHours(1);
+        tokens.Setup(x => x.GenerateServiceClientToken(client, tenantId, Now)).Returns(("access-token", "Bearer", expiresAt));
+        var sut = new GenerateServiceClientTokenCommandHandler(clients.Object, organizations.Object, tenants.Object, secrets.Object, tokens.Object, Clock());
+
+        var result = await sut.Handle(new(tenantId, client.ClientId.Value, "clear-secret"), TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value!.AccessToken.Should().Be("access-token");
+        result.Value.TokenType.Should().Be("Bearer");
+        result.Value.AccessTokenExpiresAt.Should().Be(expiresAt);
+        tokens.Verify(x => x.GenerateServiceClientToken(client, tenantId, Now), Times.Once);
+    }
+
+    [Fact]
+    public async Task GenerateServiceClientToken_RejectsInvalidCredentialsAndTenantAccess()
+    {
+        var (client, organization) = CreateClient();
+        var tenantId = Guid.NewGuid();
+        var hash = ServiceClientSecretHash.Create(new string('E', 64));
+        client.AddSecret(Guid.NewGuid(), hash, ServiceClientSecretName.Create("token"), null, Now.AddDays(1), Now);
+        var clients = new Mock<IServiceClientsRepository>();
+        clients.Setup(x => x.GetServiceClientByClientIdAsync(client.ClientId, It.IsAny<CancellationToken>())).ReturnsAsync(client);
+        var organizations = new Mock<IOrganizationsRepository>();
+        organizations.Setup(x => x.GetOrganizationByIdAsync(organization.Id, It.IsAny<CancellationToken>())).ReturnsAsync(organization);
+        var tenants = new Mock<ITenantsRepository>();
+        var tenant = Tenant.Create(tenantId, TenantName.Create("Tenant"), TenantSlug.Create("tenant"), Now);
+        tenants.Setup(x => x.GetTenantByIdAsync(tenantId, It.IsAny<CancellationToken>())).ReturnsAsync(tenant);
+        var secrets = new Mock<IServiceClientSecretService>();
+        secrets.Setup(x => x.Verify("bad-secret", hash)).Returns(false);
+        var tokens = new Mock<ITokenService>();
+        var sut = new GenerateServiceClientTokenCommandHandler(clients.Object, organizations.Object, tenants.Object, secrets.Object, tokens.Object, Clock());
+
+        (await sut.Handle(new(tenantId, client.ClientId.Value, "bad-secret"), TestContext.Current.CancellationToken)).Error.Should().Be(ApplicationErrors.InvalidServiceClientCredentials);
+        secrets.Setup(x => x.Verify("clear-secret", hash)).Returns(true);
+        (await sut.Handle(new(tenantId, client.ClientId.Value, "clear-secret"), TestContext.Current.CancellationToken)).Error.Should().Be(ApplicationErrors.ServiceClientAccessDenied);
+        tenants.Setup(x => x.GetTenantByIdAsync(tenantId, It.IsAny<CancellationToken>())).ReturnsAsync((Tenant?)null);
+        client.GrantTenant(tenantId, Now);
+        (await sut.Handle(new(tenantId, client.ClientId.Value, "clear-secret"), TestContext.Current.CancellationToken)).Error.Should().Be(ApplicationErrors.ServiceClientAccessDenied);
+        tokens.Verify(x => x.GenerateServiceClientToken(It.IsAny<ServiceClient>(), It.IsAny<Guid>(), It.IsAny<DateTimeOffset>()), Times.Never);
     }
 
     [Fact]

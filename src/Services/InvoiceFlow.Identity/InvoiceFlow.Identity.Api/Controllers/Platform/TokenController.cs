@@ -51,7 +51,7 @@ public sealed class TokenController(
             cancellationToken);
 
         if (result.IsFailure)
-            return MapOAuthError(result.Error);
+            return MapOAuthError(result.Error!);
 
         if (result.Value is null)
             return OAuthError(

@@ -14,17 +14,13 @@ public record ChangePasswordRequest(
 
 public sealed record ClientCredentialsTokenRequest(
     [FromForm(Name = "grant_type")]
-    [property: JsonRequired]
-    string GrantType,
+    string? GrantType,
 
     [FromForm(Name = "client_id")]
-    [property: JsonRequired]
-    string ClientId,
+    string? ClientId,
 
     [FromForm(Name = "client_secret")]
-    [property: JsonRequired]
-    string ClientSecret,
+    string? ClientSecret,
 
     [FromForm(Name = "tenant_id")]
-    [property: JsonRequired]
     Guid TenantId);

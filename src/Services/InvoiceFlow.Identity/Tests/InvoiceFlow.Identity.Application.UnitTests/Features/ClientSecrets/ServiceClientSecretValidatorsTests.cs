@@ -15,7 +15,22 @@ public sealed class ServiceClientSecretValidatorsTests
     {
         var validator = new CreateServiceClientSecretCommandValidator();
         validator.Validate(new CreateServiceClientSecretCommand(ClientId, "key", "optional", Now.AddDays(1))).IsValid.Should().BeTrue();
-        validator.Validate(new CreateServiceClientSecretCommand(Guid.Empty, "", new string('x', ServiceClientSecretDescription.MaxLength + 1), default)).IsValid.Should().BeFalse();
+        validator.Validate(new CreateServiceClientSecretCommand(Guid.Empty, "key", null, Now.AddDays(1))).IsValid.Should().BeFalse();
+        validator.Validate(new CreateServiceClientSecretCommand(ClientId, "", null, Now.AddDays(1))).IsValid.Should().BeFalse();
+        validator.Validate(new CreateServiceClientSecretCommand(ClientId, new string('x', ServiceClientSecretName.MaxLength + 1), null, Now.AddDays(1))).IsValid.Should().BeFalse();
+        validator.Validate(new CreateServiceClientSecretCommand(ClientId, "key", new string('x', ServiceClientSecretDescription.MaxLength + 1), Now.AddDays(1))).IsValid.Should().BeFalse();
+        validator.Validate(new CreateServiceClientSecretCommand(ClientId, "key", null, default)).IsValid.Should().BeFalse();
+    }
+
+    [Fact]
+    public void GenerateServiceClientTokenValidator_RequiresTenantClientAndSecret()
+    {
+        var validator = new GenerateServiceClientTokenCommandValidator();
+        validator.Validate(new GenerateServiceClientTokenCommand(TenantId, "client", "secret")).IsValid.Should().BeTrue();
+        validator.Validate(new GenerateServiceClientTokenCommand(Guid.Empty, "client", "secret")).IsValid.Should().BeFalse();
+        validator.Validate(new GenerateServiceClientTokenCommand(TenantId, "", "secret")).IsValid.Should().BeFalse();
+        validator.Validate(new GenerateServiceClientTokenCommand(TenantId, new string('x', ServiceClientIdentifier.MaxLength + 1), "secret")).IsValid.Should().BeFalse();
+        validator.Validate(new GenerateServiceClientTokenCommand(TenantId, "client", "")).IsValid.Should().BeFalse();
     }
 
     [Fact]

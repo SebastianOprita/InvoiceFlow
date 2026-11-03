@@ -58,7 +58,9 @@ internal sealed class CreateServiceClientSecretCommandHandler(
             expiresAtUtc: cmd.ExpiresAtUtc,
             createdAtUtc: now);
 
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        var saveResult = await unitOfWork.SaveChangesAsync(cancellationToken);
+        if (saveResult.IsFailure)
+            return Result<CreateServiceClientSecretCommandResponse>.Failure(saveResult);
 
         return Result<CreateServiceClientSecretCommandResponse>.Success(
             new CreateServiceClientSecretCommandResponse(
