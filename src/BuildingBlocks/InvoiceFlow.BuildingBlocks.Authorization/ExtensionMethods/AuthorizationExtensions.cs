@@ -1,4 +1,4 @@
-﻿using InvoiceFlow.BuildingBlocks.Authorization.Policies;
+using InvoiceFlow.BuildingBlocks.Authorization.Policies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -13,6 +13,8 @@ public static class AuthorizationExtensions
         {
             options.AddTenantUserLoginPolicy();
             options.AddPlatformUserLoginPolicy();
+            options.AddServiceClientLoginPolicy();
+            options.AddTenantUserOrServiceClientLoginPolicy();
         });
 
         services.AddScoped<TenantScopeFilter>();

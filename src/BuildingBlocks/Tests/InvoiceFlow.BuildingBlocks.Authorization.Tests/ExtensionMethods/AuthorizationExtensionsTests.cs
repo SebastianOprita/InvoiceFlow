@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Authorization.ExtensionMethods;
 using InvoiceFlow.BuildingBlocks.Authorization.Policies;
 using Microsoft.AspNetCore.Authorization;
@@ -83,11 +83,11 @@ public sealed class AuthorizationExtensionsTests
             .GetRequiredService<IOptions<AuthorizationOptions>>()
             .Value;
 
-        options.GetPolicy(TenantUserLoginPolicy.TenantUserLogin)
+        options.GetPolicy(TenantUserLoginPolicy.PolicyName)
             .Should()
             .NotBeNull();
 
-        options.GetPolicy(PlatformUserLoginPolicy.PlatformUserLogin)
+        options.GetPolicy(PlatformUserLoginPolicy.PolicyName)
             .Should()
             .NotBeNull();
     }

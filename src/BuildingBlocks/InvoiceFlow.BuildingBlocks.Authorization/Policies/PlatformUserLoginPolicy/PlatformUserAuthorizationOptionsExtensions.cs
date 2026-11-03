@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 
 namespace InvoiceFlow.BuildingBlocks.Authorization.Policies;
 
@@ -8,7 +8,7 @@ public static class PlatformUserAuthorizationOptionsExtensions
         this AuthorizationOptions options)
     {
         options.AddPolicy(
-            PlatformUserLoginPolicy.PlatformUserLogin,
+            PlatformUserLoginPolicy.PolicyName,
             PlatformUserLoginPolicy.Build());
 
         return options;

@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Authorization.Policies;
 using Microsoft.AspNetCore.Authorization;
 using Xunit;
@@ -15,7 +15,7 @@ public sealed class PlatformUserAuthorizationOptionsExtensionsTests
         var result = options.AddPlatformUserLoginPolicy();
 
         var policy = options.GetPolicy(
-            PlatformUserLoginPolicy.PlatformUserLogin);
+            PlatformUserLoginPolicy.PolicyName);
 
         result.Should().BeSameAs(options);
         policy.Should().NotBeNull();
