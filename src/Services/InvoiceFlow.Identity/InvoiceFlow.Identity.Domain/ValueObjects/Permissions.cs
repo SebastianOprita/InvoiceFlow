@@ -4,7 +4,7 @@ namespace InvoiceFlow.Identity.Domain;
 
 public sealed record Permissions
 {
-    private const long ValidPermissionsMask = (1L << 31) - 1;
+    private const long ValidPermissionsMask = (1L << 29) - 1;
     public static readonly Permissions None = new(0);
 
     public long Value { get; }

@@ -14,7 +14,7 @@ public sealed class ServiceClientSecretHandlersTests
     public async Task CreateSecret_ReturnsNotFoundWhenClientIsMissing()
     {
         var clients = new Mock<IServiceClientsRepository>();
-        clients.Setup(x => x.GetServiceClientByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((ServiceClient?)null);
+        clients.Setup(x => x.GetTrackedServiceClientByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((ServiceClient?)null);
         var sut = new CreateServiceClientSecretCommandHandler(clients.Object, Mock.Of<IOrganizationsRepository>(), Mock.Of<IServiceClientSecretService>(), Mock.Of<IUnitOfWork>(), Clock());
 
         var result = await sut.Handle(new(Guid.NewGuid(), "key", null, Now.AddDays(1)), TestContext.Current.CancellationToken);
@@ -27,7 +27,7 @@ public sealed class ServiceClientSecretHandlersTests
     {
         var (client, org) = CreateClient();
         var clients = new Mock<IServiceClientsRepository>();
-        clients.Setup(x => x.GetServiceClientByIdAsync(client.Id, It.IsAny<CancellationToken>())).ReturnsAsync(client);
+        clients.Setup(x => x.GetTrackedServiceClientByIdAsync(client.Id, It.IsAny<CancellationToken>())).ReturnsAsync(client);
         var organizations = new Mock<IOrganizationsRepository>();
         organizations.Setup(x => x.GetOrganizationByIdAsync(org.Id, It.IsAny<CancellationToken>())).ReturnsAsync(org);
         var secretService = new Mock<IServiceClientSecretService>();
@@ -53,7 +53,7 @@ public sealed class ServiceClientSecretHandlersTests
     {
         var (client, org) = CreateClient();
         var clients = new Mock<IServiceClientsRepository>();
-        clients.Setup(x => x.GetServiceClientByIdAsync(client.Id, It.IsAny<CancellationToken>())).ReturnsAsync(client);
+        clients.Setup(x => x.GetTrackedServiceClientByIdAsync(client.Id, It.IsAny<CancellationToken>())).ReturnsAsync(client);
         var organizations = new Mock<IOrganizationsRepository>();
         var sut = new CreateServiceClientSecretCommandHandler(clients.Object, organizations.Object, Mock.Of<IServiceClientSecretService>(), Mock.Of<IUnitOfWork>(), Clock());
         var command = new CreateServiceClientSecretCommand(client.Id, "key", null, Now.AddDays(1));
@@ -70,7 +70,7 @@ public sealed class ServiceClientSecretHandlersTests
         var (client, org) = CreateClient();
         client.Deactivate(Now.AddMinutes(1));
         var clients = new Mock<IServiceClientsRepository>();
-        clients.Setup(x => x.GetServiceClientByIdAsync(client.Id, It.IsAny<CancellationToken>())).ReturnsAsync(client);
+        clients.Setup(x => x.GetTrackedServiceClientByIdAsync(client.Id, It.IsAny<CancellationToken>())).ReturnsAsync(client);
         var organizations = new Mock<IOrganizationsRepository>();
         organizations.Setup(x => x.GetOrganizationByIdAsync(org.Id, It.IsAny<CancellationToken>())).ReturnsAsync(org);
         var secrets = new Mock<IServiceClientSecretService>();
@@ -176,7 +176,7 @@ public sealed class ServiceClientSecretHandlersTests
     private static (ServiceClient Client, Organization Organization) CreateClient()
     {
         var organization = Organization.Create(Guid.NewGuid(), OrganizationName.Create("Org"), OrganizationTypes.Partner, Now);
-        var client = ServiceClient.Create(Guid.NewGuid(), organization, ServiceClientId.Create("service-client"), ServiceClientName.Create("Test"), Now);
+        var client = ServiceClient.Create(Guid.NewGuid(), organization, ServiceClientIdentifier.Create("service-client"), ServiceClientName.Create("Test"), Now);
         return (client, organization);
     }
 }

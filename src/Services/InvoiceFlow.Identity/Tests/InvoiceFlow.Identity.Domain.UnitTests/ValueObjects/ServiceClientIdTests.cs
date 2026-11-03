@@ -12,7 +12,7 @@ public sealed class ServiceClientIdTests
     [InlineData("client123")]
     public void Create_WithValidValue_ShouldCreateServiceClientId(string value)
     {
-        var serviceClientId = ServiceClientId.Create(value);
+        var serviceClientId = ServiceClientIdentifier.Create(value);
 
         serviceClientId.Value.Should().Be(value);
         serviceClientId.ToString().Should().Be(value);
@@ -21,7 +21,7 @@ public sealed class ServiceClientIdTests
     [Fact]
     public void Create_ShouldTrimValue()
     {
-        var serviceClientId = ServiceClientId.Create("  billing-service  ");
+        var serviceClientId = ServiceClientIdentifier.Create("  billing-service  ");
 
         serviceClientId.Value.Should().Be("billing-service");
     }
@@ -33,7 +33,7 @@ public sealed class ServiceClientIdTests
     [InlineData(null)]
     public void Create_WithNullOrWhiteSpace_ShouldThrowDomainException(string? value)
     {
-        var act = () => ServiceClientId.Create(value!);
+        var act = () => ServiceClientIdentifier.Create(value!);
 
         act.Should()
             .Throw<DomainException>()
@@ -49,7 +49,7 @@ public sealed class ServiceClientIdTests
     [InlineData("billing.service")]
     public void Create_WithInvalidFormat_ShouldThrowDomainException(string value)
     {
-        var act = () => ServiceClientId.Create(value);
+        var act = () => ServiceClientIdentifier.Create(value);
 
         act.Should()
             .Throw<DomainException>()
@@ -59,9 +59,9 @@ public sealed class ServiceClientIdTests
     [Fact]
     public void Create_WithValueLongerThanMaxLength_ShouldThrowDomainException()
     {
-        var value = new string('a', ServiceClientId.MaxLength + 1);
+        var value = new string('a', ServiceClientIdentifier.MaxLength + 1);
 
-        var act = () => ServiceClientId.Create(value);
+        var act = () => ServiceClientIdentifier.Create(value);
 
         act.Should()
             .Throw<DomainException>()
@@ -71,9 +71,9 @@ public sealed class ServiceClientIdTests
     [Fact]
     public void Create_WithValueEqualToMaxLength_ShouldCreateServiceClientId()
     {
-        var value = new string('a', ServiceClientId.MaxLength);
+        var value = new string('a', ServiceClientIdentifier.MaxLength);
 
-        var serviceClientId = ServiceClientId.Create(value);
+        var serviceClientId = ServiceClientIdentifier.Create(value);
 
         serviceClientId.Value.Should().Be(value);
     }
@@ -81,7 +81,7 @@ public sealed class ServiceClientIdTests
     [Fact]
     public void ToString_ShouldReturnValue()
     {
-        var serviceClientId = ServiceClientId.Create("billing-service");
+        var serviceClientId = ServiceClientIdentifier.Create("billing-service");
 
         serviceClientId.ToString().Should().Be("billing-service");
     }

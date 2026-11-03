@@ -27,8 +27,6 @@ public static partial class ApplicationErrors
             ApplicationErrorType.Conflict,
             "serviceClient.inactive",
             "Service client is inactive.");
-<<<<<<< Updated upstream
-=======
 
     public static readonly ApplicationError InvalidServiceClientCredentials =
         new(
@@ -41,5 +39,4 @@ public static partial class ApplicationErrors
             ApplicationErrorType.Forbidden,
             "serviceClient.accessDenied",
             "Service client is not authorized to access the requested tenant.");
->>>>>>> Stashed changes
 }

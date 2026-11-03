@@ -32,7 +32,7 @@ public sealed class IssueInvoiceCommandHandlerTests
         var result = await _sut.Handle(cmd, CancellationToken.None);
 
         result.Error.Should().Be(ApplicationErrors.InvoiceNotFound);
-        _numbers.Verify(x => x.AllocateNextWithLockAsync(It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
+        _numbers.Verify(x => x.AllocateNextWithLockAsync(It.IsAny<Guid>(), It.IsAny<InvoiceYear>(), It.IsAny<CancellationToken>()), Times.Never);
         _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -47,7 +47,7 @@ public sealed class IssueInvoiceCommandHandlerTests
         var result = await _sut.Handle(cmd, CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
-        _numbers.Verify(x => x.AllocateNextWithLockAsync(It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
+        _numbers.Verify(x => x.AllocateNextWithLockAsync(It.IsAny<Guid>(), It.IsAny<InvoiceYear>(), It.IsAny<CancellationToken>()), Times.Never);
         _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -65,7 +65,7 @@ public sealed class IssueInvoiceCommandHandlerTests
 
         result.Error.Should().Be(ApplicationErrors.InvoiceCannotBeIssued);
         _numbers.Verify(x => x.AllocateNextWithLockAsync(
-            It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
+            It.IsAny<Guid>(), It.IsAny<InvoiceYear>(), It.IsAny<CancellationToken>()), Times.Never);
         _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -75,7 +75,7 @@ public sealed class IssueInvoiceCommandHandlerTests
         var invoice = InvoiceTestData.DraftInvoice();
         var cmd = new IssueInvoiceCommand(invoice.TenantId, invoice.Id);
         _invoices.Setup(x => x.GetInvoiceWithLockAsync(cmd.TenantId, cmd.InvoiceId, It.IsAny<CancellationToken>())).ReturnsAsync(invoice);
-        _numbers.Setup(x => x.AllocateNextWithLockAsync(cmd.TenantId, 2025, It.IsAny<CancellationToken>())).ReturnsAsync("2025-0001");
+        _numbers.Setup(x => x.AllocateNextWithLockAsync(cmd.TenantId, InvoiceYear.Create(2025), It.IsAny<CancellationToken>())).ReturnsAsync("2025-0001");
         _unitOfWork.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success());
 
         var result = await _sut.Handle(cmd, CancellationToken.None);
@@ -94,7 +94,7 @@ public sealed class IssueInvoiceCommandHandlerTests
         var cmd = new IssueInvoiceCommand(draft.TenantId, draft.Id);
         _invoices.SetupSequence(x => x.GetInvoiceWithLockAsync(cmd.TenantId, cmd.InvoiceId, It.IsAny<CancellationToken>())).ReturnsAsync(draft);
         _invoices.Setup(x => x.GetInvoiceByIdAsync(cmd.TenantId, cmd.InvoiceId, It.IsAny<CancellationToken>())).ReturnsAsync(issued);
-        _numbers.Setup(x => x.AllocateNextWithLockAsync(cmd.TenantId, 2025, It.IsAny<CancellationToken>())).ReturnsAsync("2025-0002");
+        _numbers.Setup(x => x.AllocateNextWithLockAsync(cmd.TenantId, InvoiceYear.Create(2025), It.IsAny<CancellationToken>())).ReturnsAsync("2025-0002");
         _unitOfWork.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Result.Failure(ApplicationErrors.ConcurrencyConflict));
 
         var result = await _sut.Handle(cmd, CancellationToken.None);
@@ -110,7 +110,7 @@ public sealed class IssueInvoiceCommandHandlerTests
         var cmd = new IssueInvoiceCommand(invoice.TenantId, invoice.Id);
         _invoices.Setup(x => x.GetInvoiceWithLockAsync(cmd.TenantId, cmd.InvoiceId, It.IsAny<CancellationToken>())).ReturnsAsync(invoice);
         _invoices.Setup(x => x.GetInvoiceByIdAsync(cmd.TenantId, cmd.InvoiceId, It.IsAny<CancellationToken>())).ReturnsAsync(InvoiceTestData.DraftInvoice());
-        _numbers.Setup(x => x.AllocateNextWithLockAsync(cmd.TenantId, 2025, It.IsAny<CancellationToken>())).ReturnsAsync("2025-0001");
+        _numbers.Setup(x => x.AllocateNextWithLockAsync(cmd.TenantId, InvoiceYear.Create(2025), It.IsAny<CancellationToken>())).ReturnsAsync("2025-0001");
         _unitOfWork.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Result.Failure(ApplicationErrors.ConcurrencyConflict));
 
         var result = await _sut.Handle(cmd, CancellationToken.None);

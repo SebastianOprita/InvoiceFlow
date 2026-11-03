@@ -11,7 +11,7 @@ public sealed class ServiceClientSecretMapperTests
     {
         var now = new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero);
         var organization = Organization.Create(Guid.NewGuid(), OrganizationName.Create("Org"), OrganizationTypes.Partner, now);
-        var client = ServiceClient.Create(Guid.NewGuid(), organization, ServiceClientId.Create("service-client"), ServiceClientName.Create("Client"), now);
+        var client = ServiceClient.Create(Guid.NewGuid(), organization, ServiceClientIdentifier.Create("service-client"), ServiceClientName.Create("Client"), now);
         var secret = client.AddSecret(Guid.NewGuid(), ServiceClientSecretHash.Create(new string('D', 64)), ServiceClientSecretName.Create("deploy"), ServiceClientSecretDescription.Create("CI"), now.AddDays(5), now);
         client.RevokeSecret(secret.Id, now.AddDays(1));
 

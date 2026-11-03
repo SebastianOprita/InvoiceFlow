@@ -6,7 +6,7 @@ public sealed class ServiceClient
 {
     public Guid Id { get; private set; }
     public Guid OrganizationId { get; private set; }
-    public ServiceClientId ClientId { get; private set; }
+    public ServiceClientIdentifier ClientId { get; private set; }
     public ServiceClientName Name { get; private set; }
     public bool IsActive { get; private set; }
     public bool CanAccessAllTenants { get; private set; }
@@ -30,7 +30,7 @@ public sealed class ServiceClient
     private ServiceClient(
         Guid id,
         Guid organizationId,
-        ServiceClientId clientId,
+        ServiceClientIdentifier clientId,
         ServiceClientName name,
         bool canAccessAllTenants,
         DateTimeOffset createdAtUtc,
@@ -49,7 +49,7 @@ public sealed class ServiceClient
     public static ServiceClient Create(
         Guid id,
         Organization organization,
-        ServiceClientId clientId,
+        ServiceClientIdentifier clientId,
         ServiceClientName name,
         DateTimeOffset createdAtUtc,
         Permissions? permissions = null)

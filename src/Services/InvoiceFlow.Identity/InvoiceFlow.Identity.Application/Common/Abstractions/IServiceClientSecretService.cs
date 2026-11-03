@@ -7,6 +7,6 @@ public interface IServiceClientSecretService
     (string secret, ServiceClientSecretHash hash) GenerateSecretAndHash();
 
     bool Verify(
-        string secret,
-        ServiceClientSecretHash expectedHash);
+        string? secret,
+        ServiceClientSecretHash? expectedHash);
 }

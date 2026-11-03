@@ -14,9 +14,9 @@ internal sealed class RevokeServiceClientPermissionsCommandHandler(
         CancellationToken cancellationToken)
     {
         var client =
-            await serviceClientsRepository.GetTrackedServiceClientByIdAsync
-            (cmd.ServiceClientId,
-            cancellationToken);
+            await serviceClientsRepository.GetTrackedServiceClientByIdAsync(
+                cmd.ServiceClientId,
+                cancellationToken);
 
         if (client is null)
             return Result.Failure(ApplicationErrors.ServiceClientNotFound);

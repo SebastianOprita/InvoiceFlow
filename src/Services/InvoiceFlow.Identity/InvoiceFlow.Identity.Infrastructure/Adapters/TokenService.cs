@@ -121,9 +121,9 @@ internal class TokenService(IOptions<JwtSettings> jwtSettings) : ITokenService
         {
             new(JwtRegisteredClaimNames.Sub, client.Id.ToString()),
             new(JwtRegisteredClaimNames.Jti, Guid.CreateVersion7().ToString()),
-            new("InvoiceFlowClaimTypes.PrincipalType", "PrincipalTypes.ServiceClient"),
-            new("InvoiceFlowClaimTypes.AuthMode", "AuthenticationModes.ClientCredentials"),
-            new("InvoiceFlowClaimTypes.ClientId", client.ClientId.Value),
+            new(InvoiceFlowClaimTypes.PrincipalType, PrincipalTypes.ServiceClient),
+            new(InvoiceFlowClaimTypes.AuthMode, AuthenticationModes.ClientCredentials),
+            new(InvoiceFlowClaimTypes.ClientId, client.ClientId.Value),
             new(InvoiceFlowClaimTypes.TenantId, tenantId.ToString()),
             new(InvoiceFlowClaimTypes.Permissions, client.Permissions.Value.ToString())
         };

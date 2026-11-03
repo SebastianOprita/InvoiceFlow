@@ -4,20 +4,19 @@ namespace InvoiceFlow.Identity.Application;
 
 public interface IServiceClientsRepository
 {
-<<<<<<< Updated upstream
     Task<ServiceClient?> GetServiceClientByIdAsync(
-        Guid serviceClientId,
+        Guid id,
         CancellationToken cancellationToken);
 
-    Task<ServiceClient?> GetTrackedServiceClientByIdAsync(
-        Guid serviceClientId,
-=======
+    Task<ServiceClient?>  GetTrackedServiceClientByIdAsync(
+        Guid id,
+        CancellationToken cancellationToken);
+
     Task<ServiceClient?> GetServiceClientByClientIdAsync(
-        ServiceClientId serviceClientId,
+        ServiceClientIdentifier serviceClientId,
         CancellationToken cancellationToken);
 
     Task<ServiceClient?> GetTrackedServiceClientByClientIdAsync(
-        ServiceClientId serviceClientId,
->>>>>>> Stashed changes
+        ServiceClientIdentifier serviceClientId,
         CancellationToken cancellationToken);
 }

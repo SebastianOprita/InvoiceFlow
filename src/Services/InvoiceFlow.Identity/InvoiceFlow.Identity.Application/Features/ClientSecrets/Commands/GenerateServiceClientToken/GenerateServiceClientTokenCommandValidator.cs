@@ -3,7 +3,7 @@ using InvoiceFlow.Identity.Domain;
 
 namespace InvoiceFlow.Identity.Application;
 
-public sealed class GenerateServiceClientTokenCommandValidator
+internal sealed class GenerateServiceClientTokenCommandValidator
     : AbstractValidator<GenerateServiceClientTokenCommand>
 {
     public GenerateServiceClientTokenCommandValidator()
@@ -13,7 +13,7 @@ public sealed class GenerateServiceClientTokenCommandValidator
 
         RuleFor(x => x.ClientId)
             .NotEmpty()
-            .MaximumLength(ServiceClientId.MaxLength);
+            .MaximumLength(ServiceClientIdentifier.MaxLength);
 
         RuleFor(x => x.ClientSecret)
             .NotEmpty();

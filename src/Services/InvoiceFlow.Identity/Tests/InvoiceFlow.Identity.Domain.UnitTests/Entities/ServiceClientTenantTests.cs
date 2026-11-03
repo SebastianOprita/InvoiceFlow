@@ -40,7 +40,7 @@ public sealed class ServiceClientTenantTests
     {
         var now = new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero);
         var organization = Organization.Create(Guid.NewGuid(), OrganizationName.Create("Org"), OrganizationTypes.Partner, now);
-        var client = ServiceClient.Create(Guid.NewGuid(), organization, ServiceClientId.Create("service-client"), ServiceClientName.Create("Client"), now);
+        var client = ServiceClient.Create(Guid.NewGuid(), organization, ServiceClientIdentifier.Create("service-client"), ServiceClientName.Create("Client"), now);
         var tenantId = Guid.NewGuid();
 
         client.GrantTenant(tenantId, now.AddMinutes(1));

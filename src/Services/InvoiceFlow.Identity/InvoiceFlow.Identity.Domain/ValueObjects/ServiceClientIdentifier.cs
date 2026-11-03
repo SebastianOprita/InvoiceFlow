@@ -3,13 +3,13 @@ using InvoiceFlow.BuildingBlocks.Domain;
 
 namespace InvoiceFlow.Identity.Domain;
 
-public sealed partial record ServiceClientId
+public sealed partial record ServiceClientIdentifier
 {
     public const int MaxLength = 100;
 
     public string Value { get; }
 
-    private ServiceClientId(string value)
+    private ServiceClientIdentifier(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
             throw new DomainException(DomainErrors.ServiceClientIdRequired);
@@ -22,7 +22,7 @@ public sealed partial record ServiceClientId
         Value = normalizedValue;
     }
 
-    public static ServiceClientId Create(string value) => new(value);
+    public static ServiceClientIdentifier Create(string value) => new(value);
 
     public override string ToString() => Value;
 

@@ -28,13 +28,6 @@ internal sealed class ServiceClientSecretService : IServiceClientSecretService
     }
 
     public bool Verify(
-<<<<<<< Updated upstream
-        string secret,
-        ServiceClientSecretHash expectedHash)
-    {
-        var bytes = Encoding.UTF8.GetBytes(secret);
-        var actualHash = SHA256.HashData(bytes);
-=======
         string? secret,
         ServiceClientSecretHash? expectedHash)
     {
@@ -43,7 +36,6 @@ internal sealed class ServiceClientSecretService : IServiceClientSecretService
 
         var actualHash = SHA256.HashData(
             Encoding.UTF8.GetBytes(secret));
->>>>>>> Stashed changes
 
         var expectedBytes = Convert.FromHexString(
             expectedHash.Value);

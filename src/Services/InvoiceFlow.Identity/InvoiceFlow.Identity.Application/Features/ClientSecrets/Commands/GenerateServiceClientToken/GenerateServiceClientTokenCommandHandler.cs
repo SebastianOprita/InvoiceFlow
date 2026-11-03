@@ -19,7 +19,7 @@ internal sealed class GenerateServiceClientTokenCommandHandler(
     {
         var now = dateTimeProvider.GetUtcNow();
 
-        var clientId = ServiceClientId.Create(cmd.ClientId);
+        var clientId = ServiceClientIdentifier.Create(cmd.ClientId);
 
         var client =
             await serviceClientsRepository.GetServiceClientByClientIdAsync(

@@ -1,4 +1,4 @@
-﻿using InvoiceFlow.Identity.Application;
+using InvoiceFlow.Identity.Application;
 using InvoiceFlow.Identity.Domain;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,9 +21,9 @@ internal class TenantsRepository(IdentityDbContext dbContext) : ITenantsReposito
         return await dbContext.Tenants.AsNoTracking().FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
     }
 
-    public async Task<Tenant?> GetTenantBySlugAsync(string slug, CancellationToken cancellationToken = default)
+    public async Task<Tenant?> GetTenantBySlugAsync(TenantSlug slug, CancellationToken cancellationToken = default)
     {
-        return await dbContext.Tenants.AsNoTracking().FirstOrDefaultAsync(t => t.Slug.Value == slug, cancellationToken);
+        return await dbContext.Tenants.AsNoTracking().FirstOrDefaultAsync(t => t.Slug == slug, cancellationToken);
     }
 
     public async Task<Tenant?> GetTrackedTenantByIdAsync(Guid id, CancellationToken cancellationToken = default)

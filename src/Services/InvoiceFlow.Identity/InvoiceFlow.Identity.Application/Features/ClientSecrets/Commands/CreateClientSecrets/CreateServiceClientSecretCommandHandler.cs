@@ -17,7 +17,7 @@ internal sealed class CreateServiceClientSecretCommandHandler(
         CreateServiceClientSecretCommand cmd,
         CancellationToken cancellationToken)
     {
-        var client = await serviceClientRepository.GetServiceClientByIdAsync(
+        var client = await serviceClientRepository.GetTrackedServiceClientByIdAsync(
             cmd.ServiceClientId,
             cancellationToken);
 
@@ -68,6 +68,5 @@ internal sealed class CreateServiceClientSecretCommandHandler(
                 Secret: secret,
                 CreatedAtUtc: clientSecret.CreatedAtUtc,
                 ExpiresAtUtc: clientSecret.ExpiresAtUtc));
-
     }
 }

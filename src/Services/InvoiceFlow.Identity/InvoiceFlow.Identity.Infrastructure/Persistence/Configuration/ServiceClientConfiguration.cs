@@ -21,8 +21,8 @@ public sealed class ServiceClientConfiguration : IEntityTypeConfiguration<Servic
         builder.Property(x => x.ClientId)
             .HasConversion(
                 clientId => clientId.Value,
-                value => ServiceClientId.Create(value))
-            .HasMaxLength(ServiceClientId.MaxLength)
+                value => ServiceClientIdentifier.Create(value))
+            .HasMaxLength(ServiceClientIdentifier.MaxLength)
             .HasColumnName("ClientId")
             .IsRequired();
 

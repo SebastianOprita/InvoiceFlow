@@ -27,4 +27,4 @@ public sealed record ClientCredentialsTokenRequest(
 
     [FromForm(Name = "tenant_id")]
     [property: JsonRequired]
-    string TenantId);
+    Guid TenantId);
