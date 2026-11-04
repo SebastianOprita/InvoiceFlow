@@ -74,7 +74,7 @@ public sealed class TokenController(
         });
     }
 
-    private IActionResult MapOAuthError(ApplicationError error)
+    private ObjectResult MapOAuthError(ApplicationError error)
     {
         return error.Code switch
         {
