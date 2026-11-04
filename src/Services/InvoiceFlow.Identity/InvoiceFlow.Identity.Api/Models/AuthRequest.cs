@@ -23,4 +23,4 @@ public sealed record ClientCredentialsTokenRequest(
     string? ClientSecret,
 
     [FromForm(Name = "tenant_id")]
-    Guid TenantId);
+    Guid? TenantId);

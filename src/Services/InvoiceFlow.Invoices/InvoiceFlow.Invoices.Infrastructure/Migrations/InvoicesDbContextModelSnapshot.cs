@@ -269,6 +269,9 @@ namespace InvoiceFlow.Invoices.Infrastructure.Migrations
 
             modelBuilder.Entity("InvoiceFlow.Invoices.Domain.InvoiceNumberSequence", b =>
                 {
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
@@ -287,14 +290,11 @@ namespace InvoiceFlow.Invoices.Infrastructure.Migrations
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("rowversion");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<int>("Year")
                         .HasColumnType("int")
                         .HasColumnName("Year");
 
-                    b.HasKey("Id");
+                    b.HasKey("TenantId", "Id");
 
                     b.HasIndex("TenantId", "Year")
                         .IsUnique()

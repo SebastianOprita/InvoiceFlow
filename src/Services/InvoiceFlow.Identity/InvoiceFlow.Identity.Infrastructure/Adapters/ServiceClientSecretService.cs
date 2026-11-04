@@ -18,7 +18,7 @@ internal sealed class ServiceClientSecretService : IServiceClientSecretService
         return (secret, hash);
     }
 
-    private ServiceClientSecretHash Hash(string secret)
+    private static ServiceClientSecretHash Hash(string secret)
     {
         var bytes = Encoding.UTF8.GetBytes(secret);
         var hash = SHA256.HashData(bytes);

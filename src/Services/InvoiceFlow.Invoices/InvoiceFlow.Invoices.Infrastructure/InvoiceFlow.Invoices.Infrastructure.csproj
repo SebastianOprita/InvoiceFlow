@@ -8,4 +8,8 @@
     <ProjectReference Include="..\InvoiceFlow.Invoices.Application\InvoiceFlow.Invoices.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
+
 </Project>

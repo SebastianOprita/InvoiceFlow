@@ -41,7 +41,7 @@ namespace InvoiceFlow.Invoices.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_InvoiceNumberSequences", x => x.Id);
+                    table.PrimaryKey("PK_InvoiceNumberSequences", x => new { x.TenantId, x.Id });
                 });
 
             migrationBuilder.CreateTable(

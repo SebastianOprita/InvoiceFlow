@@ -1,4 +1,4 @@
-﻿using InvoiceFlow.Identity.Domain;
+using InvoiceFlow.Identity.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -11,8 +11,13 @@ public sealed class PlatformRefreshTokenConfiguration : IEntityTypeConfiguration
         builder.ToTable("PlatformRefreshTokens");
 
         builder.HasKey(x => x.Id);
-        builder.Property(x => x.Id).IsRequired();
-        builder.Property(x => x.UserId).IsRequired();
+
+        builder.Property(x => x.Id)
+            .ValueGeneratedNever()
+            .IsRequired();
+
+        builder.Property(x => x.UserId)
+            .IsRequired();
 
         builder.Property(x => x.TokenHash)
             .HasConversion(
@@ -37,9 +42,14 @@ public sealed class PlatformRefreshTokenConfiguration : IEntityTypeConfiguration
             .HasColumnName("IpAddress");
 
         builder.Property(x => x.ReplacedByTokenId);
-        builder.Property(x => x.ExpiresAtUtc).IsRequired();
+
+        builder.Property(x => x.ExpiresAtUtc)
+            .IsRequired();
+
         builder.Property(x => x.RevokedAtUtc);
-        builder.Property(x => x.CreatedAtUtc).IsRequired();
+
+        builder.Property(x => x.CreatedAtUtc)
+            .IsRequired();
 
         builder.Property<byte[]>("RowVersion").IsRowVersion();
 

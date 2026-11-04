@@ -36,7 +36,7 @@ public sealed class TokenController(
                 StatusCodes.Status401Unauthorized);
         }
 
-        if (request.TenantId == Guid.Empty)
+        if (request.TenantId is null || request.TenantId == Guid.Empty)
         {
             return OAuthError(
                 "invalid_request",
@@ -45,7 +45,7 @@ public sealed class TokenController(
 
         var result = await mediator.Send(
             new GenerateServiceClientTokenCommand(
-                request.TenantId,
+                request.TenantId.Value,
                 request.ClientId,
                 request.ClientSecret),
             cancellationToken);
@@ -88,7 +88,7 @@ public sealed class TokenController(
         };
     }
 
-    private IActionResult OAuthError(string error, int statusCode)
+    private ObjectResult OAuthError(string error, int statusCode)
     {
         return StatusCode(statusCode, new
         {

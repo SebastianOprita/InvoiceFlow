@@ -13,9 +13,11 @@ public sealed class InvoiceLineConfiguration : IEntityTypeConfiguration<InvoiceL
         builder.HasKey(x => new { x.TenantId, x.Id });
 
         builder.Property(x => x.TenantId)
+            .ValueGeneratedNever()
             .IsRequired();
 
         builder.Property(x => x.Id)
+            .ValueGeneratedNever()
             .IsRequired();
 
         builder.Property(x => x.InvoiceId)

@@ -17,9 +17,16 @@ public sealed class ServiceClientTenantConfiguration
             x.TenantId
         });
 
-        builder.Property(x => x.ServiceClientId).IsRequired();
-        builder.Property(x => x.TenantId).IsRequired();
-        builder.Property(x => x.CreatedAtUtc).IsRequired();
+        builder.Property(x => x.ServiceClientId)
+            .ValueGeneratedNever()
+            .IsRequired();
+
+        builder.Property(x => x.TenantId)
+            .ValueGeneratedNever()
+            .IsRequired();
+
+        builder.Property(x => x.CreatedAtUtc)
+            .IsRequired();
 
         builder.HasIndex(x => x.TenantId)
             .HasDatabaseName("IX_ServiceClientTenants_TenantId");

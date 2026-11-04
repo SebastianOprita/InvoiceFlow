@@ -1,4 +1,4 @@
-﻿using InvoiceFlow.Identity.Domain;
+using InvoiceFlow.Identity.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -12,11 +12,23 @@ public sealed class UserRoleConfiguration : IEntityTypeConfiguration<UserRole>
 
         builder.HasKey(x => new { x.TenantId, x.UserId, x.RoleId });
 
-        builder.Property(x => x.TenantId).IsRequired();
-        builder.Property(x => x.UserId).IsRequired();
-        builder.Property(x => x.RoleId).IsRequired();
-        builder.Property(x => x.AssignedAtUtc).IsRequired();
-        builder.Property<byte[]>("RowVersion").IsRowVersion();
+        builder.Property(x => x.TenantId)
+            .ValueGeneratedNever()
+            .IsRequired();
+
+        builder.Property(x => x.UserId)
+            .ValueGeneratedNever()
+            .IsRequired();
+
+        builder.Property(x => x.RoleId)
+            .ValueGeneratedNever()
+            .IsRequired();
+
+        builder.Property(x => x.AssignedAtUtc)
+            .IsRequired();
+
+        builder.Property<byte[]>("RowVersion")
+            .IsRowVersion();
 
         builder.HasIndex(x => new { x.TenantId, x.RoleId })
             .HasDatabaseName("IX_UserRoles_TenantId_RoleId");

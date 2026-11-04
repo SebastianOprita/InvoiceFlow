@@ -1,4 +1,4 @@
-﻿using InvoiceFlow.Identity.Domain;
+using InvoiceFlow.Identity.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -11,9 +11,17 @@ public sealed class RefreshTokenConfiguration : IEntityTypeConfiguration<Refresh
         builder.ToTable("RefreshTokens");
 
         builder.HasKey(x => new { x.TenantId, x.Id });
-        builder.Property(x => x.TenantId).IsRequired();
-        builder.Property(x => x.Id).IsRequired();
-        builder.Property(x => x.UserId).IsRequired();
+
+        builder.Property(x => x.TenantId)
+            .ValueGeneratedNever()
+            .IsRequired();
+
+        builder.Property(x => x.Id)
+            .ValueGeneratedNever()
+            .IsRequired();
+
+        builder.Property(x => x.UserId)
+            .IsRequired();
 
         builder.Property(x => x.TokenHash)
             .HasConversion(
@@ -38,11 +46,17 @@ public sealed class RefreshTokenConfiguration : IEntityTypeConfiguration<Refresh
             .HasColumnName("IpAddress");
 
         builder.Property(x => x.ReplacedByTokenId);
-        builder.Property(x => x.ExpiresAtUtc).IsRequired();
-        builder.Property(x => x.RevokedAtUtc);
-        builder.Property(x => x.CreatedAtUtc).IsRequired();
 
-        builder.Property<byte[]>("RowVersion").IsRowVersion();
+        builder.Property(x => x.ExpiresAtUtc)
+            .IsRequired();
+
+        builder.Property(x => x.RevokedAtUtc);
+
+        builder.Property(x => x.CreatedAtUtc)
+            .IsRequired();
+
+        builder.Property<byte[]>("RowVersion")
+            .IsRowVersion();
 
         builder.HasIndex(x => new { x.TenantId, x.UserId })
             .HasDatabaseName("IX_RefreshTokens_TenantId_UserId");

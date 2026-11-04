@@ -9,11 +9,15 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
     public void Configure(EntityTypeBuilder<Product> builder)
     {
         builder.ToTable("Products");
+
         builder.HasKey(x => new { x.TenantId, x.Id });
+
         builder.Property(x => x.TenantId)
+            .ValueGeneratedNever()
             .IsRequired();
 
         builder.Property(x => x.Id)
+            .ValueGeneratedNever()
             .IsRequired();
 
         builder.Property(x => x.Code)

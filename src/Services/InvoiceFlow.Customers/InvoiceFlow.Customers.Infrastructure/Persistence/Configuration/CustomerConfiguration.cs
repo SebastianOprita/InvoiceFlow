@@ -15,8 +15,11 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
 
         // Basic Properties
         builder.Property(x => x.TenantId)
+            .ValueGeneratedNever()
             .IsRequired();
+
         builder.Property(x => x.Id)
+            .ValueGeneratedNever()
             .IsRequired();
 
         builder.Property(x => x.CustomerCode)

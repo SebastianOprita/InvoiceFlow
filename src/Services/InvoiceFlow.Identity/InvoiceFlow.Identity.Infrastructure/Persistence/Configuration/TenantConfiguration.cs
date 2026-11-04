@@ -1,4 +1,4 @@
-﻿using InvoiceFlow.Identity.Domain;
+using InvoiceFlow.Identity.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -11,7 +11,10 @@ public sealed class TenantConfiguration : IEntityTypeConfiguration<Tenant>
         builder.ToTable("Tenants");
 
         builder.HasKey(x => x.Id);
-        builder.Property(x => x.Id).IsRequired();
+
+        builder.Property(x => x.Id)
+            .ValueGeneratedNever()
+            .IsRequired();
 
         builder.Property(x => x.Name)
             .HasConversion(
@@ -29,11 +32,16 @@ public sealed class TenantConfiguration : IEntityTypeConfiguration<Tenant>
             .HasColumnName("Slug")
             .IsRequired();
 
-        builder.Property(x => x.IsActive).IsRequired();
-        builder.Property(x => x.CreatedAtUtc).IsRequired();
+        builder.Property(x => x.IsActive)
+            .IsRequired();
+
+        builder.Property(x => x.CreatedAtUtc)
+            .IsRequired();
+
         builder.Property(x => x.UpdatedAtUtc);
 
-        builder.Property<byte[]>("RowVersion").IsRowVersion();
+        builder.Property<byte[]>("RowVersion")
+            .IsRowVersion();
 
         builder.HasIndex("Name")
             .HasDatabaseName("UX_Tenants_Name");

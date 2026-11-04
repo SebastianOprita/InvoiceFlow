@@ -13,6 +13,7 @@ namespace InvoiceFlow.Identity.Infrastructure;
 
 internal class TokenService(IOptions<JwtSettings> jwtSettings) : ITokenService
 {
+    private const string BearerTokenType = "Bearer";
     public (string Token, DateTimeOffset ExpiresAt) GenerateRefreshToken(DateTimeOffset dateTime)
     {
         var bytes = RandomNumberGenerator.GetBytes(32);
@@ -48,7 +49,7 @@ internal class TokenService(IOptions<JwtSettings> jwtSettings) : ITokenService
             new(InvoiceFlowClaimTypes.Permissions, (permissions).ToString())
         };
 
-        return (GenerateToken(claims, dateTime, expiresAt), "Bearer", expiresAt);
+        return (GenerateToken(claims, dateTime, expiresAt), BearerTokenType, expiresAt);
     }
 
     public (string Token, string TokenType, DateTimeOffset ExpiresAt) GeneratePlatformUserAccessToken(
@@ -68,7 +69,7 @@ internal class TokenService(IOptions<JwtSettings> jwtSettings) : ITokenService
             new(InvoiceFlowClaimTypes.EmailAddress, platformEmail),
         };
 
-        return (GenerateToken(claims, dateTime, expiresAt), "Bearer", expiresAt);
+        return (GenerateToken(claims, dateTime, expiresAt), BearerTokenType, expiresAt);
     }
 
     public (string Token, string TokenType, DateTimeOffset ExpiresAt) GenerateImpersonationToken(
@@ -106,7 +107,7 @@ internal class TokenService(IOptions<JwtSettings> jwtSettings) : ITokenService
             new(InvoiceFlowClaimTypes.ImpersonationReason, reason ?? string.Empty)
         };
 
-        return (GenerateToken(claims, dateTime, expiresAt), "Bearer", expiresAt);
+        return (GenerateToken(claims, dateTime, expiresAt), BearerTokenType, expiresAt);
     }
 
     public (string Token, string TokenType, DateTimeOffset ExpiresAt) GenerateServiceClientToken(
@@ -128,7 +129,7 @@ internal class TokenService(IOptions<JwtSettings> jwtSettings) : ITokenService
             new(InvoiceFlowClaimTypes.Permissions, client.Permissions.Value.ToString())
         };
 
-        return (GenerateToken(claims, dateTime, expiresAt), "Bearer", expiresAt);
+        return (GenerateToken(claims, dateTime, expiresAt), BearerTokenType, expiresAt);
     }
 
     private string GenerateToken(IEnumerable<Claim> claims, DateTimeOffset startingAt, DateTimeOffset expiresAt)
