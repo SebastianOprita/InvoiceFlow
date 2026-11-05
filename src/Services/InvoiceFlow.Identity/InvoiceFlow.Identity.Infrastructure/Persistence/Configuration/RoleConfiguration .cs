@@ -1,4 +1,4 @@
-﻿using InvoiceFlow.Identity.Domain;
+using InvoiceFlow.Identity.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -12,9 +12,13 @@ public sealed class RoleConfiguration : IEntityTypeConfiguration<Role>
 
         builder.HasKey(x => new { x.TenantId, x.Id });
 
-        builder.Property(x => x.TenantId).IsRequired();
+        builder.Property(x => x.TenantId)
+            .ValueGeneratedNever()
+            .IsRequired();
 
-        builder.Property(x => x.Id).IsRequired();
+        builder.Property(x => x.Id)
+            .ValueGeneratedNever()
+            .IsRequired();
 
         builder.Property(x => x.Name)
             .HasConversion(
@@ -34,17 +38,20 @@ public sealed class RoleConfiguration : IEntityTypeConfiguration<Role>
         builder.Property(x => x.Permissions)
             .HasConversion(
                 permissions => permissions.Value,
-                value => RolePermissions.Create(value))
+                value => Permissions.Create(value))
             .HasColumnName("Permissions")
             .IsRequired();
 
-        builder.Property(x => x.IsActive).IsRequired();
+        builder.Property(x => x.IsActive)
+            .IsRequired();
 
-        builder.Property(x => x.CreatedAtUtc).IsRequired();
+        builder.Property(x => x.CreatedAtUtc)
+            .IsRequired();
 
         builder.Property(x => x.UpdatedAtUtc);
 
-        builder.Property<byte[]>("RowVersion").IsRowVersion();
+        builder.Property<byte[]>("RowVersion")
+            .IsRowVersion();
 
         builder.HasIndex("TenantId", "Name")
             .HasDatabaseName("UX_Roles_TenantId_Name")

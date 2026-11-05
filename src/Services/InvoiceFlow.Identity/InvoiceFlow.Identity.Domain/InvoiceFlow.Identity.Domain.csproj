@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <InternalsVisibleTo Include="InvoiceFlow.Identity.Domain.UnitTests" />
     <PackageReference Include="InvoiceFlow.BuildingBlocks.Domain" />
   </ItemGroup>
 

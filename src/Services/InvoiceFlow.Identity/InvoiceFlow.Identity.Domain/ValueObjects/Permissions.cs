@@ -2,14 +2,14 @@ using InvoiceFlow.BuildingBlocks.Domain;
 
 namespace InvoiceFlow.Identity.Domain;
 
-public sealed record RolePermissions
+public sealed record Permissions
 {
-    private const long ValidPermissionsMask = (1L << 31) - 1;
-    public static readonly RolePermissions None = new(0);
+    private const long ValidPermissionsMask = (1L << 29) - 1;
+    public static readonly Permissions None = new(0);
 
     public long Value { get; }
 
-    private RolePermissions(long value)
+    private Permissions(long value)
     {
         if (!IsValid(value))
             throw new DomainException(DomainErrors.PermissionInvalid);
@@ -17,20 +17,20 @@ public sealed record RolePermissions
         Value = value;
     }
 
-    public static RolePermissions Create(long value) => new(value);
+    public static Permissions Create(long value) => new(value);
 
-    public RolePermissions Grant(long permission)
+    public Permissions Grant(long permission)
     {
         EnsurePermissionForChange(permission);
 
-        return new RolePermissions(Value | permission);
+        return new Permissions(Value | permission);
     }
 
-    public RolePermissions Revoke(long permission)
+    public Permissions Revoke(long permission)
     {
         EnsurePermissionForChange(permission);
 
-        return new RolePermissions(Value & ~permission);
+        return new Permissions(Value & ~permission);
     }
 
     public bool Has(long permission)

@@ -8,7 +8,7 @@ internal sealed class InvoiceNumberRepository(
     InvoicesDbContext context)
     : IInvoiceNumberRepository
 {
-    public async Task<string> AllocateNextWithLockAsync(Guid tenantId, int year, CancellationToken cancellationToken = default)
+    public async Task<string> AllocateNextWithLockAsync(Guid tenantId, InvoiceYear year, CancellationToken cancellationToken = default)
     {
         var sequence = await context.InvoiceNumberSequences
             .FromSqlInterpolated($"""
@@ -16,7 +16,7 @@ internal sealed class InvoiceNumberRepository(
                 FROM dbo.InvoiceNumberSequences
                     WITH (UPDLOCK, HOLDLOCK)
                 WHERE TenantId = {tenantId}
-                  AND Year = {year}
+                  AND Year = {year.Value}
                 """)
             .SingleOrDefaultAsync(cancellationToken);
 
@@ -25,7 +25,7 @@ internal sealed class InvoiceNumberRepository(
             sequence =  InvoiceNumberSequence.Create(
                 tenantId: tenantId,
                 id: Guid.CreateVersion7(),
-                year: InvoiceYear.Create(year),
+                year: year,
                 prefix:  InvoiceNumberPrefix.Create("INV"),
                 startingNumber: SequenceNumber.Create(1));
 

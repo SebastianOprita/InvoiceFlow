@@ -38,7 +38,7 @@ internal sealed class IssueInvoiceCommandHandler(
             var invoiceNumber =
                 await invoiceNumberRepository.AllocateNextWithLockAsync(
                     cmd.TenantId,
-                    now.UtcDateTime.Year,
+                    InvoiceYear.Create(now.UtcDateTime.Year),
                     ct);
 
             invoice.Issue(InvoiceNumber.Create(invoiceNumber), issueDate, now);

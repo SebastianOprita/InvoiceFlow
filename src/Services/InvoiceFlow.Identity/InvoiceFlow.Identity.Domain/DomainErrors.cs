@@ -1,8 +1,8 @@
-﻿using InvoiceFlow.BuildingBlocks.Domain;
+using InvoiceFlow.BuildingBlocks.Domain;
 
 namespace InvoiceFlow.Identity.Domain;
 
-public static class DomainErrors
+public static partial class DomainErrors
 {
     public static readonly DomainError EmailRequired = new("email.required", "Email is required.");
     public static readonly DomainError EmailTooLong = new("email.tooLong", $"Email is too long. Maximum length is {UserEmail.MaxLength} characters.");

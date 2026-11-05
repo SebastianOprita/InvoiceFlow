@@ -1,4 +1,4 @@
-﻿namespace InvoiceFlow.Identity.Infrastructure;
+namespace InvoiceFlow.Identity.Infrastructure;
 
 public sealed class JwtSettings
 {
@@ -8,4 +8,5 @@ public sealed class JwtSettings
     public int AccessTokenMinutes { get; set; } = 15;
     public int RefreshTokenDays { get; set; } = 30;
     public int ImpersonationTokenMinutes { get; set; } = 15;
+    public int ServiceClientTokenMinutes { get; set; } = 5;
 }

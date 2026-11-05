@@ -1,4 +1,4 @@
-﻿using InvoiceFlow.Identity.Domain;
+using InvoiceFlow.Identity.Domain;
 using Microsoft.EntityFrameworkCore;
 
 namespace InvoiceFlow.Identity.Infrastructure;
@@ -12,6 +12,8 @@ public sealed class IdentityDbContext : DbContext
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<PlatformUser> PlatformUsers => Set<PlatformUser>();
     public DbSet<PlatformRefreshToken> PlatformRefreshTokens => Set<PlatformRefreshToken>();
+    public DbSet<Organization> Organizations => Set<Organization>();
+    public DbSet<ServiceClient> ServiceClients => Set<ServiceClient>();
 
     public IdentityDbContext(DbContextOptions<IdentityDbContext> options)
         : base(options)

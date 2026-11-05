@@ -1,4 +1,4 @@
-﻿using InvoiceFlow.BuildingBlocks.Application;
+using InvoiceFlow.BuildingBlocks.Application;
 using InvoiceFlow.Identity.Application;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -50,6 +50,7 @@ public static class DependencyInjection
         services.AddScoped<PasswordHasher<object>>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<ITokenService, TokenService>();
+        services.AddScoped<IServiceClientSecretService, ServiceClientSecretService>();
 
         services.RegisterRepositories();
 
@@ -70,6 +71,10 @@ public static class DependencyInjection
         services.AddScoped<IPlatformRefreshTokensRepository, PlatformRefreshTokensRepository>();
 
         services.AddScoped<IPlatformUsersRepository, PlatformUsersRepository>();
+
+        services.AddScoped<IServiceClientsRepository, ServiceClientsRepository>();
+
+        services.AddScoped<IOrganizationsRepository, OrganizationsRepository>();
 
         return services;
     }

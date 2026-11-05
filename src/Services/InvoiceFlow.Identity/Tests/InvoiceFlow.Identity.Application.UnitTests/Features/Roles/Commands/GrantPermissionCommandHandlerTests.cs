@@ -33,7 +33,7 @@ public class GrantPermissionCommandHandlerTests
         var cmd = new GrantPermissionCommand(
             Guid.CreateVersion7(),
             Guid.CreateVersion7(),
-            RolePermissions.None.Value);
+            Permissions.None.Value);
 
         _rolesRepository
             .Setup(x => x.GetTrackedRoleByIdAsync(cmd.TenantId, cmd.RoleId))
@@ -66,7 +66,7 @@ public class GrantPermissionCommandHandlerTests
             RoleName.Create("Admin"),
             _mockDateTimeProvider.Object.GetUtcNow(),
             RoleDescription.CreateOptional("Administrator role"),
-            RolePermissions.Create(RolePermissions.None.Value));
+            Permissions.Create(Permissions.None.Value));
 
         _rolesRepository
             .Setup(x => x.GetTrackedRoleByIdAsync(cmd.TenantId, cmd.RoleId))

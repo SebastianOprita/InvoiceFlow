@@ -18,7 +18,7 @@ internal sealed class CreateRoleCommandValidator : AbstractValidator<CreateRoleC
             .When(x => !string.IsNullOrWhiteSpace(x.Description));
 
         RuleFor(x => x.Permissions)
-            .Must(p => RolePermissions.IsSinglePermission(p))
+            .Must(p => Permissions.IsSinglePermission(p))
             .WithMessage("Exactly one valid permission is required.");
     }
 }

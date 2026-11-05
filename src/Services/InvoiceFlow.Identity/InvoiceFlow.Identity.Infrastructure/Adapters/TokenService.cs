@@ -1,22 +1,24 @@
-﻿using InvoiceFlow.BuildingBlocks.Authorization.Claims;
-using InvoiceFlow.Identity.Application;
-using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using InvoiceFlow.BuildingBlocks.Authorization.Claims;
+using InvoiceFlow.Identity.Application;
+using InvoiceFlow.Identity.Domain;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 
 namespace InvoiceFlow.Identity.Infrastructure;
 
 internal class TokenService(IOptions<JwtSettings> jwtSettings) : ITokenService
 {
+    private const string BearerTokenType = "Bearer";
     public (string Token, DateTimeOffset ExpiresAt) GenerateRefreshToken(DateTimeOffset dateTime)
     {
         var bytes = RandomNumberGenerator.GetBytes(32);
         var refreshToken =  WebEncoders.Base64UrlEncode(bytes);
-        var expiresAt = dateTime.AddMinutes(jwtSettings.Value.RefreshTokenDays);
+        var expiresAt = dateTime.AddDays(jwtSettings.Value.RefreshTokenDays);
         return (refreshToken, expiresAt);
     }
 
@@ -37,6 +39,8 @@ internal class TokenService(IOptions<JwtSettings> jwtSettings) : ITokenService
 
         var claims = new List<Claim>
         {
+            new(JwtRegisteredClaimNames.Sub, userId.ToString()),
+            new(JwtRegisteredClaimNames.Jti, Guid.CreateVersion7().ToString()),
             new(InvoiceFlowClaimTypes.PrincipalType, PrincipalTypes.TenantUser),
             new(InvoiceFlowClaimTypes.AuthMode, AuthenticationModes.Login),
             new(InvoiceFlowClaimTypes.UserId, userId.ToString()),
@@ -45,7 +49,7 @@ internal class TokenService(IOptions<JwtSettings> jwtSettings) : ITokenService
             new(InvoiceFlowClaimTypes.Permissions, (permissions).ToString())
         };
 
-        return (GenerateToken(claims, dateTime, expiresAt), "Bearer", expiresAt);
+        return (GenerateToken(claims, dateTime, expiresAt), BearerTokenType, expiresAt);
     }
 
     public (string Token, string TokenType, DateTimeOffset ExpiresAt) GeneratePlatformUserAccessToken(
@@ -57,13 +61,15 @@ internal class TokenService(IOptions<JwtSettings> jwtSettings) : ITokenService
 
         var claims = new List<Claim>
         {
+            new(JwtRegisteredClaimNames.Sub, platformUserId.ToString()),
+            new(JwtRegisteredClaimNames.Jti, Guid.CreateVersion7().ToString()),
             new(InvoiceFlowClaimTypes.PrincipalType, PrincipalTypes.PlatformUser),
             new(InvoiceFlowClaimTypes.AuthMode, AuthenticationModes.Login),
             new(InvoiceFlowClaimTypes.UserId, platformUserId.ToString()),
             new(InvoiceFlowClaimTypes.EmailAddress, platformEmail),
         };
 
-        return (GenerateToken(claims, dateTime, expiresAt), "Bearer", expiresAt);
+        return (GenerateToken(claims, dateTime, expiresAt), BearerTokenType, expiresAt);
     }
 
     public (string Token, string TokenType, DateTimeOffset ExpiresAt) GenerateImpersonationToken(
@@ -81,6 +87,8 @@ internal class TokenService(IOptions<JwtSettings> jwtSettings) : ITokenService
 
         var claims = new List<Claim>
         {
+            new(JwtRegisteredClaimNames.Sub, targetUserId.ToString()),
+            new(JwtRegisteredClaimNames.Jti, Guid.CreateVersion7().ToString()),
             new(InvoiceFlowClaimTypes.PrincipalType, PrincipalTypes.TenantUser),
             new(InvoiceFlowClaimTypes.AuthMode, AuthenticationModes.Impersonation),
             new(InvoiceFlowClaimTypes.UserId, targetUserId.ToString()),
@@ -99,7 +107,29 @@ internal class TokenService(IOptions<JwtSettings> jwtSettings) : ITokenService
             new(InvoiceFlowClaimTypes.ImpersonationReason, reason ?? string.Empty)
         };
 
-        return (GenerateToken(claims, dateTime, expiresAt), "Bearer", expiresAt);
+        return (GenerateToken(claims, dateTime, expiresAt), BearerTokenType, expiresAt);
+    }
+
+    public (string Token, string TokenType, DateTimeOffset ExpiresAt) GenerateServiceClientToken(
+        ServiceClient client,
+        Guid tenantId,
+        DateTimeOffset dateTime)
+    {
+        var expiresAt = dateTime.AddMinutes(
+        jwtSettings.Value.ServiceClientTokenMinutes);
+
+        var claims = new List<Claim>
+        {
+            new(JwtRegisteredClaimNames.Sub, client.Id.ToString()),
+            new(JwtRegisteredClaimNames.Jti, Guid.CreateVersion7().ToString()),
+            new(InvoiceFlowClaimTypes.PrincipalType, PrincipalTypes.ServiceClient),
+            new(InvoiceFlowClaimTypes.AuthMode, AuthenticationModes.ClientCredentials),
+            new(InvoiceFlowClaimTypes.ClientId, client.ClientId.Value),
+            new(InvoiceFlowClaimTypes.TenantId, tenantId.ToString()),
+            new(InvoiceFlowClaimTypes.Permissions, client.Permissions.Value.ToString())
+        };
+
+        return (GenerateToken(claims, dateTime, expiresAt), BearerTokenType, expiresAt);
     }
 
     private string GenerateToken(IEnumerable<Claim> claims, DateTimeOffset startingAt, DateTimeOffset expiresAt)

@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.BuildingBlocks.Domain;
 using InvoiceFlow.Identity.Domain;
@@ -18,7 +18,7 @@ public sealed class PermissionContractTests
                 (current, permission) =>
                     current | (long)permission);
 
-        var permissions = RolePermissions.Create(allPermissions);
+        var permissions = Permissions.Create(allPermissions);
 
         permissions.Value.Should().Be(allPermissions);
     }
@@ -26,23 +26,26 @@ public sealed class PermissionContractTests
     [Fact]
     public void RolePermissions_ShouldRejectUndefinedPermissions()
     {
-        var allPermissions = Enum
+        var validPermissionsMask = Enum
             .GetValues<SystemPermissions>()
             .Aggregate(
                 0L,
-                (current, permission) =>
-                    current | (long)permission);
+                (mask, permission) => mask | (long)permission);
 
         for (var bit = 0; bit < 63; bit++)
         {
             var permission = 1L << bit;
 
-            if ((allPermissions & permission) != 0)
+            if ((validPermissionsMask & permission) != 0)
                 continue;
 
-            var act = () => RolePermissions.Create(permission);
+            var act = () => Permissions.Create(permission);
 
-            act.Should().Throw<DomainException>();
+            act.Should()
+                .Throw<DomainException>()
+                .Which.Error
+                .Should()
+                .Be(DomainErrors.PermissionInvalid);
         }
     }
 }

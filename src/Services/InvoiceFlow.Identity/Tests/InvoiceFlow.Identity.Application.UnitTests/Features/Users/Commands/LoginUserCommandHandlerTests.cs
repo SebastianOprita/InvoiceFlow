@@ -16,7 +16,7 @@ public sealed class LoginUserCommandHandlerTests
     private readonly Mock<ISystemDateTimeProvider> _mockDateTimeProvider;
     private readonly Mock<ITenantsRepository> _tenantsRepository;
 
-    private LoginUserCommandHandler _sut;
+    private readonly LoginUserCommandHandler _sut;
 
     public LoginUserCommandHandlerTests()
     {
@@ -554,7 +554,7 @@ public sealed class LoginUserCommandHandlerTests
                 user.Id,
                 tenantId,
                 user.Email.Value,
-                RolePermissions.None.Value,
+                Permissions.None.Value,
                 It.IsAny<DateTimeOffset>()))
             .Returns((
                 "access-token",
@@ -594,7 +594,7 @@ public sealed class LoginUserCommandHandlerTests
                 user.Id,
                 tenantId,
                 user.Email.Value,
-                RolePermissions.None.Value,
+                Permissions.None.Value,
                 It.IsAny<DateTimeOffset>()),
             Times.Once);
 
@@ -641,7 +641,7 @@ public sealed class LoginUserCommandHandlerTests
             RoleName.Create("Admin"),
             _mockDateTimeProvider.Object.GetUtcNow(),
             RoleDescription.CreateOptional("Administrator role"),
-            RolePermissions.Create(permissions));
+            Permissions.Create(permissions));
 
         user.AssignRole(role.Id, _mockDateTimeProvider.Object.GetUtcNow());
 

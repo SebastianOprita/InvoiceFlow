@@ -436,7 +436,7 @@ public class ImpersonateUserCommandHandlerTests
             RoleName.Create("Admin"),
             _mockDateTimeProvider.Object.GetUtcNow(),
             RoleDescription.CreateOptional("Administrator role"),
-            RolePermissions.Create(permissions));
+            Permissions.Create(permissions));
 
         user.AssignRole(role.Id, _mockDateTimeProvider.Object.GetUtcNow());
 

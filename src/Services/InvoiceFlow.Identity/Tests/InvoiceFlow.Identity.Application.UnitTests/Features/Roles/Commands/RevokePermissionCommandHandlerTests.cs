@@ -33,7 +33,7 @@ public class RevokePermissionCommandHandlerTests
         var cmd = new RevokePermissionCommand(
             Guid.CreateVersion7(),
             Guid.CreateVersion7(),
-            RolePermissions.None.Value);
+            Permissions.None.Value);
 
         _rolesRepository
             .Setup(x => x.GetTrackedRoleByIdAsync(cmd.TenantId, cmd.RoleId))
@@ -68,7 +68,7 @@ public class RevokePermissionCommandHandlerTests
             RoleName.Create("Admin"),
             _mockDateTimeProvider.Object.GetUtcNow(),
             RoleDescription.CreateOptional("Administrator role"),
-            RolePermissions.Create(permission));
+            Permissions.Create(permission));
 
         _rolesRepository
             .Setup(x => x.GetTrackedRoleByIdAsync(cmd.TenantId, cmd.RoleId))

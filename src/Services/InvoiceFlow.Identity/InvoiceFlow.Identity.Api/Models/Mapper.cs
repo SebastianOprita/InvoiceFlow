@@ -1,4 +1,4 @@
-﻿using InvoiceFlow.Identity.Application;
+using InvoiceFlow.Identity.Application;
 
 namespace InvoiceFlow.Identity.Api;
 
@@ -67,5 +67,28 @@ public static class Mapper
             userId,
             request.RoleId
         );
+    }
+
+    public static CreateServiceClientSecretCommand ToCommand(this CreateServiceClientSecretRequest request, Guid serviceClientId)
+    {
+        return new CreateServiceClientSecretCommand(
+            serviceClientId,
+            request.Name,
+            request.Description,
+            request.ExpiresAtUtc);
+    }
+
+    public static GrantServiceClientPermissionsCommand ToCommand(this GrantServiceClientPermissionsRequest request, Guid serviceClientId)
+    {
+        return new GrantServiceClientPermissionsCommand(
+            serviceClientId,
+            request.Permission);
+    }
+
+    public static GrantServiceClientTenantCommand ToCommand(this GrantServiceClientTenantRequest request, Guid serviceClientId)
+    {
+        return new GrantServiceClientTenantCommand(
+            serviceClientId,
+            request.TenantId);
     }
 }

@@ -1,4 +1,4 @@
-﻿using InvoiceFlow.Invoices.Domain;
+using InvoiceFlow.Invoices.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -12,13 +12,14 @@ public sealed class InvoiceNumberSequenceConfiguration
     {
         builder.ToTable("InvoiceNumberSequences");
 
-        builder.HasKey(x => x.Id);
+        builder.HasKey(x => new { x.TenantId, x.Id });
 
         builder.Property(x => x.Id)
             .ValueGeneratedNever()
             .IsRequired();
 
         builder.Property(x => x.TenantId)
+            .ValueGeneratedNever()
             .IsRequired();
 
         builder.Property(x => x.Year)

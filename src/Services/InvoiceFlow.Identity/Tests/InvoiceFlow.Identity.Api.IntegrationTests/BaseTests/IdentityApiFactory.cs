@@ -1,4 +1,4 @@
-﻿using InvoiceFlow.BuildingBlocks.Application;
+using InvoiceFlow.BuildingBlocks.Application;
 using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.Identity.Domain;
 using InvoiceFlow.Identity.Infrastructure;
@@ -173,7 +173,7 @@ public sealed class IdentityApiFactory
             RoleName.Create(name),
             dateTime,
             RoleDescription.Create($"Description for {name}"),
-            RolePermissions.Create(systemPermission.ToPermissions())
+            Permissions.Create(systemPermission.ToPermissions())
         );
     }
 

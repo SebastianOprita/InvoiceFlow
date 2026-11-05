@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace InvoiceFlow.Invoices.Infrastructure.Migrations
 {
     [DbContext(typeof(InvoicesDbContext))]
-    [Migration("20261027221655_InitialMigration")]
+    [Migration("20261104231320_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -272,6 +272,9 @@ namespace InvoiceFlow.Invoices.Infrastructure.Migrations
 
             modelBuilder.Entity("InvoiceFlow.Invoices.Domain.InvoiceNumberSequence", b =>
                 {
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
@@ -290,14 +293,11 @@ namespace InvoiceFlow.Invoices.Infrastructure.Migrations
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("rowversion");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<int>("Year")
                         .HasColumnType("int")
                         .HasColumnName("Year");
 
-                    b.HasKey("Id");
+                    b.HasKey("TenantId", "Id");
 
                     b.HasIndex("TenantId", "Year")
                         .IsUnique()

@@ -33,7 +33,7 @@ public class CreateRoleCommandHandlerTests
             Guid.CreateVersion7(),
             "Admin",
             "Administrator role",
-            RolePermissions.None.Value);
+            Permissions.None.Value);
 
         _rolesRepository
             .Setup(x => x.ExistsByNameAsync(cmd.TenantId, RoleName.Create(cmd.Name)))
@@ -60,7 +60,7 @@ public class CreateRoleCommandHandlerTests
             Guid.CreateVersion7(),
             "Admin",
             "Administrator role",
-            RolePermissions.None.Value);
+            Permissions.None.Value);
 
         Role? addedRole = null;
 

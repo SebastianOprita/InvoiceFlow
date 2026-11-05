@@ -8,7 +8,7 @@ public sealed class Role
     public Guid TenantId { get; private set; }
     public RoleName Name { get; private set; }
     public RoleDescription? Description { get; private set; }
-    public RolePermissions Permissions { get; private set; }
+    public Permissions Permissions { get; private set; }
     public bool IsActive { get; private set; }
     public DateTimeOffset CreatedAtUtc { get; private set; }
     public DateTimeOffset? UpdatedAtUtc { get; private set; }
@@ -27,13 +27,13 @@ public sealed class Role
         RoleName name,
         DateTimeOffset createdAtUtc,
         RoleDescription? description = null,
-        RolePermissions? permissions = null)
+        Permissions? permissions = null)
     {
         TenantId = tenantId;
         Id = id;
         Name = name;
         Description = description;
-        Permissions = permissions ?? RolePermissions.None;
+        Permissions = permissions ?? Permissions.None;
         IsActive = true;
         CreatedAtUtc = createdAtUtc;
     }
@@ -44,7 +44,7 @@ public sealed class Role
         RoleName name,
         DateTimeOffset createdAtUtc,
         RoleDescription? description = null,
-        RolePermissions? permissions = null)
+        Permissions? permissions = null)
     {
         if (tenantId == Guid.Empty)
             throw new DomainException(DomainErrors.TenantIdRequired);

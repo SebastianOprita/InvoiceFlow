@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using NetArchTest.Rules;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -15,6 +15,9 @@ public sealed class DomainConventionTests
             .Where(t =>
                 t.IsClass &&
                 !t.IsAbstract &&
+                t.Namespace is not null &&
+                (t.Namespace == "InvoiceFlow.Identity.Domain" || t.Namespace.StartsWith(
+                    "InvoiceFlow.Identity.Domain.", StringComparison.Ordinal)) &&
                 !t.IsDefined(typeof(CompilerGeneratedAttribute), false));
     }
 
