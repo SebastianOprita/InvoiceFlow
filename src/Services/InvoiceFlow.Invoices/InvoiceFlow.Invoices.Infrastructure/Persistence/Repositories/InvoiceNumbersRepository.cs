@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace InvoiceFlow.Invoices.Infrastructure;
 
-internal sealed class InvoiceNumberRepository(
+internal sealed class InvoiceNumbersRepository(
     InvoicesDbContext context)
-    : IInvoiceNumberRepository
+    : IInvoiceNumbersRepository
 {
     public async Task<string> AllocateNextWithLockAsync(Guid tenantId, InvoiceYear year, CancellationToken cancellationToken = default)
     {

@@ -7,8 +7,8 @@ public static class InvoiceMapper
     public static InvoiceDto ToDto(this Invoice invoice)
     {
         return new InvoiceDto(
-            Id: invoice.Id,
             TenantId: invoice.TenantId,
+            Id: invoice.Id,
             Number: invoice.Number?.Value,
             CustomerId: invoice.CustomerId,
             CustomerCode: invoice.CustomerCode.Value,
@@ -46,6 +46,7 @@ public static class InvoiceMapper
     public static InvoiceLineDto ToDto(this InvoiceLine line)
     {
         return new InvoiceLineDto(
+            TenantId: line.TenantId,
             Id: line.Id,
             Position: line.Position,
             ProductId: line.ProductId,

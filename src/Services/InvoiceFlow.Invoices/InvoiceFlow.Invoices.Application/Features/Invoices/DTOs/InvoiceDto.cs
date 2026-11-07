@@ -3,8 +3,8 @@ using InvoiceFlow.Invoices.Domain;
 namespace InvoiceFlow.Invoices.Application;
 
 public sealed record InvoiceDto(
-    Guid Id,
     Guid TenantId,
+    Guid Id,
     string? Number,
     Guid CustomerId,
     string CustomerCode,

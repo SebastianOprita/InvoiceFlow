@@ -1,10 +1,10 @@
-using InvoiceFlow.Invoices.Application;
-using InvoiceFlow.Invoices.Domain;
+using InvoiceFlow.Payments.Application;
+using InvoiceFlow.Payments.Domain;
 using Microsoft.EntityFrameworkCore;
 
-namespace InvoiceFlow.Invoices.Infrastructure;
+namespace InvoiceFlow.Payments.Infrastructure;
 
-internal class IdempotencyRepository(InvoicesDbContext dbContext) : IIdempotencyRepository
+internal class IdempotencyRecordsRepository(PaymentsDbContext dbContext) : IIdempotencyRecordsRepository
 {
     public async Task<IdempotencyRecord?> GetIdempotencyRecordAsync(Guid tenantId, IdempotencyOperation operation, IdempotencyKey key, CancellationToken cancellationToken)
     {

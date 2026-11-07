@@ -2,7 +2,7 @@ using InvoiceFlow.Invoices.Domain;
 
 namespace InvoiceFlow.Invoices.Application;
 
-public interface IInvoiceNumberRepository
+public interface IInvoiceNumbersRepository
 {
     Task<string> AllocateNextWithLockAsync(
         Guid tenantId,

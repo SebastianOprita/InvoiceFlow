@@ -5,8 +5,8 @@ using MediatR;
 namespace InvoiceFlow.Invoices.Application;
 
 internal sealed class IssueInvoiceCommandHandler(
-    IInvoiceRepository invoiceRepository,
-    IInvoiceNumberRepository invoiceNumberRepository,
+    IInvoicesRepository invoiceRepository,
+    IInvoiceNumbersRepository invoiceNumberRepository,
     IUnitOfWork unitOfWork,
     ISystemDateTimeProvider dateTimeProvider)
     : IRequestHandler<IssueInvoiceCommand, Result>

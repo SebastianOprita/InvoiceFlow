@@ -44,9 +44,9 @@ public static class DependencyInjection
     private static IServiceCollection RegisterRepositories(
         this IServiceCollection services)
     {
-        services.AddScoped<IInvoiceRepository, InvoiceRepository>();
-        services.AddScoped<IInvoiceNumberRepository, InvoiceNumberRepository>();
-        services.AddScoped<IIdempotencyRepository, IdempotencyRepository>();
+        services.AddScoped<IInvoicesRepository, InvoicesRepository>();
+        services.AddScoped<IInvoiceNumbersRepository, InvoiceNumbersRepository>();
+        services.AddScoped<IIdempotencyRecordsRepository, IdempotencyRecordsRepository>();
 
         return services;
     }
