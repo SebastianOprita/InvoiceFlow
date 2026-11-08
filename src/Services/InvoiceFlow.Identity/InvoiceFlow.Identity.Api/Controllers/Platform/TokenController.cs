@@ -62,7 +62,7 @@ public sealed class TokenController(
 
         var expiresIn = Math.Max(
             0,
-            (int)Math.Ceiling(
+            (int)Math.Floor(
                 (token.AccessTokenExpiresAt -
                  dateTimeProvider.GetUtcNow()).TotalSeconds));
 
@@ -70,6 +70,7 @@ public sealed class TokenController(
         {
             access_token = token.AccessToken,
             token_type = token.TokenType,
+            expires_at_utc = token.AccessTokenExpiresAt,
             expires_in = expiresIn
         });
     }
