@@ -162,6 +162,7 @@ jobs:
 
       - name: Run ServiceClient tests
         run: >
+          dotnet test
           "src/BuildingBlocks/Tests/InvoiceFlow.BuildingBlocks.ServiceClient.Tests/InvoiceFlow.BuildingBlocks.ServiceClient.Tests.csproj"
           --configuration Release
           --no-build
