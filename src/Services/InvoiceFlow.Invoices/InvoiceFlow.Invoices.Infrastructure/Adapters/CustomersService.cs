@@ -71,9 +71,6 @@ internal sealed class CustomersService : ICustomersService
         string CurrencyCode);
 }
 
-
-
-
 //public sealed class CustomerService(
 //    HttpClient httpClient,
 //    IAccessTokenProvider tokenProvider)
@@ -86,10 +83,23 @@ internal sealed class CustomersService : ICustomersService
 //        string customerCode,
 //        CancellationToken cancellationToken)
 //    {
-//        return _client.SendAsync<CustomerDto>(
+//        try
+//        {
+//            return _client.SendAsync<CustomerDto>(
 //            HttpMethod.Get,
 //            tenantId,
 //            $"customers/{Uri.EscapeDataString(customerCode)}",
 //            cancellationToken: cancellationToken);
+//        }
+//        catch (ServiceClientAuthenticationException ex)
+//            when (ex.ErrorCode == OAuthErrorCode.UnauthorizedClient)
+//        {
+//            // The service client has no grant for this tenant.
+//        }
+//        catch (ServiceClientAuthenticationException ex)
+//            when (ex.ErrorCode == OAuthErrorCode.InvalidClient)
+//        {
+//            // Incorrect or expired service-client credentials.
+//        }
 //    }
 //}

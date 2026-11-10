@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using InvoiceFlow.BuildingBlocks.ServiceClient.Exceptions;
 using Microsoft.Extensions.Options;
@@ -53,9 +54,21 @@ public sealed class HttpTokenEndpointClient(
                 response.StatusCode);
         }
 
-        var body = await response.Content
-            .ReadFromJsonAsync<TokenResponse>(
+        TokenResponse? body = null;
+
+        try
+        {
+            await ThrowOAuthErrorAsync(
+                response,
                 cancellationToken);
+        }
+        catch (JsonException ex)
+        {
+            throw new ServiceClientAuthenticationException(
+                "The token endpoint returned malformed JSON.",
+                response.StatusCode,
+                innerException: ex);
+        }
 
         if (body is null ||
             string.IsNullOrWhiteSpace(body.AccessToken) ||
@@ -66,7 +79,8 @@ public sealed class HttpTokenEndpointClient(
             body.ExpiresIn is null or <= 0)
         {
             throw new ServiceClientAuthenticationException(
-                "The token endpoint returned an invalid response.");
+                "The token endpoint returned an invalid token response.",
+                response.StatusCode);
         }
 
         var expiresFromDuration =
@@ -79,6 +93,42 @@ public sealed class HttpTokenEndpointClient(
         return new AccessToken(
             body.AccessToken,
             expiresAtUtc);
+    }
+
+    private static async Task ThrowOAuthErrorAsync(
+        HttpResponseMessage response,
+        CancellationToken cancellationToken)
+    {
+        OAuthError? oauthError = null;
+
+        try
+        {
+            oauthError = await response.Content
+                .ReadFromJsonAsync<OAuthError>(
+                    cancellationToken);
+        }
+        catch (Exception ex) when (ex is JsonException or NotSupportedException)
+        {
+            // Best effort: preserve the original HTTP failure
+            // when the response is not a valid OAuth error.
+        }
+
+        var errorCode = oauthError?.Error;
+
+        var message = errorCode switch
+        {
+            OAuthErrorCode.InvalidClient => "The service-client credentials are invalid.",
+            OAuthErrorCode.InvalidRequest => "The OAuth token request is invalid.",
+            OAuthErrorCode.UnauthorizedClient => "The service client is not authorized to access the requested tenant.",
+            OAuthErrorCode.UnsupportedGrantType => "The identity provider does not support the requested grant type.",
+            OAuthErrorCode.ServerError => "The identity provider encountered an internal error.",
+            _ => "OAuth token acquisition failed."
+        };
+
+        throw new ServiceClientAuthenticationException(
+            message,
+            response.StatusCode,
+            errorCode);
     }
 
     private static DateTimeOffset Min(
@@ -100,5 +150,4 @@ public sealed class HttpTokenEndpointClient(
 
         [property: JsonPropertyName("expires_at_utc")]
         DateTimeOffset? ExpiresAtUtc);
-
 }
