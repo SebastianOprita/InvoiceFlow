@@ -1,0 +1,20 @@
+name: BuildingBlocks ServiceClient Package
+
+on:
+  push:
+    tags:
+      - 'buildingblocks-serviceClient-v[0-9]+.[0-9]+.[0-9]+'
+
+permissions:
+  contents: read
+  packages: write
+   
+jobs:
+  publish:
+    uses: ./.github/workflows/publish-buildingblock-template.yml
+    with:
+      package_name: ServiceClient
+      package_slug: ServiceClient
+      project_path: src/BuildingBlocks/InvoiceFlow.BuildingBlocks.ServiceClient/InvoiceFlow.BuildingBlocks.ServiceClient.csproj
+      tag_prefix: buildingblocks-serviceClient-v
+    secrets: inherit

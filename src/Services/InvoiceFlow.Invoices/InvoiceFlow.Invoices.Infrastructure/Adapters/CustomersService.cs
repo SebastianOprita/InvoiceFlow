@@ -70,3 +70,26 @@ internal sealed class CustomersService : ICustomersService
         string Email,
         string CurrencyCode);
 }
+
+
+
+
+//public sealed class CustomerService(
+//    HttpClient httpClient,
+//    IAccessTokenProvider tokenProvider)
+//{
+//    private readonly TenantServiceClient _client =
+//        new(httpClient, tokenProvider);
+
+//    public Task<CustomerDto?> GetAsync(
+//        Guid tenantId,
+//        string customerCode,
+//        CancellationToken cancellationToken)
+//    {
+//        return _client.SendAsync<CustomerDto>(
+//            HttpMethod.Get,
+//            tenantId,
+//            $"customers/{Uri.EscapeDataString(customerCode)}",
+//            cancellationToken: cancellationToken);
+//    }
+//}
