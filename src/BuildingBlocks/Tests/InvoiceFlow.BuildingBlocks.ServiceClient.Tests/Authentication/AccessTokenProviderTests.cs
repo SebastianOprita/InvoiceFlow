@@ -72,7 +72,7 @@ public sealed class AccessTokenProviderTests
         var provider = CreateProvider();
 
         // Act
-        var token = await provider.GetAsync(tenantId);
+        var token = await provider.GetAsync(tenantId, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal("jwt-1", token.Value);
@@ -91,8 +91,8 @@ public sealed class AccessTokenProviderTests
 
         var provider = CreateProvider();
 
-        var first = await provider.GetAsync(tenantId);
-        var second = await provider.GetAsync(tenantId);
+        var first = await provider.GetAsync(tenantId, TestContext.Current.CancellationToken);
+        var second = await provider.GetAsync(tenantId, TestContext.Current.CancellationToken);
 
         Assert.Equal(first.Value, second.Value);
         Assert.Equal(1, _endpoint.CallCount);
@@ -111,8 +111,8 @@ public sealed class AccessTokenProviderTests
         var tenantA = Guid.NewGuid();
         var tenantB = Guid.NewGuid();
 
-        var tokenA = await provider.GetAsync(tenantA);
-        var tokenB = await provider.GetAsync(tenantB);
+        var tokenA = await provider.GetAsync(tenantA, TestContext.Current.CancellationToken);
+        var tokenB = await provider.GetAsync(tenantB, TestContext.Current.CancellationToken);
 
         Assert.NotEqual(tokenA.Value, tokenB.Value);
         Assert.Equal(2, _endpoint.CallCount);
@@ -143,7 +143,7 @@ public sealed class AccessTokenProviderTests
             .Select(_ => provider.GetAsync(tenantId))
             .ToArray();
 
-        await started.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        await started.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
 
         release.SetResult(new AccessToken(
             "shared-jwt",
@@ -176,12 +176,12 @@ public sealed class AccessTokenProviderTests
 
         var provider = CreateProvider();
 
-        var first = await provider.GetAsync(tenantId);
+        var first = await provider.GetAsync(tenantId, TestContext.Current.CancellationToken);
 
         _time.Advance(TimeSpan.FromMinutes(14) +
                       TimeSpan.FromSeconds(31));
 
-        var second = await provider.GetAsync(tenantId);
+        var second = await provider.GetAsync(tenantId, TestContext.Current.CancellationToken);
 
         Assert.Equal("jwt-1", first.Value);
         Assert.Equal("jwt-2", second.Value);
@@ -201,7 +201,7 @@ public sealed class AccessTokenProviderTests
         var provider = CreateProvider();
 
         await Assert.ThrowsAsync<ServiceClientAuthenticationException>(
-            () => provider.GetAsync(tenantId));
+            () => provider.GetAsync(tenantId, TestContext.Current.CancellationToken));
     }
 
     [Fact]
@@ -224,9 +224,9 @@ public sealed class AccessTokenProviderTests
         var provider = CreateProvider();
 
         await Assert.ThrowsAsync<HttpRequestException>(
-            () => provider.GetAsync(tenantId));
+            () => provider.GetAsync(tenantId, TestContext.Current.CancellationToken));
 
-        var token = await provider.GetAsync(tenantId);
+        var token = await provider.GetAsync(tenantId, TestContext.Current.CancellationToken);
 
         Assert.Equal("recovered-jwt", token.Value);
         Assert.Equal(2, _endpoint.CallCount);
@@ -254,9 +254,9 @@ public sealed class AccessTokenProviderTests
         using var cts = new CancellationTokenSource();
 
         var cancelledCaller = provider.GetAsync(tenantId, cts.Token);
-        var activeCaller = provider.GetAsync(tenantId);
+        var activeCaller = provider.GetAsync(tenantId, TestContext.Current.CancellationToken);
 
-        await started.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        await started.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
 
         cts.Cancel();
 

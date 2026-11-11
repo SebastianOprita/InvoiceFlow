@@ -13,7 +13,6 @@ public sealed class TenantServiceClient(
         Guid tenantId,
         string relativePath,
         HttpContent? content = null,
-        bool retryOnUnauthorized = false,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(method);
