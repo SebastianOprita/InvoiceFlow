@@ -49,18 +49,18 @@ public sealed class HttpTokenEndpointClient(
 
         if (!response.IsSuccessStatusCode)
         {
-            throw new ServiceClientAuthenticationException(
-                "OAuth token acquisition failed.",
-                response.StatusCode);
+            await ThrowOAuthErrorAsync(
+                response,
+                cancellationToken);
         }
 
         TokenResponse? body = null;
 
         try
         {
-            await ThrowOAuthErrorAsync(
-                response,
-                cancellationToken);
+            body = await response.Content
+                .ReadFromJsonAsync<TokenResponse>(
+                    cancellationToken);
         }
         catch (JsonException ex)
         {
@@ -90,6 +90,13 @@ public sealed class HttpTokenEndpointClient(
             ? Min(expiresFromDuration, absolute)
             : expiresFromDuration;
 
+        if (expiresAtUtc <= timeProvider.GetUtcNow())
+        {
+            throw new ServiceClientAuthenticationException(
+                "The token endpoint returned an expired access token.",
+                response.StatusCode);
+        }
+
         return new AccessToken(
             body.AccessToken,
             expiresAtUtc);
@@ -109,8 +116,10 @@ public sealed class HttpTokenEndpointClient(
         }
         catch (Exception ex) when (ex is JsonException or NotSupportedException)
         {
-            // Best effort: preserve the original HTTP failure
-            // when the response is not a valid OAuth error.
+            throw new ServiceClientAuthenticationException(
+                "The token endpoint returned an invalid JSON response.",
+                response.StatusCode,
+                innerException: ex);
         }
 
         var errorCode = oauthError?.Error;
