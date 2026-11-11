@@ -24,6 +24,7 @@
     <Project Path="BuildingBlocks/InvoiceFlow.BuildingBlocks.Authorization/InvoiceFlow.BuildingBlocks.Authorization.csproj" Id="3065543e-a054-41c5-a73c-d8c097e65aa6" />
     <Project Path="BuildingBlocks/InvoiceFlow.BuildingBlocks.Currency/InvoiceFlow.BuildingBlocks.Currency.csproj" />
     <Project Path="BuildingBlocks/InvoiceFlow.BuildingBlocks.Domain/InvoiceFlow.BuildingBlocks.Domain.csproj" Id="9fe2d46a-027e-4ddb-8261-6881e9f63f65" />
+    <Project Path="BuildingBlocks/InvoiceFlow.BuildingBlocks.ServiceClient/InvoiceFlow.BuildingBlocks.ServiceClient.csproj" Id="f67354b6-53e7-4b17-b2b9-f94b16f84e37" />
   </Folder>
   <Folder Name="/src/BuildingBlocks/Tests/">
     <Project Path="BuildingBlocks/Tests/InvoiceFlow.BuildingBlocks.Api.Tests/InvoiceFlow.BuildingBlocks.Api.Tests.csproj" Id="cb82e036-3016-41c4-ae9d-4d2601731f0f" />
@@ -31,6 +32,7 @@
     <Project Path="BuildingBlocks/Tests/InvoiceFlow.BuildingBlocks.Authorization.Tests/InvoiceFlow.BuildingBlocks.Authorization.Tests.csproj" Id="84a6937d-2016-4d24-a1a1-6cd4a1cff7e4" />
     <Project Path="BuildingBlocks/Tests/InvoiceFlow.BuildingBlocks.Currency.Tests/InvoiceFlow.BuildingBlocks.Currency.Tests.csproj" Id="1e3c880c-b2ba-4db6-976c-aedd0526b5f9" />
     <Project Path="BuildingBlocks/Tests/InvoiceFlow.BuildingBlocks.Domain.Tests/InvoiceFlow.BuildingBlocks.Domain.Tests.csproj" Id="f0f7bd36-0124-4928-b1e6-15293d91762f" />
+    <Project Path="BuildingBlocks/Tests/InvoiceFlow.BuildingBlocks.ServiceClient.Tests/InvoiceFlow.BuildingBlocks.ServiceClient.Tests.csproj" Id="148d7889-f8f8-4492-9619-b7c8a591879b" />
   </Folder>
   <Folder Name="/src/Gateway/">
     <Project Path="Gateway/InvoiceFlow.Gateway/InvoiceFlow.Gateway.csproj" Id="67c2327a-316e-4436-9cea-d3aed4463fcc" />
