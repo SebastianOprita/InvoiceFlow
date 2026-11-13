@@ -5,7 +5,7 @@ namespace InvoiceFlow.Payments.Application;
 public sealed record PaymentDto(
     Guid TenantId,
     Guid Id,
-    string Number,
+    string? Number,
     Guid CustomerId,
     string CurrencyCode,
     decimal Amount,
@@ -13,7 +13,7 @@ public sealed record PaymentDto(
     decimal UnallocatedAmount,
     PaymentMethod Method,
     string? Reference,
-    DateOnly PaymentDate,
+    DateOnly? PaymentDate,
     PaymentLifecycleStatus Status,
     string? Notes,
     DateTimeOffset? PostedAtUtc,

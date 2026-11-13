@@ -1,4 +1,4 @@
-﻿using InvoiceFlow.BuildingBlocks.Domain;
+using InvoiceFlow.BuildingBlocks.Domain;
 
 namespace InvoiceFlow.Payments.Domain;
 
@@ -22,6 +22,13 @@ public sealed record PaymentNumber
     public string Value { get; }
 
     public static PaymentNumber Create(string value) => new(value);
+
+    public static PaymentNumber? CreateOptional(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value)
+            ? null
+            : new PaymentNumber(value);
+    }
 
     public override string ToString() => Value;
 }

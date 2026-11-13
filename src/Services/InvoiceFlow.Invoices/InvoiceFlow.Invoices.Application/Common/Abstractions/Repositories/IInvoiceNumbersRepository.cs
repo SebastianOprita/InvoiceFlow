@@ -6,6 +6,6 @@ public interface IInvoiceNumbersRepository
 {
     Task<string> AllocateNextWithLockAsync(
         Guid tenantId,
-        InvoiceYear year,
+        FiscalYear year,
         CancellationToken cancellationToken = default);
 }

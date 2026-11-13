@@ -1,11 +1,9 @@
-﻿using InvoiceFlow.BuildingBlocks.Domain;
+using InvoiceFlow.BuildingBlocks.Domain;
 
 namespace InvoiceFlow.Payments.Domain;
 
 public static partial class DomainErrors
 {
-    public static readonly DomainError CurrencyCodeRequired = new("currencyCode.required", "Currency code is required.");
-    public static readonly DomainError CurrencyCodeInvalid = new("currencyCode.invalid", "Currency code is invalid. Expected a valid ISO 4217 currency code.");
     public static readonly DomainError InvoiceNumberRequired = new("invoiceNumber.required", "Invoice number is required.");
     public static readonly DomainError InvoiceNumberTooLong = new("invoiceNumber.tooLong", $"Invoice number cannot exceed {InvoiceNumber.MaxLength} characters.");
     public static readonly DomainError MoneyInvalid = new("money.invalid", "Money amount cannot be negative.");
@@ -25,6 +23,7 @@ public static partial class DomainErrors
     public static readonly DomainError AllocationIdInvalid = new("allocationId.invalid", "A payment allocation with the same Id already exists.");
     public static readonly DomainError InvoiceIdInvalid = new("invoiceId.invalid", "This payment already has an allocation for the specified invoice.");
     public static readonly DomainError AmountExceedsUnallocated = new("amount.exceedsUnallocated", "Payment allocation amount cannot exceed the unallocated payment amount.");
+    public static readonly DomainError PaymentAmountBelowAllocated = new("amount.belowAllocated", "Payment amount cannot be below the allocated amount.");
     public static readonly DomainError PostedAtUtcRequired = new("postedAtUtc.required", "Payment posted datetime is required.");
     public static readonly DomainError NoAllocations = new("payment.noAllocations", "A payment must contain at least one allocation before it can be posted.");
     public static readonly DomainError AllocatedAmountInvalid = new("payment.allocatedAmount.invalid", "The allocated payment amount must be greater than zero.");
@@ -40,4 +39,8 @@ public static partial class DomainErrors
     public static readonly DomainError CurrencyMismatch = new("currency.mismatch", "Money currency must match the invoice line currency.");
     public static readonly DomainError MethodInvalid = new("paymentMethod.invalid", "Payment method is invalid.");
     public static readonly DomainError PaymentDateRequired = new("paymentDate.required", "Payment date is required.");
+    public static readonly DomainError PrefixRequired = new("sequencePrefix.required", "Invoice number prefix is required.");
+    public static readonly DomainError YearInvalid = new("sequenceYear.invalid", "Invoice number year is invalid, must be between 2000 and 2100.");
+    public static readonly DomainError SequenceNumberInvalid = new("sequenceNumber.invalid", "Invoice sequence number sequence is invalid, must be a positive integer.");
+    public static readonly DomainError SequenceNumberExceededMaxValue = new("sequenceNumber.exceededMaxValue", "Invoice sequence number has exceeded its maximum value.");
 }

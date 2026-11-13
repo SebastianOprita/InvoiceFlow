@@ -46,6 +46,8 @@ public static class DependencyInjection
     {
         services.AddScoped<IPaymentsRepository, PaymentsRepository>();
         services.AddScoped<IIdempotencyRecordsRepository, IdempotencyRecordsRepository>();
+        services.AddScoped<IPaymentNumbersRepository, PaymentNumbersRepository>();
+        services.AddScoped<IInvoicePaymentBalanceRepository, InvoicePaymentBalanceRepository>();
 
         return services;
     }
@@ -53,7 +55,7 @@ public static class DependencyInjection
     private static IServiceCollection RegisterHttpClients(
         this IServiceCollection services)
     {
-        //services.AddScoped<IInvoicesService, InvoicesService>();
+        services.AddScoped<ICustomersService, CustomersService>();
 
         return services;
     }

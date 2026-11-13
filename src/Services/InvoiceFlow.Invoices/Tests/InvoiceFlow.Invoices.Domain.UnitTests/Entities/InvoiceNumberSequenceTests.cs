@@ -11,7 +11,7 @@ public sealed class InvoiceNumberSequenceTests
     {
         var tenantId = Guid.CreateVersion7();
         var id = Guid.CreateVersion7();
-        var year = InvoiceYear.Create(2025);
+        var year = FiscalYear.Create(2025);
         var prefix = InvoiceNumberPrefix.Create("INV");
         var nextNumber = SequenceNumber.Create(7);
 
@@ -27,7 +27,7 @@ public sealed class InvoiceNumberSequenceTests
     [Fact]
     public void Create_RejectsEmptyTenantId()
     {
-        Action act = () => InvoiceNumberSequence.Create(Guid.Empty, Guid.CreateVersion7(), InvoiceYear.Create(2025),
+        Action act = () => InvoiceNumberSequence.Create(Guid.Empty, Guid.CreateVersion7(), FiscalYear.Create(2025),
             InvoiceNumberPrefix.Create("INV"), SequenceNumber.Create(1));
         act.Should().Throw<DomainException>().WithDomainError(DomainErrors.TenantIdRequired);
     }
@@ -35,7 +35,7 @@ public sealed class InvoiceNumberSequenceTests
     [Fact]
     public void Create_RejectsEmptyId()
     {
-        Action act = () => InvoiceNumberSequence.Create(Guid.CreateVersion7(), Guid.Empty, InvoiceYear.Create(2025),
+        Action act = () => InvoiceNumberSequence.Create(Guid.CreateVersion7(), Guid.Empty, FiscalYear.Create(2025),
             InvoiceNumberPrefix.Create("INV"), SequenceNumber.Create(1));
         act.Should().Throw<DomainException>().WithDomainError(DomainErrors.IdRequired);
     }
@@ -43,7 +43,7 @@ public sealed class InvoiceNumberSequenceTests
     [Fact]
     public void AllocateNextNumber_FormatsNumberAndAdvancesSequence()
     {
-        var sequence = InvoiceNumberSequence.Create(Guid.CreateVersion7(), Guid.CreateVersion7(), InvoiceYear.Create(2025),
+        var sequence = InvoiceNumberSequence.Create(Guid.CreateVersion7(), Guid.CreateVersion7(), FiscalYear.Create(2025),
             InvoiceNumberPrefix.Create("INV"), SequenceNumber.Create(7));
 
         sequence.AllocateNextNumber().Should().Be("INV-2025-000007");

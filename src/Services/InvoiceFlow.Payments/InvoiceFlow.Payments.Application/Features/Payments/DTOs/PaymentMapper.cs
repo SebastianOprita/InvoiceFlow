@@ -9,7 +9,7 @@ public static class PaymentMapper
         return new PaymentDto(
             TenantId: payment.TenantId,
             Id: payment.Id,
-            Number: payment.Number.Value,
+            Number: payment.Number?.Value,
             CustomerId: payment.CustomerId,
             CurrencyCode: payment.CurrencyCode.Value,
             Amount: payment.Amount.Amount,

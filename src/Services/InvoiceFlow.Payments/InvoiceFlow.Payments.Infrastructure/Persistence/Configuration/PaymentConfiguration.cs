@@ -25,8 +25,7 @@ public sealed class PaymentConfiguration : IEntityTypeConfiguration<Payment>
                 value => value.Value,
                 value => PaymentNumber.Create(value))
             .HasMaxLength(PaymentNumber.MaxLength)
-            .HasColumnName("Number")
-            .IsRequired();
+            .HasColumnName("Number");
 
         builder.Property(x => x.CustomerId)
             .IsRequired();
@@ -61,8 +60,7 @@ public sealed class PaymentConfiguration : IEntityTypeConfiguration<Payment>
             .HasColumnName("Reference");
 
         builder.Property(x => x.PaymentDate)
-            .HasColumnName("PaymentDate")
-            .IsRequired();
+            .HasColumnName("PaymentDate");
 
         builder.Property(x => x.Status)
             .HasConversion<int>()

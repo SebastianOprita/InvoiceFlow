@@ -61,6 +61,58 @@ namespace InvoiceFlow.Payments.Infrastructure.Migrations
                     b.ToTable("IdempotencyRecords", (string)null);
                 });
 
+            modelBuilder.Entity("InvoiceFlow.Payments.Domain.InvoicePaymentBalance", b =>
+                {
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("InvoiceId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CurrencyCode")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("nvarchar(3)");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("InvoiceNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<long>("Version")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("TenantId", "InvoiceId");
+
+                    b.HasIndex("TenantId", "CustomerId");
+
+                    b.ToTable("InvoicePaymentBalances", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_InvoicePaymentBalances_Amounts", "[TotalAmount] > 0\r\nAND [AllocatedAmount] >= 0\r\nAND [AllocatedAmount] <= [TotalAmount]");
+
+                            t.HasCheckConstraint("CK_InvoicePaymentBalances_Currency", "[CurrencyCode] = [TotalCurrencyCode]\r\nAND [CurrencyCode] = [AllocatedCurrencyCode]");
+
+                            t.HasCheckConstraint("CK_InvoicePaymentBalances_Version", "[Version] >= 0");
+                        });
+                });
+
             modelBuilder.Entity("InvoiceFlow.Payments.Domain.Payment", b =>
                 {
                     b.Property<Guid>("TenantId")
@@ -93,12 +145,11 @@ namespace InvoiceFlow.Payments.Infrastructure.Migrations
                         .HasColumnName("Notes");
 
                     b.Property<string>("Number")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)")
                         .HasColumnName("Number");
 
-                    b.Property<DateOnly>("PaymentDate")
+                    b.Property<DateOnly?>("PaymentDate")
                         .HasColumnType("date")
                         .HasColumnName("PaymentDate");
 
@@ -128,7 +179,8 @@ namespace InvoiceFlow.Payments.Infrastructure.Migrations
 
                     b.HasIndex("TenantId", "Number")
                         .IsUnique()
-                        .HasDatabaseName("UX_Payments_TenantId_Number");
+                        .HasDatabaseName("UX_Payments_TenantId_Number")
+                        .HasFilter("[Number] IS NOT NULL");
 
                     b.HasIndex("TenantId", "PaymentDate")
                         .HasDatabaseName("IX_Payments_TenantId_PaymentDate");
@@ -171,6 +223,105 @@ namespace InvoiceFlow.Payments.Infrastructure.Migrations
                         .HasDatabaseName("IX_PaymentAllocations_TenantId_PaymentId");
 
                     b.ToTable("PaymentAllocations", (string)null);
+                });
+
+            modelBuilder.Entity("InvoiceFlow.Payments.Domain.PaymentNumberSequence", b =>
+                {
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<long>("NextNumber")
+                        .HasColumnType("bigint")
+                        .HasColumnName("NextNumber");
+
+                    b.Property<string>("Prefix")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasColumnName("Prefix");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("int")
+                        .HasColumnName("Year");
+
+                    b.HasKey("TenantId", "Id");
+
+                    b.HasIndex("TenantId", "Year")
+                        .IsUnique()
+                        .HasDatabaseName("UX_PaymentNumberSequences_TenantId_Year");
+
+                    b.ToTable("PaymentNumberSequences", (string)null);
+                });
+
+            modelBuilder.Entity("InvoiceFlow.Payments.Domain.InvoicePaymentBalance", b =>
+                {
+                    b.OwnsOne("InvoiceFlow.Payments.Domain.Money", "AllocatedAmount", b1 =>
+                        {
+                            b1.Property<Guid>("InvoicePaymentBalanceTenantId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<Guid>("InvoicePaymentBalanceInvoiceId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<decimal>("Amount")
+                                .HasPrecision(18, 2)
+                                .HasColumnType("decimal(18,2)")
+                                .HasColumnName("AllocatedAmount");
+
+                            b1.Property<string>("CurrencyCode")
+                                .IsRequired()
+                                .HasMaxLength(3)
+                                .HasColumnType("nvarchar(3)")
+                                .HasColumnName("AllocatedCurrencyCode");
+
+                            b1.HasKey("InvoicePaymentBalanceTenantId", "InvoicePaymentBalanceInvoiceId");
+
+                            b1.ToTable("InvoicePaymentBalances");
+
+                            b1.WithOwner()
+                                .HasForeignKey("InvoicePaymentBalanceTenantId", "InvoicePaymentBalanceInvoiceId");
+                        });
+
+                    b.OwnsOne("InvoiceFlow.Payments.Domain.Money", "TotalAmount", b1 =>
+                        {
+                            b1.Property<Guid>("InvoicePaymentBalanceTenantId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<Guid>("InvoicePaymentBalanceInvoiceId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<decimal>("Amount")
+                                .HasPrecision(18, 2)
+                                .HasColumnType("decimal(18,2)")
+                                .HasColumnName("TotalAmount");
+
+                            b1.Property<string>("CurrencyCode")
+                                .IsRequired()
+                                .HasMaxLength(3)
+                                .HasColumnType("nvarchar(3)")
+                                .HasColumnName("TotalCurrencyCode");
+
+                            b1.HasKey("InvoicePaymentBalanceTenantId", "InvoicePaymentBalanceInvoiceId");
+
+                            b1.ToTable("InvoicePaymentBalances");
+
+                            b1.WithOwner()
+                                .HasForeignKey("InvoicePaymentBalanceTenantId", "InvoicePaymentBalanceInvoiceId");
+                        });
+
+                    b.Navigation("AllocatedAmount")
+                        .IsRequired();
+
+                    b.Navigation("TotalAmount")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("InvoiceFlow.Payments.Domain.Payment", b =>

@@ -29,19 +29,62 @@ namespace InvoiceFlow.Payments.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "InvoicePaymentBalances",
+                columns: table => new
+                {
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    InvoiceId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    InvoiceNumber = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    CurrencyCode = table.Column<string>(type: "nvarchar(3)", maxLength: 3, nullable: false),
+                    TotalAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    TotalCurrencyCode = table.Column<string>(type: "nvarchar(3)", maxLength: 3, nullable: false),
+                    AllocatedAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    AllocatedCurrencyCode = table.Column<string>(type: "nvarchar(3)", maxLength: 3, nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    Version = table.Column<long>(type: "bigint", nullable: false),
+                    CreatedAtUtc = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_InvoicePaymentBalances", x => new { x.TenantId, x.InvoiceId });
+                    table.CheckConstraint("CK_InvoicePaymentBalances_Amounts", "[TotalAmount] > 0\r\nAND [AllocatedAmount] >= 0\r\nAND [AllocatedAmount] <= [TotalAmount]");
+                    table.CheckConstraint("CK_InvoicePaymentBalances_Currency", "[CurrencyCode] = [TotalCurrencyCode]\r\nAND [CurrencyCode] = [AllocatedCurrencyCode]");
+                    table.CheckConstraint("CK_InvoicePaymentBalances_Version", "[Version] >= 0");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PaymentNumberSequences",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Year = table.Column<int>(type: "int", nullable: false),
+                    Prefix = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    NextNumber = table.Column<long>(type: "bigint", nullable: false),
+                    RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PaymentNumberSequences", x => new { x.TenantId, x.Id });
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Payments",
                 columns: table => new
                 {
                     TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Number = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Number = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CurrencyCode = table.Column<string>(type: "nvarchar(3)", maxLength: 3, nullable: false),
                     AmountAmount = table.Column<decimal>(type: "decimal(19,4)", precision: 19, scale: 4, nullable: false),
                     AmountCurrencyCode = table.Column<string>(type: "nvarchar(3)", maxLength: 3, nullable: false),
                     Method = table.Column<int>(type: "int", nullable: false),
                     Reference = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    PaymentDate = table.Column<DateOnly>(type: "date", nullable: false),
+                    PaymentDate = table.Column<DateOnly>(type: "date", nullable: true),
                     Status = table.Column<int>(type: "int", nullable: false),
                     Notes = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: true),
                     PostedAtUtc = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
@@ -86,6 +129,11 @@ namespace InvoiceFlow.Payments.Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_InvoicePaymentBalances_TenantId_CustomerId",
+                table: "InvoicePaymentBalances",
+                columns: new[] { "TenantId", "CustomerId" });
+
+            migrationBuilder.CreateIndex(
                 name: "IX_PaymentAllocations_TenantId_InvoiceId",
                 table: "PaymentAllocations",
                 columns: new[] { "TenantId", "InvoiceId" });
@@ -94,6 +142,12 @@ namespace InvoiceFlow.Payments.Infrastructure.Migrations
                 name: "IX_PaymentAllocations_TenantId_PaymentId",
                 table: "PaymentAllocations",
                 columns: new[] { "TenantId", "PaymentId" });
+
+            migrationBuilder.CreateIndex(
+                name: "UX_PaymentNumberSequences_TenantId_Year",
+                table: "PaymentNumberSequences",
+                columns: new[] { "TenantId", "Year" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Payments_TenantId_CustomerId",
@@ -114,7 +168,8 @@ namespace InvoiceFlow.Payments.Infrastructure.Migrations
                 name: "UX_Payments_TenantId_Number",
                 table: "Payments",
                 columns: new[] { "TenantId", "Number" },
-                unique: true);
+                unique: true,
+                filter: "[Number] IS NOT NULL");
         }
 
         /// <inheritdoc />
@@ -124,7 +179,13 @@ namespace InvoiceFlow.Payments.Infrastructure.Migrations
                 name: "IdempotencyRecords");
 
             migrationBuilder.DropTable(
+                name: "InvoicePaymentBalances");
+
+            migrationBuilder.DropTable(
                 name: "PaymentAllocations");
+
+            migrationBuilder.DropTable(
+                name: "PaymentNumberSequences");
 
             migrationBuilder.DropTable(
                 name: "Payments");
