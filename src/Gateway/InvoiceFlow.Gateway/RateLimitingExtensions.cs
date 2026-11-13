@@ -1,4 +1,4 @@
-﻿using System.Threading.RateLimiting;
+using System.Threading.RateLimiting;
 
 namespace InvoiceFlow.Gateway;
 
@@ -23,7 +23,7 @@ public static class RateLimitingExtensions
                     partitionKey,
                     _ => new FixedWindowRateLimiterOptions
                     {
-                        PermitLimit = 10,
+                        PermitLimit = 50,
                         Window = TimeSpan.FromMinutes(1),
                         QueueLimit = 0,
                         AutoReplenishment = true

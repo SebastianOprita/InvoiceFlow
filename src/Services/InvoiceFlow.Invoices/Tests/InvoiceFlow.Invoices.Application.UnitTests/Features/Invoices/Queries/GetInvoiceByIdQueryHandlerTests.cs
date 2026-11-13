@@ -7,7 +7,7 @@ namespace InvoiceFlow.Invoices.Application.UnitTests;
 
 public sealed class GetInvoiceByIdQueryHandlerTests
 {
-    private readonly Mock<IInvoiceRepository> _invoices = new();
+    private readonly Mock<IInvoicesRepository> _invoices = new();
     private readonly GetInvoiceByIdQueryHandler _sut;
 
     public GetInvoiceByIdQueryHandlerTests()

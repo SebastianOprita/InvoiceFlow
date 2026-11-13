@@ -3,6 +3,7 @@ using InvoiceFlow.Invoices.Domain;
 namespace InvoiceFlow.Invoices.Application;
 
 public sealed record InvoiceLineDto(
+    Guid TenantId,
     Guid Id,
     int Position,
     Guid? ProductId,

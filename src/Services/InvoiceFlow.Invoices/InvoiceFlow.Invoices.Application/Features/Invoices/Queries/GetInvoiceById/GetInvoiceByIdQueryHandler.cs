@@ -3,7 +3,7 @@ using MediatR;
 
 namespace InvoiceFlow.Invoices.Application;
 
-internal class GetInvoiceByIdQueryHandler(IInvoiceRepository invoiceRepository)
+internal class GetInvoiceByIdQueryHandler(IInvoicesRepository invoiceRepository)
     : IRequestHandler<GetInvoiceByIdQuery, Result<InvoiceDto>>
 {
     public async Task<Result<InvoiceDto>> Handle(GetInvoiceByIdQuery qry, CancellationToken cancellationToken)
