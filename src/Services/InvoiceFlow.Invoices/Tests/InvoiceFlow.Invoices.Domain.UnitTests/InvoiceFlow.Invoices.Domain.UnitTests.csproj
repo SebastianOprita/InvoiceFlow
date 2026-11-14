@@ -8,12 +8,14 @@
     <IsTestProject>true</IsTestProject>
     <RollForward>Major</RollForward>
   </PropertyGroup>
+	
   <ItemGroup>
     <PackageReference Include="FluentAssertions" />
     <PackageReference Include="xunit.v3" />
     <PackageReference Include="coverlet.MTP" />
     <PackageReference Include="Microsoft.Testing.Extensions.TrxReport" />
   </ItemGroup>
+	
   <ItemGroup>
     <ProjectReference Include="..\..\InvoiceFlow.Invoices.Domain\InvoiceFlow.Invoices.Domain.csproj" />
   </ItemGroup>

@@ -5,8 +5,8 @@ using MediatR;
 namespace InvoiceFlow.Invoices.Application;
 
 internal sealed class AddInvoiceLineCommandHandler(
-    IInvoiceRepository invoiceRepository,
-    IIdempotencyRepository idempotencyRepository,
+    IInvoicesRepository invoiceRepository,
+    IIdempotencyRecordsRepository idempotencyRepository,
     IProductsService productsService,
     IRequestHasher requestHasher,
     IUnitOfWork unitOfWork,

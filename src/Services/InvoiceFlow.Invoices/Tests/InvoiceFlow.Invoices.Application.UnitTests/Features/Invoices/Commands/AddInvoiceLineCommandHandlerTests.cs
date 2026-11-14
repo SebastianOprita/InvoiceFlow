@@ -8,8 +8,8 @@ namespace InvoiceFlow.Invoices.Application.UnitTests;
 
 public sealed class AddInvoiceLineCommandHandlerTests
 {
-    private readonly Mock<IInvoiceRepository> _invoices = new();
-    private readonly Mock<IIdempotencyRepository> _idempotency = new();
+    private readonly Mock<IInvoicesRepository> _invoices = new();
+    private readonly Mock<IIdempotencyRecordsRepository> _idempotency = new();
     private readonly Mock<IProductsService> _products = new();
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
     private readonly Mock<ISystemDateTimeProvider> _clock = new();

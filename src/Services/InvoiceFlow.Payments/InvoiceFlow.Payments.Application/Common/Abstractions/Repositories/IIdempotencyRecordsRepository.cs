@@ -1,8 +1,8 @@
-using InvoiceFlow.Invoices.Domain;
+using InvoiceFlow.Payments.Domain;
 
-namespace InvoiceFlow.Invoices.Application;
+namespace InvoiceFlow.Payments.Application;
 
-public interface IIdempotencyRepository
+public interface IIdempotencyRecordsRepository
 {
     Task<IdempotencyRecord?> GetIdempotencyRecordAsync(
         Guid tenantId,

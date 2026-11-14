@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace InvoiceFlow.Invoices.Infrastructure;
 
-internal sealed class InvoiceRepository(
+internal sealed class InvoicesRepository(
     InvoicesDbContext context)
-    : IInvoiceRepository
+    : IInvoicesRepository
 {
     public async Task<Invoice?> GetInvoiceByIdAsync(Guid tenantId, Guid invoiceId, CancellationToken cancellationToken = default)
     {
@@ -15,7 +15,7 @@ internal sealed class InvoiceRepository(
             cancellationToken);
     }
 
-    public async Task<Invoice?> GetInvoiceByIdWithLineAsync(Guid tenantId, Guid invoiceId, CancellationToken cancellationToken = default)
+    public async Task<Invoice?> GetInvoiceByIdWithLinesAsync(Guid tenantId, Guid invoiceId, CancellationToken cancellationToken = default)
     {
         return await context.Invoices.AsNoTracking()
             .Include(i => i.Lines)
@@ -30,7 +30,7 @@ internal sealed class InvoiceRepository(
             cancellationToken);
     }
 
-    public async Task<InvoiceLine?> GetInvoiceLineByIdAsync(Guid tenantId, Guid invoiceId, Guid invoiceLineId, CancellationToken cancellationToken = default)
+    public async Task<InvoiceLine?> GetInvoiceLinesByIdAsync(Guid tenantId, Guid invoiceId, Guid invoiceLineId, CancellationToken cancellationToken = default)
     {
         return await context.Invoices
             .AsNoTracking()
@@ -51,7 +51,7 @@ internal sealed class InvoiceRepository(
 
     public async Task<Invoice?> GetInvoiceWithLockAsync(
         Guid tenantId,
-        Guid Id,
+        Guid invoiceId,
         CancellationToken cancellationToken = default)
     {
         return await context.Invoices
@@ -59,7 +59,7 @@ internal sealed class InvoiceRepository(
             SELECT *
             FROM Invoices WITH (UPDLOCK, HOLDLOCK)
             WHERE TenantId = {tenantId}
-              AND Id = {Id}
+              AND Id = {invoiceId}
             """)
         .Include(x => x.Lines)
         .SingleOrDefaultAsync(cancellationToken);

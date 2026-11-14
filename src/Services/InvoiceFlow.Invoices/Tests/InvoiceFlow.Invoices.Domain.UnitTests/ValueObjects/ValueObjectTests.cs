@@ -104,10 +104,10 @@ public sealed class InvoiceNumberPrefixTests
     [Fact] public void Create_RejectsMissingValue() => AssertError(() => InvoiceNumberPrefix.Create(" "), DomainErrors.PrefixRequired);
 }
 
-public sealed class InvoiceYearTests
+public sealed class FiscalYearTests
 {
-    [Theory] [InlineData(2000)] [InlineData(2100)] public void Create_AllowsBoundaryYears(int year) => InvoiceYear.Create(year).Value.Should().Be(year);
-    [Theory] [InlineData(1999)] [InlineData(2101)] public void Create_RejectsYearsOutsideRange(int year) => AssertError(() => InvoiceYear.Create(year), DomainErrors.YearInvalid);
+    [Theory] [InlineData(2000)] [InlineData(2100)] public void Create_AllowsBoundaryYears(int year) => FiscalYear.Create(year).Value.Should().Be(year);
+    [Theory] [InlineData(1999)] [InlineData(2101)] public void Create_RejectsYearsOutsideRange(int year) => AssertError(() => FiscalYear.Create(year), DomainErrors.YearInvalid);
 }
 
 public sealed class MoneyTests

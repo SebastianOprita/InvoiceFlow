@@ -48,6 +48,9 @@ public static class IdentityDbSeed
         role.GrantPermission((long)SystemPermissions.ProductCreate, dateTimeProvider.GetUtcNow());
         role.GrantPermission((long)SystemPermissions.ProductUpdate, dateTimeProvider.GetUtcNow());
         role.GrantPermission((long)SystemPermissions.ProductStatusManage, dateTimeProvider.GetUtcNow());
+
+        role.GrantPermission((long)SystemPermissions.InvoiceRead, dateTimeProvider.GetUtcNow());
+        role.GrantPermission((long)SystemPermissions.PaymentRead, dateTimeProvider.GetUtcNow());
         user.AssignRole(role.Id, dateTimeProvider.GetUtcNow());
 
         await db.Tenants.AddAsync(tenant);
