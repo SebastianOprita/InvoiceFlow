@@ -3,11 +3,49 @@ name: Payments CI
 on:
   workflow_call:
 
-jobs:
-  placeholder:
-    name: Payments Placeholder
-    runs-on: ubuntu-latest
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/Services/InvoiceFlow.Payments/**'
+      - 'Directory.Packages.props'
+      - 'Directory.Build.props'
+      - 'NuGet.config'
+      - 'global.json'
+      - '.github/workflows/ci-Payments.yml'
+      - '.github/workflows/ci-service-template.yml'
+  
+  workflow_dispatch:
 
-    steps:
-      - name: Placeholder
-        run: echo "Payments CI not implemented yet."
+permissions:
+  contents: read
+  checks: write
+  pull-requests: read
+  packages: read
+
+jobs:
+  payments:
+    uses: ./.github/workflows/ci-service-template.yml
+
+    with:
+      service_name: Payments
+
+      service_slug: Payments
+
+      service_path: src/Services/InvoiceFlow.Payments
+
+      api_project: src/Services/InvoiceFlow.Identity/InvoiceFlow.Payments.Api/InvoiceFlow.Payments.Api.csproj
+
+      domain_tests: src/Services/InvoiceFlow.Payments/Tests/InvoiceFlow.Payments.Domain.UnitTests/InvoiceFlow.Payments.Domain.UnitTests.csproj
+
+      application_tests: src/Services/InvoiceFlow.Payments/Tests/InvoiceFlow.Payments.Application.UnitTests/InvoiceFlow.Payments.Application.UnitTests.csproj
+
+      integration_tests: src/Services/InvoiceFlow.Payments/Tests/InvoiceFlow.Payments.Api.IntegrationTests/InvoiceFlow.Payments.Api.IntegrationTests.csproj
+
+      architecture_tests: src/Services/InvoiceFlow.Payments/Tests/InvoiceFlow.Payments.ArchitectureTests/InvoiceFlow.Payments.ArchitectureTests.csproj
+
+      sonar_project_key: ${{ vars.PAYMENTSSONARPROJECTKEY }}
+
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
