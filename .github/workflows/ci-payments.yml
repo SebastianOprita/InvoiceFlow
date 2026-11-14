@@ -34,7 +34,7 @@ jobs:
 
       service_path: src/Services/InvoiceFlow.Payments
 
-      api_project: src/Services/InvoiceFlow.Identity/InvoiceFlow.Payments.Api/InvoiceFlow.Payments.Api.csproj
+      api_project: src/Services/InvoiceFlow.Payments/InvoiceFlow.Payments.Api/InvoiceFlow.Payments.Api.csproj
 
       domain_tests: src/Services/InvoiceFlow.Payments/Tests/InvoiceFlow.Payments.Domain.UnitTests/InvoiceFlow.Payments.Domain.UnitTests.csproj
 
