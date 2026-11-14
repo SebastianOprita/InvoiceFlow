@@ -1,4 +1,4 @@
-﻿using InvoiceFlow.BuildingBlocks.Domain;
+using InvoiceFlow.BuildingBlocks.Domain;
 
 namespace InvoiceFlow.Invoices.Domain;
 
@@ -6,7 +6,7 @@ public sealed class InvoiceNumberSequence
 {
     public Guid Id { get; private set; }
     public Guid TenantId { get; private set; }
-    public InvoiceYear Year { get; private set; }
+    public FiscalYear Year { get; private set; }
     public InvoiceNumberPrefix Prefix { get; private set; }
     public SequenceNumber NextNumber { get; private set; }
 
@@ -17,7 +17,7 @@ public sealed class InvoiceNumberSequence
     private InvoiceNumberSequence(
         Guid tenantId,
         Guid id,
-        InvoiceYear year,
+        FiscalYear year,
         InvoiceNumberPrefix prefix,
         SequenceNumber startingNumber)
     {
@@ -31,7 +31,7 @@ public sealed class InvoiceNumberSequence
     public static InvoiceNumberSequence Create(
         Guid tenantId,
         Guid id,
-        InvoiceYear year,
+        FiscalYear year,
         InvoiceNumberPrefix prefix,
         SequenceNumber startingNumber)
     {

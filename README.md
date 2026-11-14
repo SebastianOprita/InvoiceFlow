@@ -27,6 +27,10 @@ dotnet ef migrations add InitialMigration --project "src\Services\InvoiceFlow.Pr
 dotnet ef migrations add InitialMigration --project "src\Services\InvoiceFlow.Invoices\InvoiceFlow.Invoices.Infrastructure\InvoiceFlow.Invoices.Infrastructure.csproj" --startup-project "src\Services\InvoiceFlow.Invoices\InvoiceFlow.Invoices.Api\InvoiceFlow.Invoices.Api.csproj" --context InvoicesDbContext --output-dir Migrations
 ```
 
+### Payments Service
+```cmd
+dotnet ef migrations add InitialMigration --project "src\Services\InvoiceFlow.Payments\InvoiceFlow.Payments.Infrastructure\InvoiceFlow.Payments.Infrastructure.csproj" --startup-project "src\Services\InvoiceFlow.Payments\InvoiceFlow.Payments.Api\InvoiceFlow.Payments.Api.csproj" --context PaymentsDbContext --output-dir Migrations
+```
 
 ### Notes
 

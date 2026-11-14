@@ -5,6 +5,8 @@
   <Folder Name="/Docs/">
     <File Path="../Docs/Auth.http" />
     <File Path="../Docs/Customers.http" />
+    <File Path="../Docs/Invoices.http" />
+    <File Path="../Docs/Payments.http" />
     <File Path="../Docs/Products.http" />
   </Folder>
   <Folder Name="/Solution Items/">
@@ -14,6 +16,7 @@
     <File Path="../Directory.Packages.props" />
     <File Path="../global.json" />
     <File Path="../NuGet.config" />
+    <File Path="../README.md" />
   </Folder>
   <Folder Name="/src/" />
   <Folder Name="/src/BuildingBlocks/">

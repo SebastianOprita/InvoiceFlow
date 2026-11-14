@@ -25,7 +25,7 @@ public sealed class InvoiceNumberSequenceConfiguration
         builder.Property(x => x.Year)
             .HasConversion(
                 year => year.Value,
-                value => InvoiceYear.Create(value))
+                value => FiscalYear.Create(value))
             .HasColumnName("Year")
             .IsRequired();
 
