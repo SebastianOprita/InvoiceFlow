@@ -82,6 +82,20 @@ public sealed class PaymentNotesTests
     [Fact] public void Create_RejectsOverlongValue() => AssertError(() => PaymentNotes.Create(new string('x', PaymentNotes.MaxLength + 1)), DomainErrors.PaymentNotesTooLong);
 }
 
+public sealed class PaymentReferenceTests
+{
+    [Fact] public void Create_TrimsValueAndSupportsOptional() { PaymentReference.Create(" Reference ").Value.Should().Be("Reference"); PaymentReference.CreateOptional(" ").Should().BeNull(); PaymentReference.CreateOptional(" optional ")!.Value.Should().Be("optional"); }
+    [Fact] public void Create_RejectsMissingValue() => AssertError(() => PaymentReference.Create(null!), DomainErrors.PaymentReferenceRequired);
+    [Fact] public void Create_RejectsOverlongValue() => AssertError(() => PaymentReference.Create(new string('x', PaymentReference.MaxLength + 1)), DomainErrors.PaymentReferenceTooLong);
+}
+
+public sealed class PaymentNumberTests
+{
+    [Fact] public void Create_TrimsAndUppercasesValueAndSupportsOptional() { PaymentNumber.Create(" pay-1 ").Value.Should().Be("PAY-1"); PaymentNumber.CreateOptional(" ").Should().BeNull(); }
+    [Fact] public void Create_RejectsMissingValue() => AssertError(() => PaymentNumber.Create(" "), DomainErrors.PaymentNumberRequired);
+    [Fact] public void Create_RejectsOverlongValue() => AssertError(() => PaymentNumber.Create(new string('x', PaymentNumber.MaxLength + 1)), DomainErrors.PaymentNumberTooLong);
+}
+
 public sealed class InvoiceNumberTests
 {
     [Fact] public void Create_TrimsAndUppercasesValue() => InvoiceNumber.Create(" inv-1 ").Value.Should().Be("INV-1");
