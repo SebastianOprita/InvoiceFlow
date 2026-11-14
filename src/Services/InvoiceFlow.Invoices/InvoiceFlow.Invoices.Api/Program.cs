@@ -31,6 +31,23 @@ try
         .AddCheck("self", () => HealthCheckResult.Healthy(), tags: ["live"])
         .AddDbContextCheck<InvoicesDbContext>(name: "invoices-database", tags: ["ready"]);
 
+    //builder.Services.AddServiceDiscovery();
+
+    //builder.Services.ConfigureHttpClientDefaults(http =>
+    //{
+    //    http.AddServiceDiscovery();
+    //});
+
+    //builder.Services.AddServiceClientAuthentication(builder.Configuration);
+
+    //builder.Services.AddServiceClient<CustomerService>(
+    //    new Uri(builder.Configuration[
+    //        "CustomersApi:BaseUrl"]!));
+
+    //builder.Services.AddServiceClient<ProductService>(
+    //    new Uri(builder.Configuration[
+    //        "ProductsApi:BaseUrl"]!));
+
     var app = builder.Build();
 
     if (app.Environment.IsDevelopment())

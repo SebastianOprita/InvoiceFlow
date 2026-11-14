@@ -61,3 +61,24 @@ internal sealed class ProductsService : IProductsService
         string Description,
         string CurrencyCode);
 }
+
+
+//public sealed class ProductService(
+//    HttpClient httpClient,
+//    IAccessTokenProvider tokenProvider)
+//{
+//    private readonly TenantServiceClient _client =
+//        new(httpClient, tokenProvider);
+
+//    public Task<ProductDto?> GetAsync(
+//        Guid tenantId,
+//        string productCode,
+//        CancellationToken cancellationToken)
+//    {
+//        return _client.SendAsync<ProductDto>(
+//            HttpMethod.Get,
+//            tenantId,
+//            $"products/{Uri.EscapeDataString(productCode)}",
+//            cancellationToken: cancellationToken);
+//    }
+//}

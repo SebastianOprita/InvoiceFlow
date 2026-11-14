@@ -160,6 +160,21 @@ jobs:
           --coverlet-output-format opencover
           --coverlet-include "[InvoiceFlow.BuildingBlocks.*]*"
 
+      - name: Run ServiceClient tests
+        run: >
+          dotnet test
+          "src/BuildingBlocks/Tests/InvoiceFlow.BuildingBlocks.ServiceClient.Tests/InvoiceFlow.BuildingBlocks.ServiceClient.Tests.csproj"
+          --configuration Release
+          --no-build
+          --results-directory TestResults/ServiceClient
+          --
+          --report-trx
+          --report-trx-filename serviceClient-tests.trx
+          --coverlet
+          --coverlet-output-format cobertura
+          --coverlet-output-format opencover
+          --coverlet-include "[InvoiceFlow.BuildingBlocks.*]*"
+
       # ------------------------------------------------------------
       # Finish SonarQube analysis
       # ------------------------------------------------------------
