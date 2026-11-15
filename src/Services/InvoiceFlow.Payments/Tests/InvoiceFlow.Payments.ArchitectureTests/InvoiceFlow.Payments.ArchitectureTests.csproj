@@ -4,14 +4,14 @@
 		<IsPackable>false</IsPackable>
 		<OutputType>Exe</OutputType>
 		<IsTestProject>true</IsTestProject>
-
-		<RollForward>Major</RollForward>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="FluentAssertions" />
 		<PackageReference Include="NetArchTest.Rules" />
 		<PackageReference Include="xunit.v3" />
+		<PackageReference Include="coverlet.MTP" />
+		<PackageReference Include="Microsoft.Testing.Extensions.TrxReport" />
 	</ItemGroup>
 
 	<ItemGroup>
