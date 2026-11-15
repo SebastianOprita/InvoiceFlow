@@ -22,8 +22,8 @@ public sealed class PaymentConfiguration : IEntityTypeConfiguration<Payment>
 
         builder.Property(x => x.Number)
             .HasConversion(
-                value => value.Value,
-                value => PaymentNumber.Create(value))
+                value => value == null ? null : value.Value,
+                value => PaymentNumber.CreateOptional(value))
             .HasMaxLength(PaymentNumber.MaxLength)
             .HasColumnName("Number");
 
