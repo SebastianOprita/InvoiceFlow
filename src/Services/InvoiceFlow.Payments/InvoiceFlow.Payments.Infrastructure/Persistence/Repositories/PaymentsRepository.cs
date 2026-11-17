@@ -55,9 +55,10 @@ internal sealed class PaymentsRepository(
         CancellationToken cancellationToken = default)
     {
         return await context.Payments
-        .FromSqlInterpolated($"""
+        .FromSql($"""
             SELECT *
-            FROM Invoices WITH (UPDLOCK, HOLDLOCK)
+            FROM Invoices
+                WITH (UPDLOCK, HOLDLOCK)
             WHERE TenantId = {tenantId}
               AND Id = {paymentId}
             """)

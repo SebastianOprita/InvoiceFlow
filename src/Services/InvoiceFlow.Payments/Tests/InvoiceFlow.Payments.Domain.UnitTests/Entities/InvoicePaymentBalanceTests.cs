@@ -22,6 +22,24 @@ public sealed class InvoicePaymentBalanceTests
     }
 
     [Fact]
+    public void Create_CopiesTotalAmount_WhenMoneyInstanceIsReused()
+    {
+        var totalAmount = Money.Create(100m, CurrencyCode.Create("RON"));
+        var balance = InvoicePaymentBalance.Create(
+            Guid.CreateVersion7(),
+            Guid.CreateVersion7(),
+            Guid.CreateVersion7(),
+            InvoiceNumber.Create("INV-1"),
+            CurrencyCode.Create("RON"),
+            totalAmount,
+            Created);
+
+        balance.TotalAmount.Should().Be(totalAmount);
+        ReferenceEquals(balance.TotalAmount, totalAmount).Should().BeFalse();
+        ReferenceEquals(balance.TotalAmount, balance.AllocatedAmount).Should().BeFalse();
+    }
+
+    [Fact]
     public void Allocate_and_reverse_update_balance_status_and_version()
     {
         var balance = NewBalance();

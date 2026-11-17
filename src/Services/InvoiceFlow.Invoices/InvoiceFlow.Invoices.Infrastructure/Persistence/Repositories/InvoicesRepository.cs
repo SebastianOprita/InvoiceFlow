@@ -49,24 +49,70 @@ internal sealed class InvoicesRepository(
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<InvoicePaymentSummary?> GetPaymentSummaryAsync(
+        Guid tenantId,
+        Guid invoiceId,
+        CancellationToken cancellationToken = default)
+    {
+        return await context.InvoicePaymentSummaries.AsNoTracking()
+            .FirstOrDefaultAsync(
+                x => x.TenantId == tenantId && x.InvoiceId == invoiceId,
+                cancellationToken);
+    }
+
+    public async Task<InvoicePaymentSummary?> GetPaymentSummaryWithLockAsync(
+        Guid tenantId,
+        Guid invoiceId,
+        CancellationToken cancellationToken = default)
+    {
+        return await context.InvoicePaymentSummaries
+            .FromSql($"""
+                SELECT *
+                FROM InvoicePaymentSummaries
+                    WITH (UPDLOCK, HOLDLOCK)
+                WHERE TenantId = {tenantId}
+                  AND InvoiceId = {invoiceId}
+                """)
+            .SingleOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<List<InvoicePaymentSummary>> GetPaymentSummariesAsync(
+        Guid tenantId,
+        IReadOnlyCollection<Guid> invoiceIds,
+        CancellationToken cancellationToken = default)
+    {
+        if (invoiceIds.Count == 0)
+            return [];
+
+        return await context.InvoicePaymentSummaries.AsNoTracking()
+            .Where(x => x.TenantId == tenantId && invoiceIds.Contains(x.InvoiceId))
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<Invoice?> GetInvoiceWithLockAsync(
         Guid tenantId,
         Guid invoiceId,
         CancellationToken cancellationToken = default)
     {
         return await context.Invoices
-        .FromSqlInterpolated($"""
-            SELECT *
-            FROM Invoices WITH (UPDLOCK, HOLDLOCK)
-            WHERE TenantId = {tenantId}
-              AND Id = {invoiceId}
-            """)
-        .Include(x => x.Lines)
-        .SingleOrDefaultAsync(cancellationToken);
+            .FromSql($"""
+                SELECT *
+                FROM Invoices
+                    WITH (UPDLOCK, HOLDLOCK)
+                WHERE TenantId = {tenantId}
+                  AND Id = {invoiceId}
+                """)
+            .Include(x => x.Lines)
+            .SingleOrDefaultAsync(cancellationToken);
     }
 
     public void AddInvoice(Invoice invoice)
     {
         context.Invoices.Add(invoice);
+    }
+
+    public void AddPaymentSummary(InvoicePaymentSummary summary)
+    {
+        context.InvoicePaymentSummaries.Add(summary);
     }
 }

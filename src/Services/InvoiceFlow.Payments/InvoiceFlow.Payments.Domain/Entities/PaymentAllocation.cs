@@ -30,7 +30,7 @@ public sealed class PaymentAllocation
         PaymentId = paymentId;
         InvoiceId = invoiceId;
         InvoiceNumber = invoiceNumber;
-        Amount = amount;
+        Amount = Money.Create(amount.Amount, amount.CurrencyCode);
         CreatedAtUtc = createdAtUtc;
     }
 

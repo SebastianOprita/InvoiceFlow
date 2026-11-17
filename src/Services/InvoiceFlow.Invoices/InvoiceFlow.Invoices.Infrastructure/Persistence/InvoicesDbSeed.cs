@@ -39,24 +39,58 @@ public static class InvoicesDbSeed
             productName: ProductName.Create("product name"),
             productDescription: ProductDescription.Create("product description"),
             unitOfMeasure: UnitOfMeasure.Piece,
-            unitPrice: Money.Create(12m, CurrencyCode.Create("RON")),
+            unitPrice: Money.Create(10m, CurrencyCode.Create("RON")),
             taxRate: Percentage.Create(9m));
 
-        var invoice = Invoice.Create(
+        var invoice1 = Invoice.Create(
             tenantId: tenantId,
             Guid.CreateVersion7(),
             customer,
             InvoiceNotes.CreateOptional("Invoice notes."),
             dateTimeProvider.GetUtcNow());
 
-        invoice.AddProductLine(
+        invoice1.AddProductLine(
             Guid.CreateVersion7(),
             product,
-            Quantity.Create(100),
+            Quantity.Create(2),
+            Percentage.Create(0),
+            dateTimeProvider.GetUtcNow());
+
+        invoice1.AddProductLine(
+            Guid.CreateVersion7(),
+            product,
+            Quantity.Create(1),
+            Percentage.Create(0),
+            dateTimeProvider.GetUtcNow());
+
+        invoice1.Issue(InvoiceNumber.Create("INV-001"), DateOnly.FromDateTime(dateTimeProvider.GetUtcNow().UtcDateTime), dateTimeProvider.GetUtcNow());
+
+        var summary = InvoicePaymentSummary.Create(
+            tenantId: tenantId,
+            invoiceId: invoice1.Id,
+            paidAmount: Money.Create(30m, CurrencyCode.Create("RON")),
+            outstandingAmount: Money.Create(invoice1.GrossAmount.Amount - 30m, CurrencyCode.Create("RON")),
+            1,
+            dateTimeProvider.GetUtcNow(),
+            dateTimeProvider.GetUtcNow());
+
+        var invoice2 = Invoice.Create(
+            tenantId: tenantId,
+            Guid.CreateVersion7(),
+            customer,
+            InvoiceNotes.CreateOptional("Invoice notes."),
+            dateTimeProvider.GetUtcNow());
+
+        invoice2.AddProductLine(
+            Guid.CreateVersion7(),
+            product,
+            Quantity.Create(5),
             Percentage.Create(10),
             dateTimeProvider.GetUtcNow());
 
-        db.Invoices.Add(invoice);
+        db.Invoices.Add(invoice1);
+        db.Invoices.Add(invoice2);
+        db.InvoicePaymentSummaries.Add(summary);
         await db.SaveChangesAsync(cancellationToken);
     }
 }

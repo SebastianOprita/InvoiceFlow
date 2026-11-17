@@ -37,6 +37,18 @@ public sealed class ProductTests
     }
 
     [Fact]
+    public void Create_CopiesUnitPrice_WhenMoneyInstanceIsReusedAcrossProducts()
+    {
+        var sharedUnitPrice = Money.Create(12.34m, CurrencyCode.Create("USD"));
+        var firstProduct = CreateProduct(id: Guid.CreateVersion7(), unitPrice: sharedUnitPrice);
+        var secondProduct = CreateProduct(id: Guid.CreateVersion7(), unitPrice: sharedUnitPrice);
+
+        firstProduct.UnitPrice.Should().Be(sharedUnitPrice);
+        secondProduct.UnitPrice.Should().Be(sharedUnitPrice);
+        ReferenceEquals(firstProduct.UnitPrice, secondProduct.UnitPrice).Should().BeFalse();
+    }
+
+    [Fact]
     public void Create_ShouldAllowNullDescription()
     {
         var product = CreateProduct(description: null);
@@ -305,6 +317,7 @@ public sealed class ProductTests
         Guid? id = null,
         ProductDescription? description = null,
         UnitOfMeasure? unitOfMeasure = null,
+        Money? unitPrice = null,
         DateTimeOffset? createdAtUtc = null)
     {
         return Product.Create(
@@ -314,7 +327,7 @@ public sealed class ProductTests
             ProductName.Create("Product name"),
             description,
             unitOfMeasure ?? GetValidUnitOfMeasures()[0],
-            Money.Create(12.34m, CurrencyCode.Create("USD")),
+            unitPrice ?? Money.Create(12.34m, CurrencyCode.Create("USD")),
             Percentage.Create(20m),
             createdAtUtc ?? CreatedAtUtc);
     }

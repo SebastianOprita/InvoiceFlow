@@ -37,7 +37,7 @@ public sealed class Product
         Name = name;
         Description = description;
         UnitOfMeasure = unitOfMeasure;
-        UnitPrice = unitPrice;
+        UnitPrice = CopyMoney(unitPrice);
         TaxRate = taxRate;
         IsActive = true;
         CreatedAtUtc = createdAtUtc;
@@ -118,7 +118,7 @@ public sealed class Product
         if (UnitPrice == unitPrice)
             return;
 
-        UnitPrice = unitPrice;
+        UnitPrice = CopyMoney(unitPrice);
         MarkAsUpdated(updatedAtUtc);
     }
 
@@ -142,7 +142,7 @@ public sealed class Product
         ValidateUnitOfMeasure(unitOfMeasure);
 
         UnitOfMeasure = unitOfMeasure;
-        UnitPrice = unitPrice;
+        UnitPrice = CopyMoney(unitPrice);
         TaxRate = taxRate;
         MarkAsUpdated(updatedAtUtc);
     }
@@ -169,6 +169,11 @@ public sealed class Product
     {
         if (!Enum.IsDefined(unitOfMeasure))
             throw new DomainException(DomainErrors.UnitOfMeasureInvalid);
+    }
+
+    private static Money CopyMoney(Money money)
+    {
+        return Money.Create(money.Amount, money.CurrencyCode);
     }
 
     private void MarkAsUpdated(DateTimeOffset updatedAtUtc)

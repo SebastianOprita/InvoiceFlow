@@ -44,7 +44,7 @@ public sealed class Payment
         Number = null;
         CustomerId = customerId;
         CurrencyCode = currencyCode;
-        Amount = amount;
+        Amount = CopyMoney(amount);
         Method = method;
         Reference = reference;
         Notes = notes;
@@ -103,7 +103,7 @@ public sealed class Payment
         if (Amount == amount)
             return;
 
-        Amount = amount;
+        Amount = CopyMoney(amount);
 
         UpdatedAtUtc = updatedAtUtc.ToUniversalTime();
     }
@@ -322,6 +322,11 @@ public sealed class Payment
     {
         if (amount is null || amount.Amount <= 0m)
             throw new DomainException(DomainErrors.AmountInvalid);
+    }
+
+    private static Money CopyMoney(Money money)
+    {
+        return Money.Create(money.Amount, money.CurrencyCode);
     }
 
     private static void ValidateAllocationAmount(Money amount)

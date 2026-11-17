@@ -6,6 +6,7 @@ namespace InvoiceFlow.Invoices.Infrastructure;
 public sealed class InvoicesDbContext : DbContext
 {
     public DbSet<Invoice> Invoices => Set<Invoice>();
+    public DbSet<InvoicePaymentSummary> InvoicePaymentSummaries => Set<InvoicePaymentSummary>();
     public DbSet<InvoiceNumberSequence> InvoiceNumberSequences => Set<InvoiceNumberSequence>();
     public DbSet<IdempotencyRecord> IdempotencyRecords => Set<IdempotencyRecord>();
 

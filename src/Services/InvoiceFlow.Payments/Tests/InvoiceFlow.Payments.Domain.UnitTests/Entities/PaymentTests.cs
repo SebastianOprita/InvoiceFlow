@@ -24,6 +24,32 @@ public sealed class PaymentTests
     }
 
     [Fact]
+    public void CreateAndAddAllocation_CopyMoney_WhenSameInstanceIsPassedToBothOwnedValues()
+    {
+        var sharedAmount = Money.Create(100m, CurrencyCode.Create("RON"));
+        var payment = Payment.Create(
+            Guid.CreateVersion7(),
+            Guid.CreateVersion7(),
+            Guid.CreateVersion7(),
+            CurrencyCode.Create("RON"),
+            sharedAmount,
+            PaymentMethod.Card,
+            null,
+            null,
+            Created);
+
+        payment.AddAllocation(
+            Guid.CreateVersion7(),
+            Guid.CreateVersion7(),
+            InvoiceNumber.Create("INV-1"),
+            sharedAmount,
+            Created.AddHours(1));
+
+        ReferenceEquals(payment.Amount, payment.Allocations.Single().Amount).Should().BeFalse();
+        ReferenceEquals(payment.Amount, sharedAmount).Should().BeFalse();
+    }
+
+    [Fact]
     public void Create_rejects_invalid_identity_amount_currency_and_method()
     {
         var tenant = Guid.CreateVersion7(); var id = Guid.CreateVersion7(); var customer = Guid.CreateVersion7();

@@ -33,7 +33,6 @@ public sealed record InvoiceDto(
     decimal RemainingAmount,
     string? Notes,
     DateTimeOffset? IssuedAtUtc,
-    DateTimeOffset? CancelledAtUtc,
     DateTimeOffset CreatedAtUtc,
     DateTimeOffset? UpdatedAtUtc,
     IReadOnlyCollection<InvoiceLineDto> Lines);

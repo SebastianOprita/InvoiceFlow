@@ -10,6 +10,8 @@ public static class ApplicationErrors
     public static readonly ApplicationError RequestHashInputRequired = new(ApplicationErrorType.Validation, "Idempotency.RequestHashInputRequired", "A request payload is required to calculate its idempotency hash.");
     public static readonly ApplicationError InvoiceNotFound = new(ApplicationErrorType.NotFound, "invoice.notFound", "Invoice not found.");
     public static readonly ApplicationError InvoiceCannotBeIssued = new(ApplicationErrorType.Conflict, "invoice.cannotBeIssued", "Invoice cannot be issued.");
+    public static readonly ApplicationError PaymentBalanceVersionNotNewer = new(ApplicationErrorType.Conflict, "paymentBalance.versionNotNewer", "The payment balance version must be greater than the stored version.");
+    public static readonly ApplicationError PaymentBalanceVersionConflict = new(ApplicationErrorType.Conflict, "paymentBalance.versionConflict", "The payment balance version already exists with different snapshot values.");
     public static readonly ApplicationError IdempotencyKeyReused = new(ApplicationErrorType.Conflict, "idempotencyKey.reused", "Idempotency key already used.");
     public static readonly ApplicationError IdempotencyResourceNotFound = new(ApplicationErrorType.Conflict, "idempotencyResource.notFound", "The resource associated with this idempotency key could not be found.");
     public static readonly ApplicationError CustomerNotFound = new(ApplicationErrorType.NotFound, "customer.notFound", "The specified customer could not be found.");

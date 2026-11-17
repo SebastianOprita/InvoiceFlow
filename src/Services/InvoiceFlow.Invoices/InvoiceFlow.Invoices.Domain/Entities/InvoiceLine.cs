@@ -49,7 +49,7 @@ public sealed class InvoiceLine
         Description = description;
         Quantity = quantity;
         UnitOfMeasure = unitOfMeasure;
-        UnitPrice = unitPrice;
+        UnitPrice = CopyMoney(unitPrice);
         DiscountRate = discountRate;
         TaxRate = taxRate;
 
@@ -151,7 +151,7 @@ public sealed class InvoiceLine
         Description = description;
         Quantity = quantity;
         UnitOfMeasure = unitOfMeasure;
-        UnitPrice = unitPrice;
+        UnitPrice = CopyMoney(unitPrice);
         DiscountRate = discountRate;
         TaxRate = taxRate;
 
@@ -177,7 +177,7 @@ public sealed class InvoiceLine
         ProductCode = product.ProductCode;
         Description = InvoiceLineDescription.Create(product.ProductDescription?.Value ?? product.ProductName.Value);
         UnitOfMeasure = product.UnitOfMeasure;
-        UnitPrice = product.UnitPrice;
+        UnitPrice = CopyMoney(product.UnitPrice);
         TaxRate = product.TaxRate;
 
         Recalculate();
@@ -227,6 +227,11 @@ public sealed class InvoiceLine
     private static decimal RoundMoney(decimal amount, CurrencyCode currencyCode)
     {
         return decimal.Round(amount, currencyCode.DecimalPlaces, MidpointRounding.AwayFromZero);
+    }
+
+    private static Money CopyMoney(Money money)
+    {
+        return Money.Create(money.Amount, money.CurrencyCode);
     }
 
     private static void ValidateTenantId(Guid tenantId)

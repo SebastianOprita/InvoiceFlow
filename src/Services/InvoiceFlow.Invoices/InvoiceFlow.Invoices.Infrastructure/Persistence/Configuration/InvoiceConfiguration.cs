@@ -155,8 +155,6 @@ public sealed class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
 
         builder.Property(x => x.IssuedAtUtc);
 
-        builder.Property(x => x.CancelledAtUtc);
-
         builder.Property(x => x.CreatedAtUtc)
             .IsRequired();
 
@@ -174,9 +172,6 @@ public sealed class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
         builder.OwnsOne(x => x.GrossAmount,
             money => ConfigureMoney(money, "Gross"));
 
-        builder.OwnsOne(x => x.PaidAmount,
-            money => ConfigureMoney(money, "Paid"));
-
         builder.Navigation(x => x.DiscountAmount)
             .IsRequired();
 
@@ -187,9 +182,6 @@ public sealed class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
             .IsRequired();
 
         builder.Navigation(x => x.GrossAmount)
-            .IsRequired();
-
-        builder.Navigation(x => x.PaidAmount)
             .IsRequired();
 
         builder.HasMany(x => x.Lines)
@@ -205,14 +197,6 @@ public sealed class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
         builder.Property<byte[]>("RowVersion")
             .IsRowVersion();
 
-        // Payment status is derived from these amount columns. A persisted
-        // computed column gives the database an indexable representation.
-        builder.Property<int>("PaymentStatusIndex")
-            .HasComputedColumnSql(
-                "CASE WHEN [PaidAmount] = 0 THEN 1 WHEN [PaidAmount] < [GrossAmount] THEN 2 ELSE 3 END",
-                stored: true)
-            .HasColumnName("PaymentStatus");
-
         builder.HasIndex(x => new { x.TenantId, x.Number })
             .IsUnique()
             .HasDatabaseName("UX_Invoices_TenantId_Number")
@@ -224,8 +208,6 @@ public sealed class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
         builder.HasIndex(x => new { x.TenantId, x.CustomerCode })
             .HasDatabaseName("IX_Invoices_TenantId_CustomerCode");
 
-        builder.HasIndex("TenantId", "PaymentStatusIndex")
-            .HasDatabaseName("IX_Invoices_TenantId_PaymentStatus");
     }
 
     private static void ConfigureMoney<TOwner>(OwnedNavigationBuilder<TOwner, Money> builder, string prefix)

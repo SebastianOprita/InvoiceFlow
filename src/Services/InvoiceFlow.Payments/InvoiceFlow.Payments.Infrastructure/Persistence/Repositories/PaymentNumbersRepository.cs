@@ -11,7 +11,7 @@ internal sealed class PaymentNumbersRepository(
     public async Task<string> AllocateNextWithLockAsync(Guid tenantId, FiscalYear year, CancellationToken cancellationToken = default)
     {
         var sequence = await context.PaymentNumberSequences
-            .FromSqlInterpolated($"""
+            .FromSql($"""
                 SELECT *
                 FROM dbo.PaymentNumberSequences
                     WITH (UPDLOCK, HOLDLOCK)
