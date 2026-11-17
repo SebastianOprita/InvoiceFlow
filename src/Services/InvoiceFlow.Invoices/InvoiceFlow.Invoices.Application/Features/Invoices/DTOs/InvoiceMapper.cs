@@ -4,7 +4,9 @@ namespace InvoiceFlow.Invoices.Application;
 
 public static class InvoiceMapper
 {
-    public static InvoiceDto ToDto(this Invoice invoice)
+    public static InvoiceDto ToDto(
+        this Invoice invoice,
+        InvoicePaymentSummary? paymentSummary = null)
     {
         return new InvoiceDto(
             TenantId: invoice.TenantId,
@@ -28,16 +30,15 @@ public static class InvoiceMapper
             IssueDate: invoice.IssueDate,
             DueDate: invoice.DueDate,
             Status: invoice.Status,
-            PaymentStatus: invoice.PaymentStatus,
+            PaymentStatus: paymentSummary?.Status ?? InvoicePaymentStatus.Unpaid,
             DiscountAmount: invoice.DiscountAmount.Amount,
             NetAmount: invoice.NetAmount.Amount,
             TaxAmount: invoice.TaxAmount.Amount,
             GrossAmount: invoice.GrossAmount.Amount,
-            PaidAmount: invoice.PaidAmount.Amount,
-            RemainingAmount: invoice.RemainingAmount.Amount,
+            PaidAmount: paymentSummary?.PaidAmount.Amount ?? 0m,
+            RemainingAmount: paymentSummary?.OutstandingAmount.Amount ?? invoice.GrossAmount.Amount,
             Notes: invoice.Notes?.Value,
             IssuedAtUtc: invoice.IssuedAtUtc,
-            CancelledAtUtc: invoice.CancelledAtUtc,
             CreatedAtUtc: invoice.CreatedAtUtc,
             UpdatedAtUtc: invoice.UpdatedAtUtc,
             Lines: invoice.Lines.Select(line => line.ToDto()).ToArray());

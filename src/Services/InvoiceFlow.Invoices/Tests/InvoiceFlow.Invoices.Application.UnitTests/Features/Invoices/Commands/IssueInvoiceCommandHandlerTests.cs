@@ -52,24 +52,6 @@ public sealed class IssueInvoiceCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_ReturnsCannotBeIssued_WhenInvoiceIsCancelled()
-    {
-        var invoice = InvoiceTestData.DraftInvoice();
-        invoice.Issue(InvoiceNumber.Create("2025-0001"), new DateOnly(2025, 1, 2), _clock.Object.GetUtcNow());
-        invoice.Cancel(_clock.Object.GetUtcNow().AddDays(1));
-        var cmd = new IssueInvoiceCommand(invoice.TenantId, invoice.Id);
-        _invoices.Setup(x => x.GetInvoiceWithLockAsync(cmd.TenantId, cmd.InvoiceId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(invoice);
-
-        var result = await _sut.Handle(cmd, CancellationToken.None);
-
-        result.Error.Should().Be(ApplicationErrors.InvoiceCannotBeIssued);
-        _numbers.Verify(x => x.AllocateNextWithLockAsync(
-            It.IsAny<Guid>(), It.IsAny<FiscalYear>(), It.IsAny<CancellationToken>()), Times.Never);
-        _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
-    }
-
-    [Fact]
     public async Task Handle_IssuesDraftAndSaves()
     {
         var invoice = InvoiceTestData.DraftInvoice();

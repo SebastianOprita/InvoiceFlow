@@ -57,7 +57,7 @@ public sealed class InvoicePaymentBalance
         InvoiceNumber = invoiceNumber;
         CurrencyCode = currencyCode;
 
-        TotalAmount = totalAmount;
+        TotalAmount = Money.Create(totalAmount.Amount, totalAmount.CurrencyCode);
         AllocatedAmount = Money.Zero(currencyCode);
 
         Status = InvoicePaymentBalanceStatus.Open;

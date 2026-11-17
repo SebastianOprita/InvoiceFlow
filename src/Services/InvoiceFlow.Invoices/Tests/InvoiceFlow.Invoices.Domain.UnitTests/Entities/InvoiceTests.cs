@@ -21,8 +21,6 @@ public sealed class InvoiceTests
         invoice.Number.Should().BeNull();
         invoice.Notes!.Value.Should().Be("Notes");
         invoice.GrossAmount.Amount.Should().Be(0m);
-        invoice.RemainingAmount.Amount.Should().Be(0m);
-        invoice.PaymentStatus.Should().Be(InvoicePaymentStatus.Unpaid);
         invoice.CreatedAtUtc.Should().Be(InvoiceEntityTestData.CreatedAt);
     }
 
@@ -111,6 +109,30 @@ public sealed class InvoiceTests
     }
 
     [Fact]
+    public void AddProductLine_CopiesUnitPrice_WhenProductSnapshotIsReused()
+    {
+        var invoice = InvoiceEntityTestData.Draft();
+        var product = InvoiceEntityTestData.Product();
+
+        var firstLine = invoice.AddProductLine(
+            Guid.CreateVersion7(),
+            product,
+            Quantity.Create(1),
+            Percentage.Zero,
+            InvoiceEntityTestData.CreatedAt.AddHours(1));
+        var secondLine = invoice.AddProductLine(
+            Guid.CreateVersion7(),
+            product,
+            Quantity.Create(1),
+            Percentage.Zero,
+            InvoiceEntityTestData.CreatedAt.AddHours(2));
+
+        firstLine.UnitPrice.Should().Be(product.UnitPrice);
+        secondLine.UnitPrice.Should().Be(product.UnitPrice);
+        ReferenceEquals(firstLine.UnitPrice, secondLine.UnitPrice).Should().BeFalse();
+    }
+
+    [Fact]
     public void AddProductLine_RejectsMismatchedInactiveOrDuplicateProductLine()
     {
         var invoice = InvoiceEntityTestData.Draft();
@@ -177,8 +199,7 @@ public sealed class InvoiceTests
         invoice.IssueDate.Should().Be(issueDate);
         invoice.DueDate.Should().Be(issueDate.AddDays(30));
         invoice.IssuedAtUtc.Should().Be(issuedAt);
-        invoice.CanReceivePayment().Should().BeTrue();
-        invoice.IsOverdue(issueDate.AddDays(31)).Should().BeTrue();
+        invoice.Status.Should().Be(InvoiceStatus.Issued);
     }
 
     [Fact]
@@ -192,24 +213,6 @@ public sealed class InvoiceTests
         InvoiceEntityTestData.AddLine(invoice);
         Action noTimestamp = () => invoice.Issue(InvoiceNumber.Create("INV-1"), new DateOnly(2025, 1, 1), default);
         noTimestamp.Should().Throw<DomainException>().WithDomainError(DomainErrors.IssuedAtUtcRequired);
-    }
-
-    [Fact]
-    public void Cancel_RequiresIssuedInvoiceAndValidTimestamp()
-    {
-        var draft = InvoiceEntityTestData.Draft();
-        Action beforeIssue = () => draft.Cancel(InvoiceEntityTestData.CreatedAt.AddDays(1));
-        beforeIssue.Should().Throw<DomainException>().WithDomainError(DomainErrors.InvoiceNotIssued);
-
-        var issued = InvoiceEntityTestData.Issued();
-        Action noTimestamp = () => issued.Cancel(default);
-        noTimestamp.Should().Throw<DomainException>().WithDomainError(DomainErrors.CancelledAtUtcRequired);
-
-        var cancelledAt = InvoiceEntityTestData.CreatedAt.AddDays(2);
-        issued.Cancel(cancelledAt);
-        issued.Status.Should().Be(InvoiceStatus.Cancelled);
-        issued.CancelledAtUtc.Should().Be(cancelledAt);
-        issued.CanReceivePayment().Should().BeFalse();
     }
 
     [Fact]

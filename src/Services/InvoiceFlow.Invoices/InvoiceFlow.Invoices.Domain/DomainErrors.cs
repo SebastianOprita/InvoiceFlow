@@ -31,13 +31,7 @@ public static partial class DomainErrors
     public static readonly DomainError IssuedAtUtcRequired = new($"issuedAtUtc.required", $"Invoice issued datetime is required.");
     public static readonly DomainError NoLines = new("invoice.noLines", "An invoice must contain at least one line before it can be issued.");
     public static readonly DomainError GrossAmountZero = new("grossAmount.zeroAmount", "An invoice total must be greater than zero before it can be issued.");
-    public static readonly DomainError InvoiceNotIssued = new("invoice.notIssued", "Only issued invoices can receive, reverse payments or can be cancelled.");
     public static readonly DomainError InvoiceNotDraft = new("invoice.notDraft", "Only draft invoices can be modified.");
-    public static readonly DomainError CancelledAtUtcRequired = new("cancelledAtUtc.required", "Invoice cancelled datetime is required.");
-    public static readonly DomainError InvoicePaidAmountInvalid = new("invoice.paidAmountInvalid", "An invoice with allocated payments cannot be cancelled. Reverse its payment allocations first.");
-    public static readonly DomainError PaymentAmountInvalid = new("invoice.amountInvalid", "Payment amount must be greater than zero.");
-    public static readonly DomainError PaymentAmountExceedsOutstanding = new("invoice.amountExceedsOutstanding", "Payment amount cannot exceed the outstanding invoice amount.");
-    public static readonly DomainError PaymentAmountExceedsPaidAmount = new("invoice.amountExceedsPaidAmount", "Payment amount cannot exceed the invoice paid amount.");
     public static readonly DomainError LineIdInvalid = new("lineId.invalid", "Invoice line Id cannot be empty.");
     public static readonly DomainError LineIdNotFound = new("lineId.notFound", "Invoice line was not found.");
     public static readonly DomainError LineIdDuplicate = new("lineId.duplicate", "An invoice line with the same Id already exists.");

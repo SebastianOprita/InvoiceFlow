@@ -32,21 +32,8 @@ public sealed class Invoice
     public Money NetAmount { get; private set; }
     public Money TaxAmount { get; private set; }
     public Money GrossAmount { get; private set; }
-    public Money PaidAmount { get; private set; }
-    public Money RemainingAmount => Money.Create(GrossAmount.Amount - PaidAmount.Amount, CurrencyCode);
-
-    public InvoicePaymentStatus PaymentStatus =>
-        PaidAmount.Amount switch
-        {
-            0m => InvoicePaymentStatus.Unpaid,
-            var paid when paid < GrossAmount.Amount =>
-                InvoicePaymentStatus.PartiallyPaid,
-            _ => InvoicePaymentStatus.Paid
-        };
-
     public InvoiceNotes? Notes { get; private set; }
     public DateTimeOffset? IssuedAtUtc { get; private set; }
-    public DateTimeOffset? CancelledAtUtc { get; private set; }
     public DateTimeOffset CreatedAtUtc { get; private set; }
     public DateTimeOffset? UpdatedAtUtc { get; private set; }
 
@@ -79,7 +66,6 @@ public sealed class Invoice
         NetAmount = Money.Zero(customer.CurrencyCode);
         TaxAmount = Money.Zero(customer.CurrencyCode);
         GrossAmount = Money.Zero(customer.CurrencyCode);
-        PaidAmount = Money.Zero(customer.CurrencyCode);
 
         CreatedAtUtc = createdAtUtc;
     }
@@ -160,7 +146,6 @@ public sealed class Invoice
         NetAmount = Money.Zero(currencyCode);
         TaxAmount = Money.Zero(currencyCode);
         GrossAmount = Money.Zero(currencyCode);
-        PaidAmount = Money.Zero(currencyCode);
 
         MarkAsUpdated(updatedAtUtc);
     }
@@ -374,75 +359,6 @@ public sealed class Invoice
         MarkAsUpdated(issuedAtUtc);
     }
 
-    public void Cancel(DateTimeOffset cancelledAtUtc)
-    {
-        if (Status != InvoiceStatus.Issued)
-            throw new DomainException(DomainErrors.InvoiceNotIssued);
-
-        if (cancelledAtUtc == default)
-            throw new DomainException(DomainErrors.CancelledAtUtcRequired);
-
-        if (PaidAmount.Amount > 0m)
-            throw new DomainException(DomainErrors.InvoicePaidAmountInvalid);
-
-        Status = InvoiceStatus.Cancelled;
-        CancelledAtUtc = cancelledAtUtc.ToUniversalTime();
-
-        MarkAsUpdated(cancelledAtUtc);
-    }
-
-    // Payments
-    // -----------------------------------------------------------------
-
-    internal void ApplyPayment(Money amount, DateTimeOffset updatedAtUtc)
-    {
-        EnsureCanReceivePayment();
-        EnsureCurrencyMatches(amount);
-
-        if (amount.Amount <= 0m)
-            throw new DomainException(DomainErrors.PaymentAmountInvalid);
-
-        var outstandingAmount = GrossAmount.Amount - PaidAmount.Amount;
-
-        if (amount.Amount > outstandingAmount)
-            throw new DomainException(DomainErrors.PaymentAmountExceedsOutstanding);
-
-        PaidAmount = Money.Create(PaidAmount.Amount + amount.Amount, CurrencyCode);
-
-        MarkAsUpdated(updatedAtUtc);
-    }
-
-    internal void ReversePayment(Money amount, DateTimeOffset updatedAtUtc)
-    {
-        EnsureCanReceivePayment();
-
-        if (amount.Amount <= 0m)
-            throw new DomainException(DomainErrors.PaymentAmountInvalid);
-
-        if (amount.Amount > PaidAmount.Amount)
-            throw new DomainException(DomainErrors.PaymentAmountExceedsPaidAmount);
-
-        PaidAmount = Money.Create(PaidAmount.Amount - amount.Amount, CurrencyCode);
-
-        MarkAsUpdated(updatedAtUtc);
-    }
-
-    // Derived domain information
-    // -----------------------------------------------------------------
-
-    public bool IsOverdue(DateOnly asOfDate)
-    {
-        return Status == InvoiceStatus.Issued &&
-            DueDate < asOfDate &&
-            PaidAmount.Amount < GrossAmount.Amount;
-    }
-
-    public bool CanReceivePayment()
-    {
-        return Status == InvoiceStatus.Issued &&
-            PaidAmount.Amount < GrossAmount.Amount;
-    }
-
     // Internal helpers
     // -----------------------------------------------------------------
 
@@ -522,12 +438,6 @@ public sealed class Invoice
     {
         if (Status != InvoiceStatus.Draft)
             throw new DomainException(DomainErrors.InvoiceNotDraft);
-    }
-
-    private void EnsureCanReceivePayment()
-    {
-        if (Status != InvoiceStatus.Issued)
-            throw new DomainException(DomainErrors.InvoiceNotIssued);
     }
 
     private void MarkAsUpdated(DateTimeOffset updatedAtUtc)
