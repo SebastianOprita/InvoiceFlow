@@ -75,8 +75,6 @@ public sealed class PaymentConfiguration : IEntityTypeConfiguration<Payment>
 
         builder.Property(x => x.PostedAtUtc);
 
-        builder.Property(x => x.CancelledAtUtc);
-
         builder.Property(x => x.CreatedAtUtc)
             .IsRequired();
 

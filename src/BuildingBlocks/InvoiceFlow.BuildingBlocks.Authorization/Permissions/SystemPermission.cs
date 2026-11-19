@@ -42,12 +42,10 @@ public enum SystemPermissions : long
     InvoiceCreate = 1L << 20,
     InvoiceUpdate = 1L << 21,
     InvoiceIssue = 1L << 22,
-    InvoiceCancel = 1L << 23,
 
     // Payments
-    PaymentRead = 1L << 24,
-    PaymentCreate = 1L << 25,
-    PaymentUpdate = 1L << 26,
-    PaymentPost = 1L << 27,
-    PaymentCancel = 1L << 28,
+    PaymentRead = 1L << 23,
+    PaymentCreate = 1L << 24,
+    PaymentUpdate = 1L << 25,
+    PaymentPost = 1L << 26
 }

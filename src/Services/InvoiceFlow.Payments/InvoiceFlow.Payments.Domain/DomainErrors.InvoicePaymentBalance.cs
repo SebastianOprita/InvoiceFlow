@@ -19,11 +19,6 @@ public static partial class DomainErrors
             "invoicePaymentBalance.allocationAmountInvalid",
             "The allocation amount must be greater than zero.");
 
-    public static readonly DomainError InvoicePaymentBalanceClosed =
-        new(
-            "invoicePaymentBalance.closed",
-            "The invoice payment balance is closed.");
-
     public static readonly DomainError InvoicePaymentBalanceOverAllocation =
         new(
             "invoicePaymentBalance.overAllocation",
@@ -33,11 +28,6 @@ public static partial class DomainErrors
         new(
             "invoicePaymentBalance.overReversal",
             "The reversal amount exceeds the allocated amount.");
-
-    public static readonly DomainError InvoicePaymentBalanceHasAllocations =
-        new(
-            "invoicePaymentBalance.hasAllocations",
-            "The invoice payment balance cannot be closed while allocations exist.");
 
     public static readonly DomainError InvoicePaymentBalanceCurrencyMismatch =
         new(

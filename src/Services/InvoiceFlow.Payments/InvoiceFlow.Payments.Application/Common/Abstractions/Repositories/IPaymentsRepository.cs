@@ -13,6 +13,11 @@ public interface IPaymentsRepository
         Guid tenantId,
         Guid paymentId,
         CancellationToken cancellationToken = default);
+    Task<InvoicePaymentBalance?> GetInvoicePaymentBalanceAsync(
+        Guid tenantId,
+        Guid invoiceId,
+        CancellationToken cancellationToken = default);
 
     void AddPayment(Payment payment);
+    void AddInvoicePaymentBalance(InvoicePaymentBalance balance);
 }

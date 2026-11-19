@@ -7,5 +7,5 @@
   <ItemGroup>
     <ProjectReference Include="..\InvoiceFlow.Invoices.Application\InvoiceFlow.Invoices.Application.csproj" />
   </ItemGroup>
-
+	
 </Project>

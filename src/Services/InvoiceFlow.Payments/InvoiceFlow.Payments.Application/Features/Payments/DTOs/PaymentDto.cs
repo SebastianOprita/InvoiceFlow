@@ -17,7 +17,6 @@ public sealed record PaymentDto(
     PaymentLifecycleStatus Status,
     string? Notes,
     DateTimeOffset? PostedAtUtc,
-    DateTimeOffset? CancelledAtUtc,
     DateTimeOffset CreatedAtUtc,
     DateTimeOffset? UpdatedAtUtc,
     IReadOnlyCollection<PaymentAllocationDto> Allocations);

@@ -66,8 +66,25 @@ internal sealed class PaymentsRepository(
         .SingleOrDefaultAsync(cancellationToken);
     }
 
+    public Task<InvoicePaymentBalance?> GetInvoicePaymentBalanceAsync(
+        Guid tenantId,
+        Guid invoiceId,
+        CancellationToken cancellationToken = default)
+    {
+        return context.InvoicePaymentBalances
+            .AsNoTracking()
+            .SingleOrDefaultAsync(
+                x => x.TenantId == tenantId && x.InvoiceId == invoiceId,
+                cancellationToken);
+    }
+
     public void AddPayment(Payment payment)
     {
         context.Payments.Add(payment);
+    }
+
+    public void AddInvoicePaymentBalance(InvoicePaymentBalance balance)
+    {
+        context.InvoicePaymentBalances.Add(balance);
     }
 }

@@ -112,13 +112,6 @@ public sealed class InvoicePaymentBalanceConfiguration
         builder.Navigation(x => x.AllocatedAmount)
             .IsRequired();
 
-        // Lifecycle
-        // --------------------------------------------------
-
-        builder.Property(x => x.Status)
-            .HasConversion<int>()
-            .IsRequired();
-
         // Integration event version
         // --------------------------------------------------
 

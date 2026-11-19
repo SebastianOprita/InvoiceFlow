@@ -9,6 +9,7 @@ public static class ApplicationErrors
     public static readonly ApplicationError TransientFailure = new(ApplicationErrorType.ServiceUnavailable, "persistence.transient_failure", "The operation may not have completed because of a temporary service failure. Retry with the same idempotency key when one was supplied.");
     public static readonly ApplicationError RequestHashInputRequired = new(ApplicationErrorType.Validation, "Idempotency.RequestHashInputRequired", "A request payload is required to calculate its idempotency hash.");
     public static readonly ApplicationError PaymentNotFound = new(ApplicationErrorType.NotFound, "payment.notFound", "Payment not found.");
+    public static readonly ApplicationError InvoicePaymentBalanceConflict = new(ApplicationErrorType.Conflict, "invoicePaymentBalance.conflict", "The invoice payment balance already exists with different source values.");
 
 
     public static readonly ApplicationError PaymentCannotBePosted = new(ApplicationErrorType.Conflict, "payment.cannotBePosted", "Payment cannot be posted.");

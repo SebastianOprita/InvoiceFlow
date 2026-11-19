@@ -19,7 +19,6 @@ public sealed class Payment
     public PaymentLifecycleStatus Status { get; private set; }
     public PaymentNotes? Notes { get; private set; }
     public DateTimeOffset? PostedAtUtc { get; private set; }
-    public DateTimeOffset? CancelledAtUtc { get; private set; }
     public DateTimeOffset CreatedAtUtc { get; private set; }
     public DateTimeOffset? UpdatedAtUtc { get; private set; }
     public IReadOnlyCollection<PaymentAllocation> Allocations => _allocations.AsReadOnly();

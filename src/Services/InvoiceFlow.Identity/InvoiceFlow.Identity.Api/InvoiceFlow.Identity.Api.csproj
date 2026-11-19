@@ -6,6 +6,7 @@
 	<PackageReference Include="InvoiceFlow.BuildingBlocks.Authorization" />
 	<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore.Design" />
   </ItemGroup>
 
   <ItemGroup>
