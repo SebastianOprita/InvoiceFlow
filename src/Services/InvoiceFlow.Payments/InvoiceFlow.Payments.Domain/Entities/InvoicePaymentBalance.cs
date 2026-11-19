@@ -30,8 +30,6 @@ public sealed class InvoicePaymentBalance
             _ => InvoicePaymentStatus.Paid
         };
 
-    public InvoicePaymentBalanceStatus Status { get; private set; }
-
     public long Version { get; private set; }
 
     public DateTimeOffset CreatedAtUtc { get; private set; }
@@ -59,8 +57,6 @@ public sealed class InvoicePaymentBalance
 
         TotalAmount = Money.Create(totalAmount.Amount, totalAmount.CurrencyCode);
         AllocatedAmount = Money.Zero(currencyCode);
-
-        Status = InvoicePaymentBalanceStatus.Open;
 
         Version = 0;
         CreatedAtUtc = createdAtUtc;
@@ -119,7 +115,6 @@ public sealed class InvoicePaymentBalance
         Money amount,
         DateTimeOffset updatedAtUtc)
     {
-        EnsureOpen();
         ValidateAmount(amount);
         EnsureCurrencyMatches(amount);
 
@@ -143,9 +138,6 @@ public sealed class InvoicePaymentBalance
         Money amount,
         DateTimeOffset updatedAtUtc)
     {
-        // A closed balance must not be modified.
-        EnsureOpen();
-
         ValidateAmount(amount);
         EnsureCurrencyMatches(amount);
 
@@ -162,45 +154,15 @@ public sealed class InvoicePaymentBalance
         UpdatedAtUtc = utc;
     }
 
-    // Lifecycle
-    // ------------------------------------------------------------
-
-    // Used by the coordinated invoice cancellation workflow.
-    // A zero balance is required before closure.
-    // The application layer must persist the closure and
-    // cancellation-request correlation atomically.
-    public void Close(DateTimeOffset updatedAtUtc)
-    {
-        if (Status == InvoicePaymentBalanceStatus.Closed)
-            return;
-
-        if (AllocatedAmount.Amount > 0m)
-            throw new DomainException(DomainErrors.InvoicePaymentBalanceHasAllocations);
-
-        var utc = ValidateUpdatedAtUtc(updatedAtUtc);
-
-        Status = InvoicePaymentBalanceStatus.Closed;
-
-        Version++;
-        UpdatedAtUtc = utc;
-    }
-
     // Helpers
     // ------------------------------------------------------------
 
     public bool CanAllocate(Money amount)
     {
-        return Status == InvoicePaymentBalanceStatus.Open &&
-               amount is not null &&
+        return amount is not null &&
                amount.Amount > 0m &&
                amount.CurrencyCode == CurrencyCode &&
                amount.Amount <= OutstandingAmount.Amount;
-    }
-
-    private void EnsureOpen()
-    {
-        if (Status != InvoicePaymentBalanceStatus.Open)
-            throw new DomainException(DomainErrors.InvoicePaymentBalanceClosed);
     }
 
     private void EnsureCurrencyMatches(Money amount)

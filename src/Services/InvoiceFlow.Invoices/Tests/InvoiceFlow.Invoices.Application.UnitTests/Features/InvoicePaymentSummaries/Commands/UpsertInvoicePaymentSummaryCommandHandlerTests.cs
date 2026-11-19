@@ -33,9 +33,6 @@ public sealed class UpsertInvoicePaymentSummaryCommandHandlerTests
     {
         var command = CreateCommand(version: 1);
         InvoicePaymentSummary? addedSummary = null;
-        _invoices.Setup(x => x.GetPaymentSummaryAsync(
-                command.TenantId, command.InvoiceId, CancellationToken.None))
-            .ReturnsAsync((InvoicePaymentSummary?)null);
         _invoices.Setup(x => x.GetPaymentSummaryWithLockAsync(
                 command.TenantId, command.InvoiceId, CancellationToken.None))
             .ReturnsAsync((InvoicePaymentSummary?)null);
@@ -62,9 +59,6 @@ public sealed class UpsertInvoicePaymentSummaryCommandHandlerTests
     {
         var command = CreateCommand(version: 2, paidAmount: 40m, outstandingAmount: 60m);
         var summary = CreateSummary(command.TenantId, command.InvoiceId, 10m, 90m, version: 1);
-        _invoices.Setup(x => x.GetPaymentSummaryAsync(
-                command.TenantId, command.InvoiceId, CancellationToken.None))
-            .ReturnsAsync(summary);
         _invoices.Setup(x => x.GetPaymentSummaryWithLockAsync(
                 command.TenantId, command.InvoiceId, CancellationToken.None))
             .ReturnsAsync(summary);
@@ -83,7 +77,7 @@ public sealed class UpsertInvoicePaymentSummaryCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_ReturnsSuccessWithoutTransaction_WhenVersionAndSnapshotMatch()
+    public async Task Handle_ReturnsSuccessWithoutSaving_WhenVersionAndSnapshotMatch()
     {
         var command = CreateCommand(version: 1);
         var summary = CreateSummary(
@@ -93,21 +87,25 @@ public sealed class UpsertInvoicePaymentSummaryCommandHandlerTests
             command.OutstandingAmount,
             version: command.PaymentBalanceVersion,
             sourceUpdatedAtUtc: command.SourceUpdatedAtUtc);
-        _invoices.Setup(x => x.GetPaymentSummaryAsync(
+        _invoices.Setup(x => x.GetPaymentSummaryWithLockAsync(
                 command.TenantId, command.InvoiceId, CancellationToken.None))
             .ReturnsAsync(summary);
 
         var result = await _sut.Handle(command, CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
+        _invoices.Verify(x => x.GetPaymentSummaryAsync(
+            It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+        _invoices.Verify(x => x.GetPaymentSummaryWithLockAsync(
+            command.TenantId, command.InvoiceId, CancellationToken.None), Times.Once);
         _unitOfWork.Verify(x => x.ExecuteInTransactionAsync(
             It.IsAny<Func<CancellationToken, Task<Result>>>(),
             It.IsAny<CancellationToken>(),
-            It.IsAny<System.Data.IsolationLevel>()), Times.Never);
+            It.IsAny<System.Data.IsolationLevel>()), Times.Once);
     }
 
     [Fact]
-    public async Task Handle_ReturnsConflictWithoutTransaction_WhenVersionMatchesButSnapshotDiffers()
+    public async Task Handle_ReturnsConflict_WhenVersionMatchesButSnapshotDiffers()
     {
         var command = CreateCommand(version: 1, paidAmount: 40m, outstandingAmount: 60m);
         var summary = CreateSummary(
@@ -117,7 +115,7 @@ public sealed class UpsertInvoicePaymentSummaryCommandHandlerTests
             75m,
             version: 1,
             sourceUpdatedAtUtc: command.SourceUpdatedAtUtc);
-        _invoices.Setup(x => x.GetPaymentSummaryAsync(
+        _invoices.Setup(x => x.GetPaymentSummaryWithLockAsync(
                 command.TenantId, command.InvoiceId, CancellationToken.None))
             .ReturnsAsync(summary);
 
@@ -127,33 +125,33 @@ public sealed class UpsertInvoicePaymentSummaryCommandHandlerTests
         _unitOfWork.Verify(x => x.ExecuteInTransactionAsync(
             It.IsAny<Func<CancellationToken, Task<Result>>>(),
             It.IsAny<CancellationToken>(),
-            It.IsAny<System.Data.IsolationLevel>()), Times.Never);
+            It.IsAny<System.Data.IsolationLevel>()), Times.Once);
         _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
-    public async Task Handle_ReturnsStaleVersionErrorWithoutTransaction_WhenStoredVersionIsHigher()
+    public async Task Handle_ReturnsSuccessWithoutSaving_WhenStoredVersionIsHigher()
     {
         var command = CreateCommand(version: 1);
         var summary = CreateSummary(command.TenantId, command.InvoiceId, 40m, 60m, version: 2);
-        _invoices.Setup(x => x.GetPaymentSummaryAsync(
+        _invoices.Setup(x => x.GetPaymentSummaryWithLockAsync(
                 command.TenantId, command.InvoiceId, CancellationToken.None))
             .ReturnsAsync(summary);
 
         var result = await _sut.Handle(command, CancellationToken.None);
 
-        result.Error.Should().Be(ApplicationErrors.PaymentBalanceVersionNotNewer);
+        result.IsSuccess.Should().BeTrue();
         _unitOfWork.Verify(x => x.ExecuteInTransactionAsync(
             It.IsAny<Func<CancellationToken, Task<Result>>>(),
             It.IsAny<CancellationToken>(),
-            It.IsAny<System.Data.IsolationLevel>()), Times.Never);
+            It.IsAny<System.Data.IsolationLevel>()), Times.Once);
+        _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
     public async Task Handle_ReturnsSuccessWithoutSaving_WhenLockedSummaryNowMatchesVersionAndSnapshot()
     {
         var command = CreateCommand(version: 2, paidAmount: 40m, outstandingAmount: 60m);
-        var previouslyReadSummary = CreateSummary(command.TenantId, command.InvoiceId, 10m, 90m, version: 1);
         var lockedSummary = CreateSummary(
             command.TenantId,
             command.InvoiceId,
@@ -161,9 +159,6 @@ public sealed class UpsertInvoicePaymentSummaryCommandHandlerTests
             command.OutstandingAmount,
             command.PaymentBalanceVersion,
             command.SourceUpdatedAtUtc);
-        _invoices.Setup(x => x.GetPaymentSummaryAsync(
-                command.TenantId, command.InvoiceId, CancellationToken.None))
-            .ReturnsAsync(previouslyReadSummary);
         _invoices.Setup(x => x.GetPaymentSummaryWithLockAsync(
                 command.TenantId, command.InvoiceId, CancellationToken.None))
             .ReturnsAsync(lockedSummary);
@@ -200,21 +195,17 @@ public sealed class UpsertInvoicePaymentSummaryCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_ReturnsStaleVersionError_WhenLockedSummaryAdvancedPastCommand()
+    public async Task Handle_ReturnsSuccessWithoutSaving_WhenLockedSummaryAdvancedPastCommand()
     {
         var command = CreateCommand(version: 2);
-        var previouslyReadSummary = CreateSummary(command.TenantId, command.InvoiceId, 10m, 90m, version: 1);
         var lockedSummary = CreateSummary(command.TenantId, command.InvoiceId, 40m, 60m, version: 3);
-        _invoices.Setup(x => x.GetPaymentSummaryAsync(
-                command.TenantId, command.InvoiceId, CancellationToken.None))
-            .ReturnsAsync(previouslyReadSummary);
         _invoices.Setup(x => x.GetPaymentSummaryWithLockAsync(
                 command.TenantId, command.InvoiceId, CancellationToken.None))
             .ReturnsAsync(lockedSummary);
 
         var result = await _sut.Handle(command, CancellationToken.None);
 
-        result.Error.Should().Be(ApplicationErrors.PaymentBalanceVersionNotNewer);
+        result.IsSuccess.Should().BeTrue();
         _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 

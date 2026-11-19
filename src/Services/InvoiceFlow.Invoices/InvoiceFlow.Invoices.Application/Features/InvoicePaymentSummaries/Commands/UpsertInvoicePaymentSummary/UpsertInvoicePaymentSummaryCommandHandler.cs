@@ -17,23 +17,6 @@ internal sealed class UpsertInvoicePaymentSummaryCommandHandler(
         var paidAmount = Money.Create(cmd.PaidAmount, currencyCode);
         var outstandingAmount = Money.Create(cmd.OutstandingAmount, currencyCode);
 
-        var currentSummary = await invoiceRepository.GetPaymentSummaryAsync(
-            cmd.TenantId,
-            cmd.InvoiceId,
-            cancellationToken);
-
-        if (currentSummary is not null)
-        {
-            var existingVersionResult = CheckExistingVersion(
-                currentSummary,
-                cmd,
-                paidAmount,
-                outstandingAmount);
-
-            if (existingVersionResult is not null)
-                return existingVersionResult;
-        }
-
         return await unitOfWork.ExecuteInTransactionAsync(
             async ct =>
             {
@@ -88,8 +71,7 @@ internal sealed class UpsertInvoicePaymentSummaryCommandHandler(
     {
         if (summary.PaymentBalanceVersion > cmd.PaymentBalanceVersion)
         {
-            return Result.Failure(
-                ApplicationErrors.PaymentBalanceVersionNotNewer);
+            return Result.Success();
         }
 
         if (summary.PaymentBalanceVersion != cmd.PaymentBalanceVersion)

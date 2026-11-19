@@ -21,7 +21,6 @@ public static class PaymentMapper
             Status: payment.Status,
             Notes: payment.Notes?.Value,
             PostedAtUtc: payment.PostedAtUtc,
-            CancelledAtUtc: payment.CancelledAtUtc,
             CreatedAtUtc: payment.CreatedAtUtc,
             UpdatedAtUtc: payment.UpdatedAtUtc,
             Allocations: payment.Allocations.Select(allocation => allocation.ToDto()).ToArray());

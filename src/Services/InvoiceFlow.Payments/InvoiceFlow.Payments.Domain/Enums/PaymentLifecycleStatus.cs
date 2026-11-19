@@ -3,6 +3,5 @@
 public enum PaymentLifecycleStatus
 {
     Draft = 1,
-    Posted = 2,
-    Cancelled = 3
+    Posted = 2
 }

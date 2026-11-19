@@ -10,14 +10,16 @@ internal sealed class InvoicesRepository(
 {
     public async Task<Invoice?> GetInvoiceByIdAsync(Guid tenantId, Guid invoiceId, CancellationToken cancellationToken = default)
     {
-        return await context.Invoices.AsNoTracking()
+        return await context.Invoices
+            .AsNoTracking()
             .FirstOrDefaultAsync(c => c.TenantId == tenantId && c.Id == invoiceId,
             cancellationToken);
     }
 
     public async Task<Invoice?> GetInvoiceByIdWithLinesAsync(Guid tenantId, Guid invoiceId, CancellationToken cancellationToken = default)
     {
-        return await context.Invoices.AsNoTracking()
+        return await context.Invoices
+            .AsNoTracking()
             .Include(i => i.Lines)
             .FirstOrDefaultAsync(c => c.TenantId == tenantId && c.Id == invoiceId,
             cancellationToken);
@@ -43,7 +45,8 @@ internal sealed class InvoicesRepository(
 
     public async Task<List<Invoice>> GetAllInvoicesWithLinesAsync(Guid tenantId, CancellationToken cancellationToken = default)
     {
-        return await context.Invoices.AsNoTracking()
+        return await context.Invoices
+            .AsNoTracking()
             .Where(c => c.TenantId == tenantId)
             .Include(i => i.Lines)
             .ToListAsync(cancellationToken);
@@ -54,7 +57,8 @@ internal sealed class InvoicesRepository(
         Guid invoiceId,
         CancellationToken cancellationToken = default)
     {
-        return await context.InvoicePaymentSummaries.AsNoTracking()
+        return await context.InvoicePaymentSummaries
+            .AsNoTracking()
             .FirstOrDefaultAsync(
                 x => x.TenantId == tenantId && x.InvoiceId == invoiceId,
                 cancellationToken);
@@ -84,7 +88,8 @@ internal sealed class InvoicesRepository(
         if (invoiceIds.Count == 0)
             return [];
 
-        return await context.InvoicePaymentSummaries.AsNoTracking()
+        return await context.InvoicePaymentSummaries
+            .AsNoTracking()
             .Where(x => x.TenantId == tenantId && invoiceIds.Contains(x.InvoiceId))
             .ToListAsync(cancellationToken);
     }

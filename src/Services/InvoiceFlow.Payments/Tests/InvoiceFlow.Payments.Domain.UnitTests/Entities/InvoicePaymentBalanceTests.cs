@@ -15,7 +15,6 @@ public sealed class InvoicePaymentBalanceTests
     public void Create_starts_open_and_unpaid()
     {
         var balance = NewBalance();
-        balance.Status.Should().Be(InvoicePaymentBalanceStatus.Open);
         balance.PaymentStatus.Should().Be(InvoicePaymentStatus.Unpaid);
         balance.OutstandingAmount.Amount.Should().Be(100m);
         balance.Version.Should().Be(0);
@@ -77,19 +76,4 @@ public sealed class InvoicePaymentBalanceTests
         act.Should().Throw<DomainException>().WithDomainError(DomainErrors.InvoicePaymentBalanceOverReversal);
     }
 
-    [Fact]
-    public void Close_requires_zero_allocations_and_prevents_future_changes()
-    {
-        var balance = NewBalance();
-        balance.Allocate(Money.Create(10m, CurrencyCode.Create("RON")), Created.AddHours(1));
-        Action hasAllocations = () => balance.Close(Created.AddHours(2));
-        hasAllocations.Should().Throw<DomainException>().WithDomainError(DomainErrors.InvoicePaymentBalanceHasAllocations);
-        balance.ReverseAllocation(Money.Create(10m, CurrencyCode.Create("RON")), Created.AddHours(2));
-        balance.Close(Created.AddHours(3));
-        balance.Status.Should().Be(InvoicePaymentBalanceStatus.Closed);
-        balance.Version.Should().Be(3);
-        balance.Close(Created.AddHours(4));
-        Action allocate = () => balance.Allocate(Money.Create(1m, CurrencyCode.Create("RON")), Created.AddHours(4));
-        allocate.Should().Throw<DomainException>().WithDomainError(DomainErrors.InvoicePaymentBalanceClosed);
-    }
 }

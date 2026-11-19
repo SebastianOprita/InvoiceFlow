@@ -28,8 +28,6 @@ public static partial class DomainErrors
     public static readonly DomainError NoAllocations = new("payment.noAllocations", "A payment must contain at least one allocation before it can be posted.");
     public static readonly DomainError AllocatedAmountInvalid = new("payment.allocatedAmount.invalid", "The allocated payment amount must be greater than zero.");
     public static readonly DomainError NotFullyAllocated = new("payment.notFullyAllocated", "The entire payment amount must be allocated before posting.");
-    public static readonly DomainError CanNotBeCancelled = new("payment.canNotBeCancelled", "Only a posted payment can be cancelled.");
-    public static readonly DomainError CancelledAtUtcRequired = new("cancelledAtUtc.required", "Payment cancelled datetime is required.");
     public static readonly DomainError AllocationNotFound = new("allocation.notFound", "Payment allocation was not found.");
     public static readonly DomainError CanNotBeModified = new("payment.canNotBeModified", "Only draft payments can be modified.");
     public static readonly DomainError UpdatedAtUtcRequired = new("updatedAtUtc.required", "Payment updated datetime is required.");
