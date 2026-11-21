@@ -172,34 +172,36 @@ public sealed class Payment
 
     public void AddAllocation(
         Guid allocationId,
-        Guid invoiceId,
-        InvoiceNumber invoiceNumber,
+        InvoicePaymentBalance invoiceBalance,
         Money amount,
         DateTimeOffset updatedAtUtc)
     {
-        EnsureDraft();
+        EnsurePosted();
 
         ValidateAllocationId(allocationId);
-        ValidateInvoiceId(invoiceId);
         ValidateAllocationAmount(amount);
         EnsureCurrencyMatches(amount);
         ValidateUpdatedAtUtc(updatedAtUtc);
 
+        ArgumentNullException.ThrowIfNull(invoiceBalance);
+
         if (_allocations.Any(x => x.Id == allocationId))
             throw new DomainException(DomainErrors.AllocationIdInvalid);
 
-        if (_allocations.Any(x => x.InvoiceId == invoiceId))
+        if (_allocations.Any(x => x.InvoiceId == invoiceBalance.InvoiceId))
             throw new DomainException(DomainErrors.InvoiceIdInvalid);
 
         if (amount.Amount > UnallocatedAmount.Amount)
             throw new DomainException(DomainErrors.AmountExceedsUnallocated);
 
+        invoiceBalance.EnsureCanAllocate(TenantId, CustomerId, CurrencyCode, amount);
+
         var allocation = PaymentAllocation.Create(
             TenantId,
             allocationId,
             Id,
-            invoiceId,
-            invoiceNumber,
+            invoiceBalance.InvoiceId,
+            invoiceBalance.InvoiceNumber,
             amount,
             updatedAtUtc);
 
@@ -212,7 +214,7 @@ public sealed class Payment
         Guid allocationId,
         DateTimeOffset updatedAtUtc)
     {
-        EnsureDraft();
+        EnsurePosted();
         ValidateUpdatedAtUtc(updatedAtUtc);
 
         var allocation = GetAllocation(allocationId);
@@ -233,14 +235,8 @@ public sealed class Payment
 
         postedAtUtc = postedAtUtc.ToUniversalTime();
 
-        if (_allocations.Count == 0)
-            throw new DomainException(DomainErrors.NoAllocations);
-
-        if (AllocatedAmount.Amount <= 0m)
-            throw new DomainException(DomainErrors.AllocatedAmountInvalid);
-
-        if (!IsFullyAllocated())
-            throw new DomainException(DomainErrors.NotFullyAllocated);
+        if (_allocations.Count != 0)
+            throw new DomainException(DomainErrors.PaymentHasAllocations);
 
         Number = number;
         PaymentDate = paymentDate;
@@ -274,6 +270,12 @@ public sealed class Payment
             throw new DomainException(DomainErrors.CanNotBeModified);
     }
 
+    private void EnsurePosted()
+    {
+        if (Status != PaymentLifecycleStatus.Posted)
+            throw new DomainException(DomainErrors.PaymentMustBePosted);
+    }
+
     private void EnsureCurrencyMatches(Money money)
     {
         ValidateCurrencyMatches(CurrencyCode, money);
@@ -282,7 +284,7 @@ public sealed class Payment
     private void ValidateUpdatedAtUtc(DateTimeOffset updatedAtUtc)
     {
         if (updatedAtUtc == default)
-            throw new DomainException(DomainErrors.UpdatedAtUtcInvalid);
+            throw new DomainException(DomainErrors.UpdatedAtUtcRequired);
 
         updatedAtUtc = updatedAtUtc.ToUniversalTime();
 
@@ -344,12 +346,6 @@ public sealed class Payment
     {
         if (allocationId == Guid.Empty)
             throw new DomainException(DomainErrors.AllocationIdInvalid);
-    }
-
-    private static void ValidateInvoiceId(Guid invoiceId)
-    {
-        if (invoiceId == Guid.Empty)
-            throw new DomainException(DomainErrors.InvoiceIdInvalid);
     }
 
     private static void ValidateMethod(PaymentMethod method)
