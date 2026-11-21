@@ -92,6 +92,10 @@ public sealed class InvoicePaymentBalanceTests
             Guid.CreateVersion7(), balance.CustomerId, balance.CurrencyCode, Money.Create(1m, balance.CurrencyCode));
         identityMismatch.Should().Throw<DomainException>().WithDomainError(DomainErrors.InvoicePaymentBalanceIdentityMismatch);
 
+        Action customerMismatch = () => balance.EnsureCanAllocate(
+            balance.TenantId, Guid.CreateVersion7(), balance.CurrencyCode, Money.Create(1m, balance.CurrencyCode));
+        customerMismatch.Should().Throw<DomainException>().WithDomainError(DomainErrors.InvoicePaymentBalanceIdentityMismatch);
+
         Action currencyMismatch = () => balance.EnsureCanAllocate(
             balance.TenantId, balance.CustomerId, CurrencyCode.Create("EUR"), Money.Create(1m, balance.CurrencyCode));
         currencyMismatch.Should().Throw<DomainException>().WithDomainError(DomainErrors.InvoicePaymentBalanceCurrencyMismatch);
@@ -111,6 +115,32 @@ public sealed class InvoicePaymentBalanceTests
         var balance = NewBalance();
         Action act = () => balance.ReverseAllocation(Money.Create(1m, CurrencyCode.Create("RON")), Created.AddHours(1));
         act.Should().Throw<DomainException>().WithDomainError(DomainErrors.InvoicePaymentBalanceOverReversal);
+    }
+
+    [Fact]
+    public void Allocate_and_reverse_reject_invalid_and_nonmonotonic_timestamps()
+    {
+        var balance = NewBalance();
+
+        Action defaultAllocationTime = () => balance.Allocate(Money.Create(10m, CurrencyCode.Create("RON")), default);
+        defaultAllocationTime.Should().Throw<DomainException>().WithDomainError(DomainErrors.UpdatedAtUtcRequired);
+
+        Action allocationBeforeCreation = () => balance.Allocate(
+            Money.Create(10m, CurrencyCode.Create("RON")), Created.AddMinutes(-1));
+        allocationBeforeCreation.Should().Throw<DomainException>().WithDomainError(DomainErrors.UpdatedAtUtcInvalid);
+
+        balance.Allocate(Money.Create(20m, CurrencyCode.Create("RON")), Created.AddHours(2));
+
+        Action earlierAllocationTime = () => balance.Allocate(
+            Money.Create(10m, CurrencyCode.Create("RON")), Created.AddHours(1));
+        earlierAllocationTime.Should().Throw<DomainException>().WithDomainError(DomainErrors.UpdatedAtUtcInvalid);
+
+        Action defaultReversalTime = () => balance.ReverseAllocation(Money.Create(10m, CurrencyCode.Create("RON")), default);
+        defaultReversalTime.Should().Throw<DomainException>().WithDomainError(DomainErrors.UpdatedAtUtcRequired);
+
+        Action earlierReversalTime = () => balance.ReverseAllocation(
+            Money.Create(10m, CurrencyCode.Create("RON")), Created.AddHours(1));
+        earlierReversalTime.Should().Throw<DomainException>().WithDomainError(DomainErrors.UpdatedAtUtcInvalid);
     }
 
 }
