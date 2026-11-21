@@ -172,4 +172,57 @@ public sealed class PaymentTests
         currency.Should().Throw<DomainException>().WithDomainError(DomainErrors.CurrencyMismatch);
     }
 
+    [Fact]
+    public void Allocate_rejects_duplicate_allocation_id_and_null_balance()
+    {
+        var payment = NewPayment();
+        var balance = NewBalance(payment);
+        var allocationId = Guid.CreateVersion7();
+        Post(payment);
+        payment.AddAllocation(allocationId, balance, Money.Create(10m, Ron), Created.AddHours(2));
+
+        Action duplicate = () => payment.AddAllocation(allocationId, NewBalance(payment), Money.Create(10m, Ron), Created.AddHours(3));
+        duplicate.Should().Throw<DomainException>().WithDomainError(DomainErrors.AllocationIdInvalid);
+
+        Action nullBalance = () => payment.AddAllocation(Guid.CreateVersion7(), null!, Money.Create(10m, Ron), Created.AddHours(3));
+        nullBalance.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void RemoveAllocation_removes_posted_allocation_and_rejects_invalid_requests()
+    {
+        var payment = NewPayment();
+        var balance = NewBalance(payment);
+        var allocationId = Guid.CreateVersion7();
+        Post(payment);
+        payment.AddAllocation(allocationId, balance, Money.Create(40m, Ron), Created.AddHours(2));
+
+        payment.RemoveAllocation(allocationId, Created.AddHours(3));
+
+        payment.Allocations.Should().BeEmpty();
+        payment.UnallocatedAmount.Amount.Should().Be(100m);
+        payment.HasAllocationForInvoice(balance.InvoiceId).Should().BeFalse();
+
+        Action missing = () => payment.RemoveAllocation(Guid.CreateVersion7(), Created.AddHours(4));
+        missing.Should().Throw<DomainException>().WithDomainError(DomainErrors.AllocationNotFound);
+
+        Action invalidId = () => payment.RemoveAllocation(Guid.Empty, Created.AddHours(4));
+        invalidId.Should().Throw<DomainException>().WithDomainError(DomainErrors.AllocationIdInvalid);
+    }
+
+    [Fact]
+    public void RemoveAllocation_requires_posted_payment_and_monotonic_timestamp()
+    {
+        var payment = NewPayment();
+        Action draft = () => payment.RemoveAllocation(Guid.CreateVersion7(), Created.AddHours(1));
+        draft.Should().Throw<DomainException>().WithDomainError(DomainErrors.PaymentMustBePosted);
+
+        Post(payment);
+        Action defaultTimestamp = () => payment.RemoveAllocation(Guid.CreateVersion7(), default);
+        defaultTimestamp.Should().Throw<DomainException>().WithDomainError(DomainErrors.UpdatedAtUtcRequired);
+
+        Action beforeCreation = () => payment.RemoveAllocation(Guid.CreateVersion7(), Created.AddMinutes(-1));
+        beforeCreation.Should().Throw<DomainException>().WithDomainError(DomainErrors.UpdatedAtUtcInvalid);
+    }
+
 }

@@ -67,6 +67,45 @@ public sealed class InvoicePaymentBalanceTests
     }
 
     [Fact]
+    public void EnsureCanAllocate_accepts_matching_identity_currency_and_available_amount()
+    {
+        var balance = NewBalance();
+
+        var act = () => balance.EnsureCanAllocate(
+            balance.TenantId,
+            balance.CustomerId,
+            balance.CurrencyCode,
+            Money.Create(40m, balance.CurrencyCode));
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void EnsureCanAllocate_rejects_invalid_amount_identity_currency_and_overallocation()
+    {
+        var balance = NewBalance();
+        Action invalidAmount = () => balance.EnsureCanAllocate(
+            balance.TenantId, balance.CustomerId, balance.CurrencyCode, Money.Zero(balance.CurrencyCode));
+        invalidAmount.Should().Throw<DomainException>().WithDomainError(DomainErrors.AllocationAmountInvalid);
+
+        Action identityMismatch = () => balance.EnsureCanAllocate(
+            Guid.CreateVersion7(), balance.CustomerId, balance.CurrencyCode, Money.Create(1m, balance.CurrencyCode));
+        identityMismatch.Should().Throw<DomainException>().WithDomainError(DomainErrors.InvoicePaymentBalanceIdentityMismatch);
+
+        Action currencyMismatch = () => balance.EnsureCanAllocate(
+            balance.TenantId, balance.CustomerId, CurrencyCode.Create("EUR"), Money.Create(1m, balance.CurrencyCode));
+        currencyMismatch.Should().Throw<DomainException>().WithDomainError(DomainErrors.InvoicePaymentBalanceCurrencyMismatch);
+
+        Action amountCurrencyMismatch = () => balance.EnsureCanAllocate(
+            balance.TenantId, balance.CustomerId, balance.CurrencyCode, Money.Create(1m, CurrencyCode.Create("EUR")));
+        amountCurrencyMismatch.Should().Throw<DomainException>().WithDomainError(DomainErrors.InvoicePaymentBalanceCurrencyMismatch);
+
+        Action over = () => balance.EnsureCanAllocate(
+            balance.TenantId, balance.CustomerId, balance.CurrencyCode, Money.Create(101m, balance.CurrencyCode));
+        over.Should().Throw<DomainException>().WithDomainError(DomainErrors.InvoicePaymentBalanceOverAllocation);
+    }
+
+    [Fact]
     public void Reverse_rejects_more_than_allocated()
     {
         var balance = NewBalance();
