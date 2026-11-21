@@ -49,7 +49,6 @@ public sealed class InvoicePaymentBalanceTests
 
         balance.Allocate(Money.Create(75m, CurrencyCode.Create("RON")), Created.AddHours(2));
         balance.PaymentStatus.Should().Be(InvoicePaymentStatus.Paid);
-        balance.CanAllocate(Money.Create(1m, CurrencyCode.Create("RON"))).Should().BeFalse();
 
         balance.ReverseAllocation(Money.Create(10m, CurrencyCode.Create("RON")), Created.AddHours(3));
         balance.PaymentStatus.Should().Be(InvoicePaymentStatus.PartiallyPaid);
@@ -65,7 +64,6 @@ public sealed class InvoicePaymentBalanceTests
         over.Should().Throw<DomainException>().WithDomainError(DomainErrors.InvoicePaymentBalanceOverAllocation);
         Action mismatch = () => balance.Allocate(Money.Create(1m, CurrencyCode.Create("EUR")), Created.AddHours(1));
         mismatch.Should().Throw<DomainException>().WithDomainError(DomainErrors.CurrencyMismatch);
-        balance.CanAllocate(Money.Create(101m, CurrencyCode.Create("RON"))).Should().BeFalse();
     }
 
     [Fact]

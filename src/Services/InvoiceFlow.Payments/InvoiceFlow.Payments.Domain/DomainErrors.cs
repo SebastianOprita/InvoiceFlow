@@ -25,9 +25,8 @@ public static partial class DomainErrors
     public static readonly DomainError AmountExceedsUnallocated = new("amount.exceedsUnallocated", "Payment allocation amount cannot exceed the unallocated payment amount.");
     public static readonly DomainError PaymentAmountBelowAllocated = new("amount.belowAllocated", "Payment amount cannot be below the allocated amount.");
     public static readonly DomainError PostedAtUtcRequired = new("postedAtUtc.required", "Payment posted datetime is required.");
-    public static readonly DomainError NoAllocations = new("payment.noAllocations", "A payment must contain at least one allocation before it can be posted.");
-    public static readonly DomainError AllocatedAmountInvalid = new("payment.allocatedAmount.invalid", "The allocated payment amount must be greater than zero.");
-    public static readonly DomainError NotFullyAllocated = new("payment.notFullyAllocated", "The entire payment amount must be allocated before posting.");
+    public static readonly DomainError PaymentHasAllocations = new("payment.hasAllocations", "A payment must have no allocations before it can be posted.");
+    public static readonly DomainError PaymentMustBePosted = new("payment.mustBePosted", "A payment must be posted before it can be allocated.");
     public static readonly DomainError AllocationNotFound = new("allocation.notFound", "Payment allocation was not found.");
     public static readonly DomainError CanNotBeModified = new("payment.canNotBeModified", "Only draft payments can be modified.");
     public static readonly DomainError UpdatedAtUtcRequired = new("updatedAtUtc.required", "Payment updated datetime is required.");

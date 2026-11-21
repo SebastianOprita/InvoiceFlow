@@ -11,6 +11,7 @@ public static class PaymentsDbSeed
     {
         var tenantId = Guid.Parse("f305e3f0-e634-470b-b9c1-cc0c7559dc0a");
 
+        var createdAtUtc = dateTimeProvider.GetUtcNow();
         var payment1 = Payment.Create(
             tenantId: tenantId,
             id: Guid.Parse("d1f3e3f0-e634-470b-b9c1-cc0c7559dc0a"),
@@ -20,14 +21,11 @@ public static class PaymentsDbSeed
             method: PaymentMethod.Card,
             reference: PaymentReference.CreateOptional("Payment reference."),
             notes: PaymentNotes.CreateOptional("Payment notes."),
-            createdAtUtc: dateTimeProvider.GetUtcNow());
-
-        payment1.AddAllocation(
-            allocationId: Guid.Parse("e1f3e3f0-e634-470b-b9c1-cc0c7559dc0a"),
-            invoiceId: Guid.Parse("a1f3e3f0-e634-470b-b9c1-cc0c7559dc0a"),
-            invoiceNumber: InvoiceNumber.Create("INV001"),
-            amount: Money.Create(100m, CurrencyCode.Create("RON")),
-            updatedAtUtc: dateTimeProvider.GetUtcNow());
+            createdAtUtc: createdAtUtc);
+        payment1.Post(
+            PaymentNumber.Create("PAY-2025-000001"),
+            DateOnly.FromDateTime(createdAtUtc.UtcDateTime),
+            createdAtUtc);
 
         var payment2 = Payment.Create(
             tenantId: tenantId,
@@ -38,7 +36,7 @@ public static class PaymentsDbSeed
             method: PaymentMethod.Card,
             reference: PaymentReference.CreateOptional("Payment reference."),
             notes: PaymentNotes.CreateOptional("Payment notes."),
-            createdAtUtc: dateTimeProvider.GetUtcNow());
+            createdAtUtc: createdAtUtc);
 
         db.Payments.Add(payment1);
         db.Payments.Add(payment2);

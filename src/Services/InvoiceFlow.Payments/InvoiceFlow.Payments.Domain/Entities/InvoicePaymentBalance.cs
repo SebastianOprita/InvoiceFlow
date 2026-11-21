@@ -72,31 +72,25 @@ public sealed class InvoicePaymentBalance
         DateTimeOffset createdAtUtc)
     {
         if (tenantId == Guid.Empty)
-            throw new DomainException(
-                DomainErrors.TenantIdRequired);
+            throw new DomainException(DomainErrors.TenantIdRequired);
 
         if (invoiceId == Guid.Empty)
-            throw new DomainException(
-                DomainErrors.InvoiceIdInvalid);
+            throw new DomainException(DomainErrors.InvoiceIdInvalid);
 
         if (customerId == Guid.Empty)
-            throw new DomainException(
-                DomainErrors.CustomerIdRequired);
+            throw new DomainException(DomainErrors.CustomerIdRequired);
 
         ArgumentNullException.ThrowIfNull(invoiceNumber);
         ArgumentNullException.ThrowIfNull(currencyCode);
 
         if (totalAmount is null || totalAmount.Amount <= 0m)
-            throw new DomainException(
-                DomainErrors.AmountInvalid);
+            throw new DomainException(DomainErrors.AmountInvalid);
 
         if (totalAmount.CurrencyCode != currencyCode)
-            throw new DomainException(
-                DomainErrors.CurrencyMismatch);
+            throw new DomainException(DomainErrors.CurrencyMismatch);
 
         if (createdAtUtc == default)
-            throw new DomainException(
-                DomainErrors.CreatedAtUtcInvalid);
+            throw new DomainException(DomainErrors.CreatedAtUtcInvalid);
 
         return new InvoicePaymentBalance(
             tenantId,
@@ -157,47 +151,49 @@ public sealed class InvoicePaymentBalance
     // Helpers
     // ------------------------------------------------------------
 
-    public bool CanAllocate(Money amount)
+    public void EnsureCanAllocate(
+        Guid tenantId,
+        Guid customerId,
+        CurrencyCode currencyCode,
+        Money amount)
     {
-        return amount is not null &&
-               amount.Amount > 0m &&
-               amount.CurrencyCode == CurrencyCode &&
-               amount.Amount <= OutstandingAmount.Amount;
+        ValidateAmount(amount);
+
+        if (TenantId != tenantId || CustomerId != customerId)
+            throw new DomainException(DomainErrors.InvoicePaymentBalanceIdentityMismatch);
+
+        if (CurrencyCode != currencyCode || amount.CurrencyCode != CurrencyCode)
+            throw new DomainException(DomainErrors.InvoicePaymentBalanceCurrencyMismatch);
+
+        if (amount.Amount > OutstandingAmount.Amount)
+            throw new DomainException(DomainErrors.InvoicePaymentBalanceOverAllocation);
     }
 
     private void EnsureCurrencyMatches(Money amount)
     {
         if (amount.CurrencyCode != CurrencyCode)
-            throw new DomainException(
-                DomainErrors.CurrencyMismatch);
+            throw new DomainException(DomainErrors.CurrencyMismatch);
     }
 
     private static void ValidateAmount(Money amount)
     {
         if (amount is null || amount.Amount <= 0m)
-            throw new DomainException(
-                DomainErrors.AllocationAmountInvalid);
+            throw new DomainException(DomainErrors.AllocationAmountInvalid);
     }
 
     private DateTimeOffset ValidateUpdatedAtUtc(
         DateTimeOffset updatedAtUtc)
     {
         if (updatedAtUtc == default)
-            throw new DomainException(
-                DomainErrors.UpdatedAtUtcInvalid);
+            throw new DomainException(DomainErrors.UpdatedAtUtcRequired);
 
         var utc = updatedAtUtc.ToUniversalTime();
 
         if (utc < CreatedAtUtc)
-            throw new DomainException(
-                DomainErrors.UpdatedAtUtcInvalid);
+            throw new DomainException(DomainErrors.UpdatedAtUtcInvalid);
 
-        if (UpdatedAtUtc.HasValue &&
-            utc < UpdatedAtUtc.Value)
-        {
-            throw new DomainException(
-                DomainErrors.UpdatedAtUtcInvalid);
-        }
+        if (UpdatedAtUtc.HasValue && utc < UpdatedAtUtc.Value)
+            throw new DomainException(DomainErrors.UpdatedAtUtcInvalid);
 
         return utc;
     }

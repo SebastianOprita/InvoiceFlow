@@ -4,6 +4,8 @@ namespace InvoiceFlow.Payments.Domain;
 
 public static partial class DomainErrors
 {
+    public static readonly DomainError InvoicePaymentBalanceIdentityMismatch =
+        new("invoicePaymentBalance.identityMismatch", "Invoice payment balance must match the payment tenant and customer.");
     public static readonly DomainError InvoicePaymentBalanceInvoiceIdInvalid =
         new(
             "invoicePaymentBalance.invoiceIdInvalid",
