@@ -80,6 +80,7 @@ internal sealed class CreatePaymentCommandHandler(
                 method: cmd.PaymentMethod,
                 reference: reference,
                 notes: notes,
+                createdBy: cmd.CreatedBy,
                 createdAtUtc: now);
 
             paymentsRepository.AddPayment(payment);

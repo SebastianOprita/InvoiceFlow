@@ -32,5 +32,6 @@ public sealed class PaymentMapperTests
         PaymentMethod.Card,
         PaymentReference.Create("INVEST-1"),
         PaymentNotes.Create("test note"),
+        Guid.CreateVersion7(),
         DateTimeOffset.Parse("2025-01-01T00:00:00Z"));
 }

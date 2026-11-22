@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace InvoiceFlow.Payments.Infrastructure.Migrations;
 
 /// <inheritdoc />
-public partial class _20261119234138_InitialMigration : Migration
+public partial class _20261122203029_InitialMigration : Migration
 {
     /// <inheritdoc />
     protected override void Up(MigrationBuilder migrationBuilder)
@@ -86,8 +86,11 @@ public partial class _20261119234138_InitialMigration : Migration
                 PaymentDate = table.Column<DateOnly>(type: "date", nullable: true),
                 Status = table.Column<int>(type: "int", nullable: false),
                 Notes = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: true),
+                PostedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                 PostedAtUtc = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                 CreatedAtUtc = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                 UpdatedAtUtc = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                 RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true)
             },
@@ -107,7 +110,11 @@ public partial class _20261119234138_InitialMigration : Migration
                 InvoiceNumber = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                 Amount = table.Column<decimal>(type: "decimal(19,4)", precision: 19, scale: 4, nullable: false),
                 CurrencyCode = table.Column<string>(type: "nvarchar(3)", maxLength: 3, nullable: false),
-                CreatedAtUtc = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false)
+                CreatedAtUtc = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                ReversedAtUtc = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                ReversedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                ReversalReason = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true)
             },
             constraints: table =>
             {

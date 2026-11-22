@@ -8,7 +8,7 @@ namespace InvoiceFlow.Payments.Application.UnitTests;
 public sealed class CreatePaymentCommandValidatorTests
 {
     private readonly CreatePaymentCommandValidator _sut = new();
-    private static readonly CreatePaymentCommand Valid = new("key", Guid.CreateVersion7(), "CUST-001", "RON", 12.34m, PaymentMethod.Card, "ref", "notes");
+    private static readonly CreatePaymentCommand Valid = new("key", Guid.CreateVersion7(), Guid.CreateVersion7(), "CUST-001", "RON", 12.34m, PaymentMethod.Card, "ref", "notes");
 
     [Fact] public void Valid_command_has_no_errors() => _sut.TestValidate(Valid).ShouldNotHaveAnyValidationErrors();
     [Theory, InlineData(""), InlineData(null)] public void Requires_idempotency_key(string? value) => _sut.TestValidate(Valid with { IdempotencyKey = value! }).ShouldHaveValidationErrorFor(x => x.IdempotencyKey);

@@ -75,10 +75,17 @@ public sealed class PaymentConfiguration : IEntityTypeConfiguration<Payment>
 
         builder.Property(x => x.PostedAtUtc);
 
+        builder.Property(x => x.PostedBy);
+
+        builder.Property(x => x.CreatedBy)
+            .IsRequired();
+
         builder.Property(x => x.CreatedAtUtc)
             .IsRequired();
 
         builder.Property(x => x.UpdatedAtUtc);
+
+        builder.Property(x => x.UpdatedBy);
 
         // Payment allocations
         builder.HasMany(x => x.Allocations)

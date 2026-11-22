@@ -21,10 +21,12 @@ public static class PaymentsDbSeed
             method: PaymentMethod.Card,
             reference: PaymentReference.CreateOptional("Payment reference."),
             notes: PaymentNotes.CreateOptional("Payment notes."),
+            createdBy: Guid.Parse("722fa11b-19d1-4184-898d-9fe814b32f28"),
             createdAtUtc: createdAtUtc);
         payment1.Post(
             PaymentNumber.Create("PAY-2025-000001"),
             DateOnly.FromDateTime(createdAtUtc.UtcDateTime),
+            Guid.Parse("722fa11b-19d1-4184-898d-9fe814b32f28"),
             createdAtUtc);
 
         var payment2 = Payment.Create(
@@ -36,6 +38,7 @@ public static class PaymentsDbSeed
             method: PaymentMethod.Card,
             reference: PaymentReference.CreateOptional("Payment reference."),
             notes: PaymentNotes.CreateOptional("Payment notes."),
+            createdBy: Guid.Parse("722fa11b-19d1-4184-898d-9fe814b32f28"),
             createdAtUtc: createdAtUtc);
 
         db.Payments.Add(payment1);
