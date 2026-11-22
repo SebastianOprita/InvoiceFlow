@@ -56,6 +56,20 @@ public sealed class PaymentAllocationConfiguration : IEntityTypeConfiguration<Pa
         builder.Property(x => x.CreatedAtUtc)
             .IsRequired();
 
+        builder.Property(x => x.CreatedBy)
+            .IsRequired();
+
+        builder.Property(x => x.ReversedAtUtc);
+
+        builder.Property(x => x.ReversedBy);
+
+        builder.Property(x => x.ReversalReason)
+            .HasConversion(
+                value => value == null ? null : value.Value,
+                value => value == null ? null : ReversalReason.Create(value))
+            .HasMaxLength(ReversalReason.MaxLength)
+            .HasColumnName("ReversalReason");
+
         builder.HasIndex(x => new { x.TenantId, x.PaymentId })
             .HasDatabaseName("IX_PaymentAllocations_TenantId_PaymentId");
 

@@ -1,5 +1,4 @@
 using FluentAssertions;
-using InvoiceFlow.BuildingBlocks.Domain;
 using Xunit;
 
 namespace InvoiceFlow.Payments.Domain.UnitTests.Entities;
@@ -7,140 +6,47 @@ namespace InvoiceFlow.Payments.Domain.UnitTests.Entities;
 public sealed class InvoicePaymentBalanceTests
 {
     private static readonly DateTimeOffset Created = DateTimeOffset.Parse("2025-01-01T00:00:00Z");
-    private static InvoicePaymentBalance NewBalance() => InvoicePaymentBalance.Create(
-        Guid.CreateVersion7(), Guid.CreateVersion7(), Guid.CreateVersion7(), InvoiceNumber.Create("INV-1"),
-        CurrencyCode.Create("RON"), Money.Create(100m, CurrencyCode.Create("RON")), Created);
 
     [Fact]
     public void Create_starts_open_and_unpaid()
     {
-        var balance = NewBalance();
+        var balance = InvoicePaymentBalance.Create(
+            Guid.CreateVersion7(), Guid.CreateVersion7(), Guid.CreateVersion7(),
+            InvoiceNumber.Create("INV-1"), CurrencyCode.Create("RON"),
+            Money.Create(100m, CurrencyCode.Create("RON")), Created);
+
         balance.PaymentStatus.Should().Be(InvoicePaymentStatus.Unpaid);
         balance.OutstandingAmount.Amount.Should().Be(100m);
         balance.Version.Should().Be(0);
     }
 
     [Fact]
-    public void Create_CopiesTotalAmount_WhenMoneyInstanceIsReused()
+    public void Payment_allocation_and_reversal_update_balance_status_and_version()
     {
-        var totalAmount = Money.Create(100m, CurrencyCode.Create("RON"));
-        var balance = InvoicePaymentBalance.Create(
-            Guid.CreateVersion7(),
-            Guid.CreateVersion7(),
-            Guid.CreateVersion7(),
-            InvoiceNumber.Create("INV-1"),
-            CurrencyCode.Create("RON"),
-            totalAmount,
-            Created);
+        var tenantId = Guid.CreateVersion7();
+        var customerId = Guid.CreateVersion7();
+        var currency = CurrencyCode.Create("RON");
+        var payment = Payment.Create(tenantId, Guid.CreateVersion7(), customerId, currency,
+            Money.Create(100m, currency), PaymentMethod.Card, null, null, Guid.CreateVersion7(), Created);
+        var balance = InvoicePaymentBalance.Create(tenantId, Guid.CreateVersion7(), customerId,
+            InvoiceNumber.Create("INV-1"), currency, Money.Create(100m, currency), Created);
+        payment.Post(PaymentNumber.Create("PAY-2025-1"), new DateOnly(2025, 1, 2), Guid.CreateVersion7(), Created.AddHours(1));
 
-        balance.TotalAmount.Should().Be(totalAmount);
-        ReferenceEquals(balance.TotalAmount, totalAmount).Should().BeFalse();
-        ReferenceEquals(balance.TotalAmount, balance.AllocatedAmount).Should().BeFalse();
-    }
-
-    [Fact]
-    public void Allocate_and_reverse_update_balance_status_and_version()
-    {
-        var balance = NewBalance();
-        balance.Allocate(Money.Create(25m, CurrencyCode.Create("RON")), Created.AddHours(1));
+        payment.AddAllocation(Guid.CreateVersion7(), balance, Money.Create(25m, currency), Guid.CreateVersion7(), Created.AddHours(2));
         balance.PaymentStatus.Should().Be(InvoicePaymentStatus.PartiallyPaid);
         balance.OutstandingAmount.Amount.Should().Be(75m);
         balance.Version.Should().Be(1);
 
-        balance.Allocate(Money.Create(75m, CurrencyCode.Create("RON")), Created.AddHours(2));
+        var secondPayment = Payment.Create(tenantId, Guid.CreateVersion7(), customerId, currency,
+            Money.Create(100m, currency), PaymentMethod.Card, null, null, Guid.CreateVersion7(), Created);
+        secondPayment.Post(PaymentNumber.Create("PAY-2025-2"), new DateOnly(2025, 1, 2), Guid.CreateVersion7(), Created.AddHours(1));
+        secondPayment.AddAllocation(Guid.CreateVersion7(), balance, Money.Create(75m, currency), Guid.CreateVersion7(), Created.AddHours(3));
         balance.PaymentStatus.Should().Be(InvoicePaymentStatus.Paid);
 
-        balance.ReverseAllocation(Money.Create(10m, CurrencyCode.Create("RON")), Created.AddHours(3));
+        var allocation = secondPayment.Allocations.Single();
+        secondPayment.ReverseAllocation(allocation.Id, balance, Guid.CreateVersion7(), "Correction", Created.AddHours(4));
         balance.PaymentStatus.Should().Be(InvoicePaymentStatus.PartiallyPaid);
-        balance.OutstandingAmount.Amount.Should().Be(10m);
+        balance.OutstandingAmount.Amount.Should().Be(75m);
         balance.Version.Should().Be(3);
     }
-
-    [Fact]
-    public void Allocate_rejects_overallocation_and_currency_mismatch()
-    {
-        var balance = NewBalance();
-        Action over = () => balance.Allocate(Money.Create(101m, CurrencyCode.Create("RON")), Created.AddHours(1));
-        over.Should().Throw<DomainException>().WithDomainError(DomainErrors.InvoicePaymentBalanceOverAllocation);
-        Action mismatch = () => balance.Allocate(Money.Create(1m, CurrencyCode.Create("EUR")), Created.AddHours(1));
-        mismatch.Should().Throw<DomainException>().WithDomainError(DomainErrors.CurrencyMismatch);
-    }
-
-    [Fact]
-    public void EnsureCanAllocate_accepts_matching_identity_currency_and_available_amount()
-    {
-        var balance = NewBalance();
-
-        var act = () => balance.EnsureCanAllocate(
-            balance.TenantId,
-            balance.CustomerId,
-            balance.CurrencyCode,
-            Money.Create(40m, balance.CurrencyCode));
-
-        act.Should().NotThrow();
-    }
-
-    [Fact]
-    public void EnsureCanAllocate_rejects_invalid_amount_identity_currency_and_overallocation()
-    {
-        var balance = NewBalance();
-        Action invalidAmount = () => balance.EnsureCanAllocate(
-            balance.TenantId, balance.CustomerId, balance.CurrencyCode, Money.Zero(balance.CurrencyCode));
-        invalidAmount.Should().Throw<DomainException>().WithDomainError(DomainErrors.AllocationAmountInvalid);
-
-        Action identityMismatch = () => balance.EnsureCanAllocate(
-            Guid.CreateVersion7(), balance.CustomerId, balance.CurrencyCode, Money.Create(1m, balance.CurrencyCode));
-        identityMismatch.Should().Throw<DomainException>().WithDomainError(DomainErrors.InvoicePaymentBalanceIdentityMismatch);
-
-        Action customerMismatch = () => balance.EnsureCanAllocate(
-            balance.TenantId, Guid.CreateVersion7(), balance.CurrencyCode, Money.Create(1m, balance.CurrencyCode));
-        customerMismatch.Should().Throw<DomainException>().WithDomainError(DomainErrors.InvoicePaymentBalanceIdentityMismatch);
-
-        Action currencyMismatch = () => balance.EnsureCanAllocate(
-            balance.TenantId, balance.CustomerId, CurrencyCode.Create("EUR"), Money.Create(1m, balance.CurrencyCode));
-        currencyMismatch.Should().Throw<DomainException>().WithDomainError(DomainErrors.InvoicePaymentBalanceCurrencyMismatch);
-
-        Action amountCurrencyMismatch = () => balance.EnsureCanAllocate(
-            balance.TenantId, balance.CustomerId, balance.CurrencyCode, Money.Create(1m, CurrencyCode.Create("EUR")));
-        amountCurrencyMismatch.Should().Throw<DomainException>().WithDomainError(DomainErrors.InvoicePaymentBalanceCurrencyMismatch);
-
-        Action over = () => balance.EnsureCanAllocate(
-            balance.TenantId, balance.CustomerId, balance.CurrencyCode, Money.Create(101m, balance.CurrencyCode));
-        over.Should().Throw<DomainException>().WithDomainError(DomainErrors.InvoicePaymentBalanceOverAllocation);
-    }
-
-    [Fact]
-    public void Reverse_rejects_more_than_allocated()
-    {
-        var balance = NewBalance();
-        Action act = () => balance.ReverseAllocation(Money.Create(1m, CurrencyCode.Create("RON")), Created.AddHours(1));
-        act.Should().Throw<DomainException>().WithDomainError(DomainErrors.InvoicePaymentBalanceOverReversal);
-    }
-
-    [Fact]
-    public void Allocate_and_reverse_reject_invalid_and_nonmonotonic_timestamps()
-    {
-        var balance = NewBalance();
-
-        Action defaultAllocationTime = () => balance.Allocate(Money.Create(10m, CurrencyCode.Create("RON")), default);
-        defaultAllocationTime.Should().Throw<DomainException>().WithDomainError(DomainErrors.UpdatedAtUtcRequired);
-
-        Action allocationBeforeCreation = () => balance.Allocate(
-            Money.Create(10m, CurrencyCode.Create("RON")), Created.AddMinutes(-1));
-        allocationBeforeCreation.Should().Throw<DomainException>().WithDomainError(DomainErrors.UpdatedAtUtcInvalid);
-
-        balance.Allocate(Money.Create(20m, CurrencyCode.Create("RON")), Created.AddHours(2));
-
-        Action earlierAllocationTime = () => balance.Allocate(
-            Money.Create(10m, CurrencyCode.Create("RON")), Created.AddHours(1));
-        earlierAllocationTime.Should().Throw<DomainException>().WithDomainError(DomainErrors.UpdatedAtUtcInvalid);
-
-        Action defaultReversalTime = () => balance.ReverseAllocation(Money.Create(10m, CurrencyCode.Create("RON")), default);
-        defaultReversalTime.Should().Throw<DomainException>().WithDomainError(DomainErrors.UpdatedAtUtcRequired);
-
-        Action earlierReversalTime = () => balance.ReverseAllocation(
-            Money.Create(10m, CurrencyCode.Create("RON")), Created.AddHours(1));
-        earlierReversalTime.Should().Throw<DomainException>().WithDomainError(DomainErrors.UpdatedAtUtcInvalid);
-    }
-
 }

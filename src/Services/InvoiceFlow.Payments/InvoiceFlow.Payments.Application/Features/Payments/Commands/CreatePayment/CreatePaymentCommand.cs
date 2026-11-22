@@ -7,6 +7,7 @@ namespace InvoiceFlow.Payments.Application;
 public sealed record CreatePaymentCommand(
     string IdempotencyKey,
     Guid TenantId,
+    Guid CreatedBy,
     string CustomerCode,
     string CurrencyCode,
     decimal Amount,

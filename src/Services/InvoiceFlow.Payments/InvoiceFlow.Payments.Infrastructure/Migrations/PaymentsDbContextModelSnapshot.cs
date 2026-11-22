@@ -16,7 +16,7 @@ partial class PaymentsDbContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261119234138_InitialMigration";
+    public override string LastMigrationId => "20261122203029_InitialMigration";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -126,6 +126,9 @@ partial class PaymentsDbContextModelSnapshot : ModelSnapshot
                 b.Property<DateTimeOffset>("CreatedAtUtc")
                     .HasColumnType("datetimeoffset");
 
+                b.Property<Guid>("CreatedBy")
+                    .HasColumnType("uniqueidentifier");
+
                 b.Property<string>("CurrencyCode")
                     .IsRequired()
                     .HasMaxLength(3)
@@ -155,6 +158,9 @@ partial class PaymentsDbContextModelSnapshot : ModelSnapshot
                 b.Property<DateTimeOffset?>("PostedAtUtc")
                     .HasColumnType("datetimeoffset");
 
+                b.Property<Guid?>("PostedBy")
+                    .HasColumnType("uniqueidentifier");
+
                 b.Property<string>("Reference")
                     .HasMaxLength(100)
                     .HasColumnType("nvarchar(100)")
@@ -170,6 +176,9 @@ partial class PaymentsDbContextModelSnapshot : ModelSnapshot
 
                 b.Property<DateTimeOffset?>("UpdatedAtUtc")
                     .HasColumnType("datetimeoffset");
+
+                b.Property<Guid?>("UpdatedBy")
+                    .HasColumnType("uniqueidentifier");
 
                 b.HasKey("TenantId", "Id");
 
@@ -201,6 +210,9 @@ partial class PaymentsDbContextModelSnapshot : ModelSnapshot
                 b.Property<DateTimeOffset>("CreatedAtUtc")
                     .HasColumnType("datetimeoffset");
 
+                b.Property<Guid>("CreatedBy")
+                    .HasColumnType("uniqueidentifier");
+
                 b.Property<Guid>("InvoiceId")
                     .HasColumnType("uniqueidentifier");
 
@@ -211,6 +223,17 @@ partial class PaymentsDbContextModelSnapshot : ModelSnapshot
                     .HasColumnName("InvoiceNumber");
 
                 b.Property<Guid>("PaymentId")
+                    .HasColumnType("uniqueidentifier");
+
+                b.Property<string>("ReversalReason")
+                    .HasMaxLength(1000)
+                    .HasColumnType("nvarchar(1000)")
+                    .HasColumnName("ReversalReason");
+
+                b.Property<DateTimeOffset?>("ReversedAtUtc")
+                    .HasColumnType("datetimeoffset");
+
+                b.Property<Guid?>("ReversedBy")
                     .HasColumnType("uniqueidentifier");
 
                 b.HasKey("TenantId", "Id");

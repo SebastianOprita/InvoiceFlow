@@ -1,4 +1,4 @@
-﻿using InvoiceFlow.BuildingBlocks.Domain;
+using InvoiceFlow.BuildingBlocks.Domain;
 
 namespace InvoiceFlow.Payments.Domain;
 
@@ -11,6 +11,11 @@ public sealed class PaymentAllocation
     public InvoiceNumber InvoiceNumber { get; private set; }
     public Money Amount { get; private set; }
     public DateTimeOffset CreatedAtUtc { get; private set; }
+    public Guid CreatedBy { get; private set; }
+    public DateTimeOffset? ReversedAtUtc { get; private set; }
+    public Guid? ReversedBy { get; private set; }
+    public ReversalReason? ReversalReason { get; private set; }
+    public bool IsReversed => ReversedAtUtc.HasValue;
 
 #pragma warning disable CS8618
     private PaymentAllocation() { } // EF Core
@@ -23,6 +28,7 @@ public sealed class PaymentAllocation
         Guid invoiceId,
         InvoiceNumber invoiceNumber,
         Money amount,
+        Guid createdBy,
         DateTimeOffset createdAtUtc)
     {
         TenantId = tenantId;
@@ -31,6 +37,7 @@ public sealed class PaymentAllocation
         InvoiceId = invoiceId;
         InvoiceNumber = invoiceNumber;
         Amount = Money.Create(amount.Amount, amount.CurrencyCode);
+        CreatedBy = createdBy;
         CreatedAtUtc = createdAtUtc;
     }
 
@@ -41,6 +48,7 @@ public sealed class PaymentAllocation
         Guid invoiceId,
         InvoiceNumber invoiceNumber,
         Money amount,
+        Guid createdBy,
         DateTimeOffset createdAtUtc)
     {
         ValidateTenantId(tenantId);
@@ -49,6 +57,7 @@ public sealed class PaymentAllocation
         ValidateInvoiceId(invoiceId);
         ValidateAmount(amount);
         ValidateUtcTimestamp(createdAtUtc);
+        ValidateCreatedBy(createdBy);
 
         return new PaymentAllocation(
             tenantId,
@@ -57,7 +66,32 @@ public sealed class PaymentAllocation
             invoiceId,
             invoiceNumber,
             amount,
+            createdBy,
             createdAtUtc.ToUniversalTime());
+    }
+
+    internal void Reverse(
+        Guid customerId,
+        InvoicePaymentBalance invoiceBalance,
+        Guid reversedBy,
+        string reason,
+        DateTimeOffset reversedAtUtc)
+    {
+        if (IsReversed)
+            throw new DomainException(DomainErrors.AllocationAlreadyReversed);
+
+        ValidateReversedBy(reversedBy);
+
+        var normalizedReason = InvoiceFlow.Payments.Domain.ReversalReason.Create(reason);
+        if (reversedAtUtc == default || reversedAtUtc.ToUniversalTime() < CreatedAtUtc)
+            throw new DomainException(DomainErrors.UpdatedAtUtcInvalid);
+        var utc = reversedAtUtc.ToUniversalTime();
+
+        invoiceBalance.ReverseAllocation(customerId, this, utc);
+
+        ReversedAtUtc = utc;
+        ReversedBy = reversedBy;
+        ReversalReason = normalizedReason;
     }
 
     private static void ValidateTenantId(Guid tenantId)
@@ -94,5 +128,17 @@ public sealed class PaymentAllocation
     {
         if (createdAtUtc == default)
             throw new DomainException(DomainErrors.CreatedAtUtcInvalid);
+    }
+
+    private static void ValidateCreatedBy(Guid createdBy)
+    {
+        if (createdBy == Guid.Empty)
+            throw new DomainException(DomainErrors.CreatedByRequired);
+    }
+
+    private static void ValidateReversedBy(Guid reversedBy)
+    {
+        if (reversedBy == Guid.Empty)
+            throw new DomainException(DomainErrors.AllocationReversedByRequired);
     }
 }

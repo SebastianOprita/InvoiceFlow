@@ -40,4 +40,31 @@ public static partial class DomainErrors
     public static readonly DomainError YearInvalid = new("sequenceYear.invalid", "Invoice number year is invalid, must be between 2000 and 2100.");
     public static readonly DomainError SequenceNumberInvalid = new("sequenceNumber.invalid", "Invoice sequence number sequence is invalid, must be a positive integer.");
     public static readonly DomainError SequenceNumberExceededMaxValue = new("sequenceNumber.exceededMaxValue", "Invoice sequence number has exceeded its maximum value.");
+    public static readonly DomainError CreatedByRequired = new("createdBy.required", "Created by is required.");
+    public static readonly DomainError UpdatedByRequired = new("updatedBy.required", "Updated by is required.");
+    public static readonly DomainError PostedByRequired = new("postedBy.required", "Posted by is required.");
+
+    public static readonly DomainError ActiveAllocationForInvoiceExists = new(
+        "paymentAllocation.ActiveAllocationForInvoiceExists",
+        "This payment already has an active allocation for this invoice.");
+
+    public static readonly DomainError AllocationPaymentMismatch = new(
+        "paymentAllocation.PaymentMismatch",
+        "The allocation does not belong to this payment.");
+
+    public static readonly DomainError AllocationAlreadyReversed = new(
+        "paymentAllocation.AlreadyReversed",
+        "This payment allocation has already been reversed.");
+
+    public static readonly DomainError AllocationReversedByRequired = new(
+        "paymentAllocation.ReversedByRequired",
+        "The identity of the actor reversing the allocation is required.");
+
+    public static readonly DomainError ReversalReasonRequired = new(
+        "reversalReason.required",
+        "A reversal reason is required.");
+
+    public static readonly DomainError ReversalReasonTooLong = new(
+        "reversalReason.tooLong",
+        $"A reversal reason cannot exceed {ReversalReason.MaxLength} characters.");
 }

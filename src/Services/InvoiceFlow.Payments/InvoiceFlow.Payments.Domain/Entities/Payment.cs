@@ -11,15 +11,21 @@ public sealed class Payment
     public Guid CustomerId { get; private set; }
     public CurrencyCode CurrencyCode { get; private set; }
     public Money Amount { get; private set; }
-    public Money AllocatedAmount => Money.Create(_allocations.Sum(x => x.Amount.Amount), CurrencyCode);
+    public Money AllocatedAmount =>
+        Money.Create(
+            _allocations.Where(x => !x.IsReversed).Sum(x => x.Amount.Amount),
+            CurrencyCode);
     public Money UnallocatedAmount => Money.Create(Amount.Amount - AllocatedAmount.Amount, CurrencyCode);
     public PaymentMethod Method { get; private set; }
     public PaymentReference? Reference { get; private set; }
     public DateOnly? PaymentDate { get; private set; }
     public PaymentLifecycleStatus Status { get; private set; }
     public PaymentNotes? Notes { get; private set; }
+    public Guid? PostedBy { get; private set; }
     public DateTimeOffset? PostedAtUtc { get; private set; }
+    public Guid CreatedBy { get; private set; }
     public DateTimeOffset CreatedAtUtc { get; private set; }
+    public Guid? UpdatedBy { get; private set; }
     public DateTimeOffset? UpdatedAtUtc { get; private set; }
     public IReadOnlyCollection<PaymentAllocation> Allocations => _allocations.AsReadOnly();
 
@@ -36,6 +42,7 @@ public sealed class Payment
         PaymentMethod method,
         PaymentReference? reference,
         PaymentNotes? notes,
+        Guid createdBy,
         DateTimeOffset createdAtUtc)
     {
         TenantId = tenantId;
@@ -49,6 +56,7 @@ public sealed class Payment
         Notes = notes;
 
         Status = PaymentLifecycleStatus.Draft;
+        CreatedBy = createdBy;
         CreatedAtUtc = createdAtUtc;
     }
 
@@ -61,6 +69,7 @@ public sealed class Payment
         PaymentMethod method,
         PaymentReference? reference,
         PaymentNotes? notes,
+        Guid createdBy,
         DateTimeOffset createdAtUtc)
     {
         ValidateTenantId(tenantId);
@@ -70,6 +79,7 @@ public sealed class Payment
         ValidateAmount(amount);
         ValidateCurrencyMatches(currencyCode, amount);
         ValidateMethod(method);
+        ValidateCreatedBy(createdBy);
 
         if (createdAtUtc == default)
             throw new DomainException(DomainErrors.CreatedAtUtcInvalid);
@@ -83,11 +93,13 @@ public sealed class Payment
             method,
             reference,
             notes,
+            createdBy,
             createdAtUtc.ToUniversalTime());
     }
 
     public void ChangeAmount(
         Money amount,
+        Guid updatedBy,
         DateTimeOffset updatedAtUtc)
     {
         EnsureDraft();
@@ -95,6 +107,7 @@ public sealed class Payment
         ValidateAmount(amount);
         EnsureCurrencyMatches(amount);
         ValidateUpdatedAtUtc(updatedAtUtc);
+        ValidateUpdatedBy(updatedBy);
 
         if (amount.Amount < AllocatedAmount.Amount)
             throw new DomainException(DomainErrors.PaymentAmountBelowAllocated);
@@ -104,6 +117,7 @@ public sealed class Payment
 
         Amount = CopyMoney(amount);
 
+        UpdatedBy = updatedBy;
         UpdatedAtUtc = updatedAtUtc.ToUniversalTime();
     }
 
@@ -111,62 +125,74 @@ public sealed class Payment
         PaymentMethod method,
         PaymentReference? reference,
         PaymentNotes? notes,
+        Guid updatedBy,
         DateTimeOffset updatedAtUtc)
     {
         EnsureDraft();
         ValidateMethod(method);
         ValidateUpdatedAtUtc(updatedAtUtc);
+        ValidateUpdatedBy(updatedBy);
 
         Method = method;
         Reference = reference;
         Notes = notes;
 
+        UpdatedBy = updatedBy;
         UpdatedAtUtc = updatedAtUtc.ToUniversalTime();
     }
 
     public void ChangeMethod(
         PaymentMethod method,
+        Guid updatedBy,
         DateTimeOffset updatedAtUtc)
     {
         EnsureDraft();
         ValidateMethod(method);
         ValidateUpdatedAtUtc(updatedAtUtc);
+        ValidateUpdatedBy(updatedBy);
 
         if (Method == method)
             return;
 
         Method = method;
 
+        UpdatedBy = updatedBy;
         UpdatedAtUtc = updatedAtUtc.ToUniversalTime();
     }
 
     public void ChangeReference(
         PaymentReference? reference,
+        Guid updatedBy,
         DateTimeOffset updatedAtUtc)
     {
         EnsureDraft();
         ValidateUpdatedAtUtc(updatedAtUtc);
+        ValidateUpdatedBy(updatedBy);
 
         if (Reference == reference)
             return;
 
         Reference = reference;
 
+        UpdatedBy = updatedBy;
         UpdatedAtUtc = updatedAtUtc.ToUniversalTime();
     }
 
     public void ChangeNotes(
         PaymentNotes? notes,
+        Guid updatedBy,
         DateTimeOffset updatedAtUtc)
     {
         EnsureDraft();
         ValidateUpdatedAtUtc(updatedAtUtc);
+        ValidateUpdatedBy(updatedBy);
 
         if (Notes == notes)
             return;
 
         Notes = notes;
 
+        UpdatedBy = updatedBy;
         UpdatedAtUtc = updatedAtUtc.ToUniversalTime();
     }
 
@@ -174,6 +200,7 @@ public sealed class Payment
         Guid allocationId,
         InvoicePaymentBalance invoiceBalance,
         Money amount,
+        Guid updatedBy,
         DateTimeOffset updatedAtUtc)
     {
         EnsurePosted();
@@ -182,19 +209,18 @@ public sealed class Payment
         ValidateAllocationAmount(amount);
         EnsureCurrencyMatches(amount);
         ValidateUpdatedAtUtc(updatedAtUtc);
+        ValidateUpdatedBy(updatedBy);
 
         ArgumentNullException.ThrowIfNull(invoiceBalance);
 
         if (_allocations.Any(x => x.Id == allocationId))
             throw new DomainException(DomainErrors.AllocationIdInvalid);
 
-        if (_allocations.Any(x => x.InvoiceId == invoiceBalance.InvoiceId))
-            throw new DomainException(DomainErrors.InvoiceIdInvalid);
+        if (HasAllocationForInvoice(invoiceBalance.InvoiceId))
+            throw new DomainException(DomainErrors.ActiveAllocationForInvoiceExists);
 
         if (amount.Amount > UnallocatedAmount.Amount)
             throw new DomainException(DomainErrors.AmountExceedsUnallocated);
-
-        invoiceBalance.EnsureCanAllocate(TenantId, CustomerId, CurrencyCode, amount);
 
         var allocation = PaymentAllocation.Create(
             TenantId,
@@ -203,36 +229,48 @@ public sealed class Payment
             invoiceBalance.InvoiceId,
             invoiceBalance.InvoiceNumber,
             amount,
+            updatedBy,
             updatedAtUtc);
 
+        invoiceBalance.Allocate(CustomerId, allocation, updatedAtUtc);
         _allocations.Add(allocation);
 
+        UpdatedBy = updatedBy;
         UpdatedAtUtc = updatedAtUtc.ToUniversalTime();
     }
 
-    public void RemoveAllocation(
+    public void ReverseAllocation(
         Guid allocationId,
-        DateTimeOffset updatedAtUtc)
+        InvoicePaymentBalance invoiceBalance,
+        Guid reversedBy,
+        string reason,
+        DateTimeOffset reversedAtUtc)
     {
         EnsurePosted();
-        ValidateUpdatedAtUtc(updatedAtUtc);
+        ArgumentNullException.ThrowIfNull(invoiceBalance);
+        ValidateUpdatedAtUtc(reversedAtUtc);
+        ValidateReversedBy(reversedBy);
 
         var allocation = GetAllocation(allocationId);
+        if (allocation.PaymentId != Id || allocation.TenantId != TenantId)
+            throw new DomainException(DomainErrors.AllocationPaymentMismatch);
 
-        _allocations.Remove(allocation);
+        allocation.Reverse(CustomerId, invoiceBalance, reversedBy, reason, reversedAtUtc);
 
-        UpdatedAtUtc = updatedAtUtc.ToUniversalTime();
+        UpdatedBy = reversedBy;
+        UpdatedAtUtc = reversedAtUtc.ToUniversalTime();
     }
 
-    public void Post(PaymentNumber number, DateOnly paymentDate, DateTimeOffset postedAtUtc)
+    public void Post(PaymentNumber number, DateOnly paymentDate, Guid postedBy, DateTimeOffset postedAtUtc)
     {
         EnsureDraft();
+        ArgumentNullException.ThrowIfNull(number);
         ValidatePaymentDate(paymentDate);
-        ValidateUpdatedAtUtc(postedAtUtc);
 
         if (postedAtUtc == default)
             throw new DomainException(DomainErrors.PostedAtUtcRequired);
 
+        ValidatePostedBy(postedBy);
         postedAtUtc = postedAtUtc.ToUniversalTime();
 
         if (_allocations.Count != 0)
@@ -241,9 +279,11 @@ public sealed class Payment
         Number = number;
         PaymentDate = paymentDate;
         Status = PaymentLifecycleStatus.Posted;
-        PostedAtUtc = postedAtUtc;
 
-        UpdatedAtUtc = postedAtUtc.ToUniversalTime();
+        PostedBy = postedBy;
+        PostedAtUtc = postedAtUtc;
+        UpdatedBy = postedBy;
+        UpdatedAtUtc = postedAtUtc;
     }
 
     public bool IsFullyAllocated()
@@ -253,10 +293,10 @@ public sealed class Payment
 
     public bool HasAllocationForInvoice(Guid invoiceId)
     {
-        return _allocations.Any(x => x.InvoiceId == invoiceId);
+        return _allocations.Any(x => x.InvoiceId == invoiceId && !x.IsReversed);
     }
 
-    private PaymentAllocation GetAllocation(Guid allocationId)
+    public PaymentAllocation GetAllocation(Guid allocationId)
     {
         ValidateAllocationId(allocationId);
 
@@ -358,5 +398,29 @@ public sealed class Payment
     {
         if (paymentDate == default)
             throw new DomainException(DomainErrors.PaymentDateRequired);
+    }
+
+    private static void ValidateCreatedBy(Guid createdBy)
+    {
+        if (createdBy == Guid.Empty)
+            throw new DomainException(DomainErrors.CreatedByRequired);
+    }
+
+    private static void ValidateUpdatedBy(Guid updatedBy)
+    {
+        if (updatedBy == Guid.Empty)
+            throw new DomainException(DomainErrors.UpdatedByRequired);
+    }
+
+    private static void ValidatePostedBy(Guid postedBy)
+    {
+        if (postedBy == Guid.Empty)
+            throw new DomainException(DomainErrors.PostedByRequired);
+    }
+
+    private static void ValidateReversedBy(Guid reversedBy)
+    {
+        if (reversedBy == Guid.Empty)
+            throw new DomainException(DomainErrors.AllocationReversedByRequired);
     }
 }

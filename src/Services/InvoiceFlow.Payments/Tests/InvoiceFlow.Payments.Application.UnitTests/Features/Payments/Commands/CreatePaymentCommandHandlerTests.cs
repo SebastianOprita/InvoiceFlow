@@ -12,7 +12,7 @@ public sealed class CreatePaymentCommandHandlerTests
     public async Task Returns_customer_error_without_starting_transaction()
     {
         var tenantId = Guid.CreateVersion7();
-        var command = new CreatePaymentCommand("key", tenantId, "CUST-001", "RON", 25m, PaymentMethod.Card, "ref", "notes");
+        var command = new CreatePaymentCommand("key", tenantId, Guid.CreateVersion7(), "CUST-001", "RON", 25m, PaymentMethod.Card, "ref", "notes");
         var idempotency = new Mock<IIdempotencyRecordsRepository>();
         idempotency.Setup(x => x.GetIdempotencyRecordAsync(tenantId, IdempotencyOperation.CreatePayment, It.IsAny<IdempotencyKey>(), It.IsAny<CancellationToken>())).ReturnsAsync((IdempotencyRecord?)null);
         var customers = new Mock<ICustomersService>();
@@ -34,7 +34,7 @@ public sealed class CreatePaymentCommandHandlerTests
         var repository = new Mock<IPaymentsRepository>();
         var idempotency = new Mock<IIdempotencyRecordsRepository>();
         var customers = new Mock<ICustomersService>();
-        var command = new CreatePaymentCommand("key", payment.TenantId, "CUST-001", "RON", 25m, PaymentMethod.Card, "INVEST-1", "test note");
+        var command = new CreatePaymentCommand("key", payment.TenantId, Guid.CreateVersion7(), "CUST-001", "RON", 25m, PaymentMethod.Card, "INVEST-1", "test note");
         var hash = RequestHash.Create(new string('A', 64));
         var record = IdempotencyRecord.Create(command.TenantId, IdempotencyOperation.CreatePayment, IdempotencyKey.Create(command.IdempotencyKey), hash, payment.Id, payment.CreatedAtUtc);
         idempotency.Setup(x => x.GetIdempotencyRecordAsync(command.TenantId, IdempotencyOperation.CreatePayment, It.IsAny<IdempotencyKey>(), It.IsAny<CancellationToken>())).ReturnsAsync(record);

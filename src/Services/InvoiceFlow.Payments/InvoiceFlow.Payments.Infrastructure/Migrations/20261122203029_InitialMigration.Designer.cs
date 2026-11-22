@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace InvoiceFlow.Payments.Infrastructure.Migrations;
 
 [DbContext(typeof(PaymentsDbContext))]
-[Migration("20261119234138_InitialMigration")]
-partial class _20261119234138_InitialMigration
+[Migration("20261122203029_InitialMigration")]
+partial class _20261122203029_InitialMigration
 {
     /// <inheritdoc />
     protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -124,6 +124,9 @@ partial class _20261119234138_InitialMigration
                 b.Property<DateTimeOffset>("CreatedAtUtc")
                     .HasColumnType("datetimeoffset");
 
+                b.Property<Guid>("CreatedBy")
+                    .HasColumnType("uniqueidentifier");
+
                 b.Property<string>("CurrencyCode")
                     .IsRequired()
                     .HasMaxLength(3)
@@ -153,6 +156,9 @@ partial class _20261119234138_InitialMigration
                 b.Property<DateTimeOffset?>("PostedAtUtc")
                     .HasColumnType("datetimeoffset");
 
+                b.Property<Guid?>("PostedBy")
+                    .HasColumnType("uniqueidentifier");
+
                 b.Property<string>("Reference")
                     .HasMaxLength(100)
                     .HasColumnType("nvarchar(100)")
@@ -168,6 +174,9 @@ partial class _20261119234138_InitialMigration
 
                 b.Property<DateTimeOffset?>("UpdatedAtUtc")
                     .HasColumnType("datetimeoffset");
+
+                b.Property<Guid?>("UpdatedBy")
+                    .HasColumnType("uniqueidentifier");
 
                 b.HasKey("TenantId", "Id");
 
@@ -199,6 +208,9 @@ partial class _20261119234138_InitialMigration
                 b.Property<DateTimeOffset>("CreatedAtUtc")
                     .HasColumnType("datetimeoffset");
 
+                b.Property<Guid>("CreatedBy")
+                    .HasColumnType("uniqueidentifier");
+
                 b.Property<Guid>("InvoiceId")
                     .HasColumnType("uniqueidentifier");
 
@@ -209,6 +221,17 @@ partial class _20261119234138_InitialMigration
                     .HasColumnName("InvoiceNumber");
 
                 b.Property<Guid>("PaymentId")
+                    .HasColumnType("uniqueidentifier");
+
+                b.Property<string>("ReversalReason")
+                    .HasMaxLength(1000)
+                    .HasColumnType("nvarchar(1000)")
+                    .HasColumnName("ReversalReason");
+
+                b.Property<DateTimeOffset?>("ReversedAtUtc")
+                    .HasColumnType("datetimeoffset");
+
+                b.Property<Guid?>("ReversedBy")
                     .HasColumnType("uniqueidentifier");
 
                 b.HasKey("TenantId", "Id");

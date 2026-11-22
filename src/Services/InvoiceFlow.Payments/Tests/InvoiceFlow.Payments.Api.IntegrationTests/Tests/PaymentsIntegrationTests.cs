@@ -98,6 +98,7 @@ public sealed class PaymentsIntegrationTests : IAsyncLifetime
         tenantId, Guid.CreateVersion7(), Guid.CreateVersion7(), CurrencyCode.Create("RON"),
         Money.Create(100m, CurrencyCode.Create("RON")), PaymentMethod.Card,
         PaymentReference.CreateOptional("Integration test reference"), PaymentNotes.CreateOptional("Integration test payment"),
+        Guid.CreateVersion7(),
         DateTimeOffset.Parse("2025-01-01T10:00:00Z"));
 
     private string ResolveUrl(string url) => url
