@@ -1,5 +1,4 @@
 using System.Net;
-using System.Net.Http.Json;
 using FluentAssertions;
 using InvoiceFlow.BuildingBlocks.Authorization;
 using InvoiceFlow.Payments.Api.IntegrationTests.BaseTests;
@@ -17,6 +16,7 @@ public sealed class PaymentsIntegrationTests : IAsyncLifetime
     private readonly Guid _tenantId = Guid.CreateVersion7();
     private string BaseUrl => $"/api/{_tenantId}/payments";
     private string _paymentReadToken = string.Empty;
+    private string _paymentAccessToken = string.Empty;
 
     public PaymentsIntegrationTests(PaymentsApiFactory factory)
     {
@@ -27,6 +27,10 @@ public sealed class PaymentsIntegrationTests : IAsyncLifetime
     public async ValueTask InitializeAsync()
     {
         await _factory.ResetDatabaseAsync();
+        _paymentAccessToken = TestJwtTokenFactory.CreateAccessToken(
+            _tenantId,
+            SystemPermissions.PaymentRead | SystemPermissions.PaymentCreate | SystemPermissions.PaymentPost,
+            _factory.JwtSettings);
         _paymentReadToken = TestJwtTokenFactory.CreateAccessToken(_tenantId, SystemPermissions.PaymentRead, _factory.JwtSettings);
     }
 
@@ -35,7 +39,9 @@ public sealed class PaymentsIntegrationTests : IAsyncLifetime
     public static IEnumerable<object[]> ProtectedEndpoints =>
     [
         [HttpMethod.Get, "/api/{tenantId}/payments"],
-        [HttpMethod.Get, "/api/{tenantId}/payments/{paymentId}"]
+        [HttpMethod.Get, "/api/{tenantId}/payments/{paymentId}"],
+        [HttpMethod.Post, "/api/{tenantId}/payments"],
+        [HttpMethod.Post, "/api/{tenantId}/payments/{paymentId}/Post"]
     ];
 
     [Theory]
@@ -92,6 +98,58 @@ public sealed class PaymentsIntegrationTests : IAsyncLifetime
     {
         var response = await _client.SendAsync(HttpMethod.Get, $"{BaseUrl}/{Guid.CreateVersion7()}", _paymentReadToken, TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task Create_with_active_customer_returns_created_payment()
+    {
+        var response = await _client.SendAsync(
+            HttpMethod.Post,
+            BaseUrl,
+            _paymentAccessToken,
+            new CreatePaymentRequest("CUST001", "RON", 100m, PaymentMethod.Card, "Integration reference", "Integration payment"),
+            TestContext.Current.CancellationToken,
+            idempotencyKey: Guid.CreateVersion7().ToString());
+
+        response.StatusCode.Should().Be(HttpStatusCode.Created);
+        var payment = await response.Content.ReadFromJsonAsync<PaymentDto>(TestContext.Current.CancellationToken);
+        payment.Should().NotBeNull();
+        payment!.TenantId.Should().Be(_tenantId);
+        payment.Amount.Should().Be(100m);
+        payment.Status.Should().Be(PaymentLifecycleStatus.Draft);
+        payment.Number.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task Post_when_payment_is_draft_returns_no_content_and_updates_payment()
+    {
+        var createResponse = await _client.SendAsync(
+            HttpMethod.Post,
+            BaseUrl,
+            _paymentAccessToken,
+            new CreatePaymentRequest("CUST001", "RON", 100m, PaymentMethod.Card, "Integration reference", "Integration payment"),
+            TestContext.Current.CancellationToken,
+            idempotencyKey: Guid.CreateVersion7().ToString());
+        createResponse.StatusCode.Should().Be(HttpStatusCode.Created);
+        var createdPayment = await createResponse.Content.ReadFromJsonAsync<PaymentDto>(TestContext.Current.CancellationToken);
+
+        var postResponse = await _client.SendAsync(
+            HttpMethod.Post,
+            $"{BaseUrl}/{createdPayment!.Id}/Post",
+            _paymentAccessToken,
+            TestContext.Current.CancellationToken);
+
+        postResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
+        var getResponse = await _client.SendAsync(
+            HttpMethod.Get,
+            $"{BaseUrl}/{createdPayment.Id}",
+            _paymentReadToken,
+            TestContext.Current.CancellationToken);
+        var postedPayment = await getResponse.Content.ReadFromJsonAsync<PaymentDto>(TestContext.Current.CancellationToken);
+        postedPayment.Should().NotBeNull();
+        postedPayment!.Status.Should().Be(PaymentLifecycleStatus.Posted);
+        postedPayment.Number.Should().NotBeNullOrEmpty();
+        postedPayment.PaymentDate.Should().NotBeNull();
     }
 
     private static Payment CreatePayment(Guid tenantId) => Payment.Create(

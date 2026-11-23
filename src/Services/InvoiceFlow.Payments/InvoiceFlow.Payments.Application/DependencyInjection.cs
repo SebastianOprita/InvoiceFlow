@@ -1,6 +1,7 @@
 using FluentValidation;
 using InvoiceFlow.BuildingBlocks.Application;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace InvoiceFlow.Payments.Application;
 
@@ -20,6 +21,7 @@ public static class DependencyInjection
         services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
 
         services.AddSingleton<ISystemDateTimeProvider, SystemDateTimeProvider>();
+        services.TryAddSingleton(TimeProvider.System);
 
         return services;
     }
