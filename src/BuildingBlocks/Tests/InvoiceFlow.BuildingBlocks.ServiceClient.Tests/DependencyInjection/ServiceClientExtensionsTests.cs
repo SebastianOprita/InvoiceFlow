@@ -339,7 +339,7 @@ public sealed class ServiceClientExtensionsTests
     [InlineData("http://identity.test/connect/token")]
     [InlineData("ftp://identity.test/connect/token")]
     [InlineData("not-a-uri")]
-    public void AddServiceClientAuthentication_WhenTokenEndpointInvalid_ShouldFailValidation(
+    public async Task AddServiceClientAuthentication_WhenTokenEndpointInvalid_ShouldFailValidation(
         string endpoint)
     {
         // Arrange
@@ -347,65 +347,64 @@ public sealed class ServiceClientExtensionsTests
             CreateConfiguration(tokenEndpoint: endpoint));
 
         // Act
-        var action = () => ValidateStartup(provider);
-
         // Assert
-        Assert.Throws<OptionsValidationException>(action);
+        await Assert.ThrowsAsync<OptionsValidationException>(
+            () => ValidateStartupAsync(provider));
     }
 
     [Theory]
     [InlineData("")]
     [InlineData(" ")]
-    public void AddServiceClientAuthentication_WhenClientIdMissing_ShouldFailValidation(
+    public async Task AddServiceClientAuthentication_WhenClientIdMissing_ShouldFailValidation(
         string clientId)
     {
         using var provider = CreateProvider(
             CreateConfiguration(clientId: clientId));
 
-        Assert.Throws<OptionsValidationException>(
-            () => ValidateStartup(provider));
+        await Assert.ThrowsAsync<OptionsValidationException>(
+            () => ValidateStartupAsync(provider));
     }
 
     [Theory]
     [InlineData("")]
     [InlineData(" ")]
-    public void AddServiceClientAuthentication_WhenClientSecretMissing_ShouldFailValidation(
+    public async Task AddServiceClientAuthentication_WhenClientSecretMissing_ShouldFailValidation(
         string clientSecret)
     {
         using var provider = CreateProvider(
             CreateConfiguration(clientSecret: clientSecret));
 
-        Assert.Throws<OptionsValidationException>(
-            () => ValidateStartup(provider));
+        await Assert.ThrowsAsync<OptionsValidationException>(
+            () => ValidateStartupAsync(provider));
     }
 
     [Fact]
-    public void AddServiceClientAuthentication_WhenRefreshSkewNegative_ShouldFailValidation()
+    public async Task AddServiceClientAuthentication_WhenRefreshSkewNegative_ShouldFailValidation()
     {
         using var provider = CreateProvider(
             CreateConfiguration(refreshSkew: "-00:00:01"));
 
-        Assert.Throws<OptionsValidationException>(
-            () => ValidateStartup(provider));
+        await Assert.ThrowsAsync<OptionsValidationException>(
+            () => ValidateStartupAsync(provider));
     }
 
     [Theory]
     [InlineData("00:00:00")]
     [InlineData("-00:00:01")]
-    public void AddServiceClientAuthentication_WhenRequestTimeoutInvalid_ShouldFailValidation(
+    public async Task AddServiceClientAuthentication_WhenRequestTimeoutInvalid_ShouldFailValidation(
         string timeout)
     {
         using var provider = CreateProvider(
             CreateConfiguration(requestTimeout: timeout));
 
-        Assert.Throws<OptionsValidationException>(
-            () => ValidateStartup(provider));
+        await Assert.ThrowsAsync<OptionsValidationException>(
+            () => ValidateStartupAsync(provider));
     }
 
-    private static void ValidateStartup(IServiceProvider provider)
+    private static Task ValidateStartupAsync(IServiceProvider provider)
     {
-        provider.GetRequiredService<IStartupValidator>()
-            .Validate();
+        return provider.GetRequiredService<IAsyncStartupValidator>()
+            .ValidateAsync();
     }
 
     private static SocketsHttpHandler? FindSocketsHttpHandler(

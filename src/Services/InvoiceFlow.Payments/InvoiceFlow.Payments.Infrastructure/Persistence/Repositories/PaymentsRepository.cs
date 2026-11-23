@@ -57,7 +57,7 @@ internal sealed class PaymentsRepository(
         return await context.Payments
         .FromSql($"""
             SELECT *
-            FROM Invoices
+            FROM Payments
                 WITH (UPDLOCK, HOLDLOCK)
             WHERE TenantId = {tenantId}
               AND Id = {paymentId}

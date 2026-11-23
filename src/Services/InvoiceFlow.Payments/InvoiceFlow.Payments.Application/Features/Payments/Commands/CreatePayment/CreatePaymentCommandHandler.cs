@@ -10,7 +10,7 @@ internal sealed class CreatePaymentCommandHandler(
     ICustomersService customersService,
     IRequestHasher requestHasher,
     IUnitOfWork unitOfWork,
-    ISystemDateTimeProvider dateTimeProvider)
+    TimeProvider timeProvider)
     : IRequestHandler<CreatePaymentCommand, Result<PaymentDto>>
 {
     public async Task<Result<PaymentDto>> Handle(
@@ -58,7 +58,7 @@ internal sealed class CreatePaymentCommandHandler(
         var reference = PaymentReference.Create(cmd.Reference);
         var notes = PaymentNotes.CreateOptional(cmd.Notes);
 
-        var now = dateTimeProvider.GetUtcNow();
+        var now = timeProvider.GetUtcNow();
 
         var result = await unitOfWork.ExecuteInTransactionAsync(
         async ct =>

@@ -19,7 +19,7 @@ public sealed class CreatePaymentCommandHandlerTests
         customers.Setup(x => x.GetCustomerAsync(tenantId, command.CustomerCode, It.IsAny<CancellationToken>())).ReturnsAsync(Result<PaymentCustomerSnapshot>.Failure(ApplicationErrors.CustomerNotFound));
         var uow = new Mock<IUnitOfWork>();
         var hasher = new FixedHasher(RequestHash.Create(new string('A', 64)));
-        var sut = new CreatePaymentCommandHandler(new Mock<IPaymentsRepository>().Object, idempotency.Object, customers.Object, hasher, uow.Object, new Mock<ISystemDateTimeProvider>().Object);
+        var sut = new CreatePaymentCommandHandler(new Mock<IPaymentsRepository>().Object, idempotency.Object, customers.Object, hasher, uow.Object, TimeProvider.System);
 
         var result = await sut.Handle(command, CancellationToken.None);
 
@@ -40,8 +40,7 @@ public sealed class CreatePaymentCommandHandlerTests
         idempotency.Setup(x => x.GetIdempotencyRecordAsync(command.TenantId, IdempotencyOperation.CreatePayment, It.IsAny<IdempotencyKey>(), It.IsAny<CancellationToken>())).ReturnsAsync(record);
         repository.Setup(x => x.GetPaymentByIdAsync(command.TenantId, payment.Id, It.IsAny<CancellationToken>())).ReturnsAsync(payment);
         var uow = new Mock<IUnitOfWork>();
-        var clock = new Mock<ISystemDateTimeProvider>();
-        var sut = new CreatePaymentCommandHandler(repository.Object, idempotency.Object, customers.Object, new FixedHasher(hash), uow.Object, clock.Object);
+        var sut = new CreatePaymentCommandHandler(repository.Object, idempotency.Object, customers.Object, new FixedHasher(hash), uow.Object, TimeProvider.System);
 
         var result = await sut.Handle(command, CancellationToken.None);
 
