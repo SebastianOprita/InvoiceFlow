@@ -17,7 +17,6 @@ public enum SystemPermissions : long
     RoleUpdate = 1L << 6,
     RoleStatusManage = 1L << 7,
 
-
     // Permissions
     UserRoleManage = 1L << 8,
     RolePermissionsUpdate = 1L << 9,
@@ -47,5 +46,7 @@ public enum SystemPermissions : long
     PaymentRead = 1L << 23,
     PaymentCreate = 1L << 24,
     PaymentUpdate = 1L << 25,
-    PaymentPost = 1L << 26
+    PaymentPost = 1L << 26,
+    PaymentAddAllocation = 1L << 27,
+    PaymentReverseAllocation = 1L << 28
 }
