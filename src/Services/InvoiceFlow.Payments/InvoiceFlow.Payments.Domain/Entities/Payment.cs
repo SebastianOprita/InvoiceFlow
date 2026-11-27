@@ -196,7 +196,7 @@ public sealed class Payment
         UpdatedAtUtc = updatedAtUtc.ToUniversalTime();
     }
 
-    public void AddAllocation(
+    public PaymentAllocation AddAllocation(
         Guid allocationId,
         InvoicePaymentBalance invoiceBalance,
         Money amount,
@@ -237,6 +237,8 @@ public sealed class Payment
 
         UpdatedBy = updatedBy;
         UpdatedAtUtc = updatedAtUtc.ToUniversalTime();
+
+        return allocation;
     }
 
     public void ReverseAllocation(

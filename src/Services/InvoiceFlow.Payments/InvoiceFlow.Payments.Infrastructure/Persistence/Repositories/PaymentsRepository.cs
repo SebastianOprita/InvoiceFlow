@@ -30,17 +30,6 @@ internal sealed class PaymentsRepository(
             cancellationToken);
     }
 
-    public async Task<PaymentAllocation?> GetPaymentAllocationsByIdAsync(Guid tenantId, Guid paymentId, Guid invoiceLineId, CancellationToken cancellationToken = default)
-    {
-        return await context.Payments
-            .AsNoTracking()
-            .Where(i => i.TenantId == tenantId && i.Id == paymentId)
-            .SelectMany(i => i.Allocations)
-            .FirstOrDefaultAsync(
-                allocation => allocation.Id == invoiceLineId,
-                cancellationToken);
-    }
-
     public async Task<List<Payment>> GetAllPaymentsWithAllocationsAsync(Guid tenantId, CancellationToken cancellationToken = default)
     {
         return await context.Payments.AsNoTracking()
@@ -63,6 +52,21 @@ internal sealed class PaymentsRepository(
               AND Id = {paymentId}
             """)
         .Include(x => x.Allocations)
+        .SingleOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<InvoicePaymentBalance?> GetInvoicePaymentBalanceWithLockAsync(
+        Guid tenantId,
+        Guid invoiceId,
+        CancellationToken cancellationToken = default)
+    {
+        return await context.InvoicePaymentBalances
+        .FromSql($"""
+            SELECT *
+            FROM InvoicePaymentBalances WITH (UPDLOCK, HOLDLOCK)
+            WHERE TenantId = {tenantId}
+                AND InvoiceId = {invoiceId}
+            """)
         .SingleOrDefaultAsync(cancellationToken);
     }
 
