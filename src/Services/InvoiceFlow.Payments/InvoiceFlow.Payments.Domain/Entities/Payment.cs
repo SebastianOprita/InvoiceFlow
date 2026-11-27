@@ -196,7 +196,7 @@ public sealed class Payment
         UpdatedAtUtc = updatedAtUtc.ToUniversalTime();
     }
 
-    public void AddAllocation(
+    public PaymentAllocation AddAllocation(
         Guid allocationId,
         InvoicePaymentBalance invoiceBalance,
         Money amount,
@@ -216,9 +216,6 @@ public sealed class Payment
         if (_allocations.Any(x => x.Id == allocationId))
             throw new DomainException(DomainErrors.AllocationIdInvalid);
 
-        if (HasAllocationForInvoice(invoiceBalance.InvoiceId))
-            throw new DomainException(DomainErrors.ActiveAllocationForInvoiceExists);
-
         if (amount.Amount > UnallocatedAmount.Amount)
             throw new DomainException(DomainErrors.AmountExceedsUnallocated);
 
@@ -237,6 +234,8 @@ public sealed class Payment
 
         UpdatedBy = updatedBy;
         UpdatedAtUtc = updatedAtUtc.ToUniversalTime();
+
+        return allocation;
     }
 
     public void ReverseAllocation(
@@ -289,11 +288,6 @@ public sealed class Payment
     public bool IsFullyAllocated()
     {
         return UnallocatedAmount.Amount == 0m;
-    }
-
-    public bool HasAllocationForInvoice(Guid invoiceId)
-    {
-        return _allocations.Any(x => x.InvoiceId == invoiceId && !x.IsReversed);
     }
 
     public PaymentAllocation GetAllocation(Guid allocationId)

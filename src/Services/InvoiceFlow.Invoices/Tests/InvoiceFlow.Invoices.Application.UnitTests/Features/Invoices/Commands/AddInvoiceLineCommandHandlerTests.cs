@@ -47,14 +47,46 @@ public sealed class AddInvoiceLineCommandHandlerTests
     {
         var invoice = InvoiceTestData.DraftInvoice();
         var cmd = new AddInvoiceLineCommand("key-1", invoice.TenantId, invoice.Id, "PROD-001", 2m, null);
-        var record = IdempotencyRecord.Create(cmd.TenantId, IdempotencyOperation.AddInvoiceLine, IdempotencyKey.Create(cmd.IdempotencyKey), RequestHash.Create(new string('A', 64)), Guid.CreateVersion7(), _clock.Object.GetUtcNow());
+        var resourceId = invoice.Lines.First().Id;
+        var record = IdempotencyRecord.Create(cmd.TenantId, IdempotencyOperation.AddInvoiceLine, IdempotencyKey.Create(cmd.IdempotencyKey), RequestHash.Create(new string('A', 64)), resourceId, _clock.Object.GetUtcNow());
         _idempotency.Setup(x => x.GetIdempotencyRecordAsync(cmd.TenantId, IdempotencyOperation.AddInvoiceLine, It.IsAny<IdempotencyKey>(), It.IsAny<CancellationToken>())).ReturnsAsync(record);
-        _invoices.Setup(x => x.GetInvoiceByIdAsync(cmd.TenantId, cmd.InvoiceId, It.IsAny<CancellationToken>())).ReturnsAsync(invoice);
+        _invoices.Setup(x => x.GetInvoiceByIdWithLinesAsync(cmd.TenantId, cmd.InvoiceId, It.IsAny<CancellationToken>())).ReturnsAsync(invoice);
 
         var result = await _sut.Handle(cmd, CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
+        result.Value!.Lines.Should().Contain(line => line.Id == resourceId);
         _unitOfWork.Verify(x => x.ExecuteInTransactionAsync<InvoiceDto>(It.IsAny<Func<CancellationToken, Task<Result<InvoiceDto>>>>(), It.IsAny<CancellationToken>(), It.IsAny<System.Data.IsolationLevel>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_ReturnsResourceNotFound_WhenReplayRecordReferencesMissingInvoiceLine()
+    {
+        var invoice = InvoiceTestData.DraftInvoice();
+        var cmd = new AddInvoiceLineCommand("key-1", invoice.TenantId, invoice.Id, "PROD-001", 2m, null);
+        var record = IdempotencyRecord.Create(
+            cmd.TenantId,
+            IdempotencyOperation.AddInvoiceLine,
+            IdempotencyKey.Create(cmd.IdempotencyKey),
+            RequestHash.Create(new string('A', 64)),
+            Guid.CreateVersion7(),
+            _clock.Object.GetUtcNow());
+        _idempotency.Setup(x => x.GetIdempotencyRecordAsync(
+                cmd.TenantId,
+                IdempotencyOperation.AddInvoiceLine,
+                It.IsAny<IdempotencyKey>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(record);
+        _invoices.Setup(x => x.GetInvoiceByIdWithLinesAsync(cmd.TenantId, cmd.InvoiceId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(invoice);
+
+        var result = await _sut.Handle(cmd, CancellationToken.None);
+
+        result.Error.Should().Be(ApplicationErrors.IdempotencyResourceNotFound);
+        _unitOfWork.Verify(x => x.ExecuteInTransactionAsync<InvoiceDto>(
+            It.IsAny<Func<CancellationToken, Task<Result<InvoiceDto>>>>(),
+            It.IsAny<CancellationToken>(),
+            It.IsAny<System.Data.IsolationLevel>()), Times.Never);
     }
 
     [Fact]
@@ -100,7 +132,7 @@ public sealed class AddInvoiceLineCommandHandlerTests
                 It.IsAny<IdempotencyKey>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(record);
-        _invoices.Setup(x => x.GetInvoiceByIdAsync(cmd.TenantId, cmd.InvoiceId, It.IsAny<CancellationToken>()))
+        _invoices.Setup(x => x.GetInvoiceByIdWithLinesAsync(cmd.TenantId, cmd.InvoiceId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((Invoice?)null);
 
         var result = await _sut.Handle(cmd, CancellationToken.None);
@@ -132,7 +164,7 @@ public sealed class AddInvoiceLineCommandHandlerTests
             IdempotencyOperation.AddInvoiceLine,
             IdempotencyKey.Create(cmd.IdempotencyKey),
             RequestHash.Create(new string('A', 64)),
-            Guid.CreateVersion7(),
+            invoice.Lines.First().Id,
             _clock.Object.GetUtcNow());
 
         _idempotency.SetupSequence(x => x.GetIdempotencyRecordAsync(
@@ -144,7 +176,7 @@ public sealed class AddInvoiceLineCommandHandlerTests
             .ReturnsAsync(record);
         _products.Setup(x => x.GetProductAsync(cmd.TenantId, cmd.ProductCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result<InvoiceProductSnapshot>.Success(Product()));
-        _invoices.Setup(x => x.GetInvoiceByIdAsync(cmd.TenantId, cmd.InvoiceId, It.IsAny<CancellationToken>()))
+        _invoices.Setup(x => x.GetInvoiceByIdWithLinesAsync(cmd.TenantId, cmd.InvoiceId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(invoice);
 
         var result = await _sut.Handle(cmd, CancellationToken.None);
@@ -165,7 +197,7 @@ public sealed class AddInvoiceLineCommandHandlerTests
             IdempotencyOperation.AddInvoiceLine,
             IdempotencyKey.Create(cmd.IdempotencyKey),
             RequestHash.Create(new string('A', 64)),
-            Guid.CreateVersion7(),
+            invoice.Lines.First().Id,
             _clock.Object.GetUtcNow());
 
         _idempotency.SetupSequence(x => x.GetIdempotencyRecordAsync(
@@ -180,7 +212,7 @@ public sealed class AddInvoiceLineCommandHandlerTests
             .ReturnsAsync(Result<InvoiceProductSnapshot>.Success(Product()));
         _invoices.Setup(x => x.GetTrackedInvoiceByIdAsync(cmd.TenantId, cmd.InvoiceId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(invoice);
-        _invoices.Setup(x => x.GetInvoiceByIdAsync(cmd.TenantId, cmd.InvoiceId, It.IsAny<CancellationToken>()))
+        _invoices.Setup(x => x.GetInvoiceByIdWithLinesAsync(cmd.TenantId, cmd.InvoiceId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(invoice);
         _unitOfWork.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Failure(ApplicationErrors.IdempotencyKeyConflict));
@@ -203,7 +235,7 @@ public sealed class AddInvoiceLineCommandHandlerTests
             IdempotencyOperation.AddInvoiceLine,
             IdempotencyKey.Create(cmd.IdempotencyKey),
             RequestHash.Create(new string('A', 64)),
-            Guid.CreateVersion7(),
+            invoice.Lines.First().Id,
             _clock.Object.GetUtcNow());
 
         _idempotency.SetupSequence(x => x.GetIdempotencyRecordAsync(
@@ -218,7 +250,7 @@ public sealed class AddInvoiceLineCommandHandlerTests
             .ReturnsAsync(Result<InvoiceProductSnapshot>.Success(Product()));
         _invoices.Setup(x => x.GetTrackedInvoiceByIdAsync(cmd.TenantId, cmd.InvoiceId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(invoice);
-        _invoices.Setup(x => x.GetInvoiceByIdAsync(cmd.TenantId, cmd.InvoiceId, It.IsAny<CancellationToken>()))
+        _invoices.Setup(x => x.GetInvoiceByIdWithLinesAsync(cmd.TenantId, cmd.InvoiceId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(invoice);
         _unitOfWork.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Failure(ApplicationErrors.ConcurrencyConflict));

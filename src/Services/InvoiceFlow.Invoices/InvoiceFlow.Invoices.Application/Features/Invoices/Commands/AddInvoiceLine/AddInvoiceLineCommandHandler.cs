@@ -124,9 +124,7 @@ internal sealed class AddInvoiceLineCommandHandler(
     {
         if (result.Error != ApplicationErrors.IdempotencyKeyConflict &&
             result.Error != ApplicationErrors.ConcurrencyConflict)
-        {
             return result;
-        }
 
         unitOfWork.ClearTrackedChanges();
 
@@ -170,12 +168,15 @@ internal sealed class AddInvoiceLineCommandHandler(
         if (!record.MatchesRequest(requestHash))
             return Result<InvoiceDto>.Failure(ApplicationErrors.IdempotencyKeyReused);
 
-        var invoice = await invoiceRepository.GetInvoiceByIdAsync(
+        var invoice = await invoiceRepository.GetInvoiceByIdWithLinesAsync(
             record.TenantId,
             invoiceId,
             cancellationToken);
 
         if (invoice is null)
+            return Result<InvoiceDto>.Failure(ApplicationErrors.IdempotencyResourceNotFound);
+
+        if (!invoice.Lines.Any(line => line.Id == record.ResourceId))
             return Result<InvoiceDto>.Failure(ApplicationErrors.IdempotencyResourceNotFound);
 
         return Result<InvoiceDto>.Success(invoice.ToDto());
