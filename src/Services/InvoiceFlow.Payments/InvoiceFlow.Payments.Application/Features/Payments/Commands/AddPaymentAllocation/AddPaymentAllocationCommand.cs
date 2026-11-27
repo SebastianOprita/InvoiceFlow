@@ -8,4 +8,5 @@ public sealed record AddPaymentAllocationCommand(
     Guid TenantId,
     Guid PaymentId,
     Guid InvoiceId,
+    decimal Amount,
     Guid AllocatedBy) : IRequest<Result<PaymentDto>>;

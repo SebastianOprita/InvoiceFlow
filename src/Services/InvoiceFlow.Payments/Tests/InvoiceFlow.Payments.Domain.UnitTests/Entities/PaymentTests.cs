@@ -249,7 +249,7 @@ public sealed class PaymentTests
     }
 
     [Fact]
-    public void Reversed_allocation_can_be_reallocated_to_the_same_invoice()
+    public void Multiple_allocations_to_the_same_invoice_can_be_reversed_individually()
     {
         var payment = NewPayment();
         var balance = NewBalance(payment);
@@ -257,15 +257,17 @@ public sealed class PaymentTests
         var originalId = Guid.CreateVersion7();
         payment.AddAllocation(originalId, balance, Money.Create(40m, Ron), Actor, Created.AddHours(2));
 
-        Action duplicate = () => payment.AddAllocation(Guid.CreateVersion7(), balance, Money.Create(10m, Ron), Actor, Created.AddHours(3));
-        duplicate.Should().Throw<DomainException>().WithDomainError(DomainErrors.ActiveAllocationForInvoiceExists);
-
-        payment.ReverseAllocation(originalId, balance, Actor, "Correction", Created.AddHours(3));
-
-        payment.HasAllocationForInvoice(balance.InvoiceId).Should().BeFalse();
-        payment.AddAllocation(Guid.CreateVersion7(), balance, Money.Create(50m, Ron), Actor, Created.AddHours(4));
+        payment.AddAllocation(Guid.CreateVersion7(), balance, Money.Create(10m, Ron), Actor, Created.AddHours(3));
         payment.Allocations.Should().HaveCount(2);
         payment.AllocatedAmount.Amount.Should().Be(50m);
+        balance.OutstandingAmount.Amount.Should().Be(50m);
+
+        payment.ReverseAllocation(originalId, balance, Actor, "Correction", Created.AddHours(4));
+
+        payment.AddAllocation(Guid.CreateVersion7(), balance, Money.Create(50m, Ron), Actor, Created.AddHours(5));
+        payment.Allocations.Should().HaveCount(3);
+        payment.AllocatedAmount.Amount.Should().Be(60m);
+        balance.OutstandingAmount.Amount.Should().Be(40m);
     }
 
     [Fact]

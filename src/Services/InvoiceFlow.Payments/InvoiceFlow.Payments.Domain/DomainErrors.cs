@@ -44,10 +44,6 @@ public static partial class DomainErrors
     public static readonly DomainError UpdatedByRequired = new("updatedBy.required", "Updated by is required.");
     public static readonly DomainError PostedByRequired = new("postedBy.required", "Posted by is required.");
 
-    public static readonly DomainError ActiveAllocationForInvoiceExists = new(
-        "paymentAllocation.ActiveAllocationForInvoiceExists",
-        "This payment already has an active allocation for this invoice.");
-
     public static readonly DomainError AllocationPaymentMismatch = new(
         "paymentAllocation.PaymentMismatch",
         "The allocation does not belong to this payment.");

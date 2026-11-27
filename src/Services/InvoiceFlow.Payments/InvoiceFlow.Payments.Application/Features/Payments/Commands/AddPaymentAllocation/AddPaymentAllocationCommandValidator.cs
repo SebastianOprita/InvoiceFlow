@@ -19,6 +19,9 @@ internal sealed class AddPaymentAllocationCommandValidator : AbstractValidator<A
         RuleFor(x => x.InvoiceId)
             .NotEmpty();
 
+        RuleFor(x => x.Amount)
+            .GreaterThan(0m);
+
         RuleFor(x => x.AllocatedBy)
             .NotEmpty();
     }

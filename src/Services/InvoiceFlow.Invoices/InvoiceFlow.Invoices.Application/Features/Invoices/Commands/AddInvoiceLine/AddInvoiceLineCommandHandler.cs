@@ -168,7 +168,7 @@ internal sealed class AddInvoiceLineCommandHandler(
         if (!record.MatchesRequest(requestHash))
             return Result<InvoiceDto>.Failure(ApplicationErrors.IdempotencyKeyReused);
 
-        var invoice = await invoiceRepository.GetInvoiceByIdAsync(
+        var invoice = await invoiceRepository.GetInvoiceByIdWithLinesAsync(
             record.TenantId,
             invoiceId,
             cancellationToken);

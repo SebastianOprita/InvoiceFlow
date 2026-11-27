@@ -23,7 +23,8 @@ internal sealed class AddPaymentAllocationCommandHandler(
             {
                 cmd.TenantId,
                 cmd.PaymentId,
-                cmd.InvoiceId
+                cmd.InvoiceId,
+                cmd.Amount
             });
 
         if (hashResult.IsFailure || hashResult.Value is null)
@@ -71,13 +72,24 @@ internal sealed class AddPaymentAllocationCommandHandler(
             if (balance is null)
                 return Result<PaymentDto>.Failure(ApplicationErrors.InvoicePaymentBalanceNotFound);
 
-            var amount = balance.OutstandingAmount;
+            if (balance.CurrencyCode != payment.CurrencyCode)
+                return Result<PaymentDto>.Failure(ApplicationErrors.PaymentCurrencyMismatch);
 
-            if (amount.Amount <= 0m)
-                return Result<PaymentDto>.Failure(ApplicationErrors.InsufficientUnallocatedPaymentAmount);
+            if (cmd.Amount != decimal.Round(
+                cmd.Amount,
+                payment.CurrencyCode.DecimalPlaces,
+                MidpointRounding.ToEven))
+                return Result<PaymentDto>.Failure(ApplicationErrors.AllocationAmountPrecisionInvalid);
 
-            if (amount.Amount > payment.UnallocatedAmount.Amount
-                || amount.CurrencyCode != payment.CurrencyCode)
+            var amount = Money.Create(cmd.Amount, payment.CurrencyCode);
+
+            if (amount.Amount > balance.OutstandingAmount.Amount)
+                return Result<PaymentDto>.Failure(ApplicationErrors.AllocationAmountExceedsInvoiceOutstanding);
+
+            if (amount.CurrencyCode != payment.CurrencyCode)
+                return Result<PaymentDto>.Failure(ApplicationErrors.PaymentCurrencyMismatch);
+
+            if (amount.Amount > payment.UnallocatedAmount.Amount)
                 return Result<PaymentDto>.Failure(ApplicationErrors.InsufficientUnallocatedPaymentAmount);
 
             var now = timeProvider.GetUtcNow();
