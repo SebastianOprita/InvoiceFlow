@@ -8,6 +8,7 @@
     <File Path="../Docs/Invoices.http" />
     <File Path="../Docs/Payments.http" />
     <File Path="../Docs/Products.http" />
+    <File Path="../Docs/ServiceClient.http" />
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path="../.editorconfig" />

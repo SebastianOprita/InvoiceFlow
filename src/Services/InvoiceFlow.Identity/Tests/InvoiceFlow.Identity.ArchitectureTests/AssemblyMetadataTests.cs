@@ -1,9 +1,8 @@
-﻿using FluentAssertions;
-using InvoiceFlow.Identity.ArchitectureTests;
+using FluentAssertions;
 using System.Reflection;
 using Xunit;
 
-namespace InvoiceFlow.Customers.ArchitectureTests;
+namespace InvoiceFlow.Identity.ArchitectureTests;
 
 public sealed class AssemblyMetadataTests
 {

@@ -56,6 +56,40 @@ public static class IdentityDbSeed
         await db.Tenants.AddAsync(tenant);
         await db.Users.AddAsync(user);
         await db.Roles.AddAsync(role);
+
+        await AddOrganizationSeedData(db, dateTimeProvider);
         await db.SaveChangesAsync(cancellationToken);
+    }
+
+    private static async Task AddOrganizationSeedData(IdentityDbContext db, ISystemDateTimeProvider dateTimeProvider)
+    {
+        var organization = Organization.Create(
+            Guid.CreateVersion7(),
+            OrganizationName.Create("InvoiceFlow"),
+            OrganizationTypes.Internal,
+            dateTimeProvider.GetUtcNow());
+        await db.Organizations.AddAsync(organization);
+
+        var serviceClient = ServiceClient.Create(
+            Guid.CreateVersion7(),
+            organization,
+            ServiceClientIdentifier.Create("invoice-flow-client"),
+            ServiceClientName.Create("InvoiceFlow Service Client"),
+            dateTimeProvider.GetUtcNow(),
+            Permissions.Create((long)(
+                SystemPermissions.ProductRead
+                | SystemPermissions.InvoiceRead
+                | SystemPermissions.CustomerRead
+                | SystemPermissions.PaymentRead)));
+
+        var serviceClientSecret = serviceClient.AddSecret(
+            Guid.CreateVersion7(),
+            ServiceClientSecretHash.Create("8C6976E5B5410415BDE908BD4DEE15DFB167A9C873FC4BB8A81F6F2AB448A918"),
+            ServiceClientSecretName.Create("Default InvoiceFlow Client Secret"),
+            ServiceClientSecretDescription.Create("Default invoiceFlow client secret"),
+            expiresAtUtc: dateTimeProvider.GetUtcNow().AddDays(30),
+            createdAtUtc: dateTimeProvider.GetUtcNow());
+
+        await db.ServiceClients.AddAsync(serviceClient);
     }
 }

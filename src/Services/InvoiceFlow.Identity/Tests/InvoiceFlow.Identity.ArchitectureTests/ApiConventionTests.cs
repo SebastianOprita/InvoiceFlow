@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
@@ -138,6 +138,37 @@ public sealed class ApiConventionTests
                             StringComparison.Ordinal) == true)
                     .Select(reference =>
                         $"{assembly.GetName().Name} -> {reference.Name}"))
+            .ToArray();
+
+        violations.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Controllers_ShouldRequireAuthorizationOrAllowAnonymous()
+    {
+        var violations = ArchitectureAssemblies.Api
+            .GetTypes()
+            .Where(t =>
+                t.IsClass &&
+                !t.IsAbstract &&
+                typeof(ControllerBase).IsAssignableFrom(t))
+            .Where(t =>
+            {
+                if (t.IsDefined(typeof(AuthorizeAttribute), inherit: true) ||
+                    t.IsDefined(typeof(AllowAnonymousAttribute), inherit: true))
+                {
+                    return false;
+                }
+
+                var actions = t.GetMethods()
+                    .Where(method => method.IsPublic && method.DeclaringType == t)
+                    .ToArray();
+
+                return actions.Length == 0 || actions.Any(method =>
+                    !method.IsDefined(typeof(AuthorizeAttribute), inherit: true) &&
+                    !method.IsDefined(typeof(AllowAnonymousAttribute), inherit: true));
+            })
+            .Select(t => t.FullName)
             .ToArray();
 
         violations.Should().BeEmpty();
