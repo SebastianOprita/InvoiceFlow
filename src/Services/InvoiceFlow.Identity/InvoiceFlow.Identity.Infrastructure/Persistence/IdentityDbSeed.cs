@@ -84,7 +84,7 @@ public static class IdentityDbSeed
 
         var serviceClientSecret = serviceClient.AddSecret(
             Guid.CreateVersion7(),
-            ServiceClientSecretHash.Create("180F4325C3ADD1457F79E6DFA1056C5BD0626CC56701F3B4616A8D5A953774AB"),
+            ServiceClientSecretHash.Create("8C6976E5B5410415BDE908BD4DEE15DFB167A9C873FC4BB8A81F6F2AB448A918"),
             ServiceClientSecretName.Create("Default InvoiceFlow Client Secret"),
             ServiceClientSecretDescription.Create("Default invoiceFlow client secret"),
             expiresAtUtc: dateTimeProvider.GetUtcNow().AddDays(30),
