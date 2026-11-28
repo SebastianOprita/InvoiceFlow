@@ -10,11 +10,11 @@ namespace InvoiceFlow.Payments.Api;
 
 [ApiController]
 [TenantScoped]
-[TenantUserLogin]
 [Route("api/{tenantId:guid}/payments")]
 public class PaymentsController(IMediator mediator) : ControllerBase
 {
     [HttpGet]
+    [TenantUserOrServiceClient]
     [HasPermission(SystemPermissions.PaymentRead)]
     public async Task<IActionResult> GetAll(
         [FromRoute][Required] Guid tenantId,
@@ -25,6 +25,7 @@ public class PaymentsController(IMediator mediator) : ControllerBase
     }
 
     [HttpGet("{paymentId:guid}")]
+    [TenantUserOrServiceClient]
     [HasPermission(SystemPermissions.PaymentRead)]
     public async Task<IActionResult> GetById(
         [FromRoute][Required] Guid tenantId,
@@ -36,6 +37,7 @@ public class PaymentsController(IMediator mediator) : ControllerBase
     }
 
     [HttpPost]
+    [TenantUserLogin]
     [HasPermission(SystemPermissions.PaymentCreate)]
     public async Task<IActionResult> Create(
         [FromRoute][Required] Guid tenantId,
@@ -54,6 +56,7 @@ public class PaymentsController(IMediator mediator) : ControllerBase
     }
 
     [HttpPost("{paymentId:guid}/Post")]
+    [TenantUserLogin]
     [HasPermission(SystemPermissions.PaymentPost)]
     public async Task<IActionResult> Post(
         [FromRoute][Required] Guid tenantId,
@@ -69,6 +72,7 @@ public class PaymentsController(IMediator mediator) : ControllerBase
     }
 
     [HttpPost("{paymentId:guid}/allocations")]
+    [TenantUserLogin]
     [HasPermission(SystemPermissions.PaymentAddAllocation)]
     public async Task<IActionResult> AddAllocation(
         [FromRoute][Required] Guid tenantId,
