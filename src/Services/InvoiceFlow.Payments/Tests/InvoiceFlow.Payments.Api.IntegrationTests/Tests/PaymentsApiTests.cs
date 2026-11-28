@@ -9,7 +9,7 @@ using Xunit;
 namespace InvoiceFlow.Payments.Api.IntegrationTests;
 
 [Collection(PaymentsApiCollection.Name)]
-public sealed class PaymentsIntegrationTests : IAsyncLifetime
+public sealed class PaymentsApiTests : IAsyncLifetime
 {
     private readonly PaymentsApiFactory _factory;
     private readonly TestClient _client;
@@ -18,7 +18,7 @@ public sealed class PaymentsIntegrationTests : IAsyncLifetime
     private string _paymentReadToken = string.Empty;
     private string _paymentAccessToken = string.Empty;
 
-    public PaymentsIntegrationTests(PaymentsApiFactory factory)
+    public PaymentsApiTests(PaymentsApiFactory factory)
     {
         _factory = factory;
         _client = new TestClient(factory);
@@ -29,7 +29,7 @@ public sealed class PaymentsIntegrationTests : IAsyncLifetime
         await _factory.ResetDatabaseAsync();
         _paymentAccessToken = TestJwtTokenFactory.CreateAccessToken(
             _tenantId,
-            SystemPermissions.PaymentRead | SystemPermissions.PaymentCreate | SystemPermissions.PaymentPost,
+            SystemPermissions.PaymentRead | SystemPermissions.PaymentCreate | SystemPermissions.PaymentAddAllocation | SystemPermissions.PaymentPost,
             _factory.JwtSettings);
         _paymentReadToken = TestJwtTokenFactory.CreateAccessToken(_tenantId, SystemPermissions.PaymentRead, _factory.JwtSettings);
     }
@@ -41,7 +41,8 @@ public sealed class PaymentsIntegrationTests : IAsyncLifetime
         [HttpMethod.Get, "/api/{tenantId}/payments"],
         [HttpMethod.Get, "/api/{tenantId}/payments/{paymentId}"],
         [HttpMethod.Post, "/api/{tenantId}/payments"],
-        [HttpMethod.Post, "/api/{tenantId}/payments/{paymentId}/Post"]
+        [HttpMethod.Post, "/api/{tenantId}/payments/{paymentId}/Post"],
+        [HttpMethod.Post, "/api/{tenantId}/payments/{paymentId}/allocations"]
     ];
 
     [Theory]
@@ -150,6 +151,44 @@ public sealed class PaymentsIntegrationTests : IAsyncLifetime
         postedPayment!.Status.Should().Be(PaymentLifecycleStatus.Posted);
         postedPayment.Number.Should().NotBeNullOrEmpty();
         postedPayment.PaymentDate.Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task AddAllocation_returns_created_payment_with_specified_partial_allocation()
+    {
+        var payment = CreatePayment(_tenantId);
+        payment.Post(
+            PaymentNumber.Create("PAY-2025-000001"),
+            new DateOnly(2025, 1, 2),
+            Guid.CreateVersion7(),
+            DateTimeOffset.Parse("2025-01-02T10:00:00Z"));
+        var balance = InvoicePaymentBalance.Create(
+            _tenantId,
+            Guid.CreateVersion7(),
+            payment.CustomerId,
+            InvoiceNumber.Create("INV-2025-000001"),
+            payment.CurrencyCode,
+            Money.Create(75m, payment.CurrencyCode),
+            DateTimeOffset.Parse("2025-01-01T10:00:00Z"));
+        await _factory.SeedPaymentAsync(payment);
+        await _factory.SeedInvoicePaymentBalanceAsync(balance);
+
+        var response = await _client.SendAsync(
+            HttpMethod.Post,
+            $"{BaseUrl}/{payment.Id}/allocations",
+            _paymentAccessToken,
+            new AddPaymentAllocationRequest(balance.InvoiceId, 40m),
+            TestContext.Current.CancellationToken,
+            idempotencyKey: Guid.CreateVersion7().ToString());
+
+        response.StatusCode.Should().Be(HttpStatusCode.Created);
+        var updatedPayment = await response.Content.ReadFromJsonAsync<PaymentDto>(TestContext.Current.CancellationToken);
+        updatedPayment.Should().NotBeNull();
+        updatedPayment!.Id.Should().Be(payment.Id);
+        updatedPayment.AllocatedAmount.Should().Be(40m);
+        updatedPayment.UnallocatedAmount.Should().Be(60m);
+        updatedPayment.Allocations.Should().ContainSingle(allocation =>
+            allocation.InvoiceId == balance.InvoiceId && allocation.Amount == 40m);
     }
 
     private static Payment CreatePayment(Guid tenantId) => Payment.Create(

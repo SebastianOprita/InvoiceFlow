@@ -16,5 +16,5 @@ GET {{rootUrl}}
 Authorization: Bearer {{login.response.body.$.accessToken}}
 
 ###
-GET {{rootUrl}}/01a1eb9d-cf11-7de1-b3a7-023c97dd722e
+GET {{rootUrl}}/01a2221a-877e-7254-9e08-b3171cd7704b
 Authorization: Bearer {{login.response.body.$.accessToken}}

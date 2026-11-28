@@ -67,4 +67,26 @@ public class PaymentsController(IMediator mediator) : ControllerBase
         var result = await mediator.Send(new PostPaymentCommand(tenantId, paymentId, userId), cancellationToken);
         return result.ToActionResult();
     }
+
+    [HttpPost("{paymentId:guid}/allocations")]
+    [HasPermission(SystemPermissions.PaymentAddAllocation)]
+    public async Task<IActionResult> AddAllocation(
+        [FromRoute][Required] Guid tenantId,
+        [FromRoute][Required] Guid paymentId,
+        [FromBody][Required] AddPaymentAllocationRequest request,
+        [FromHeader(Name = "Idempotency-Key")][Required] string idempotencyKey,
+        CancellationToken cancellationToken)
+    {
+        var userIdClaim = User.FindFirst(InvoiceFlowClaimTypes.UserId)?.Value;
+        if (!Guid.TryParse(userIdClaim, out var userId))
+            return Unauthorized();
+
+        var result = await mediator.Send(
+            request.ToCommand(idempotencyKey, tenantId, paymentId, userId),
+            cancellationToken);
+
+        return result.IsSuccess
+            ? CreatedAtAction(nameof(GetById), new { tenantId, paymentId = result.Value!.Id }, result.Value)
+            : result.ToActionResult();
+    }
 }

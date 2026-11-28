@@ -74,6 +74,14 @@ public sealed class PaymentsApiFactory : WebApplicationFactory<Program>, IAsyncL
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
     }
 
+    public async Task SeedInvoicePaymentBalanceAsync(InvoicePaymentBalance balance)
+    {
+        await using var scope = Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<PaymentsDbContext>();
+        db.InvoicePaymentBalances.Add(balance);
+        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+    }
+
     public new async ValueTask DisposeAsync()
     {
         await _dbFixture.DisposeAsync();

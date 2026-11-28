@@ -21,4 +21,20 @@ public static class Mapper
             request.Reference,
             request.Notes);
     }
+
+    public static AddPaymentAllocationCommand ToCommand(
+        this AddPaymentAllocationRequest request,
+        string idempotencyKey,
+        Guid tenantId,
+        Guid paymentId,
+        Guid allocatedBy)
+    {
+        return new AddPaymentAllocationCommand(
+            idempotencyKey,
+            tenantId,
+            paymentId,
+            request.InvoiceId,
+            request.Amount,
+            allocatedBy);
+    }
 }
