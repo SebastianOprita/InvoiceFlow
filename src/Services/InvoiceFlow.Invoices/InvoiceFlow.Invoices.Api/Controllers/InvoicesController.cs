@@ -9,11 +9,11 @@ namespace InvoiceFlow.Invoices.Api;
 
 [ApiController]
 [TenantScoped]
-[TenantUserLogin]
 [Route("api/{tenantId:guid}/invoices")]
 public class InvoicesController(IMediator mediator) : ControllerBase
 {
     [HttpGet]
+    [TenantUserOrServiceClient]
     [HasPermission(SystemPermissions.InvoiceRead)]
     public async Task<IActionResult> GetAll(
         [FromRoute][Required] Guid tenantId,
@@ -24,6 +24,7 @@ public class InvoicesController(IMediator mediator) : ControllerBase
     }
 
     [HttpGet("{invoiceId:guid}")]
+    [TenantUserOrServiceClient]
     [HasPermission(SystemPermissions.InvoiceRead)]
     public async Task<IActionResult> GetById(
         [FromRoute][Required] Guid tenantId,
@@ -35,6 +36,7 @@ public class InvoicesController(IMediator mediator) : ControllerBase
     }
 
     [HttpPost]
+    [TenantUserLogin]
     [HasPermission(SystemPermissions.InvoiceCreate)]
     public async Task<IActionResult> Create(
         [FromRoute][Required] Guid tenantId,
@@ -49,6 +51,7 @@ public class InvoicesController(IMediator mediator) : ControllerBase
     }
 
     [HttpPost("{invoiceId:guid}/line")]
+    [TenantUserLogin]
     [HasPermission(SystemPermissions.InvoiceCreate)]
     public async Task<IActionResult> AddLine(
         [FromRoute][Required] Guid tenantId,
@@ -64,6 +67,7 @@ public class InvoicesController(IMediator mediator) : ControllerBase
     }
 
     [HttpPost("{invoiceId:guid}/Issue")]
+    [TenantUserLogin]
     [HasPermission(SystemPermissions.InvoiceIssue)]
     public async Task<IActionResult> Issue(
         [FromRoute][Required] Guid tenantId,

@@ -8,11 +8,11 @@ namespace InvoiceFlow.Customers.Api;
 
 [ApiController]
 [TenantScoped]
-[TenantUserLogin]
 [Route("api/{tenantId:guid}/customers")]
 public class CustomersController(IMediator mediator) : ControllerBase
 {
     [HttpGet]
+    [TenantUserOrServiceClient]
     [HasPermission(SystemPermissions.CustomerRead)]
     public async Task<IActionResult> GetAll([FromRoute] Guid tenantId, CancellationToken cancellationToken)
     {
@@ -21,6 +21,7 @@ public class CustomersController(IMediator mediator) : ControllerBase
     }
 
     [HttpGet("{customerId:guid}")]
+    [TenantUserOrServiceClient]
     [HasPermission(SystemPermissions.CustomerRead)]
     public async Task<IActionResult> GetById([FromRoute] Guid tenantId, [FromRoute] Guid customerId, CancellationToken cancellationToken)
     {
@@ -29,6 +30,7 @@ public class CustomersController(IMediator mediator) : ControllerBase
     }
 
     [HttpPost]
+    [TenantUserLogin]
     [HasPermission(SystemPermissions.CustomerCreate)]
     public async Task<IActionResult> Create([FromRoute] Guid tenantId, [FromBody] CreateCustomerRequest request, CancellationToken ct)
     {
@@ -39,6 +41,7 @@ public class CustomersController(IMediator mediator) : ControllerBase
     }
 
     [HttpPatch("{customerId:guid}")]
+    [TenantUserLogin]
     [HasPermission(SystemPermissions.CustomerUpdate)]
     public async Task<IActionResult> Update([FromRoute] Guid tenantId, [FromRoute] Guid customerId, [FromBody] UpdateCustomerRequest request, CancellationToken ct)
     {
@@ -47,6 +50,7 @@ public class CustomersController(IMediator mediator) : ControllerBase
     }
 
     [HttpPost("activate/{customerId:guid}")]
+    [TenantUserLogin]
     [HasPermission(SystemPermissions.CustomerStatusManage)]
     public async Task<IActionResult> Activate([FromRoute] Guid tenantId, [FromRoute] Guid customerId, CancellationToken ct)
     {
@@ -55,6 +59,7 @@ public class CustomersController(IMediator mediator) : ControllerBase
     }
 
     [HttpDelete("deactivate/{customerId:guid}")]
+    [TenantUserLogin]
     [HasPermission(SystemPermissions.CustomerStatusManage)]
     public async Task<IActionResult> Deactivate([FromRoute] Guid tenantId, [FromRoute] Guid customerId, CancellationToken ct)
     {

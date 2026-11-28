@@ -8,11 +8,11 @@ namespace InvoiceFlow.Products.Api.Controllers;
 
 [ApiController]
 [TenantScoped]
-[TenantUserLogin]
 [Route("api/{tenantId:guid}/products")]
 public class ProductsController(IMediator mediator) : ControllerBase
 {
     [HttpGet]
+    [TenantUserOrServiceClient]
     [HasPermission(SystemPermissions.ProductRead)]
     public async Task<IActionResult> GetAll([FromRoute] Guid tenantId, CancellationToken cancellationToken)
     {
@@ -21,6 +21,7 @@ public class ProductsController(IMediator mediator) : ControllerBase
     }
 
     [HttpGet("{productId:guid}")]
+    [TenantUserOrServiceClient]
     [HasPermission(SystemPermissions.ProductRead)]
     public async Task<IActionResult> GetById([FromRoute] Guid tenantId, [FromRoute] Guid productId, CancellationToken cancellationToken)
     {
